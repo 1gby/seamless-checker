@@ -12,7 +12,7 @@
   #controls-bottom { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
   #logo { height:40px; width:auto; object-fit:contain; }
   .title-group { display:flex; align-items:center; gap:0.6rem; }
-  #canvas { flex:1; image-rendering:pixelated; touch-action:none; }
+  #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; }
   button, input, select { padding:0.5rem 0.9rem; font-size:0.9rem; }
   .bg-btn { width:36px; height:36px; border-radius:50%; border:2px solid #444; cursor:pointer; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
@@ -139,8 +139,14 @@ let isDragging = false, startX, startY;
 // Resize
 function resize() {
   const controlsHeight = document.getElementById('controls').offsetHeight + document.getElementById('controls-bottom').offsetHeight;
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight - controlsHeight - 140; // Subtract controls and footer
+  const availableHeight = window.innerHeight - controlsHeight - 140;
+  const availableWidth = window.innerWidth;
+  
+  // Make canvas square - use the smaller dimension
+  const size = Math.min(availableWidth, availableHeight);
+  canvas.width = size;
+  canvas.height = size;
+  
   updateBackground();
   draw();
 }
@@ -309,6 +315,51 @@ canvas.addEventListener('wheel', e => {
   offsetY -= (mouseY - offsetY) * (scaleChange / scale);
   scale = newScale;
   draw();
+}, { passive: false });
+
+// Touch/Pinch zoom
+let lastTouchDistance = 0;
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    lastTouchDistance = Math.hypot(
+      touch2.clientX - touch1.clientX,
+      touch2.clientY - touch1.clientY
+    );
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    const currentDistance = Math.hypot(
+      touch2.clientX - touch1.clientX,
+      touch2.clientY - touch1.clientY
+    );
+    
+    if (lastTouchDistance > 0) {
+      const zoomFactor = currentDistance / lastTouchDistance;
+      const centerX = (touch1.clientX + touch2.clientX) / 2;
+      const centerY = (touch1.clientY + touch2.clientY) / 2;
+      
+      const newScale = scale * zoomFactor;
+      const scaleChange = newScale - scale;
+      offsetX -= (centerX - offsetX) * (scaleChange / scale);
+      offsetY -= (centerY - offsetY) * (scaleChange / scale);
+      scale = newScale;
+      draw();
+    }
+    
+    lastTouchDistance = currentDistance;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+  lastTouchDistance = 0;
 });
 
 // Events
@@ -358,6 +409,9 @@ demoImg.onload = () => {
   tileImg = demoImg;
   updateBackground();
   draw();
+};
+demoImg.onerror = () => {
+  console.log('Demo image failed to load');
 };
 demoImg.src = "https://i.imgur.com/hKiKJUG.png";
 </script>
