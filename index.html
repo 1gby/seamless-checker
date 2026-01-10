@@ -37,6 +37,7 @@
   <div id="controls-bottom">
     <input type="file" id="fileInput" accept="image/*">
 
+```
 <select id="repeatType">
   <option value="full">Full Drop</option>
   <option value="half-drop">Half Drop</option>
@@ -76,6 +77,7 @@
 </div>
 
 <p style="margin:0.5rem 0 0; font-size:0.85rem; width:100%;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
+```
 
   </div>
 </div>
@@ -124,6 +126,7 @@ const offsetXValue = document.getElementById('offsetXValue');
 const offsetYValue = document.getElementById('offsetYValue');
 
 let tileImg = null;
+let isUserUpload = false; // Track if image is user-uploaded
 let showGrid = false;
 let repeatType = 'full';
 let bgColor = 'checker';
@@ -147,6 +150,19 @@ function resize() {
 document.getElementById('logo').addEventListener('click', () => {
   location.reload();
 });
+
+// Load demo/stock pattern (not exportable)
+const demoImg = new Image();
+demoImg.onload = () => {
+  tileImg = demoImg;
+  isUserUpload = false; // Mark as demo, not user upload
+  updateBackground();
+  draw();
+};
+demoImg.onerror = () => {
+  console.log('Demo image failed to load');
+};
+demoImg.src = "https://i.imgur.com/hKiKJUG.png";
 }
 window.addEventListener('resize', resize);
 resize();
@@ -376,6 +392,7 @@ function loadImage(file) {
   reader.onload = e => {
     tileImg = new Image();
     tileImg.onload = () => {
+      isUserUpload = true; // Mark as user upload
       updateBackground();
       draw();
     };
@@ -496,6 +513,11 @@ offsetYSlider.addEventListener('input', e => {
 exportBtn.addEventListener('click', async () => {
   if (!tileImg) {
     alert('Please load a pattern first!');
+    return;
+  }
+  
+  if (!isUserUpload) {
+    alert('Please upload your own pattern to export. The demo pattern cannot be exported.');
     return;
   }
   
