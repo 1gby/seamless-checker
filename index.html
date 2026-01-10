@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rud3boy™ Seamless Pattern Tester</title>
+<title>Rud3boy™ Seamless Pattern Checker</title>
 <style>
   body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; }
   #container { display:flex; flex-direction:column; }
@@ -12,7 +12,7 @@
   #controls-bottom { padding:1rem 0.8rem 1.5rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
   #logo { height:36px; width:auto; object-fit:contain; }
   .title-group { display:flex; align-items:center; gap:0.5rem; }
-  #canvas { width:100%; max-width:100vw; aspect-ratio:1; image-rendering:pixelated; touch-action:none; display:block; margin:0; }
+  #canvas { width:100%; max-width:100vw; aspect-ratio:1; image-rendering: auto; touch-action:none; display:block; margin:0; }
   button, input, select { padding:0.6rem 0.9rem; font-size:0.9rem; border-radius:8px; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
   .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; gap:0.3rem; }
@@ -35,8 +35,7 @@
 <canvas id="canvas"></canvas>
 
   <div id="controls-bottom">
-
-<input type="file" id="fileInput" accept="image/*">
+    <input type="file" id="fileInput" accept="image/*">
 
 <select id="repeatType">
   <option value="full">Full Drop</option>
@@ -163,6 +162,10 @@ function drawPattern(startX, startY, width, height, tileSize) {
   const tilesX = Math.ceil(width / tileSize) + 4;
   const tilesY = Math.ceil(height / tileSize) + 4;
   
+  // Enable image smoothing for better quality
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  
   for (let x = -2; x < tilesX; x++) {
     for (let y = -2; y < tilesY; y++) {
       let drawX = startX + x * tileSize + offsetPercentX * tileSize;
@@ -191,6 +194,10 @@ function draw() {
 
   const baseTileSize = tileImg.width;
   const effectiveTileSize = baseTileSize * patternScale;
+
+  // Enable high quality image rendering
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
   ctx.save();
 
@@ -270,8 +277,8 @@ function draw() {
       ctx.stroke();
       
     } else if (viewMode === 'fabric') {
-      const fabricWidth = mockupSize * 0.8;
-      const fabricHeight = fabricWidth * 0.75;
+      const fabricWidth = mockupSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
       
       ctx.save();
       roundRect(ctx, -fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, 15);
@@ -285,37 +292,82 @@ function draw() {
       drawPattern(-fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
     } else if (viewMode === 'bottle') {
-      const bottleWidth = mockupSize * 0.4;
-      const bottleHeight = bottleWidth * 2.2;
-      const capHeight = bottleHeight * 0.1;
-      const bodyTop = -bottleHeight/2 + capHeight;
-      const bodyHeight = bottleHeight - capHeight;
+      const bottleWidth = mockupSize * 0.45;
+      const bottleHeight = bottleWidth * 2.3;
+      const capHeight = bottleHeight * 0.12;
+      const neckHeight = bottleHeight * 0.08;
+      const bodyTop = -bottleHeight/2 + capHeight + neckHeight;
+      const bodyHeight = bottleHeight - capHeight - neckHeight;
       
       // Draw bottle body with pattern
       ctx.save();
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 20);
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
       ctx.clip();
       drawPattern(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
       ctx.restore();
       
-      // Draw bottle outline
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 20);
+      // Draw bottle outline/highlights
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 3;
       ctx.stroke();
       
-      // Draw cap
-      ctx.fillStyle = '#333';
-      roundRect(ctx, -bottleWidth * 0.4, -bottleHeight/2, bottleWidth * 0.8, capHeight, 5);
+      // Add shine/highlight on bottle
+      ctx.save();
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
+      ctx.clip();
+      const gradient = ctx.createLinearGradient(-bottleWidth/2, 0, bottleWidth/2, 0);
+      gradient.addColorStop(0, 'rgba(255,255,255,0)');
+      gradient.addColorStop(0.3, 'rgba(255,255,255,0.15)');
+      gradient.addColorStop(0.5, 'rgba(255,255,255,0.25)');
+      gradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
+      gradient.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight);
+      ctx.restore();
+      
+      // Draw neck (narrower part)
+      const neckWidth = bottleWidth * 0.6;
+      ctx.fillStyle = '#e8e8e8';
+      roundRect(ctx, -neckWidth/2, -bottleHeight/2 + capHeight, neckWidth, neckHeight, 8);
       ctx.fill();
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
       ctx.stroke();
       
-      // Cap top
-      ctx.beginPath();
-      ctx.ellipse(0, -bottleHeight/2 + 2, bottleWidth * 0.35, bottleWidth * 0.1, 0, 0, Math.PI * 2);
+      // Draw screw cap with threads
+      const capWidth = bottleWidth * 0.65;
       ctx.fillStyle = '#2a2a2a';
+      roundRect(ctx, -capWidth/2, -bottleHeight/2, capWidth, capHeight, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Cap threads/ridges
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 4; i++) {
+        const y = -bottleHeight/2 + (capHeight / 5) * (i + 1);
+        ctx.beginPath();
+        ctx.moveTo(-capWidth/2 + 2, y);
+        ctx.lineTo(capWidth/2 - 2, y);
+        ctx.stroke();
+      }
+      
+      // Cap top dome
+      ctx.beginPath();
+      ctx.ellipse(0, -bottleHeight/2 + 3, capWidth * 0.45, capWidth * 0.12, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Bottom of bottle (base)
+      ctx.beginPath();
+      ctx.ellipse(0, bodyTop + bodyHeight - 5, bottleWidth * 0.48, bottleWidth * 0.08, 0, 0, Math.PI);
+      ctx.fillStyle = '#333';
       ctx.fill();
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
@@ -448,6 +500,7 @@ offsetYSlider.addEventListener('input', e => {
   offsetYValue.textContent = e.target.value + '%';
   draw();
 });
+
 exportBtn.addEventListener('click', async () => {
   if (!tileImg) {
     alert('Please load a pattern first!');
@@ -501,20 +554,8 @@ exportBtn.addEventListener('click', async () => {
 
 draw();
 
-const demoImg = new Image();
-// Don't use crossOrigin to avoid CORS issues on iOS export
-demoImg.onload = () => {
-  tileImg = demoImg;
-  updateBackground();
-  draw();
-};
-demoImg.onerror = () => {
-  console.log('Demo image failed to load - ready for user upload');
-  draw();
-};
-// Use a data URI or remove demo image to avoid CORS issues
-// Commenting out demo image for now to fix iOS export
-// demoImg.src = "https://i.imgur.com/hKiKJUG.png";
+// Demo image removed to avoid CORS issues on iOS export
+// Users will start with blank canvas and upload their own patterns
 </script>
 
 </body>
