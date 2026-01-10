@@ -225,40 +225,68 @@ function draw() {
       }
     }
   } else {
-    // Mockups
-    const centerX = (canvas.width / scale) / 2;
-    const centerY = (canvas.height / scale) / 2;
-    const mockupSize = Math.min(canvas.width, canvas.height) / scale * 0.7;
-
+    // Mockups - reset pan/zoom for centered view
     ctx.save();
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
+
     ctx.translate(centerX, centerY);
 
     if (viewMode === 'phone') {
-      roundRect(ctx, -mockupSize/2, -mockupSize*1.8, mockupSize, mockupSize*2.2, 60);
-      ctx.fillStyle = '#222';
+      // Phone case mockup
+      const phoneWidth = mockupSize * 0.5;
+      const phoneHeight = phoneWidth * 2;
+      
+      roundRect(ctx, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, 30);
+      ctx.fillStyle = '#1a1a1a';
       ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 3;
+      ctx.stroke();
       ctx.clip();
 
-      // Create scaled pattern
-      ctx.save();
-      ctx.scale(patternScale, patternScale);
-      const pattern = ctx.createPattern(tileImg, 'repeat');
-      ctx.fillStyle = pattern;
-      ctx.fillRect(-mockupSize*2/patternScale, -mockupSize*3/patternScale, mockupSize*4/patternScale, mockupSize*6/patternScale);
-      ctx.restore();
+      // Scale and tile pattern
+      const tileSize = tileImg.width * patternScale;
+      const tilesX = Math.ceil(phoneWidth / tileSize) + 2;
+      const tilesY = Math.ceil(phoneHeight / tileSize) + 2;
+      
+      for (let x = -tilesX; x < tilesX; x++) {
+        for (let y = -tilesY; y < tilesY; y++) {
+          ctx.drawImage(tileImg, 
+            (x * tileSize) - phoneWidth/2, 
+            (y * tileSize) - phoneHeight/2, 
+            tileSize, tileSize);
+        }
+      }
+      
     } else if (viewMode === 'fabric') {
-      roundRect(ctx, -mockupSize/1.2, -mockupSize/1.5, mockupSize*2.4, mockupSize*3, 20);
-      ctx.fillStyle = '#333';
+      // Fabric swatch mockup
+      const fabricWidth = mockupSize * 0.8;
+      const fabricHeight = fabricWidth * 0.75;
+      
+      roundRect(ctx, -fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
       ctx.fill();
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
       ctx.clip();
 
-      // Create scaled pattern
-      ctx.save();
-      ctx.scale(patternScale, patternScale);
-      const pattern = ctx.createPattern(tileImg, 'repeat');
-      ctx.fillStyle = pattern;
-      ctx.fillRect(-mockupSize*3/patternScale, -mockupSize*3/patternScale, mockupSize*6/patternScale, mockupSize*6/patternScale);
-      ctx.restore();
+      // Scale and tile pattern
+      const tileSize = tileImg.width * patternScale;
+      const tilesX = Math.ceil(fabricWidth / tileSize) + 2;
+      const tilesY = Math.ceil(fabricHeight / tileSize) + 2;
+      
+      for (let x = -tilesX; x < tilesX; x++) {
+        for (let y = -tilesY; y < tilesY; y++) {
+          ctx.drawImage(tileImg, 
+            (x * tileSize) - fabricWidth/2, 
+            (y * tileSize) - fabricHeight/2, 
+            tileSize, tileSize);
+        }
+      }
     }
     ctx.restore();
   }
