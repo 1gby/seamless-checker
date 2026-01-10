@@ -28,7 +28,7 @@
   <div id="controls">
     <div class="title-group">
       <img id="logo" src="https://i.imgur.com/tlVfJ54.png" alt="Rud3boy Logo">
-      <h2>Rudeboy™ Pattern Checker</h2>
+      <h2>Rud3boy™ Pattern Checker</h2>
     </div>
   </div>
 
@@ -510,7 +510,7 @@ offsetYSlider.addEventListener('input', e => {
   draw();
 });
 
-exportBtn.addEventListener('click', async () => {
+exportBtn.addEventListener('click', () => {
   if (!tileImg) {
     alert('Please load a pattern first!');
     return;
@@ -522,22 +522,31 @@ exportBtn.addEventListener('click', async () => {
   }
   
   try {
-    // For iOS, we need to export differently
-    const link = document.createElement('a');
-    link.download = 'rud3boy-pattern.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    // Get the canvas as a data URL
+    const dataURL = canvas.toDataURL('image/png');
     
-    // Show iOS-specific help message
-    setTimeout(() => {
-      if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        alert('Tip: Long-press the image and select "Add to Photos" or "Save Image"');
+    // On iOS, open in new window so user can save
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write('<img src="' + dataURL + '" style="max-width:100%"/>');
+        setTimeout(() => {
+          alert('Long-press the image and select "Add to Photos" or "Save Image"');
+        }, 500);
+      } else {
+        alert('Please allow pop-ups to export the image');
       }
-    }, 300);
+    } else {
+      // Desktop/Android - use download link
+      const link = document.createElement('a');
+      link.download = 'rud3boy-pattern.png';
+      link.href = dataURL;
+      link.click();
+    }
     
   } catch (error) {
     console.error('Export error:', error);
-    alert('Export failed. Try taking a screenshot instead!');
+    alert('Export failed. Please try taking a screenshot instead!');
   }
 });
 
