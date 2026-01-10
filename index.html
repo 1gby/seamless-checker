@@ -124,7 +124,7 @@ const offsetXValue = document.getElementById('offsetXValue');
 const offsetYValue = document.getElementById('offsetYValue');
 
 let tileImg = null;
-let isUserUpload = false; // Track if image is user-uploaded
+let isUserUpload = false;
 let showGrid = false;
 let repeatType = 'full';
 let bgColor = 'checker';
@@ -136,9 +136,8 @@ let offsetPercentY = 0;
 let offsetX = 0, offsetY = 0, scale = 1;
 let isDragging = false, startX, startY;
 
-// Zoom limits
-const MIN_ZOOM = 0.1; // 10x zoom out
-const MAX_ZOOM = 5; // 5x zoom in
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 5;
 
 function resize() {
   const availableWidth = window.innerWidth;
@@ -151,7 +150,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Logo refresh functionality
 document.getElementById('logo').addEventListener('click', () => {
   location.reload();
 });
@@ -381,7 +379,7 @@ function loadImage(file) {
   reader.onload = e => {
     tileImg = new Image();
     tileImg.onload = () => {
-      isUserUpload = true; // Mark as user upload
+      isUserUpload = true;
       updateBackground();
       draw();
     };
@@ -420,7 +418,6 @@ canvas.addEventListener('wheel', e => {
   const mouseX = e.clientX, mouseY = e.clientY;
   let newScale = scale * zoomFactor;
   
-  // Apply zoom limits
   newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
   
   const scaleChange = newScale - scale;
@@ -460,7 +457,6 @@ canvas.addEventListener('touchmove', e => {
       
       let newScale = scale * zoomFactor;
       
-      // Apply zoom limits
       newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
       
       const scaleChange = newScale - scale;
@@ -507,7 +503,7 @@ offsetYSlider.addEventListener('input', e => {
   draw();
 });
 
-exportBtn.addEventListener('click', async () => {
+exportBtn.addEventListener('click', () => {
   if (!tileImg) {
     alert('Please load a pattern first!');
     return;
@@ -519,72 +515,60 @@ exportBtn.addEventListener('click', async () => {
   }
   
   try {
-    // For iOS, use Share API if available
-    if (navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      
-      if (!blob) {
-        alert('Failed to create image. Please try taking a screenshot instead!');
-        return;
-      }
-      
-      const file = new File([blob], 'rud3boy-pattern.png', { type: 'image/png' });
-      
-      await navigator.share({
-        files: [file],
-        title: 'Rud3boy Pattern',
-      });
-      
-    } else {
-      // Desktop/Android - direct download
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      
-      if (!blob) {
-        alert('Failed to create image. Please try again.');
-        return;
-      }
-      
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'rud3boy-pattern.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-    }
+    const dataURL = canvas.toDataURL('image/png');
     
-  } catch (error) {
-    console.error('Export error:', error);
-    
-    // Fallback: try data URL method
-    try {
-      const dataURL = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = 'rud3boy-pattern.png';
-      link.click();
-    } catch (e) {
-      alert('Export failed. Please take a screenshot instead: Press Power + Volume Up buttons together.');
-    }
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Export Pattern</title>
+              <style>
+                body { margin:0; padding:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+                img { max-width:100%; height:auto; display:block; }
+                p { color:#fff; text-align:center; padding:1rem; font-family:system-ui; }
+              </style>
+
+```
+        </head>
+        <body>
+          <img src="${dataURL}" alt="Pattern">
+          <p>Long-press the image above and select "Add to Photos" or "Save Image"</p>
+        </body>
+      </html>
+    `);
+  } else {
+    alert('Please allow pop-ups to export the image');
   }
+} else {
+  const link = document.createElement('a');
+  link.href = dataURL;
+  link.download = 'rud3boy-pattern.png';
+  link.click();
+}
+```
+
+} catch (e) {
+alert(‘Export failed. Please take a screenshot instead: Press Power + Volume Up buttons together.’);
+}
 });
 
 draw();
 
-// Load demo pattern from GitHub
 const demoImg = new Image();
 demoImg.onload = () => {
-  tileImg = demoImg;
-  isUserUpload = false; // Mark as demo, not user upload
-  updateBackground();
-  draw();
+tileImg = demoImg;
+isUserUpload = false;
+updateBackground();
+draw();
 };
 demoImg.onerror = () => {
-  console.log('Demo image failed to load - ready for user upload');
-  draw();
+console.log(‘Demo image failed to load - ready for user upload’);
+draw();
 };
-demoImg.src = "https://raw.githubusercontent.com/1gby/seamless-checker/main/Seamless.png";
+demoImg.src = “https://raw.githubusercontent.com/1gby/seamless-checker/main/Seamless.png”;
 </script>
 
 </body>
