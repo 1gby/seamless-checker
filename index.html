@@ -7,8 +7,9 @@
 <title>Rud3boy™ Seamless Pattern Tester</title>
 <style>
   body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; overflow:hidden; }
-  #container { display:flex; flex-direction:column; height:calc(100vh - 120px); }
+  #container { display:flex; flex-direction:column; height:100vh; padding-bottom:140px; box-sizing:border-box; }
   #controls { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
+  #controls-bottom { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
   #logo { height:40px; width:auto; object-fit:contain; }
   .title-group { display:flex; align-items:center; gap:0.6rem; }
   #canvas { flex:1; image-rendering:pixelated; touch-action:none; }
@@ -16,7 +17,7 @@
   .bg-btn { width:36px; height:36px; border-radius:50%; border:2px solid #444; cursor:pointer; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
   .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; }
-  #footer { padding:1rem; background:#1a1a1a; text-align:center; font-size:0.9rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; }
+  #footer { padding:1rem; background:#1a1a1a; text-align:center; font-size:0.9rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:130px; overflow-y:auto; z-index:10; }
   #footer a { color:#4da6ff; text-decoration:none; margin:0 0.8rem; }
   #footer a:hover { text-decoration:underline; }
 </style>
@@ -28,6 +29,11 @@
       <img id="logo" src="https://i.imgur.com/tlVfJ54.png" alt="Rud3boy Logo">
       <h2>Rud3boy™ Pattern Checker</h2>
     </div>
+  </div>
+
+<canvas id="canvas"></canvas>
+
+  <div id="controls-bottom">
 
 ```
 <input type="file" id="fileInput" accept="image/*">
@@ -72,7 +78,6 @@
 ```
 
   </div>
-  <canvas id="canvas"></canvas>
 </div>
 
 <div id="footer">
@@ -133,8 +138,9 @@ let isDragging = false, startX, startY;
 
 // Resize
 function resize() {
+  const controlsHeight = document.getElementById('controls').offsetHeight + document.getElementById('controls-bottom').offsetHeight;
   canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight - document.getElementById('controls').offsetHeight;
+  canvas.height = window.innerHeight - controlsHeight - 140; // Subtract controls and footer
   updateBackground();
   draw();
 }
@@ -344,6 +350,16 @@ exportBtn.addEventListener('click', () => {
 
 // Initial draw
 draw();
+
+// Load demo pattern
+const demoImg = new Image();
+demoImg.crossOrigin = "anonymous";
+demoImg.onload = () => {
+  tileImg = demoImg;
+  updateBackground();
+  draw();
+};
+demoImg.src = "https://i.imgur.com/hKiKJUG.png";
 </script>
 
 </body>
