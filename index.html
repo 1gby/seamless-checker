@@ -37,6 +37,7 @@
   <div id="controls-bottom">
     <input type="file" id="fileInput" accept="image/*">
 
+```
 <select id="repeatType">
   <option value="full">Full Drop</option>
   <option value="half-drop">Half Drop</option>
@@ -76,6 +77,7 @@
 </div>
 
 <p style="margin:0.5rem 0 0; font-size:0.85rem; width:100%;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
+```
 
   </div>
 </div>
@@ -149,18 +151,18 @@ document.getElementById('logo').addEventListener('click', () => {
   location.reload();
 });
 
-// Load demo/stock pattern (not exportable)
+// Load demo pattern from same domain (no CORS issues)
 const demoImg = new Image();
 demoImg.onload = () => {
   tileImg = demoImg;
-  isUserUpload = false; // Mark as demo, not user upload
+  isUserUpload = false;
   updateBackground();
   draw();
 };
 demoImg.onerror = () => {
-  console.log('Demo image failed to load');
+  console.log('Demo pattern not found - check file name');
 };
-demoImg.src = "https://i.imgur.com/hKiKJUG.png";
+demoImg.src = "./Seamless.png";
 }
 window.addEventListener('resize', resize);
 resize();
