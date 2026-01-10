@@ -124,6 +124,7 @@ const offsetXValue = document.getElementById('offsetXValue');
 const offsetYValue = document.getElementById('offsetYValue');
 
 let tileImg = null;
+let isUserUpload = false; // Track if image is user-uploaded
 let showGrid = false;
 let repeatType = 'full';
 let bgColor = 'checker';
@@ -380,6 +381,7 @@ function loadImage(file) {
   reader.onload = e => {
     tileImg = new Image();
     tileImg.onload = () => {
+      isUserUpload = true; // Mark as user upload
       updateBackground();
       draw();
     };
@@ -511,6 +513,11 @@ exportBtn.addEventListener('click', async () => {
     return;
   }
   
+  if (!isUserUpload) {
+    alert('Please upload your own pattern to export. The demo pattern cannot be exported.');
+    return;
+  }
+  
   try {
     // Convert canvas to blob
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -548,6 +555,20 @@ exportBtn.addEventListener('click', async () => {
 });
 
 draw();
+
+// Load demo pattern from GitHub
+const demoImg = new Image();
+demoImg.onload = () => {
+  tileImg = demoImg;
+  isUserUpload = false; // Mark as demo, not user upload
+  updateBackground();
+  draw();
+};
+demoImg.onerror = () => {
+  console.log('Demo image failed to load - ready for user upload');
+  draw();
+};
+demoImg.src = "https://raw.githubusercontent.com/1gby/seamless-checker/main/Seamless.png";
 </script>
 
 </body>
