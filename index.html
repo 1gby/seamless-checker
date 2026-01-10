@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rud3boy™ Seamless Pattern Checker</title>
+<title>Rud3boy™ Seamless Pattern Tester</title>
 <style>
   body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; }
   #container { display:flex; flex-direction:column; }
@@ -35,7 +35,8 @@
 <canvas id="canvas"></canvas>
 
   <div id="controls-bottom">
-    <input type="file" id="fileInput" accept="image/*">
+
+<input type="file" id="fileInput" accept="image/*">
 
 <select id="repeatType">
   <option value="full">Full Drop</option>
@@ -76,7 +77,6 @@
 </div>
 
 <p style="margin:0.5rem 0 0; font-size:0.85rem; width:100%;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
-
 
   </div>
 </div>
@@ -270,8 +270,8 @@ function draw() {
       ctx.stroke();
       
     } else if (viewMode === 'fabric') {
-      const fabricWidth = mockupSize * 0.95;
-      const fabricHeight = fabricWidth * 0.8;
+      const fabricWidth = mockupSize * 0.8;
+      const fabricHeight = fabricWidth * 0.75;
       
       ctx.save();
       roundRect(ctx, -fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, 15);
@@ -285,82 +285,37 @@ function draw() {
       drawPattern(-fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
     } else if (viewMode === 'bottle') {
-      const bottleWidth = mockupSize * 0.45;
-      const bottleHeight = bottleWidth * 2.3;
-      const capHeight = bottleHeight * 0.12;
-      const neckHeight = bottleHeight * 0.08;
-      const bodyTop = -bottleHeight/2 + capHeight + neckHeight;
-      const bodyHeight = bottleHeight - capHeight - neckHeight;
+      const bottleWidth = mockupSize * 0.4;
+      const bottleHeight = bottleWidth * 2.2;
+      const capHeight = bottleHeight * 0.1;
+      const bodyTop = -bottleHeight/2 + capHeight;
+      const bodyHeight = bottleHeight - capHeight;
       
       // Draw bottle body with pattern
       ctx.save();
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 20);
       ctx.clip();
       drawPattern(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
       ctx.restore();
       
-      // Draw bottle outline/highlights
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
+      // Draw bottle outline
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 20);
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 3;
       ctx.stroke();
       
-      // Add shine/highlight on bottle
-      ctx.save();
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
-      ctx.clip();
-      const gradient = ctx.createLinearGradient(-bottleWidth/2, 0, bottleWidth/2, 0);
-      gradient.addColorStop(0, 'rgba(255,255,255,0)');
-      gradient.addColorStop(0.3, 'rgba(255,255,255,0.15)');
-      gradient.addColorStop(0.5, 'rgba(255,255,255,0.25)');
-      gradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
-      gradient.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight);
-      ctx.restore();
-      
-      // Draw neck (narrower part)
-      const neckWidth = bottleWidth * 0.6;
-      ctx.fillStyle = '#e8e8e8';
-      roundRect(ctx, -neckWidth/2, -bottleHeight/2 + capHeight, neckWidth, neckHeight, 8);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw screw cap with threads
-      const capWidth = bottleWidth * 0.65;
-      ctx.fillStyle = '#2a2a2a';
-      roundRect(ctx, -capWidth/2, -bottleHeight/2, capWidth, capHeight, 6);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Cap threads/ridges
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 4; i++) {
-        const y = -bottleHeight/2 + (capHeight / 5) * (i + 1);
-        ctx.beginPath();
-        ctx.moveTo(-capWidth/2 + 2, y);
-        ctx.lineTo(capWidth/2 - 2, y);
-        ctx.stroke();
-      }
-      
-      // Cap top dome
-      ctx.beginPath();
-      ctx.ellipse(0, -bottleHeight/2 + 3, capWidth * 0.45, capWidth * 0.12, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Bottom of bottle (base)
-      ctx.beginPath();
-      ctx.ellipse(0, bodyTop + bodyHeight - 5, bottleWidth * 0.48, bottleWidth * 0.08, 0, 0, Math.PI);
+      // Draw cap
       ctx.fillStyle = '#333';
+      roundRect(ctx, -bottleWidth * 0.4, -bottleHeight/2, bottleWidth * 0.8, capHeight, 5);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Cap top
+      ctx.beginPath();
+      ctx.ellipse(0, -bottleHeight/2 + 2, bottleWidth * 0.35, bottleWidth * 0.1, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#2a2a2a';
       ctx.fill();
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
@@ -494,9 +449,39 @@ offsetYSlider.addEventListener('input', e => {
   draw();
 });
 exportBtn.addEventListener('click', () => {
+  // Create a temporary canvas to capture current view
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = canvas.width;
+  exportCanvas.height = canvas.height;
+  const exportCtx = exportCanvas.getContext('2d');
+  
+  // Draw background
+  if (bgColor === 'checker') {
+    exportCtx.fillStyle = '#ffffff';
+    exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    const checkSize = 40;
+    for (let x = 0; x < exportCanvas.width; x += checkSize) {
+      for (let y = 0; y < exportCanvas.height; y += checkSize) {
+        if ((Math.floor(x / checkSize) + Math.floor(y / checkSize)) % 2 === 0) {
+          exportCtx.fillStyle = '#ccc';
+        } else {
+          exportCtx.fillStyle = '#999';
+        }
+        exportCtx.fillRect(x, y, checkSize, checkSize);
+      }
+    }
+  } else {
+    exportCtx.fillStyle = bgColor;
+    exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+  }
+  
+  // Draw the main canvas content on top
+  exportCtx.drawImage(canvas, 0, 0);
+  
+  // Download
   const link = document.createElement('a');
   link.download = 'rud3boy-pattern.png';
-  link.href = canvas.toDataURL('image/png');
+  link.href = exportCanvas.toDataURL('image/png');
   link.click();
 });
 
