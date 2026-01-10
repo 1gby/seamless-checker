@@ -14,7 +14,9 @@
   .title-group { display:flex; align-items:center; gap:0.6rem; }
   #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; }
   button, input, select { padding:0.5rem 0.9rem; font-size:0.9rem; }
-  .bg-btn { width:36px; height:36px; border-radius:50%; border:2px solid #444; cursor:pointer; }
+  .bg-btn { width:36px; height:36px; border-radius:50%; border:2px solid #444; cursor:pointer; transition: transform 0.2s; }
+  .bg-btn:hover { transform: scale(1.1); }
+  .bg-btn.active { border-color: #4da6ff; border-width: 3px; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
   .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; }
   #footer { padding:1rem; background:#1a1a1a; text-align:center; font-size:0.9rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:130px; overflow-y:auto; z-index:10; }
@@ -43,8 +45,9 @@
   <option value="brick">Brick</option>
 </select>
 
-<button id="toggleGrid">Toggle Grid</button>
+<button id="toggleGrid">Show Grid</button>
 
+<button class="bg-btn active" style="background:#111111;" data-bg="#111111" title="Dark Gray"></button>
 <button class="bg-btn" style="background:#ffffff;" data-bg="#ffffff" title="White"></button>
 <button class="bg-btn" style="background:#000000;" data-bg="#000000" title="Black"></button>
 <button class="bg-btn" style="background:#808080;" data-bg="#808080" title="Gray"></button>
@@ -74,7 +77,6 @@
 </div>
 
 <p style="margin:0.5rem 0 0; font-size:0.8rem;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
-```
 
   </div>
 </div>
@@ -92,7 +94,6 @@
 </div>
 
 <script>
-// Helper function for rounded rectangles
 function roundRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -107,7 +108,6 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-// Core Variables
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const fileInput = document.getElementById('fileInput');
@@ -123,7 +123,7 @@ const offsetXValue = document.getElementById('offsetXValue');
 const offsetYValue = document.getElementById('offsetYValue');
 
 let tileImg = null;
-let showGrid = true;
+let showGrid = false;
 let repeatType = 'full';
 let bgColor = '#111111';
 let viewMode = 'tile';
@@ -131,17 +131,14 @@ let patternScale = 1;
 let offsetPercentX = 0;
 let offsetPercentY = 0;
 
-// Pan & Zoom state
 let offsetX = 0, offsetY = 0, scale = 1;
 let isDragging = false, startX, startY;
 
-// Resize
 function resize() {
   const controlsHeight = document.getElementById('controls').offsetHeight + document.getElementById('controls-bottom').offsetHeight;
   const availableHeight = window.innerHeight - controlsHeight - 140;
   const availableWidth = window.innerWidth;
   
-  // Make canvas square - use width on mobile, or smaller dimension on desktop
   const size = window.innerWidth < 768 ? availableWidth : Math.min(availableWidth, availableHeight);
   canvas.width = size;
   canvas.height = size;
@@ -154,23 +151,39 @@ resize();
 
 function updateBackground() {
   if (tileImg) {
-    // Only show solid colors when an image is loaded
     canvas.style.background = bgColor === 'checker' 
       ? 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)' 
       : bgColor;
     canvas.style.backgroundSize = '40px 40px';
   } else {
-    // Show checkerboard pattern when no image is loaded
     canvas.style.background = 'repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';
     canvas.style.backgroundSize = '40px 40px';
   }
 }
 
-// Draw function
+function drawPattern(startX, startY, width, height, tileSize) {
+  const tilesX = Math.ceil(width / tileSize) + 4;
+  const tilesY = Math.ceil(height / tileSize) + 4;
+  
+  for (let x = -2; x < tilesX; x++) {
+    for (let y = -2; y < tilesY; y++) {
+      let drawX = startX + x * tileSize + offsetPercentX * tileSize;
+      let drawY = startY + y * tileSize + offsetPercentY * tileSize;
+
+      if (repeatType === 'half-drop') {
+        drawY += (Math.abs(x) % 2 === 1) ? tileSize / 2 : 0;
+      } else if (repeatType === 'brick') {
+        drawX += (Math.abs(y) % 2 === 1) ? tileSize / 2 : 0;
+      }
+
+      ctx.drawImage(tileImg, drawX, drawY, tileSize, tileSize);
+    }
+  }
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!tileImg) {
-    // Initial message
     ctx.fillStyle = '#888';
     ctx.font = '1.5rem system-ui';
     ctx.textAlign = 'center';
@@ -182,10 +195,11 @@ function draw() {
   const effectiveTileSize = baseTileSize * patternScale;
 
   ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
 
   if (viewMode === 'tile') {
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
     const tilesX = Math.ceil(canvas.width / effectiveTileSize / scale) + 6;
     const tilesY = Math.ceil(canvas.height / effectiveTileSize / scale) + 6;
     const startTileX = Math.floor(-offsetX / (effectiveTileSize * scale)) - 3;
@@ -203,7 +217,6 @@ function draw() {
       }
     }
 
-    // Grid
     if (showGrid) {
       ctx.strokeStyle = 'rgba(255,255,255,0.4)';
       ctx.lineWidth = 1 / scale;
@@ -224,9 +237,6 @@ function draw() {
       }
     }
   } else {
-    // Mockups - reset pan/zoom for centered view
-    ctx.save();
-    
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
@@ -234,7 +244,6 @@ function draw() {
     ctx.translate(centerX, centerY);
 
     if (viewMode === 'phone') {
-      // Phone case mockup
       const phoneWidth = mockupSize * 0.5;
       const phoneHeight = phoneWidth * 2;
       
@@ -246,22 +255,9 @@ function draw() {
       ctx.stroke();
       ctx.clip();
 
-      // Scale and tile pattern
-      const tileSize = tileImg.width * patternScale;
-      const tilesX = Math.ceil(phoneWidth / tileSize) + 2;
-      const tilesY = Math.ceil(phoneHeight / tileSize) + 2;
-      
-      for (let x = -tilesX; x < tilesX; x++) {
-        for (let y = -tilesY; y < tilesY; y++) {
-          ctx.drawImage(tileImg, 
-            (x * tileSize) - phoneWidth/2, 
-            (y * tileSize) - phoneHeight/2, 
-            tileSize, tileSize);
-        }
-      }
+      drawPattern(-phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, effectiveTileSize);
       
     } else if (viewMode === 'fabric') {
-      // Fabric swatch mockup
       const fabricWidth = mockupSize * 0.8;
       const fabricHeight = fabricWidth * 0.75;
       
@@ -273,27 +269,13 @@ function draw() {
       ctx.stroke();
       ctx.clip();
 
-      // Scale and tile pattern
-      const tileSize = tileImg.width * patternScale;
-      const tilesX = Math.ceil(fabricWidth / tileSize) + 2;
-      const tilesY = Math.ceil(fabricHeight / tileSize) + 2;
-      
-      for (let x = -tilesX; x < tilesX; x++) {
-        for (let y = -tilesY; y < tilesY; y++) {
-          ctx.drawImage(tileImg, 
-            (x * tileSize) - fabricWidth/2, 
-            (y * tileSize) - fabricHeight/2, 
-            tileSize, tileSize);
-        }
-      }
+      drawPattern(-fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, effectiveTileSize);
     }
-    ctx.restore();
   }
 
   ctx.restore();
 }
 
-// Load Image
 function loadImage(file) {
   if (!file) return;
   const reader = new FileReader();
@@ -315,15 +297,15 @@ canvas.addEventListener('drop', e => {
   loadImage(e.dataTransfer.files[0]);
 });
 
-// Pan
 canvas.addEventListener('pointerdown', e => {
+  if (viewMode !== 'tile') return;
   isDragging = true;
   startX = e.clientX - offsetX;
   startY = e.clientY - offsetY;
   canvas.setPointerCapture(e.pointerId);
 });
 canvas.addEventListener('pointermove', e => {
-  if (!isDragging) return;
+  if (!isDragging || viewMode !== 'tile') return;
   offsetX = e.clientX - startX;
   offsetY = e.clientY - startY;
   draw();
@@ -331,8 +313,8 @@ canvas.addEventListener('pointermove', e => {
 canvas.addEventListener('pointerup', () => isDragging = false);
 canvas.addEventListener('pointerleave', () => isDragging = false);
 
-// Zoom
 canvas.addEventListener('wheel', e => {
+  if (viewMode !== 'tile') return;
   e.preventDefault();
   const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
   const mouseX = e.clientX, mouseY = e.clientY;
@@ -344,10 +326,9 @@ canvas.addEventListener('wheel', e => {
   draw();
 }, { passive: false });
 
-// Touch/Pinch zoom
 let lastTouchDistance = 0;
 canvas.addEventListener('touchstart', e => {
-  if (e.touches.length === 2) {
+  if (e.touches.length === 2 && viewMode === 'tile') {
     e.preventDefault();
     const touch1 = e.touches[0];
     const touch2 = e.touches[1];
@@ -359,7 +340,7 @@ canvas.addEventListener('touchstart', e => {
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
-  if (e.touches.length === 2) {
+  if (e.touches.length === 2 && viewMode === 'tile') {
     e.preventDefault();
     const touch1 = e.touches[0];
     const touch2 = e.touches[1];
@@ -389,7 +370,6 @@ canvas.addEventListener('touchend', () => {
   lastTouchDistance = 0;
 });
 
-// Events
 repeatSelect.addEventListener('change', e => { repeatType = e.target.value; draw(); });
 viewModeSelect.addEventListener('change', e => { viewMode = e.target.value; draw(); });
 toggleGridBtn.addEventListener('click', () => {
@@ -397,13 +377,17 @@ toggleGridBtn.addEventListener('click', () => {
   toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
   draw();
 });
+
 document.querySelectorAll('.bg-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     bgColor = btn.dataset.bg;
     updateBackground();
     draw();
   });
 });
+
 scaleSlider.addEventListener('input', e => {
   patternScale = parseFloat(e.target.value);
   scaleValue.textContent = patternScale.toFixed(1) + '×';
@@ -426,10 +410,8 @@ exportBtn.addEventListener('click', () => {
   link.click();
 });
 
-// Initial draw
 draw();
 
-// Load demo pattern
 const demoImg = new Image();
 demoImg.crossOrigin = "anonymous";
 demoImg.onload = () => {
