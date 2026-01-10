@@ -6,20 +6,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rud3boy™ Seamless Pattern Tester</title>
 <style>
-  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; overflow:hidden; }
-  #container { display:flex; flex-direction:column; height:100vh; padding-bottom:140px; box-sizing:border-box; }
+  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; overflow-x:hidden; }
+  #container { display:flex; flex-direction:column; min-height:100vh; padding-bottom:160px; box-sizing:border-box; }
   #controls { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
   #controls-bottom { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
   #logo { height:40px; width:auto; object-fit:contain; }
   .title-group { display:flex; align-items:center; gap:0.6rem; }
-  #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; }
+  #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; min-height:300px; }
   button, input, select { padding:0.5rem 0.9rem; font-size:0.9rem; }
   .bg-btn { width:36px; height:36px; border-radius:50%; border:2px solid #444; cursor:pointer; transition: transform 0.2s; }
   .bg-btn:hover { transform: scale(1.1); }
   .bg-btn.active { border-color: #4da6ff; border-width: 3px; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
   .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; }
-  #footer { padding:1rem; background:#1a1a1a; text-align:center; font-size:0.9rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:130px; overflow-y:auto; z-index:10; }
+  #footer { padding:0.8rem; background:#1a1a1a; text-align:center; font-size:0.8rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:150px; overflow-y:auto; z-index:10; box-sizing:border-box; }
   #footer a { color:#4da6ff; text-decoration:none; margin:0 0.8rem; }
   #footer a:hover { text-decoration:underline; }
 </style>
