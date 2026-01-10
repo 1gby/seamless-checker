@@ -142,10 +142,17 @@ window.addEventListener('resize', resize);
 resize();
 
 function updateBackground() {
-  canvas.style.background = bgColor === 'checker' 
-    ? 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)' 
-    : bgColor;
-  canvas.style.backgroundSize = '40px 40px';
+  if (tileImg) {
+    // Only show solid colors when an image is loaded
+    canvas.style.background = bgColor === 'checker' 
+      ? 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)' 
+      : bgColor;
+    canvas.style.backgroundSize = '40px 40px';
+  } else {
+    // Show checkerboard pattern when no image is loaded
+    canvas.style.background = 'repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';
+    canvas.style.backgroundSize = '40px 40px';
+  }
 }
 
 // Draw function
@@ -253,7 +260,10 @@ function loadImage(file) {
   const reader = new FileReader();
   reader.onload = e => {
     tileImg = new Image();
-    tileImg.onload = draw;
+    tileImg.onload = () => {
+      updateBackground();
+      draw();
+    };
     tileImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
