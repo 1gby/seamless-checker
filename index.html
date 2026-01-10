@@ -4,13 +4,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rud3boy™ Seamless Pattern Checker</title>
+<title>Rudeboy™ Seamless Pattern Checker</title>
 <style>
   body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; }
   #container { display:flex; flex-direction:column; }
   #controls { padding:0.8rem; background:#222; text-align:center; display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
   #controls-bottom { padding:1rem 0.8rem 1.5rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
-  #logo { height:36px; width:auto; object-fit:contain; }
+  #logo { height:36px; width:auto; object-fit:contain; cursor:pointer; }
   .title-group { display:flex; align-items:center; gap:0.5rem; }
   #canvas { width:100%; max-width:100vw; aspect-ratio:1; image-rendering: auto; touch-action:none; display:block; margin:0; }
   button, input, select { padding:0.6rem 0.9rem; font-size:0.9rem; border-radius:8px; }
@@ -37,6 +37,7 @@
   <div id="controls-bottom">
     <input type="file" id="fileInput" accept="image/*">
 
+```
 <select id="repeatType">
   <option value="full">Full Drop</option>
   <option value="half-drop">Half Drop</option>
@@ -76,6 +77,7 @@
 </div>
 
 <p style="margin:0.5rem 0 0; font-size:0.85rem; width:100%;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
+```
 
   </div>
 </div>
@@ -142,6 +144,11 @@ function resize() {
   
   updateBackground();
   draw();
+
+// Logo refresh functionality
+document.getElementById('logo').addEventListener('click', () => {
+  location.reload();
+});
 }
 window.addEventListener('resize', resize);
 resize();
@@ -162,7 +169,6 @@ function drawPattern(startX, startY, width, height, tileSize) {
   const tilesX = Math.ceil(width / tileSize) + 4;
   const tilesY = Math.ceil(height / tileSize) + 4;
   
-  // Enable image smoothing for better quality
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
   
@@ -195,7 +201,6 @@ function draw() {
   const baseTileSize = tileImg.width;
   const effectiveTileSize = baseTileSize * patternScale;
 
-  // Enable high quality image rendering
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
@@ -254,20 +259,17 @@ function draw() {
       const cameraSize = phoneWidth * 0.15;
       const cameraOffset = phoneWidth * 0.15;
       
-      // Draw pattern first with clipping
       ctx.save();
       roundRect(ctx, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, 35);
       ctx.clip();
       drawPattern(-phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, effectiveTileSize);
       ctx.restore();
       
-      // Phone case border
       roundRect(ctx, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, 35);
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 4;
       ctx.stroke();
       
-      // Camera cutout (draw black circle on top)
       ctx.beginPath();
       ctx.arc(-phoneWidth/2 + cameraOffset + cameraSize/2, -phoneHeight/2 + cameraOffset + cameraSize/2, cameraSize/2, 0, Math.PI * 2);
       ctx.fillStyle = '#0a0a0a';
@@ -299,20 +301,17 @@ function draw() {
       const bodyTop = -bottleHeight/2 + capHeight + neckHeight;
       const bodyHeight = bottleHeight - capHeight - neckHeight;
       
-      // Draw bottle body with pattern
       ctx.save();
       roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
       ctx.clip();
       drawPattern(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
       ctx.restore();
       
-      // Draw bottle outline/highlights
       roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 3;
       ctx.stroke();
       
-      // Add shine/highlight on bottle
       ctx.save();
       roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
       ctx.clip();
@@ -326,7 +325,6 @@ function draw() {
       ctx.fillRect(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight);
       ctx.restore();
       
-      // Draw neck (narrower part)
       const neckWidth = bottleWidth * 0.6;
       ctx.fillStyle = '#e8e8e8';
       roundRect(ctx, -neckWidth/2, -bottleHeight/2 + capHeight, neckWidth, neckHeight, 8);
@@ -335,7 +333,6 @@ function draw() {
       ctx.lineWidth = 2;
       ctx.stroke();
       
-      // Draw screw cap with threads
       const capWidth = bottleWidth * 0.65;
       ctx.fillStyle = '#2a2a2a';
       roundRect(ctx, -capWidth/2, -bottleHeight/2, capWidth, capHeight, 6);
@@ -344,7 +341,6 @@ function draw() {
       ctx.lineWidth = 2;
       ctx.stroke();
       
-      // Cap threads/ridges
       ctx.strokeStyle = '#444';
       ctx.lineWidth = 1;
       for (let i = 0; i < 4; i++) {
@@ -355,7 +351,6 @@ function draw() {
         ctx.stroke();
       }
       
-      // Cap top dome
       ctx.beginPath();
       ctx.ellipse(0, -bottleHeight/2 + 3, capWidth * 0.45, capWidth * 0.12, 0, 0, Math.PI * 2);
       ctx.fillStyle = '#1a1a1a';
@@ -364,7 +359,6 @@ function draw() {
       ctx.lineWidth = 2;
       ctx.stroke();
       
-      // Bottom of bottle (base)
       ctx.beginPath();
       ctx.ellipse(0, bodyTop + bodyHeight - 5, bottleWidth * 0.48, bottleWidth * 0.08, 0, 0, Math.PI);
       ctx.fillStyle = '#333';
@@ -508,16 +502,13 @@ exportBtn.addEventListener('click', async () => {
   }
   
   try {
-    // Create a new canvas with the current view
     const exportCanvas = document.createElement('canvas');
     exportCanvas.width = canvas.width;
     exportCanvas.height = canvas.height;
     const exportCtx = exportCanvas.getContext('2d');
     
-    // Copy the current canvas content
     exportCtx.drawImage(canvas, 0, 0);
     
-    // Convert to blob
     const blob = await new Promise(resolve => exportCanvas.toBlob(resolve, 'image/png'));
     
     if (!blob) {
@@ -525,10 +516,8 @@ exportBtn.addEventListener('click', async () => {
       return;
     }
     
-    // Create object URL
     const url = URL.createObjectURL(blob);
     
-    // Try to download - on iOS this will open in new tab
     const a = document.createElement('a');
     a.href = url;
     a.download = 'rud3boy-pattern.png';
@@ -536,14 +525,12 @@ exportBtn.addEventListener('click', async () => {
     a.click();
     document.body.removeChild(a);
     
-    // Show helpful message for iOS users
     setTimeout(() => {
       if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         alert('Tip: If the image opened in a new tab, long-press it and select "Save to Photos" or "Save Image"');
       }
     }, 500);
     
-    // Clean up
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     
   } catch (error) {
@@ -553,9 +540,6 @@ exportBtn.addEventListener('click', async () => {
 });
 
 draw();
-
-// Demo image removed to avoid CORS issues on iOS export
-// Users will start with blank canvas and upload their own patterns
 </script>
 
 </body>
