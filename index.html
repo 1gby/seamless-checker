@@ -309,86 +309,47 @@ function draw() {
       drawPattern(-fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
     } else if (viewMode === 'bottle') {
-      const bottleWidth = mockupSize * 0.45;
-      const bottleHeight = bottleWidth * 2.3;
-      const capHeight = bottleHeight * 0.12;
-      const neckHeight = bottleHeight * 0.08;
-      const bodyTop = -bottleHeight/2 + capHeight + neckHeight;
-      const bodyHeight = bottleHeight - capHeight - neckHeight;
-      
-      // Draw bottle body with pattern
-      ctx.save();
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
-      ctx.clip();
-      drawPattern(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
-      ctx.restore();
-      
-      // Draw bottle outline/highlights
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      
-      // Add shine/highlight on bottle
-      ctx.save();
-      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
-      ctx.clip();
-      const gradient = ctx.createLinearGradient(-bottleWidth/2, 0, bottleWidth/2, 0);
-      gradient.addColorStop(0, 'rgba(255,255,255,0)');
-      gradient.addColorStop(0.3, 'rgba(255,255,255,0.15)');
-      gradient.addColorStop(0.5, 'rgba(255,255,255,0.25)');
-      gradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
-      gradient.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight);
-      ctx.restore();
-      
-      // Draw neck (narrower part)
-      const neckWidth = bottleWidth * 0.6;
-      ctx.fillStyle = '#e8e8e8';
-      roundRect(ctx, -neckWidth/2, -bottleHeight/2 + capHeight, neckWidth, neckHeight, 8);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw screw cap with threads
-      const capWidth = bottleWidth * 0.65;
-      ctx.fillStyle = '#2a2a2a';
-      roundRect(ctx, -capWidth/2, -bottleHeight/2, capWidth, capHeight, 6);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Cap threads/ridges
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 4; i++) {
-        const y = -bottleHeight/2 + (capHeight / 5) * (i + 1);
-        ctx.beginPath();
-        ctx.moveTo(-capWidth/2 + 2, y);
-        ctx.lineTo(capWidth/2 - 2, y);
+      if (!bottleImg) {
+        // Fallback to drawn bottle if image hasn't loaded
+        const bottleWidth = mockupSize * 0.45;
+        const bottleHeight = bottleWidth * 2.3;
+        const capHeight = bottleHeight * 0.12;
+        const neckHeight = bottleHeight * 0.08;
+        const bodyTop = -bottleHeight/2 + capHeight + neckHeight;
+        const bodyHeight = bottleHeight - capHeight - neckHeight;
+        
+        ctx.save();
+        roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
+        ctx.clip();
+        drawPattern(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
+        ctx.restore();
+        
+        roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 25);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
         ctx.stroke();
+      } else {
+        // Use real bottle image
+        const bottleHeight = mockupSize * 1.4;
+        const bottleWidth = bottleHeight * (bottleImg.width / bottleImg.height);
+        
+        // Pattern area (approximate bottle body dimensions)
+        const patternX = -bottleWidth * 0.42;
+        const patternY = -bottleHeight * 0.25;
+        const patternWidth = bottleWidth * 0.84;
+        const patternHeight = bottleHeight * 0.7;
+        
+        // Draw pattern in bottle body area
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(patternX, patternY, patternWidth, patternHeight);
+        ctx.clip();
+        drawPattern(patternX, patternY, patternWidth, patternHeight, effectiveTileSize);
+        ctx.restore();
+        
+        // Draw bottle image on top
+        ctx.drawImage(bottleImg, -bottleWidth/2, -bottleHeight/2, bottleWidth, bottleHeight);
       }
-      
-      // Cap top dome
-      ctx.beginPath();
-      ctx.ellipse(0, -bottleHeight/2 + 3, capWidth * 0.45, capWidth * 0.12, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Bottom of bottle (base)
-      ctx.beginPath();
-      ctx.ellipse(0, bodyTop + bodyHeight - 5, bottleWidth * 0.48, bottleWidth * 0.08, 0, 0, Math.PI);
-      ctx.fillStyle = '#333';
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
     }
   }
 
@@ -525,6 +486,30 @@ exportBtn.addEventListener('click', () => {
 });
 
 draw();
+
+// Load phone image
+const phoneImage = new Image();
+phoneImage.onload = () => {
+  phoneImg = phoneImage;
+  console.log('Phone image loaded successfully');
+  if (viewMode === 'phone') draw();
+};
+phoneImage.onerror = (e) => {
+  console.error('Phone image failed to load:', e);
+};
+phoneImage.src = "https://i.imgur.com/M44Pmtr.png";
+
+// Load bottle image
+const bottleImage = new Image();
+bottleImage.onload = () => {
+  bottleImg = bottleImage;
+  console.log('Bottle image loaded successfully');
+  if (viewMode === 'bottle') draw();
+};
+bottleImage.onerror = (e) => {
+  console.error('Bottle image failed to load:', e);
+};
+bottleImage.src = "https://i.imgur.com/z8J4lUJ.png";
 
 const demoImg = new Image();
 demoImg.onload = () => {
