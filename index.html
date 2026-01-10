@@ -14,9 +14,6 @@
   .title-group { display:flex; align-items:center; gap:0.5rem; }
   #canvas { width:100%; max-width:100vw; aspect-ratio:1; image-rendering:pixelated; touch-action:none; display:block; margin:0; }
   button, input, select { padding:0.6rem 0.9rem; font-size:0.9rem; border-radius:8px; }
-  .bg-btn { width:44px; height:44px; border-radius:50%; border:2px solid #444; cursor:pointer; transition: transform 0.2s; flex-shrink:0; }
-  .bg-btn:hover { transform: scale(1.1); }
-  .bg-btn.active { border-color: #4da6ff; border-width: 3px; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
   .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; gap:0.3rem; }
   .slider-group input[type="range"] { width:120px; }
@@ -49,14 +46,17 @@
 
 <button id="toggleGrid">Show Grid</button>
 
-<button class="bg-btn active" style="background:repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%); background-size:40px 40px;" data-bg="checker" title="Transparent"></button>
-<button class="bg-btn" style="background:#000000;" data-bg="#000000" title="Black"></button>
-<button class="bg-btn" style="background:#ffffff;" data-bg="#ffffff" title="White"></button>
+<select id="bgColor">
+  <option value="checker">Transparent</option>
+  <option value="#000000">Black</option>
+  <option value="#ffffff">White</option>
+</select>
 
 <select id="viewMode">
   <option value="tile">Infinite Tile</option>
   <option value="phone">Phone Case Mockup</option>
   <option value="fabric">Fabric Swatch Mockup</option>
+  <option value="bottle">Water Bottle Mockup</option>
 </select>
 
 <button id="exportBtn">Export PNG</button>
@@ -91,6 +91,7 @@
     <a href="https://www.redbubble.com/" target="_blank">Redbubble</a> (wide range) •
     <a href="https://www.zazzle.com/" target="_blank">Zazzle</a> (custom mugs, dishes, fabrics)
   </p>
+  <p style="color:#ff0000; font-weight:bold; margin-top:1rem;">Coded by Rudeboy™</p>
 </div>
 
 <script>
@@ -114,6 +115,7 @@ const fileInput = document.getElementById('fileInput');
 const toggleGridBtn = document.getElementById('toggleGrid');
 const repeatSelect = document.getElementById('repeatType');
 const viewModeSelect = document.getElementById('viewMode');
+const bgColorSelect = document.getElementById('bgColor');
 const exportBtn = document.getElementById('exportBtn');
 const scaleSlider = document.getElementById('patternScale');
 const offsetXSlider = document.getElementById('offsetX');
@@ -394,20 +396,15 @@ canvas.addEventListener('touchend', () => {
 
 repeatSelect.addEventListener('change', e => { repeatType = e.target.value; draw(); });
 viewModeSelect.addEventListener('change', e => { viewMode = e.target.value; draw(); });
+bgColorSelect.addEventListener('change', e => { 
+  bgColor = e.target.value; 
+  updateBackground();
+  draw(); 
+});
 toggleGridBtn.addEventListener('click', () => {
   showGrid = !showGrid;
   toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
   draw();
-});
-
-document.querySelectorAll('.bg-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    bgColor = btn.dataset.bg;
-    updateBackground();
-    draw();
-  });
 });
 
 scaleSlider.addEventListener('input', e => {
