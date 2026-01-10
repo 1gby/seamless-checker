@@ -124,7 +124,6 @@ const offsetXValue = document.getElementById('offsetXValue');
 const offsetYValue = document.getElementById('offsetYValue');
 
 let tileImg = null;
-let isUserUpload = false;
 let showGrid = false;
 let repeatType = 'full';
 let bgColor = 'checker';
@@ -379,7 +378,6 @@ function loadImage(file) {
   reader.onload = e => {
     tileImg = new Image();
     tileImg.onload = () => {
-      isUserUpload = true;
       updateBackground();
       draw();
     };
@@ -509,66 +507,18 @@ exportBtn.addEventListener('click', () => {
     return;
   }
   
-  if (!isUserUpload) {
-    alert('Please upload your own pattern to export. The demo pattern cannot be exported.');
-    return;
-  }
-  
   try {
-    const dataURL = canvas.toDataURL('image/png');
-    
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head>
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Export Pattern</title>
-              <style>
-                body { margin:0; padding:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
-                img { max-width:100%; height:auto; display:block; }
-                p { color:#fff; text-align:center; padding:1rem; font-family:system-ui; }
-              </style>
-
-```
-        </head>
-        <body>
-          <img src="${dataURL}" alt="Pattern">
-          <p>Long-press the image above and select "Add to Photos" or "Save Image"</p>
-        </body>
-      </html>
-    `);
-  } else {
-    alert('Please allow pop-ups to export the image');
+    const link = document.createElement('a');
+    link.download = 'rud3boy-pattern.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (error) {
+    console.error('Export failed:', error);
+    alert('Export failed. Please try again or take a screenshot.');
   }
-} else {
-  const link = document.createElement('a');
-  link.href = dataURL;
-  link.download = 'rud3boy-pattern.png';
-  link.click();
-}
-```
-
-} catch (e) {
-alert(‘Export failed. Please take a screenshot instead: Press Power + Volume Up buttons together.’);
-}
 });
 
 draw();
-
-const demoImg = new Image();
-demoImg.onload = () => {
-tileImg = demoImg;
-isUserUpload = false;
-updateBackground();
-draw();
-};
-demoImg.onerror = () => {
-console.log(‘Demo image failed to load - ready for user upload’);
-draw();
-};
-demoImg.src = “https://raw.githubusercontent.com/1gby/seamless-checker/main/Seamless.png”;
 </script>
 
 </body>
