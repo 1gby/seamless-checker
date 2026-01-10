@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rud3boy™ Seamless Pattern Tester</title>
+<style>
+  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; overflow:hidden; }
+  #container { display:flex; flex-direction:column; height:calc(100vh - 120px); }
+  #controls { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
+  #logo { height:40px; width:auto; object-fit:contain; }
+  .title-group { display:flex; align-items:center; gap:0.6rem; }
+  #canvas { flex:1; image-rendering:pixelated; touch-action:none; }
+  button, input, select { padding:0.5rem 0.9rem; font-size:0.9rem; }
+  .bg-btn { width:36px; height:36px; border-radius:50%; border:2px solid #444; cursor:pointer; }
+  label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
+  .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; }
+  #footer { padding:1rem; background:#1a1a1a; text-align:center; font-size:0.9rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; }
+  #footer a { color:#4da6ff; text-decoration:none; margin:0 0.8rem; }
+  #footer a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="controls">
+    <div class="title-group">
+      <img id="logo" src="https://i.imgur.com/tlVfJ54.png" alt="Rud3boy Logo">
+      <h2>Rud3boy™ Pattern Checker</h2>
+    </div>
+
+```
+<input type="file" id="fileInput" accept="image/*">
+
+<select id="repeatType">
+  <option value="full">Full Drop</option>
+  <option value="half-drop">Half Drop</option>
+  <option value="brick">Brick</option>
+</select>
+
+<button id="toggleGrid">Toggle Grid</button>
+
+<button class="bg-btn" style="background:#ffffff;" data-bg="#ffffff" title="White"></button>
+<button class="bg-btn" style="background:#000000;" data-bg="#000000" title="Black"></button>
+<button class="bg-btn" style="background:#808080;" data-bg="#808080" title="Gray"></button>
+<button class="bg-btn" style="background:repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%); background-size:40px 40px;" data-bg="checker" title="Checker"></button>
+
+<select id="viewMode">
+  <option value="tile">Infinite Tile</option>
+  <option value="phone">Phone Case Mockup</option>
+  <option value="fabric">Fabric Swatch Mockup</option>
+</select>
+
+<button id="exportBtn">Export PNG</button>
+
+<div class="slider-group">
+  <label>Scale: <input type="range" id="patternScale" min="0.3" max="3" step="0.1" value="1"></label>
+  <span id="scaleValue">1×</span>
+</div>
+
+<div class="slider-group">
+  <label>Offset X: <input type="range" id="offsetX" min="0" max="100" value="0"></label>
+  <span id="offsetXValue">0%</span>
+</div>
+
+<div class="slider-group">
+  <label>Offset Y: <input type="range" id="offsetY" min="0" max="100" value="0"></label>
+  <span id="offsetYValue">0%</span>
+</div>
+
+<p style="margin:0.5rem 0 0; font-size:0.8rem;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
+```
+
+  </div>
+  <canvas id="canvas"></canvas>
+</div>
+
+<div id="footer">
+  <p>Turn your patterns into real products! Upload to these popular Print-on-Demand sites:</p>
+  <p>
+    <a href="https://www.spoonflower.com/" target="_blank">Spoonflower</a> (fabrics, wallpaper, home decor) •
+    <a href="https://www.printful.com/" target="_blank">Printful</a> (mugs, apparel, accessories) •
+    <a href="https://printify.com/" target="_blank">Printify</a> (mugs, dishes, homeware) •
+    <a href="https://society6.com/" target="_blank">Society6</a> (art prints, mugs, decor) •
+    <a href="https://www.redbubble.com/" target="_blank">Redbubble</a> (wide range) •
+    <a href="https://www.zazzle.com/" target="_blank">Zazzle</a> (custom mugs, dishes, fabrics)
+  </p>
+</div>
+
+<script>
+// Helper function for rounded rectangles
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.arcTo(x + width, y, x + width, y + radius, radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+  ctx.lineTo(x + radius, y + height);
+  ctx.arcTo(x, y + height, x, y + height - radius, radius);
+  ctx.lineTo(x, y + radius);
+  ctx.arcTo(x, y, x + radius, y, radius);
+  ctx.closePath();
+}
+
+// Core Variables
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const fileInput = document.getElementById('fileInput');
+const toggleGridBtn = document.getElementById('toggleGrid');
+const repeatSelect = document.getElementById('repeatType');
+const viewModeSelect = document.getElementById('viewMode');
+const exportBtn = document.getElementById('exportBtn');
+const scaleSlider = document.getElementById('patternScale');
+const offsetXSlider = document.getElementById('offsetX');
+const offsetYSlider = document.getElementById('offsetY');
+const scaleValue = document.getElementById('scaleValue');
+const offsetXValue = document.getElementById('offsetXValue');
+const offsetYValue = document.getElementById('offsetYValue');
+
+let tileImg = null;
+let showGrid = true;
+let repeatType = 'full';
+let bgColor = '#111111';
+let viewMode = 'tile';
+let patternScale = 1;
+let offsetPercentX = 0;
+let offsetPercentY = 0;
+
+// Pan & Zoom state
+let offsetX = 0, offsetY = 0, scale = 1;
+let isDragging = false, startX, startY;
+
+// Resize
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - document.getElementById('controls').offsetHeight;
+  updateBackground();
+  draw();
+}
+window.addEventListener('resize', resize);
+resize();
+
+function updateBackground() {
+  canvas.style.background = bgColor === 'checker' 
+    ? 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)' 
+    : bgColor;
+  canvas.style.backgroundSize = '40px 40px';
+}
+
+// Draw function
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!tileImg) {
+    // Initial message
+    ctx.fillStyle = '#888';
+    ctx.font = '1.5rem system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Drop your square pattern tile here to start!', canvas.width/2, canvas.height/2);
+    return;
+  }
+
+  const baseTileSize = tileImg.width;
+  const effectiveTileSize = baseTileSize * patternScale;
+
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
+
+  if (viewMode === 'tile') {
+    const tilesX = Math.ceil(canvas.width / effectiveTileSize / scale) + 6;
+    const tilesY = Math.ceil(canvas.height / effectiveTileSize / scale) + 6;
+    const startTileX = Math.floor(-offsetX / (effectiveTileSize * scale)) - 3;
+    const startTileY = Math.floor(-offsetY / (effectiveTileSize * scale)) - 3;
+
+    for (let x = startTileX; x < startTileX + tilesX; x++) {
+      for (let y = startTileY; y < startTileY + tilesY; y++) {
+        let drawX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
+        let drawY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
+
+        if (repeatType === 'half-drop') drawY += (Math.abs(x) % 2 === 1) ? effectiveTileSize / 2 : 0;
+        else if (repeatType === 'brick') drawX += (Math.abs(y) % 2 === 1) ? effectiveTileSize / 2 : 0;
+
+        ctx.drawImage(tileImg, drawX, drawY, effectiveTileSize, effectiveTileSize);
+      }
+    }
+
+    // Grid
+    if (showGrid) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1 / scale;
+
+      for (let x = startTileX; x < startTileX + tilesX + 1; x++) {
+        let lineX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
+        ctx.beginPath();
+        ctx.moveTo(lineX, startTileY * effectiveTileSize - effectiveTileSize);
+        ctx.lineTo(lineX, (startTileY + tilesY + 1) * effectiveTileSize);
+        ctx.stroke();
+      }
+      for (let y = startTileY; y < startTileY + tilesY + 1; y++) {
+        let lineY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
+        ctx.beginPath();
+        ctx.moveTo(startTileX * effectiveTileSize - effectiveTileSize, lineY);
+        ctx.lineTo((startTileX + tilesX + 1) * effectiveTileSize, lineY);
+        ctx.stroke();
+      }
+    }
+  } else {
+    // Mockups
+    const centerX = (canvas.width / scale) / 2;
+    const centerY = (canvas.height / scale) / 2;
+    const mockupSize = Math.min(canvas.width, canvas.height) / scale * 0.7;
+
+    ctx.save();
+    ctx.translate(centerX, centerY);
+
+    if (viewMode === 'phone') {
+      roundRect(ctx, -mockupSize/2, -mockupSize*1.8, mockupSize, mockupSize*2.2, 60);
+      ctx.fillStyle = '#222';
+      ctx.fill();
+      ctx.clip();
+
+      // Create scaled pattern
+      ctx.save();
+      ctx.scale(patternScale, patternScale);
+      const pattern = ctx.createPattern(tileImg, 'repeat');
+      ctx.fillStyle = pattern;
+      ctx.fillRect(-mockupSize*2/patternScale, -mockupSize*3/patternScale, mockupSize*4/patternScale, mockupSize*6/patternScale);
+      ctx.restore();
+    } else if (viewMode === 'fabric') {
+      roundRect(ctx, -mockupSize/1.2, -mockupSize/1.5, mockupSize*2.4, mockupSize*3, 20);
+      ctx.fillStyle = '#333';
+      ctx.fill();
+      ctx.clip();
+
+      // Create scaled pattern
+      ctx.save();
+      ctx.scale(patternScale, patternScale);
+      const pattern = ctx.createPattern(tileImg, 'repeat');
+      ctx.fillStyle = pattern;
+      ctx.fillRect(-mockupSize*3/patternScale, -mockupSize*3/patternScale, mockupSize*6/patternScale, mockupSize*6/patternScale);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+// Load Image
+function loadImage(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    tileImg = new Image();
+    tileImg.onload = draw;
+    tileImg.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
+canvas.addEventListener('dragover', e => e.preventDefault());
+canvas.addEventListener('drop', e => {
+  e.preventDefault();
+  loadImage(e.dataTransfer.files[0]);
+});
+
+// Pan
+canvas.addEventListener('pointerdown', e => {
+  isDragging = true;
+  startX = e.clientX - offsetX;
+  startY = e.clientY - offsetY;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', e => {
+  if (!isDragging) return;
+  offsetX = e.clientX - startX;
+  offsetY = e.clientY - startY;
+  draw();
+});
+canvas.addEventListener('pointerup', () => isDragging = false);
+canvas.addEventListener('pointerleave', () => isDragging = false);
+
+// Zoom
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+  const mouseX = e.clientX, mouseY = e.clientY;
+  const newScale = scale * zoomFactor;
+  const scaleChange = newScale - scale;
+  offsetX -= (mouseX - offsetX) * (scaleChange / scale);
+  offsetY -= (mouseY - offsetY) * (scaleChange / scale);
+  scale = newScale;
+  draw();
+});
+
+// Events
+repeatSelect.addEventListener('change', e => { repeatType = e.target.value; draw(); });
+viewModeSelect.addEventListener('change', e => { viewMode = e.target.value; draw(); });
+toggleGridBtn.addEventListener('click', () => {
+  showGrid = !showGrid;
+  toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
+  draw();
+});
+document.querySelectorAll('.bg-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    bgColor = btn.dataset.bg;
+    updateBackground();
+    draw();
+  });
+});
+scaleSlider.addEventListener('input', e => {
+  patternScale = parseFloat(e.target.value);
+  scaleValue.textContent = patternScale.toFixed(1) + '×';
+  draw();
+});
+offsetXSlider.addEventListener('input', e => {
+  offsetPercentX = e.target.value / 100;
+  offsetXValue.textContent = e.target.value + '%';
+  draw();
+});
+offsetYSlider.addEventListener('input', e => {
+  offsetPercentY = e.target.value / 100;
+  offsetYValue.textContent = e.target.value + '%';
+  draw();
+});
+exportBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'rud3boy-pattern.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+// Initial draw
+draw();
+</script>
+
+</body>
+</html>
