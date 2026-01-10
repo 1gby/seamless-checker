@@ -448,54 +448,61 @@ offsetYSlider.addEventListener('input', e => {
   offsetYValue.textContent = e.target.value + '%';
   draw();
 });
-exportBtn.addEventListener('click', () => {
+exportBtn.addEventListener('click', async () => {
   if (!tileImg) {
     alert('Please load a pattern first!');
     return;
   }
   
-  // Force a redraw
-  draw();
-  
-  setTimeout(() => {
-    try {
-      // Convert canvas to blob for iOS compatibility
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          alert('Export failed. Please try again.');
-          return;
-        }
-        
-        // For iOS, open in new window so user can save
-        const url = URL.createObjectURL(blob);
-        const newWindow = window.open(url, '_blank');
-        
-        if (!newWindow) {
-          // Fallback: try direct download
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'rud3boy-pattern.png';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(() => URL.revokeObjectURL(url), 100);
-        } else {
-          // Let user know they can long-press to save
-          setTimeout(() => {
-            alert('Long-press the image and select "Save Image" to download');
-          }, 500);
-        }
-      }, 'image/png');
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Export failed: ' + error.message);
+  try {
+    // Create a new canvas with the current view
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+    const exportCtx = exportCanvas.getContext('2d');
+    
+    // Copy the current canvas content
+    exportCtx.drawImage(canvas, 0, 0);
+    
+    // Convert to blob
+    const blob = await new Promise(resolve => exportCanvas.toBlob(resolve, 'image/png'));
+    
+    if (!blob) {
+      alert('Failed to create image. Please try again.');
+      return;
     }
-  }, 100);
+    
+    // Create object URL
+    const url = URL.createObjectURL(blob);
+    
+    // Try to download - on iOS this will open in new tab
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rud3boy-pattern.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Show helpful message for iOS users
+    setTimeout(() => {
+      if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        alert('Tip: If the image opened in a new tab, long-press it and select "Save to Photos" or "Save Image"');
+      }
+    }, 500);
+    
+    // Clean up
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    
+  } catch (error) {
+    console.error('Export error:', error);
+    alert('Export failed: ' + error.message);
+  }
 });
 
 draw();
 
 const demoImg = new Image();
+// Don't use crossOrigin to avoid CORS issues on iOS export
 demoImg.onload = () => {
   tileImg = demoImg;
   updateBackground();
@@ -505,7 +512,9 @@ demoImg.onerror = () => {
   console.log('Demo image failed to load - ready for user upload');
   draw();
 };
-demoImg.src = "https://i.imgur.com/hKiKJUG.png";
+// Use a data URI or remove demo image to avoid CORS issues
+// Commenting out demo image for now to fix iOS export
+// demoImg.src = "https://i.imgur.com/hKiKJUG.png";
 </script>
 
 </body>
