@@ -522,40 +522,22 @@ exportBtn.addEventListener('click', async () => {
   }
   
   try {
-    const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = canvas.width;
-    exportCanvas.height = canvas.height;
-    const exportCtx = exportCanvas.getContext('2d');
+    // For iOS, we need to export differently
+    const link = document.createElement('a');
+    link.download = 'rud3boy-pattern.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
     
-    exportCtx.drawImage(canvas, 0, 0);
-    
-    const blob = await new Promise(resolve => exportCanvas.toBlob(resolve, 'image/png'));
-    
-    if (!blob) {
-      alert('Failed to create image. Please try again.');
-      return;
-    }
-    
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'rud3boy-pattern.png';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
+    // Show iOS-specific help message
     setTimeout(() => {
       if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        alert('Tip: If the image opened in a new tab, long-press it and select "Save to Photos" or "Save Image"');
+        alert('Tip: Long-press the image and select "Add to Photos" or "Save Image"');
       }
-    }, 500);
-    
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, 300);
     
   } catch (error) {
     console.error('Export error:', error);
-    alert('Export failed: ' + error.message);
+    alert('Export failed. Try taking a screenshot instead!');
   }
 });
 
