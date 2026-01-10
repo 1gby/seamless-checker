@@ -6,21 +6,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rud3boy™ Seamless Pattern Tester</title>
 <style>
-  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; overflow-x:hidden; }
-  #container { display:flex; flex-direction:column; min-height:100vh; padding-bottom:160px; box-sizing:border-box; }
-  #controls { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
-  #controls-bottom { padding:1rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; }
-  #logo { height:40px; width:auto; object-fit:contain; }
-  .title-group { display:flex; align-items:center; gap:0.6rem; }
-  #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; }
+  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; }
+  #container { display:flex; flex-direction:column; height:100vh; box-sizing:border-box; }
+  #controls { padding:0.5rem; background:#222; text-align:center; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.85rem; flex-shrink:0; }
+  #controls-bottom { padding:0.5rem; background:#222; text-align:center; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.85rem; flex-shrink:0; overflow-y:auto; max-height:40vh; }
+  #logo { height:32px; width:auto; object-fit:contain; }
+  .title-group { display:flex; align-items:center; gap:0.4rem; }
+  #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; width:100%; min-height:200px; }
   button, input, select { padding:0.4rem 0.7rem; font-size:0.85rem; }
   .bg-btn { width:32px; height:32px; border-radius:50%; border:2px solid #444; cursor:pointer; transition: transform 0.2s; flex-shrink:0; }
   .bg-btn:hover { transform: scale(1.1); }
   .bg-btn.active { border-color: #4da6ff; border-width: 3px; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
-  .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; }
-  #footer { padding:1rem; background:#1a1a1a; text-align:center; font-size:0.9rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:130px; overflow-y:auto; z-index:10; }
-  #footer a { color:#4da6ff; text-decoration:none; margin:0 0.8rem; }
+  .slider-group { display:flex; flex-direction:column; align-items:center; min-width:120px; }
+  #footer { padding:0.5rem; background:#1a1a1a; text-align:center; font-size:0.75rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:120px; overflow-y:auto; z-index:10; box-sizing:border-box; }
+  #footer p { margin:0.3rem 0; }
+  #footer a { color:#4da6ff; text-decoration:none; margin:0 0.3rem; font-size:0.75rem; }
   #footer a:hover { text-decoration:underline; }
 </style>
 </head>
@@ -238,14 +239,11 @@ function draw() {
       }
     }
   } else {
-    // Mockups use their own transform
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
 
-    // Apply zoom and pan for mockups
-    ctx.translate(centerX + offsetX, centerY + offsetY);
-    ctx.scale(scale, scale);
+    ctx.translate(centerX, centerY);
 
     if (viewMode === 'phone') {
       const phoneWidth = mockupSize * 0.5;
@@ -302,13 +300,14 @@ canvas.addEventListener('drop', e => {
 });
 
 canvas.addEventListener('pointerdown', e => {
+  if (viewMode !== 'tile') return;
   isDragging = true;
   startX = e.clientX - offsetX;
   startY = e.clientY - offsetY;
   canvas.setPointerCapture(e.pointerId);
 });
 canvas.addEventListener('pointermove', e => {
-  if (!isDragging) return;
+  if (!isDragging || viewMode !== 'tile') return;
   offsetX = e.clientX - startX;
   offsetY = e.clientY - startY;
   draw();
@@ -317,6 +316,7 @@ canvas.addEventListener('pointerup', () => isDragging = false);
 canvas.addEventListener('pointerleave', () => isDragging = false);
 
 canvas.addEventListener('wheel', e => {
+  if (viewMode !== 'tile') return;
   e.preventDefault();
   const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
   const mouseX = e.clientX, mouseY = e.clientY;
@@ -330,7 +330,7 @@ canvas.addEventListener('wheel', e => {
 
 let lastTouchDistance = 0;
 canvas.addEventListener('touchstart', e => {
-  if (e.touches.length === 2) {
+  if (e.touches.length === 2 && viewMode === 'tile') {
     e.preventDefault();
     const touch1 = e.touches[0];
     const touch2 = e.touches[1];
@@ -342,7 +342,7 @@ canvas.addEventListener('touchstart', e => {
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
-  if (e.touches.length === 2) {
+  if (e.touches.length === 2 && viewMode === 'tile') {
     e.preventDefault();
     const touch1 = e.touches[0];
     const touch2 = e.touches[1];
@@ -373,14 +373,7 @@ canvas.addEventListener('touchend', () => {
 });
 
 repeatSelect.addEventListener('change', e => { repeatType = e.target.value; draw(); });
-viewModeSelect.addEventListener('change', e => { 
-  viewMode = e.target.value;
-  // Reset pan/zoom when switching modes for cleaner view
-  offsetX = 0;
-  offsetY = 0;
-  scale = 1;
-  draw();
-});
+viewModeSelect.addEventListener('change', e => { viewMode = e.target.value; draw(); });
 toggleGridBtn.addEventListener('click', () => {
   showGrid = !showGrid;
   toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
@@ -422,14 +415,14 @@ exportBtn.addEventListener('click', () => {
 draw();
 
 const demoImg = new Image();
-demoImg.crossOrigin = "anonymous";
 demoImg.onload = () => {
   tileImg = demoImg;
   updateBackground();
   draw();
 };
 demoImg.onerror = () => {
-  console.log('Demo image failed to load');
+  console.log('Demo image failed to load - ready for user upload');
+  draw();
 };
 demoImg.src = "https://i.imgur.com/hKiKJUG.png";
 </script>
