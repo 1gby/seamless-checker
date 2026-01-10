@@ -519,38 +519,54 @@ exportBtn.addEventListener('click', async () => {
   }
   
   try {
-    // Convert canvas to blob
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-    
-    if (!blob) {
-      alert('Failed to create image. Please try again.');
-      return;
-    }
-    
-    // Create download link
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'rud3boy-pattern.png';
-    
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-    
-    // Show success message for iOS users
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      setTimeout(() => {
-        alert('Image downloaded! Check your Downloads folder or Files app.');
-      }, 300);
+    // For iOS, use Share API if available
+    if (navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      
+      if (!blob) {
+        alert('Failed to create image. Please try taking a screenshot instead!');
+        return;
+      }
+      
+      const file = new File([blob], 'rud3boy-pattern.png', { type: 'image/png' });
+      
+      await navigator.share({
+        files: [file],
+        title: 'Rud3boy Pattern',
+      });
+      
+    } else {
+      // Desktop/Android - direct download
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      
+      if (!blob) {
+        alert('Failed to create image. Please try again.');
+        return;
+      }
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'rud3boy-pattern.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     }
     
   } catch (error) {
     console.error('Export error:', error);
-    alert('Export failed. Please try taking a screenshot instead!');
+    
+    // Fallback: try data URL method
+    try {
+      const dataURL = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = 'rud3boy-pattern.png';
+      link.click();
+    } catch (e) {
+      alert('Export failed. Please take a screenshot instead: Press Power + Volume Up buttons together.');
+    }
   }
 });
 
