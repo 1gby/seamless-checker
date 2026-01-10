@@ -273,6 +273,7 @@ function draw() {
       const fabricWidth = mockupSize * 0.8;
       const fabricHeight = fabricWidth * 0.75;
       
+      ctx.save();
       roundRect(ctx, -fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, 15);
       ctx.fillStyle = '#2a2a2a';
       ctx.fill();
@@ -282,6 +283,43 @@ function draw() {
       ctx.clip();
 
       drawPattern(-fabricWidth/2, -fabricHeight/2, fabricWidth, fabricHeight, effectiveTileSize);
+      ctx.restore();
+    } else if (viewMode === 'bottle') {
+      const bottleWidth = mockupSize * 0.4;
+      const bottleHeight = bottleWidth * 2.2;
+      const capHeight = bottleHeight * 0.1;
+      const bodyTop = -bottleHeight/2 + capHeight;
+      const bodyHeight = bottleHeight - capHeight;
+      
+      // Draw bottle body with pattern
+      ctx.save();
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 20);
+      ctx.clip();
+      drawPattern(-bottleWidth/2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
+      ctx.restore();
+      
+      // Draw bottle outline
+      roundRect(ctx, -bottleWidth/2, bodyTop, bottleWidth, bodyHeight, 20);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      
+      // Draw cap
+      ctx.fillStyle = '#333';
+      roundRect(ctx, -bottleWidth * 0.4, -bottleHeight/2, bottleWidth * 0.8, capHeight, 5);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Cap top
+      ctx.beginPath();
+      ctx.ellipse(0, -bottleHeight/2 + 2, bottleWidth * 0.35, bottleWidth * 0.1, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   }
 
