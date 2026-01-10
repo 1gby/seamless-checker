@@ -449,40 +449,27 @@ offsetYSlider.addEventListener('input', e => {
   draw();
 });
 exportBtn.addEventListener('click', () => {
-  // Create a temporary canvas to capture current view
-  const exportCanvas = document.createElement('canvas');
-  exportCanvas.width = canvas.width;
-  exportCanvas.height = canvas.height;
-  const exportCtx = exportCanvas.getContext('2d');
-  
-  // Draw background
-  if (bgColor === 'checker') {
-    exportCtx.fillStyle = '#ffffff';
-    exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-    const checkSize = 40;
-    for (let x = 0; x < exportCanvas.width; x += checkSize) {
-      for (let y = 0; y < exportCanvas.height; y += checkSize) {
-        if ((Math.floor(x / checkSize) + Math.floor(y / checkSize)) % 2 === 0) {
-          exportCtx.fillStyle = '#ccc';
-        } else {
-          exportCtx.fillStyle = '#999';
-        }
-        exportCtx.fillRect(x, y, checkSize, checkSize);
-      }
-    }
-  } else {
-    exportCtx.fillStyle = bgColor;
-    exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+  if (!tileImg) {
+    alert('Please load a pattern first!');
+    return;
   }
   
-  // Draw the main canvas content on top
-  exportCtx.drawImage(canvas, 0, 0);
+  // Force a redraw to ensure canvas is fresh
+  draw();
   
-  // Download
-  const link = document.createElement('a');
-  link.download = 'rud3boy-pattern.png';
-  link.href = exportCanvas.toDataURL('image/png');
-  link.click();
+  // Small delay to ensure draw completes
+  setTimeout(() => {
+    try {
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+      link.download = `rud3boy-pattern-${timestamp}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  }, 100);
 });
 
 draw();
