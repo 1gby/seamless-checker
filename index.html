@@ -247,39 +247,27 @@ function draw() {
       const cameraSize = phoneWidth * 0.15;
       const cameraOffset = phoneWidth * 0.15;
       
-      // Phone case body
-      roundRect(ctx, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, 35);
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 4 / mockupScale;
-      ctx.stroke();
-      
-      // Camera cutout (top left)
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(-phoneWidth/2 + cameraOffset, -phoneHeight/2 + cameraOffset, cameraSize, cameraSize, 8);
-      ctx.fillStyle = '#000';
-      ctx.fill();
-      ctx.restore();
-      
-      // Clip pattern area
+      // Draw pattern first with clipping
       ctx.save();
       roundRect(ctx, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, 35);
       ctx.clip();
-
       drawPattern(-phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, effectiveTileSize);
+      ctx.restore();
       
-      // Draw camera cutout on top
+      // Phone case border
+      roundRect(ctx, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight, 35);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      
+      // Camera cutout (draw black circle on top)
       ctx.beginPath();
-      ctx.roundRect(-phoneWidth/2 + cameraOffset, -phoneHeight/2 + cameraOffset, cameraSize, cameraSize, 8);
+      ctx.arc(-phoneWidth/2 + cameraOffset + cameraSize/2, -phoneHeight/2 + cameraOffset + cameraSize/2, cameraSize/2, 0, Math.PI * 2);
       ctx.fillStyle = '#0a0a0a';
       ctx.fill();
       ctx.strokeStyle = '#222';
-      ctx.lineWidth = 1.5 / mockupScale;
+      ctx.lineWidth = 2;
       ctx.stroke();
-      
-      ctx.restore();
       
     } else if (viewMode === 'fabric') {
       const fabricWidth = mockupSize * 0.8;
