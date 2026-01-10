@@ -48,10 +48,9 @@
 
 <button id="toggleGrid">Show Grid</button>
 
-<button class="bg-btn active" style="background:#111111;" data-bg="#111111" title="Dark Gray"></button>
+<button class="bg-btn active" style="background:repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%); background-size:40px 40px;" data-bg="checker" title="Transparent"></button>
+<button class="bg-btn" style="background:#000000;" data-bg="#000000" title="Black"></button>
 <button class="bg-btn" style="background:#ffffff;" data-bg="#ffffff" title="White"></button>
-<button class="bg-btn" style="background:#808080;" data-bg="#808080" title="Gray"></button>
-<button class="bg-btn" style="background:repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%); background-size:40px 40px;" data-bg="checker" title="Checker"></button>
 
 <select id="viewMode">
   <option value="tile">Infinite Tile</option>
@@ -125,7 +124,7 @@ const offsetYValue = document.getElementById('offsetYValue');
 let tileImg = null;
 let showGrid = false;
 let repeatType = 'full';
-let bgColor = '#111111';
+let bgColor = 'checker';
 let viewMode = 'tile';
 let patternScale = 1;
 let offsetPercentX = 0;
