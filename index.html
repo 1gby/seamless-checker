@@ -142,8 +142,8 @@ function resize() {
   const availableHeight = window.innerHeight - controlsHeight - 140;
   const availableWidth = window.innerWidth;
   
-  // Make canvas square - use the smaller dimension
-  const size = Math.min(availableWidth, availableHeight);
+  // Make canvas square - use width on mobile, or smaller dimension on desktop
+  const size = window.innerWidth < 768 ? availableWidth : Math.min(availableWidth, availableHeight);
   canvas.width = size;
   canvas.height = size;
   
