@@ -238,11 +238,14 @@ function draw() {
       }
     }
   } else {
+    // Mockups use their own transform
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
 
-    ctx.translate(centerX, centerY);
+    // Apply zoom and pan for mockups
+    ctx.translate(centerX + offsetX, centerY + offsetY);
+    ctx.scale(scale, scale);
 
     if (viewMode === 'phone') {
       const phoneWidth = mockupSize * 0.5;
@@ -370,7 +373,14 @@ canvas.addEventListener('touchend', () => {
 });
 
 repeatSelect.addEventListener('change', e => { repeatType = e.target.value; draw(); });
-viewModeSelect.addEventListener('change', e => { viewMode = e.target.value; draw(); });
+viewModeSelect.addEventListener('change', e => { 
+  viewMode = e.target.value;
+  // Reset pan/zoom when switching modes for cleaner view
+  offsetX = 0;
+  offsetY = 0;
+  scale = 1;
+  draw();
+});
 toggleGridBtn.addEventListener('click', () => {
   showGrid = !showGrid;
   toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
