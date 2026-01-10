@@ -6,22 +6,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rud3boy™ Seamless Pattern Tester</title>
 <style>
-  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; }
-  #container { display:flex; flex-direction:column; height:100vh; box-sizing:border-box; }
-  #controls { padding:0.5rem; background:#222; text-align:center; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.85rem; flex-shrink:0; }
-  #controls-bottom { padding:0.5rem; background:#222; text-align:center; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.85rem; flex-shrink:0; overflow-y:auto; max-height:40vh; }
-  #logo { height:32px; width:auto; object-fit:contain; }
-  .title-group { display:flex; align-items:center; gap:0.4rem; }
-  #canvas { flex:1; image-rendering:pixelated; touch-action:none; margin:0 auto; display:block; width:100%; min-height:200px; }
-  button, input, select { padding:0.4rem 0.7rem; font-size:0.85rem; }
-  .bg-btn { width:32px; height:32px; border-radius:50%; border:2px solid #444; cursor:pointer; transition: transform 0.2s; flex-shrink:0; }
+  body { margin:0; padding:0; font-family:system-ui, sans-serif; background:#111; color:#eee; overflow-x:hidden; }
+  #container { display:flex; flex-direction:column; min-height:100vh; padding-bottom:140px; box-sizing:border-box; }
+  #controls { padding:0.8rem; background:#222; text-align:center; display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; flex-shrink:0; }
+  #controls-bottom { padding:1rem 0.8rem; background:#222; text-align:center; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; align-items:center; font-size:0.9rem; flex-shrink:0; }
+  #logo { height:36px; width:auto; object-fit:contain; }
+  .title-group { display:flex; align-items:center; gap:0.5rem; }
+  #canvas { width:100%; max-width:100vw; aspect-ratio:1; image-rendering:pixelated; touch-action:none; display:block; margin:0; }
+  button, input, select { padding:0.6rem 0.9rem; font-size:0.9rem; border-radius:8px; }
+  .bg-btn { width:44px; height:44px; border-radius:50%; border:2px solid #444; cursor:pointer; transition: transform 0.2s; flex-shrink:0; }
   .bg-btn:hover { transform: scale(1.1); }
   .bg-btn.active { border-color: #4da6ff; border-width: 3px; }
   label { display:flex; align-items:center; gap:0.4rem; white-space:nowrap; }
-  .slider-group { display:flex; flex-direction:column; align-items:center; min-width:120px; }
-  #footer { padding:0.5rem; background:#1a1a1a; text-align:center; font-size:0.75rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; max-height:120px; overflow-y:auto; z-index:10; box-sizing:border-box; }
-  #footer p { margin:0.3rem 0; }
-  #footer a { color:#4da6ff; text-decoration:none; margin:0 0.3rem; font-size:0.75rem; }
+  .slider-group { display:flex; flex-direction:column; align-items:center; min-width:140px; gap:0.3rem; }
+  .slider-group input[type="range"] { width:120px; }
+  #footer { padding:0.8rem; background:#1a1a1a; text-align:center; font-size:0.85rem; position:fixed; bottom:0; width:100%; border-top:1px solid #333; z-index:10; box-sizing:border-box; }
+  #footer p { margin:0.4rem 0; line-height:1.5; }
+  #footer a { color:#4da6ff; text-decoration:none; margin:0 0.5rem; font-size:0.85rem; display:inline-block; }
   #footer a:hover { text-decoration:underline; }
 </style>
 </head>
@@ -75,7 +76,7 @@
   <span id="offsetYValue">0%</span>
 </div>
 
-<p style="margin:0.3rem 0 0; font-size:0.75rem; width:100%;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
+<p style="margin:0.5rem 0 0; font-size:0.85rem; width:100%;">Drag & drop square tile | Wheel/Pinch zoom | Drag to pan</p>
 
   </div>
 </div>
@@ -134,15 +135,9 @@ let offsetX = 0, offsetY = 0, scale = 1;
 let isDragging = false, startX, startY;
 
 function resize() {
-  const controlsTop = document.getElementById('controls').offsetHeight;
-  const controlsBottom = document.getElementById('controls-bottom').offsetHeight;
-  const footer = document.getElementById('footer').offsetHeight;
-  const availableHeight = window.innerHeight - controlsTop - controlsBottom - footer;
   const availableWidth = window.innerWidth;
-  
-  const size = Math.min(availableWidth, availableHeight);
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = availableWidth;
+  canvas.height = availableWidth;
   
   updateBackground();
   draw();
