@@ -59,10 +59,10 @@ background-clip: text;
 margin: 0;
 }
 
-.header-buttons {
+.file-upload-section {
 display: flex;
 align-items: center;
-gap: 1.5rem;
+gap: 0.8rem;
 }
 
 .file-input-wrapper {
@@ -76,7 +76,7 @@ position: absolute;
 left: -9999px;
 }
 
-.upload-btn, .export-btn-header {
+.upload-btn {
 padding: 0.75rem 1.5rem;
 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 color: white;
@@ -89,24 +89,9 @@ transition: all 0.3s ease;
 box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.upload-btn:hover, .export-btn-header:hover {
+.upload-btn:hover {
 transform: translateY(-2px);
 box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.export-btn-header {
-background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.export-btn-header:hover {
-box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-}
-
-.export-btn-header:disabled {
-opacity: 0.5;
-cursor: not-allowed;
-transform: none;
 }
 
 #canvas-wrapper {
@@ -344,17 +329,7 @@ margin-top: 1rem;
 }
 
 @media (max-width: 768px) {
-#header {
-padding: 1rem;
-flex-direction: column;
-align-items: stretch;
-}
-.logo-section {
-justify-content: center;
-}
-.header-buttons {
-justify-content: center;
-}
+#header { padding: 1rem; }
 .title { font-size: 1.2rem; }
 #canvas-wrapper { padding: 1rem; }
 #controls { padding: 1.5rem 1rem; gap: 1rem; }
@@ -368,14 +343,13 @@ justify-content: center;
   <div id="header">
     <div class="logo-section">
       <img id="logo" src="https://i.imgur.com/tlVfJ54.png" alt="Rud3boy Logo">
-      <h1 class="title">Pattern Checker By Rudeboy™ </h1>
+      <h1 class="title">Pattern Checker</h1>
     </div>
-    <div class="header-buttons">
+    <div class="file-upload-section">
       <div class="file-input-wrapper">
         <input type="file" id="fileInput" accept="image/*">
         <button class="upload-btn" id="uploadBtnHeader">📁 Upload Pattern</button>
       </div>
-      <button class="export-btn-header" id="exportBtnHeader" disabled>💾 Export PNG</button>
     </div>
   </div>
 
@@ -398,6 +372,7 @@ justify-content: center;
       </select>
     </div>
 
+```
 <div class="control-group">
   <label class="control-label">View Mode</label>
   <select id="viewMode">
@@ -411,13 +386,9 @@ justify-content: center;
 <div class="control-group">
   <label class="control-label">Background</label>
   <select id="bgColor">
-    <option value="checker">Transparent Grid</option>
+    <option value="checker">Transparent</option>
     <option value="#000000">Black</option>
     <option value="#ffffff">White</option>
-    <option value="#f5f5f5">Light Gray</option>
-    <option value="#1a1a1a">Dark Gray</option>
-    <option value="wood">Wood Counter</option>
-    <option value="marble">Marble Counter</option>
   </select>
 </div>
 
@@ -450,9 +421,15 @@ justify-content: center;
   <input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
 
+<div class="control-group">
+  <label class="control-label">Export</label>
+  <button class="primary" id="exportBtn">💾 Export PNG</button>
+</div>
+```
+
   </div>
 
-  <p class="helper-text">Pinch to zoom • Drag to pan</p>
+  <p class="helper-text">Wheel/Pinch to zoom • Drag to pan in tile mode</p>
 </div>
 
 <div id="footer">
@@ -471,449 +448,40 @@ justify-content: center;
 </div>
 
 <script>
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y);
-  ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h);
-  ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r);
-  ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
-
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const fileInput = document.getElementById('fileInput');
-const uploadBtnHeader = document.getElementById('uploadBtnHeader');
-const exportBtnHeader = document.getElementById('exportBtnHeader');
-const toggleGridBtn = document.getElementById('toggleGrid');
-const repeatSelect = document.getElementById('repeatType');
-const viewModeSelect = document.getElementById('viewMode');
-const bgColorSelect = document.getElementById('bgColor');
-const scaleSlider = document.getElementById('patternScale');
-const offsetXSlider = document.getElementById('offsetX');
-const offsetYSlider = document.getElementById('offsetY');
-const scaleValue = document.getElementById('scaleValue');
-const offsetXValue = document.getElementById('offsetXValue');
-const offsetYValue = document.getElementById('offsetYValue');
-const emptyState = document.getElementById('emptyState');
-
-let tileImg = null;
-let showGrid = false;
-let repeatType = 'full';
-let bgColor = 'checker';
-let viewMode = 'tile';
-let patternScale = 1;
-let offsetPercentX = 0;
-let offsetPercentY = 0;
-let panOffsetX = 0;
-let panOffsetY = 0;
-let zoomScale = 1;
-let isDragging = false;
-let dragStartX;
-let dragStartY;
-let phoneImg = null;
-let bottleImg = null;
-
-const MIN_ZOOM = 0.1;
-const MAX_ZOOM = 5;
-
-// Load mockup images
-const loadMockups = () => {
-  phoneImg = new Image();
-  phoneImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/iphone.png';
-  phoneImg.onerror = () => console.error('Failed to load phone mockup');
-  
-  bottleImg = new Image();
-  bottleImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/bottle.png';
-  bottleImg.onerror = () => console.error('Failed to load bottle mockup');
-  
-  phoneImg.onload = () => { 
-    console.log('Phone mockup loaded');
-    if(tileImg) draw(); 
-  };
-  bottleImg.onload = () => { 
-    console.log('Bottle mockup loaded');
-    if(tileImg) draw(); 
-  };
-};
-loadMockups();
-
-function resize() {
-  const wrapper = document.getElementById('canvas-wrapper');
-  const size = Math.min(wrapper.clientWidth - 64, 800);
-  canvas.width = size;
-  canvas.height = size;
-  updateBackground();
-  draw();
-}
-
-window.addEventListener('resize', resize);
-resize();
-
-document.getElementById('logo').addEventListener('click', () => location.reload());
-canvas.addEventListener('click', e => { if (!tileImg && !isDragging) fileInput.click(); });
-uploadBtnHeader.addEventListener('click', () => fileInput.click());
-
-function updateBackground() {
-  if (tileImg) {
-    if (bgColor === 'checker') {
-      canvas.style.background = 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)';
-      canvas.style.backgroundSize = '40px 40px';
-    } else if (bgColor === 'wood') {
-      canvas.style.background = 'linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%)';
-      canvas.style.backgroundSize = '100% 100%';
-    } else if (bgColor === 'marble') {
-      canvas.style.background = 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 25%, #ffffff 50%, #e8e8e8 75%, #d0d0d0 100%)';
-      canvas.style.backgroundSize = '100% 100%';
-    } else {
-      canvas.style.background = bgColor;
-      canvas.style.backgroundSize = '100% 100%';
-    }
-  } else {
-    canvas.style.background = 'repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';
-    canvas.style.backgroundSize = '40px 40px';
-  }
-}
-
-function drawPattern(sx, sy, w, h, ts) {
-  const tilesX = Math.ceil(w / ts) + 4;
-  const tilesY = Math.ceil(h / ts) + 4;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  
-  for (let x = -2; x < tilesX; x++) {
-    for (let y = -2; y < tilesY; y++) {
-      let drawX = sx + x * ts + offsetPercentX * ts;
-      let drawY = sy + y * ts + offsetPercentY * ts;
-      
-      if (repeatType === 'half-drop') {
-        drawY += (Math.abs(x) % 2 === 1) ? ts / 2 : 0;
-      } else if (repeatType === 'brick') {
-        drawX += (Math.abs(y) % 2 === 1) ? ts / 2 : 0;
-      }
-      
-      ctx.drawImage(tileImg, drawX, drawY, ts, ts);
-    }
-  }
-}
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  if (!tileImg) {
-    emptyState.classList.add('visible');
-    canvas.classList.remove('has-image');
-    exportBtnHeader.disabled = true;
-    return;
-  }
-  
-  emptyState.classList.remove('visible');
-  canvas.classList.add('has-image');
-  exportBtnHeader.disabled = false;
-  
-  const baseTileSize = tileImg.width;
-  const effectiveTileSize = baseTileSize * patternScale;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.save();
-  
-  if (viewMode === 'tile') {
-    ctx.translate(panOffsetX, panOffsetY);
-    ctx.scale(zoomScale, zoomScale);
-    
-    const tilesX = Math.ceil(canvas.width / effectiveTileSize / zoomScale) + 6;
-    const tilesY = Math.ceil(canvas.height / effectiveTileSize / zoomScale) + 6;
-    const startTileX = Math.floor(-panOffsetX / (effectiveTileSize * zoomScale)) - 3;
-    const startTileY = Math.floor(-panOffsetY / (effectiveTileSize * zoomScale)) - 3;
-    
-    for (let x = startTileX; x < startTileX + tilesX; x++) {
-      for (let y = startTileY; y < startTileY + tilesY; y++) {
-        let drawX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
-        let drawY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
-        
-        if (repeatType === 'half-drop') {
-          drawY += (Math.abs(x) % 2 === 1) ? effectiveTileSize / 2 : 0;
-        } else if (repeatType === 'brick') {
-          drawX += (Math.abs(y) % 2 === 1) ? effectiveTileSize / 2 : 0;
-        }
-        
-        ctx.drawImage(tileImg, drawX, drawY, effectiveTileSize, effectiveTileSize);
-      }
-    }
-    
-    if (showGrid) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = 1 / zoomScale;
-      
-      for (let x = startTileX; x < startTileX + tilesX + 1; x++) {
-        let lineX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
-        ctx.beginPath();
-        ctx.moveTo(lineX, startTileY * effectiveTileSize - effectiveTileSize);
-        ctx.lineTo(lineX, (startTileY + tilesY + 1) * effectiveTileSize);
-        ctx.stroke();
-      }
-      
-      for (let y = startTileY; y < startTileY + tilesY + 1; y++) {
-        let lineY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
-        ctx.beginPath();
-        ctx.moveTo(startTileX * effectiveTileSize - effectiveTileSize, lineY);
-        ctx.lineTo((startTileX + tilesX + 1) * effectiveTileSize, lineY);
-        ctx.stroke();
-      }
-    }
-  } else {
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
-    ctx.translate(centerX, centerY);
-    
-    if (viewMode === 'phone') {
-      if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
-        const displaySize = mockupSize * 1.2;
-        
-        // Draw the mockup first (this includes the transparent case area)
-        ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
-        
-        // Then use destination-over to put pattern BEHIND the mockup
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-over';
-        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
-        ctx.restore();
-      } else {
-        ctx.fillStyle = '#888';
-        ctx.font = '20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Loading phone mockup...', 0, 0);
-      }
-    } else if (viewMode === 'fabric') {
-      const fabricWidth = mockupSize * 0.95;
-      const fabricHeight = fabricWidth * 0.8;
-      
-      ctx.save();
-      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
-      ctx.fillStyle = '#2a2a2a';
-      ctx.fill();
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.clip();
-      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
-      ctx.restore();
-    } else if (viewMode === 'fabric') {
-      const fabricWidth = mockupSize * 0.95;
-      const fabricHeight = fabricWidth * 0.8;
-      
-      ctx.save();
-      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
-      ctx.fillStyle = '#2a2a2a';
-      ctx.fill();
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.clip();
-      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
-      ctx.restore();
-    } else if (viewMode === 'bottle') {
-      if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
-        const displaySize = mockupSize * 1.2;
-        
-        // Draw the mockup first (this includes the transparent bottle wrap area)
-        ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
-        
-        // Then use destination-over to put pattern BEHIND the mockup
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-over';
-        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
-        ctx.restore();
-      } else {
-        ctx.fillStyle = '#888';
-        ctx.font = '20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Loading bottle mockup...', 0, 0);
-      }
-    }
-  }
-  
-  ctx.restore();
-}
-
-function loadImage(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    tileImg = new Image();
-    tileImg.onload = () => {
-      updateBackground();
-      draw();
-    };
-    tileImg.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
-
-canvas.addEventListener('dragover', e => {
-  e.preventDefault();
-  canvas.style.opacity = '0.7';
-});
-
-canvas.addEventListener('dragleave', () => {
-  canvas.style.opacity = '1';
-});
-
-canvas.addEventListener('drop', e => {
-  e.preventDefault();
-  canvas.style.opacity = '1';
-  loadImage(e.dataTransfer.files[0]);
-});
-
-canvas.addEventListener('pointerdown', e => {
-  if (!tileImg || viewMode !== 'tile') return;
-  isDragging = true;
-  dragStartX = e.clientX - panOffsetX;
-  dragStartY = e.clientY - panOffsetY;
-  canvas.setPointerCapture(e.pointerId);
-});
-
-canvas.addEventListener('pointermove', e => {
-  if (!isDragging || viewMode !== 'tile') return;
-  panOffsetX = e.clientX - dragStartX;
-  panOffsetY = e.clientY - dragStartY;
-  draw();
-});
-
-canvas.addEventListener('pointerup', () => isDragging = false);
-canvas.addEventListener('pointerleave', () => isDragging = false);
-
-canvas.addEventListener('wheel', e => {
-  if (viewMode !== 'tile' || !tileImg) return;
-  e.preventDefault();
-  
-  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-  
-  let newScale = zoomScale * zoomFactor;
-  newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
-  
-  const scaleChange = newScale - zoomScale;
-  panOffsetX -= (mouseX - panOffsetX) * (scaleChange / zoomScale);
-  panOffsetY -= (mouseY - panOffsetY) * (scaleChange / zoomScale);
-  
-  zoomScale = newScale;
-  draw();
-}, { passive: false });
-
-let lastTouchDistance = 0;
-
-canvas.addEventListener('touchstart', e => {
-  if (e.touches.length === 2 && viewMode === 'tile' && tileImg) {
-    e.preventDefault();
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    lastTouchDistance = Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY
-    );
-  }
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  if (e.touches.length === 2 && viewMode === 'tile' && tileImg) {
-    e.preventDefault();
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    const currentDistance = Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY
-    );
-    
-    if (lastTouchDistance > 0) {
-      const zoomFactor = currentDistance / lastTouchDistance;
-      const rect = canvas.getBoundingClientRect();
-      const centerX = ((touch1.clientX + touch2.clientX) / 2) - rect.left;
-      const centerY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
-      
-      let newScale = zoomScale * zoomFactor;
-      newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
-      
-      const scaleChange = newScale - zoomScale;
-      panOffsetX -= (centerX - panOffsetX) * (scaleChange / zoomScale);
-      panOffsetY -= (centerY - panOffsetY) * (scaleChange / zoomScale);
-      
-      zoomScale = newScale;
-      draw();
-    }
-    
-    lastTouchDistance = currentDistance;
-  }
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => lastTouchDistance = 0);
-
-repeatSelect.addEventListener('change', e => {
-  repeatType = e.target.value;
-  draw();
-});
-
-viewModeSelect.addEventListener('change', e => {
-  viewMode = e.target.value;
-  draw();
-});
-
-bgColorSelect.addEventListener('change', e => {
-  bgColor = e.target.value;
-  updateBackground();
-  draw();
-});
-
-toggleGridBtn.addEventListener('click', () => {
-  showGrid = !showGrid;
-  toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
-  draw();
-});
-
-scaleSlider.addEventListener('input', e => {
-  patternScale = parseFloat(e.target.value);
-  scaleValue.textContent = patternScale.toFixed(1) + '×';
-  draw();
-});
-
-offsetXSlider.addEventListener('input', e => {
-  offsetPercentX = e.target.value / 100;
-  offsetXValue.textContent = e.target.value + '%';
-  draw();
-});
-
-offsetYSlider.addEventListener('input', e => {
-  offsetPercentY = e.target.value / 100;
-  offsetYValue.textContent = e.target.value + '%';
-  draw();
-});
-
-exportBtnHeader.addEventListener('click', () => {
-  if (!tileImg) {
-    alert('Please load a pattern first!');
-    return;
-  }
-  try {
-    const link = document.createElement('a');
-    link.download = 'rud3boy-pattern.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  } catch (error) {
-    console.error('Export failed:', error);
-    alert('Export failed. Please try again or take a screenshot.');
-  }
-});
-
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath()}
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),fileInput=document.getElementById('fileInput'),uploadBtnHeader=document.getElementById('uploadBtnHeader'),toggleGridBtn=document.getElementById('toggleGrid'),repeatSelect=document.getElementById('repeatType'),viewModeSelect=document.getElementById('viewMode'),bgColorSelect=document.getElementById('bgColor'),exportBtn=document.getElementById('exportBtn'),scaleSlider=document.getElementById('patternScale'),offsetXSlider=document.getElementById('offsetX'),offsetYSlider=document.getElementById('offsetY'),scaleValue=document.getElementById('scaleValue'),offsetXValue=document.getElementById('offsetXValue'),offsetYValue=document.getElementById('offsetYValue'),emptyState=document.getElementById('emptyState');
+let tileImg=null,showGrid=false,repeatType='full',bgColor='checker',viewMode='tile',patternScale=1,offsetPercentX=0,offsetPercentY=0,panOffsetX=0,panOffsetY=0,zoomScale=1,isDragging=false,dragStartX,dragStartY;
+const MIN_ZOOM=0.1,MAX_ZOOM=5;
+function resize(){const w=document.getElementById('canvas-wrapper'),a=Math.min(w.clientWidth-64,800);canvas.width=a;canvas.height=a;updateBackground();draw()}
+window.addEventListener('resize',resize);resize();
+document.getElementById('logo').addEventListener('click',()=>location.reload());
+canvas.addEventListener('click',e=>{if(!tileImg&&!isDragging)fileInput.click()});
+uploadBtnHeader.addEventListener('click',()=>fileInput.click());
+function updateBackground(){if(tileImg){canvas.style.background=bgColor==='checker'?'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)':bgColor;canvas.style.backgroundSize='40px 40px'}else{canvas.style.background='repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';canvas.style.backgroundSize='40px 40px'}}
+function drawPattern(sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4,ty=Math.ceil(h/ts)+4;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';for(let x=-2;x<tx;x++){for(let y=-2;y<ty;y++){let dx=sx+x*ts+offsetPercentX*ts,dy=sy+y*ts+offsetPercentY*ts;if(repeatType==='half-drop')dy+=(Math.abs(x)%2===1)?ts/2:0;else if(repeatType==='brick')dx+=(Math.abs(y)%2===1)?ts/2:0;ctx.drawImage(tileImg,dx,dy,ts,ts)}}}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);if(!tileImg){emptyState.classList.add('visible');canvas.classList.remove('has-image');return}emptyState.classList.remove('visible');canvas.classList.add('has-image');const bts=tileImg.width,ets=bts*patternScale;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.save();if(viewMode==='tile'){ctx.translate(panOffsetX,panOffsetY);ctx.scale(zoomScale,zoomScale);const tx=Math.ceil(canvas.width/ets/zoomScale)+6,ty=Math.ceil(canvas.height/ets/zoomScale)+6,stx=Math.floor(-panOffsetX/(ets*zoomScale))-3,sty=Math.floor(-panOffsetY/(ets*zoomScale))-3;for(let x=stx;x<stx+tx;x++){for(let y=sty;y<sty+ty;y++){let dx=x*ets+offsetPercentX*ets,dy=y*ets+offsetPercentY*ets;if(repeatType==='half-drop')dy+=(Math.abs(x)%2===1)?ets/2:0;else if(repeatType==='brick')dx+=(Math.abs(y)%2===1)?ets/2:0;ctx.drawImage(tileImg,dx,dy,ets,ets)}}if(showGrid){ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1/zoomScale;for(let x=stx;x<stx+tx+1;x++){let lx=x*ets+offsetPercentX*ets;ctx.beginPath();ctx.moveTo(lx,sty*ets-ets);ctx.lineTo(lx,(sty+ty+1)*ets);ctx.stroke()}for(let y=sty;y<sty+ty+1;y++){let ly=y*ets+offsetPercentY*ets;ctx.beginPath();ctx.moveTo(stx*ets-ets,ly);ctx.lineTo((stx+tx+1)*ets,ly);ctx.stroke()}}}else{const cx=canvas.width/2,cy=canvas.height/2,ms=Math.min(canvas.width,canvas.height)*0.6;ctx.translate(cx,cy);if(viewMode==='phone'){const pw=ms*0.55,ph=pw*2.1,cs=pw*0.15,co=pw*0.15;ctx.save();roundRect(ctx,-pw/2,-ph/2,pw,ph,35);ctx.clip();drawPattern(-pw/2,-ph/2,pw,ph,ets);ctx.restore();roundRect(ctx,-pw/2,-ph/2,pw,ph,35);ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.stroke();ctx.beginPath();ctx.arc(-pw/2+co+cs/2,-ph/2+co+cs/2,cs/2,0,Math.PI*2);ctx.fillStyle='#0a0a0a';ctx.fill();ctx.strokeStyle='#222';ctx.lineWidth=2;ctx.stroke()}else if(viewMode==='fabric'){const fw=ms*0.95,fh=fw*0.8;ctx.save();roundRect(ctx,-fw/2,-fh/2,fw,fh,15);ctx.fillStyle='#2a2a2a';ctx.fill();ctx.strokeStyle='#444';ctx.lineWidth=2;ctx.stroke();ctx.clip();drawPattern(-fw/2,-fh/2,fw,fh,ets);ctx.restore()}else if(viewMode==='bottle'){const bw=ms*0.45,bh=bw*2.3,ch=bh*0.12,nh=bh*0.08,bt=-bh/2+ch+nh,bh2=bh-ch-nh;ctx.save();roundRect(ctx,-bw/2,bt,bw,bh2,25);ctx.clip();drawPattern(-bw/2,bt,bw,bh2,ets);ctx.restore();roundRect(ctx,-bw/2,bt,bw,bh2,25);ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.stroke();ctx.save();roundRect(ctx,-bw/2,bt,bw,bh2,25);ctx.clip();const g=ctx.createLinearGradient(-bw/2,0,bw/2,0);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(0.3,'rgba(255,255,255,0.15)');g.addColorStop(0.5,'rgba(255,255,255,0.25)');g.addColorStop(0.7,'rgba(255,255,255,0.15)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(-bw/2,bt,bw,bh2);ctx.restore();const nw=bw*0.6;ctx.fillStyle='#e8e8e8';roundRect(ctx,-nw/2,-bh/2+ch,nw,nh,8);ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();const cw=bw*0.65;ctx.fillStyle='#2a2a2a';roundRect(ctx,-cw/2,-bh/2,cw,ch,6);ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();ctx.strokeStyle='#444';ctx.lineWidth=1;for(let i=0;i<4;i++){const y=-bh/2+(ch/5)*(i+1);ctx.beginPath();ctx.moveTo(-cw/2+2,y);ctx.lineTo(cw/2-2,y);ctx.stroke()}ctx.beginPath();ctx.ellipse(0,-bh/2+3,cw*0.45,cw*0.12,0,0,Math.PI*2);ctx.fillStyle='#1a1a1a';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.ellipse(0,bt+bh2-5,bw*0.48,bw*0.08,0,0,Math.PI);ctx.fillStyle='#333';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke()}}ctx.restore()}
+function loadImage(f){if(!f)return;const r=new FileReader();r.onload=e=>{tileImg=new Image();tileImg.onload=()=>{updateBackground();draw()};tileImg.src=e.target.result};r.readAsDataURL(f)}
+fileInput.addEventListener('change',e=>loadImage(e.target.files[0]));
+canvas.addEventListener('dragover',e=>{e.preventDefault();canvas.style.opacity='0.7'});
+canvas.addEventListener('dragleave',()=>{canvas.style.opacity='1'});
+canvas.addEventListener('drop',e=>{e.preventDefault();canvas.style.opacity='1';loadImage(e.dataTransfer.files[0])});
+canvas.addEventListener('pointerdown',e=>{if(!tileImg||viewMode!=='tile')return;isDragging=true;dragStartX=e.clientX-panOffsetX;dragStartY=e.clientY-panOffsetY;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!isDragging||viewMode!=='tile')return;panOffsetX=e.clientX-dragStartX;panOffsetY=e.clientY-dragStartY;draw()});
+canvas.addEventListener('pointerup',()=>isDragging=false);
+canvas.addEventListener('pointerleave',()=>isDragging=false);
+canvas.addEventListener('wheel',e=>{if(viewMode!=='tile'||!tileImg)return;e.preventDefault();const zf=e.deltaY<0?1.1:0.9,r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;let ns=zoomScale*zf;ns=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,ns));const sc=ns-zoomScale;panOffsetX-=(mx-panOffsetX)*(sc/zoomScale);panOffsetY-=(my-panOffsetY)*(sc/zoomScale);zoomScale=ns;draw()},{passive:false});
+let ltd=0;
+canvas.addEventListener('touchstart',e=>{if(e.touches.length===2&&viewMode==='tile'&&tileImg){e.preventDefault();const t1=e.touches[0],t2=e.touches[1];ltd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY)}},{passive:false});
+canvas.addEventListener('touchmove',e=>{if(e.touches.length===2&&viewMode==='tile'&&tileImg){e.preventDefault();const t1=e.touches[0],t2=e.touches[1],cd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);if(ltd>0){const zf=cd/ltd,r=canvas.getBoundingClientRect(),cx=((t1.clientX+t2.clientX)/2)-r.left,cy=((t1.clientY+t2.clientY)/2)-r.top;let ns=zoomScale*zf;ns=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,ns));const sc=ns-zoomScale;panOffsetX-=(cx-panOffsetX)*(sc/zoomScale);panOffsetY-=(cy-panOffsetY)*(sc/zoomScale);zoomScale=ns;draw()}ltd=cd}},{passive:false});
+canvas.addEventListener('touchend',()=>ltd=0);
+repeatSelect.addEventListener('change',e=>{repeatType=e.target.value;draw()});
+viewModeSelect.addEventListener('change',e=>{viewMode=e.target.value;draw()});
+bgColorSelect.addEventListener('change',e=>{bgColor=e.target.value;updateBackground();draw()});
+toggleGridBtn.addEventListener('click',()=>{showGrid=!showGrid;toggleGridBtn.textContent=showGrid?'Hide Grid':'Show Grid';draw()});
+scaleSlider.addEventListener('input',e=>{patternScale=parseFloat(e.target.value);scaleValue.textContent=patternScale.toFixed(1)+'×';draw()});
+offsetXSlider.addEventListener('input',e=>{offsetPercentX=e.target.value/100;offsetXValue.textContent=e.target.value+'%';draw()});
+offsetYSlider.addEventListener('input',e=>{offsetPercentY=e.target.value/100;offsetYValue.textContent=e.target.value+'%';draw()});
+exportBtn.addEventListener('click',()=>{if(!tileImg){alert('Please load a pattern first!');return}try{const l=document.createElement('a');l.download='rud3boy-pattern.png';l.href=canvas.toDataURL('image/png');l.click()}catch(e){console.error('Export failed:',e);alert('Export failed. Please try again or take a screenshot.')}});
 draw();
 </script>
 
