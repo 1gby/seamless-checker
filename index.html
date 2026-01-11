@@ -238,7 +238,7 @@ justify-content: space-between;
 align-items: center;
 }
 
-input[type="range"] {
+input[type=“range”] {
 width: 100%;
 height: 6px;
 border-radius: 3px;
@@ -247,7 +247,7 @@ outline: none;
 -webkit-appearance: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type=“range”]::-webkit-slider-thumb {
 -webkit-appearance: none;
 appearance: none;
 width: 18px;
@@ -259,9 +259,9 @@ box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 transition: all 0.3s ease;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type=“range”]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-input[type="range"]::-moz-range-thumb {
+input[type=“range”]::-moz-range-thumb {
 width: 18px;
 height: 18px;
 border-radius: 50%;
@@ -272,7 +272,7 @@ box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 transition: all 0.3s ease;
 }
 
-input[type="range"]::-moz-range-thumb:hover { transform: scale(1.2); }
+input[type=“range”]::-moz-range-thumb:hover { transform: scale(1.2); }
 
 .slider-value {
 font-size: 0.9rem;
@@ -501,7 +501,6 @@ const offsetYValue = document.getElementById('offsetYValue');
 const emptyState = document.getElementById('emptyState');
 
 let tileImg = null;
-let isUserUpload = false; // Track if user uploaded
 let showGrid = false;
 let repeatType = 'full';
 let bgColor = 'checker';
@@ -675,11 +674,14 @@ function draw() {
       if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
         const displaySize = mockupSize * 1.2;
         
+        // Draw the mockup first (this includes the transparent case area)
+        ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+        
+        // Then use destination-over to put pattern BEHIND the mockup
         ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
         drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
         ctx.restore();
-        
-        ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
       } else {
         ctx.fillStyle = '#888';
         ctx.font = '20px sans-serif';
@@ -700,15 +702,32 @@ function draw() {
       ctx.clip();
       drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
+    } else if (viewMode === 'fabric') {
+      const fabricWidth = mockupSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
+      
+      ctx.save();
+      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.clip();
+      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
+      ctx.restore();
     } else if (viewMode === 'bottle') {
       if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
         const displaySize = mockupSize * 1.2;
         
+        // Draw the mockup first (this includes the transparent bottle wrap area)
+        ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+        
+        // Then use destination-over to put pattern BEHIND the mockup
         ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
         drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
         ctx.restore();
-        
-        ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
       } else {
         ctx.fillStyle = '#888';
         ctx.font = '20px sans-serif';
@@ -725,29 +744,17 @@ function loadImage(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      tileImg = img;
-      isUserUpload = true; // Mark as user upload
+    tileImg = new Image();
+    tileImg.onload = () => {
       updateBackground();
       draw();
     };
-    img.onerror = () => {
-      alert('Failed to load image. Please try a different file.');
-    };
-    img.src = e.target.result;
-  };
-  reader.onerror = () => {
-    alert('Failed to read file. Please try again.');
+    tileImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-fileInput.addEventListener('change', e => {
-  if (e.target.files && e.target.files[0]) {
-    loadImage(e.target.files[0]);
-  }
-});
+fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
 
 canvas.addEventListener('dragover', e => {
   e.preventDefault();
@@ -823,8 +830,7 @@ canvas.addEventListener('touchmove', e => {
     const touch2 = e.touches[1];
     const currentDistance = Math.hypot(
       touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.client​​​​​​​​​​​​​​​​
-Y
+      touch2.clientY - touch1.clientY
     );
     
     if (lastTouchDistance > 0) {
@@ -895,12 +901,6 @@ exportBtnHeader.addEventListener('click', () => {
     alert('Please load a pattern first!');
     return;
   }
-  
-  if (!isUserUpload) {
-    alert('Please upload your own pattern to export. The demo pattern cannot be exported.');
-    return;
-  }
-  
   try {
     const link = document.createElement('a');
     link.download = 'rud3boy-pattern.png';
@@ -913,19 +913,6 @@ exportBtnHeader.addEventListener('click', () => {
 });
 
 draw();
-
-// Load demo pattern from GitHub (no CORS issues)
-const demoImg = new Image();
-demoImg.onload = () => {
-  tileImg = demoImg;
-  isUserUpload = false; // Mark as demo
-  updateBackground();
-  draw();
-};
-demoImg.onerror = () => {
-  console.log('Demo pattern not found');
-};
-demoImg.src = "./Seamless.png";
 </script>
 
 </body>
