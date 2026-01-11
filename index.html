@@ -525,15 +525,21 @@ const MAX_ZOOM = 5;
 // Load mockup images
 const loadMockups = () => {
   phoneImg = new Image();
-  phoneImg.crossOrigin = "anonymous";
   phoneImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/iphone.png';
+  phoneImg.onerror = () => console.error('Failed to load phone mockup');
   
   bottleImg = new Image();
-  bottleImg.crossOrigin = "anonymous";
   bottleImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/bottle.png';
+  bottleImg.onerror = () => console.error('Failed to load bottle mockup');
   
-  phoneImg.onload = () => { if(tileImg) draw(); };
-  bottleImg.onload = () => { if(tileImg) draw(); };
+  phoneImg.onload = () => { 
+    console.log('Phone mockup loaded');
+    if(tileImg) draw(); 
+  };
+  bottleImg.onload = () => { 
+    console.log('Bottle mockup loaded');
+    if(tileImg) draw(); 
+  };
 };
 loadMockups();
 
@@ -676,23 +682,9 @@ function draw() {
       drawPattern(-phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, effectiveTileSize);
       ctx.restore();
       
-      if (phoneImg && phoneImg.complete) {
+      // Draw the phone mockup overlay
+      if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
         ctx.drawImage(phoneImg, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight);
-      } else {
-        roundRect(ctx, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, 35);
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 4;
-        ctx.stroke();
-        
-        const cameraSize = phoneWidth * 0.15;
-        const cameraOffset = phoneWidth * 0.15;
-        ctx.beginPath();
-        ctx.arc(-phoneWidth / 2 + cameraOffset + cameraSize / 2, -phoneHeight / 2 + cameraOffset + cameraSize / 2, cameraSize / 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#0a0a0a';
-        ctx.fill();
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = 2;
-        ctx.stroke();
       }
     } else if (viewMode === 'fabric') {
       const fabricWidth = mockupSize * 0.95;
@@ -722,68 +714,9 @@ function draw() {
       drawPattern(-bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
       ctx.restore();
       
-      if (bottleImg && bottleImg.complete) {
+      // Draw the bottle mockup overlay
+      if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
         ctx.drawImage(bottleImg, -bottleWidth / 2, -bottleHeight / 2, bottleWidth, bottleHeight);
-      } else {
-        roundRect(ctx, -bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, 25);
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        
-        ctx.save();
-        roundRect(ctx, -bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, 25);
-        ctx.clip();
-        const gradient = ctx.createLinearGradient(-bottleWidth / 2, 0, bottleWidth / 2, 0);
-        gradient.addColorStop(0, 'rgba(255,255,255,0)');
-        gradient.addColorStop(0.3, 'rgba(255,255,255,0.15)');
-        gradient.addColorStop(0.5, 'rgba(255,255,255,0.25)');
-        gradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
-        gradient.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-bottleWidth / 2, bodyTop, bottleWidth, bodyHeight);
-        ctx.restore();
-        
-        const neckWidth = bottleWidth * 0.6;
-        ctx.fillStyle = '#e8e8e8';
-        roundRect(ctx, -neckWidth / 2, -bottleHeight / 2 + capHeight, neckWidth, neckHeight, 8);
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        const capWidth = bottleWidth * 0.65;
-        ctx.fillStyle = '#2a2a2a';
-        roundRect(ctx, -capWidth / 2, -bottleHeight / 2, capWidth, capHeight, 6);
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        ctx.strokeStyle = '#444';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < 4; i++) {
-          const y = -bottleHeight / 2 + (capHeight / 5) * (i + 1);
-          ctx.beginPath();
-          ctx.moveTo(-capWidth / 2 + 2, y);
-          ctx.lineTo(capWidth / 2 - 2, y);
-          ctx.stroke();
-        }
-        
-        ctx.beginPath();
-        ctx.ellipse(0, -bottleHeight / 2 + 3, capWidth * 0.45, capWidth * 0.12, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.ellipse(0, bodyTop + bodyHeight - 5, bottleWidth * 0.48, bottleWidth * 0.08, 0, 0, Math.PI);
-        ctx.fillStyle = '#333';
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
       }
     }
   }
