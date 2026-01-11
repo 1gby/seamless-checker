@@ -725,18 +725,29 @@ function loadImage(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    tileImg = new Image();
-    tileImg.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      tileImg = img;
       isUserUpload = true; // Mark as user upload
       updateBackground();
       draw();
     };
-    tileImg.src = e.target.result;
+    img.onerror = () => {
+      alert('Failed to load image. Please try a different file.');
+    };
+    img.src = e.target.result;
+  };
+  reader.onerror = () => {
+    alert('Failed to read file. Please try again.');
   };
   reader.readAsDataURL(file);
 }
 
-fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
+fileInput.addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) {
+    loadImage(e.target.files[0]);
+  }
+});
 
 canvas.addEventListener('dragover', e => {
   e.preventDefault();
