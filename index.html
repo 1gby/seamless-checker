@@ -15,905 +15,204 @@ body {
   color:#eee;
   min-height: 100vh;
 }
-
-#container {
-display:flex;
-flex-direction:column;
-min-height: 100vh;
-}
-
-#header {
-padding: 1.5rem 2rem;
-background: rgba(26, 26, 46, 0.8);
-backdrop-filter: blur(10px);
-border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 1rem;
-flex-wrap: wrap;
-}
-
-.logo-section {
-display: flex;
-align-items: center;
-gap: 1rem;
-}
-
-#logo {
-height: 42px;
-width: auto;
-cursor: pointer;
-transition: transform 0.3s ease;
-}
-
+#container { display:flex; flex-direction:column; min-height: 100vh; }
+#header { padding: 1.5rem 2rem; background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.logo-section { display: flex; align-items: center; gap: 1rem; }
+#logo { height: 42px; width: auto; cursor: pointer; transition: transform 0.3s ease; }
 #logo:hover { transform: scale(1.05); }
-
-.title {
-font-size: 1.5rem;
-font-weight: 700;
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-margin: 0;
-}
-
-.header-buttons {
-display: flex;
-align-items: center;
-gap: 1.5rem;
-}
-
-.file-input-wrapper {
-position: relative;
-overflow: hidden;
-display: inline-block;
-}
-
-.file-input-wrapper input[type=file] {
-position: absolute;
-left: -9999px;
-}
-
-.upload-btn, .export-btn-header {
-padding: 0.75rem 1.5rem;
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-border: none;
-border-radius: 12px;
-font-size: 0.95rem;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.upload-btn:hover, .export-btn-header:hover {
-transform: translateY(-2px);
-box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.export-btn-header {
-background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.export-btn-header:hover {
-box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-}
-
-.export-btn-header:disabled {
-opacity: 0.5;
-cursor: not-allowed;
-transform: none;
-}
-
-#canvas-wrapper {
-flex: 1;
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 2rem;
-position: relative;
-}
-
-#canvas {
-max-width: 800px;
-width: 100%;
-aspect-ratio: 1;
-border-radius: 20px;
-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-cursor: pointer;
-transition: all 0.3s ease;
-}
-
+.title { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; }
+.header-buttons { display: flex; align-items: center; gap: 1.5rem; }
+.file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
+.file-input-wrapper input[type=file] { position: absolute; left: -9999px; }
+.upload-btn, .export-btn-header { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+.upload-btn:hover, .export-btn-header:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+.export-btn-header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+.export-btn-header:hover { box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+.export-btn-header:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+#canvas-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; position: relative; }
+#canvas { max-width: 800px; width: 100%; aspect-ratio: 1; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); cursor: pointer; transition: all 0.3s ease; }
 #canvas.has-image { cursor: grab; }
 #canvas.has-image:active { cursor: grabbing; }
 #canvas:hover { box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6); }
-
-.empty-state {
-position: absolute;
-top: 50%;
-left: 50%;
-transform: translate(-50%, -50%);
-text-align: center;
-pointer-events: none;
-opacity: 0;
-transition: opacity 0.3s ease;
-}
-
+.empty-state { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; }
 .empty-state.visible { opacity: 1; }
-
-.empty-state-icon {
-font-size: 4rem;
-margin-bottom: 1rem;
-opacity: 0.6;
-}
-
-.empty-state-text {
-font-size: 1.25rem;
-font-weight: 600;
-margin-bottom: 0.5rem;
-color: #888;
-}
-
-.empty-state-subtext {
-font-size: 0.95rem;
-color: #666;
-}
-
-#controls {
-padding: 2rem;
-background: rgba(26, 26, 46, 0.8);
-backdrop-filter: blur(10px);
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-display: flex;
-gap: 1.5rem;
-justify-content: center;
-flex-wrap: wrap;
-align-items: center;
-}
-
-.control-group {
-display: flex;
-flex-direction: column;
-gap: 0.5rem;
-min-width: 180px;
-}
-
-.control-label {
-font-size: 0.85rem;
-font-weight: 600;
-color: #aaa;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-
-select, button {
-padding: 0.75rem 1rem;
-font-size: 0.95rem;
-border-radius: 12px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-background: rgba(255, 255, 255, 0.05);
-color: #eee;
-cursor: pointer;
-transition: all 0.3s ease;
-font-family: inherit;
-}
-
-select:hover, button:hover {
-background: rgba(255, 255, 255, 0.1);
-border-color: rgba(102, 126, 234, 0.5);
-}
-
-select:focus, button:focus {
-outline: none;
-border-color: #667eea;
-box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-}
-
-button.primary {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-border: none;
-font-weight: 600;
-box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-button.primary:hover {
-transform: translateY(-2px);
-box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.slider-group {
-display: flex;
-flex-direction: column;
-gap: 0.5rem;
-min-width: 180px;
-}
-
-.slider-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-input[type=“range”] {
-width: 100%;
-height: 6px;
-border-radius: 3px;
-background: rgba(255, 255, 255, 0.1);
-outline: none;
--webkit-appearance: none;
-}
-
-input[type=“range”]::-webkit-slider-thumb {
--webkit-appearance: none;
-appearance: none;
-width: 18px;
-height: 18px;
-border-radius: 50%;
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-cursor: pointer;
-box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-transition: all 0.3s ease;
-}
-
-input[type=“range”]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
-input[type=“range”]::-moz-range-thumb {
-width: 18px;
-height: 18px;
-border-radius: 50%;
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-cursor: pointer;
-border: none;
-box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-transition: all 0.3s ease;
-}
-
-input[type=“range”]::-moz-range-thumb:hover { transform: scale(1.2); }
-
-.slider-value {
-font-size: 0.9rem;
-font-weight: 600;
-color: #667eea;
-min-width: 45px;
-text-align: right;
-}
-
-#footer {
-padding: 2rem;
-background: rgba(10, 10, 10, 0.9);
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-content {
-max-width: 1200px;
-margin: 0 auto;
-text-align: center;
-}
-
-.footer-title {
-font-size: 1.1rem;
-font-weight: 600;
-margin-bottom: 1rem;
-color: #aaa;
-}
-
-.footer-links {
-display: flex;
-flex-wrap: wrap;
-gap: 1.5rem;
-justify-content: center;
-margin-bottom: 1.5rem;
-}
-
-.footer-links a {
-color: #667eea;
-text-decoration: none;
-font-size: 0.95rem;
-transition: all 0.3s ease;
-padding: 0.5rem 1rem;
-border-radius: 8px;
-background: rgba(102, 126, 234, 0.1);
-}
-
-.footer-links a:hover {
-background: rgba(102, 126, 234, 0.2);
-transform: translateY(-2px);
-}
-
-.footer-credit {
-margin-top: 1.5rem;
-padding-top: 1.5rem;
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-font-weight: 700;
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-font-size: 1.1rem;
-}
-
-.helper-text {
-font-size: 0.85rem;
-color: #888;
-text-align: center;
-margin-top: 1rem;
-}
-
+.empty-state-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.6; }
+.empty-state-text { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #888; }
+.empty-state-subtext { font-size: 0.95rem; color: #666; }
+#controls { padding: 2rem; background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(10px); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; align-items: center; }
+.control-group { display: flex; flex-direction: column; gap: 0.5rem; min-width: 180px; }
+.control-label { font-size: 0.85rem; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+select, button { padding: 0.75rem 1rem; font-size: 0.95rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); color: #eee; cursor: pointer; transition: all 0.3s ease; font-family: inherit; }
+select:hover, button:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(102, 126, 234, 0.5); }
+select:focus, button:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); }
+button.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+button.primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+.slider-group { display: flex; flex-direction: column; gap: 0.5rem; min-width: 180px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; }
+input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); outline: none; -webkit-appearance: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; }
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; }
+input[type="range"]::-moz-range-thumb:hover { transform: scale(1.2); }
+.slider-value { font-size: 0.9rem; font-weight: 600; color: #667eea; min-width: 45px; text-align: right; }
+#footer { padding: 2rem; background: rgba(10, 10, 10, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
+.footer-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #aaa; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin-bottom: 1.5rem; }
+.footer-links a { color: #667eea; text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; padding: 0.5rem 1rem; border-radius: 8px; background: rgba(102, 126, 234, 0.1); }
+.footer-links a:hover { background: rgba(102, 126, 234, 0.2); transform: translateY(-2px); }
+.footer-credit { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 1.1rem; }
+.helper-text { font-size: 0.85rem; color: #888; text-align: center; margin-top: 1rem; }
 @media (max-width: 768px) {
-#header {
-padding: 1rem;
-flex-direction: column;
-align-items: stretch;
-}
-.logo-section {
-justify-content: center;
-}
-.header-buttons {
-justify-content: center;
-}
+#header { padding: 1rem; flex-direction: column; align-items: stretch; }
+.logo-section { justify-content: center; }
+.header-buttons { justify-content: center; }
 .title { font-size: 1.2rem; }
 #canvas-wrapper { padding: 1rem; }
 #controls { padding: 1.5rem 1rem; gap: 1rem; }
 .control-group, .slider-group { min-width: 140px; }
 }
 </style>
-
 </head>
 <body>
 <div id="container">
-  <div id="header">
-    <div class="logo-section">
-      <img id="logo" src="https://i.imgur.com/tlVfJ54.png" alt="Rud3boy Logo">
-      <h1 class="title">Pattern Checker By Rudeboy™ </h1>
-    </div>
-    <div class="header-buttons">
-      <div class="file-input-wrapper">
-        <input type="file" id="fileInput" accept="image/*">
-        <button class="upload-btn" id="uploadBtnHeader">📁 Upload Pattern</button>
-      </div>
-      <button class="export-btn-header" id="exportBtnHeader" disabled>💾 Export PNG</button>
-    </div>
-  </div>
-
-  <div id="canvas-wrapper">
-    <canvas id="canvas"></canvas>
-    <div class="empty-state visible" id="emptyState">
-      <div class="empty-state-icon">🎨</div>
-      <div class="empty-state-text">Click to upload your pattern</div>
-      <div class="empty-state-subtext">or drag & drop a square tile here</div>
-    </div>
-  </div>
-
-  <div id="controls">
-    <div class="control-group">
-      <label class="control-label">Repeat Type</label>
-      <select id="repeatType">
-        <option value="full">Full Drop</option>
-        <option value="half-drop">Half Drop</option>
-        <option value="brick">Brick</option>
-      </select>
-    </div>
-
+<div id="header">
+<div class="logo-section">
+<img id="logo" src="https://i.imgur.com/tlVfJ54.png" alt="Rud3boy Logo">
+<h1 class="title">Pattern Checker By Rudeboy™</h1>
+</div>
+<div class="header-buttons">
+<div class="file-input-wrapper">
+<input type="file" id="fileInput" accept="image/*">
+<button class="upload-btn" id="uploadBtnHeader">📁 Upload Pattern</button>
+</div>
+<button class="export-btn-header" id="exportBtnHeader" disabled>💾 Export PNG</button>
+</div>
+</div>
+<div id="canvas-wrapper">
+<canvas id="canvas"></canvas>
+<div class="empty-state visible" id="emptyState">
+<div class="empty-state-icon">🎨</div>
+<div class="empty-state-text">Click to upload your pattern</div>
+<div class="empty-state-subtext">or drag & drop a square tile here</div>
+</div>
+</div>
+<div id="controls">
 <div class="control-group">
-  <label class="control-label">View Mode</label>
-  <select id="viewMode">
-    <option value="tile">Infinite Tile</option>
-    <option value="phone">Phone Case</option>
-    <option value="fabric">Fabric Swatch</option>
-    <option value="bottle">Water Bottle</option>
-  </select>
+<label class="control-label">Repeat Type</label>
+<select id="repeatType">
+<option value="full">Full Drop</option>
+<option value="half-drop">Half Drop</option>
+<option value="brick">Brick</option>
+</select>
 </div>
-
 <div class="control-group">
-  <label class="control-label">Background</label>
-  <select id="bgColor">
-    <option value="checker">Transparent Grid</option>
-    <option value="#000000">Black</option>
-    <option value="#ffffff">White</option>
-    <option value="#1a1a1a">Gray</option>
-    <option value="marble">Marble Counter</option>
-  </select>
+<label class="control-label">View Mode</label>
+<select id="viewMode">
+<option value="tile">Infinite Tile</option>
+<option value="phone">Phone Case</option>
+<option value="fabric">Fabric Swatch</option>
+<option value="bottle">Water Bottle</option>
+</select>
 </div>
-
 <div class="control-group">
-  <label class="control-label">Grid</label>
-  <button id="toggleGrid">Show Grid</button>
+<label class="control-label">Background</label>
+<select id="bgColor">
+<option value="checker">Transparent Grid</option>
+<option value="#000000">Black</option>
+<option value="#ffffff">White</option>
+<option value="#1a1a1a">Gray</option>
+<option value="marble">Marble Counter</option>
+</select>
 </div>
-
+<div class="control-group">
+<label class="control-label">Grid</label>
+<button id="toggleGrid">Show Grid</button>
+</div>
 <div class="slider-group">
-  <div class="slider-header">
-    <label class="control-label">Scale</label>
-    <span class="slider-value" id="scaleValue">1.0×</span>
-  </div>
-  <input type="range" id="patternScale" min="0.3" max="3" step="0.1" value="1">
+<div class="slider-header">
+<label class="control-label">Scale</label>
+<span class="slider-value" id="scaleValue">1.0×</span>
 </div>
-
+<input type="range" id="patternScale" min="0.3" max="3" step="0.1" value="1">
+</div>
 <div class="slider-group">
-  <div class="slider-header">
-    <label class="control-label">Offset X</label>
-    <span class="slider-value" id="offsetXValue">0%</span>
-  </div>
-  <input type="range" id="offsetX" min="0" max="100" value="0">
+<div class="slider-header">
+<label class="control-label">Offset X</label>
+<span class="slider-value" id="offsetXValue">0%</span>
 </div>
-
+<input type="range" id="offsetX" min="0" max="100" value="0">
+</div>
 <div class="slider-group">
-  <div class="slider-header">
-    <label class="control-label">Offset Y</label>
-    <span class="slider-value" id="offsetYValue">0%</span>
-  </div>
-  <input type="range" id="offsetY" min="0" max="100" value="0">
+<div class="slider-header">
+<label class="control-label">Offset Y</label>
+<span class="slider-value" id="offsetYValue">0%</span>
 </div>
-
-  </div>
-
-  <p class="helper-text">Pinch to zoom • Drag to pan</p>
+<input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
-
+</div>
+<p class="helper-text">Pinch to zoom • Drag to pan</p>
+</div>
 <div id="footer">
-  <div class="footer-content">
-    <div class="footer-title">Turn your patterns into real products!</div>
-    <div class="footer-links">
-      <a href="https://www.spoonflower.com/" target="_blank">Spoonflower</a>
-      <a href="https://www.printful.com/" target="_blank">Printful</a>
-      <a href="https://printify.com/" target="_blank">Printify</a>
-      <a href="https://society6.com/" target="_blank">Society6</a>
-      <a href="https://www.redbubble.com/" target="_blank">Redbubble</a>
-      <a href="https://www.zazzle.com/" target="_blank">Zazzle</a>
-    </div>
-    <div class="footer-credit">Created by Rudeboy™</div>
-  </div>
+<div class="footer-content">
+<div class="footer-title">Turn your patterns into real products!</div>
+<div class="footer-links">
+<a href="https://www.spoonflower.com/" target="_blank">Spoonflower</a>
+<a href="https://www.printful.com/" target="_blank">Printful</a>
+<a href="https://printify.com/" target="_blank">Printify</a>
+<a href="https://society6.com/" target="_blank">Society6</a>
+<a href="https://www.redbubble.com/" target="_blank">Redbubble</a>
+<a href="https://www.zazzle.com/" target="_blank">Zazzle</a>
 </div>
-
+<div class="footer-credit">Created by Rudeboy™</div>
+</div>
+</div>
 <script>
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y);
-  ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h);
-  ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r);
-  ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
-
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const fileInput = document.getElementById('fileInput');
-const uploadBtnHeader = document.getElementById('uploadBtnHeader');
-const exportBtnHeader = document.getElementById('exportBtnHeader');
-const toggleGridBtn = document.getElementById('toggleGrid');
-const repeatSelect = document.getElementById('repeatType');
-const viewModeSelect = document.getElementById('viewMode');
-const bgColorSelect = document.getElementById('bgColor');
-const scaleSlider = document.getElementById('patternScale');
-const offsetXSlider = document.getElementById('offsetX');
-const offsetYSlider = document.getElementById('offsetY');
-const scaleValue = document.getElementById('scaleValue');
-const offsetXValue = document.getElementById('offsetXValue');
-const offsetYValue = document.getElementById('offsetYValue');
-const emptyState = document.getElementById('emptyState');
-
-let tileImg = null;
-let showGrid = false;
-let repeatType = 'full';
-let bgColor = 'checker';
-let viewMode = 'tile';
-let patternScale = 1;
-let offsetPercentX = 0;
-let offsetPercentY = 0;
-let panOffsetX = 0;
-let panOffsetY = 0;
-let zoomScale = 1;
-let isDragging = false;
-let dragStartX;
-let dragStartY;
-let phoneImg = null;
-let bottleImg = null;
-
-const MIN_ZOOM = 0.1;
-const MAX_ZOOM = 5;
-
-// Load mockup images
-const loadMockups = () => {
-  phoneImg = new Image();
-  phoneImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/iphone.png';
-  phoneImg.onerror = () => console.error('Failed to load phone mockup');
-  
-  bottleImg = new Image();
-  bottleImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/bottle.png';
-  bottleImg.onerror = () => console.error('Failed to load bottle mockup');
-  
-  phoneImg.onload = () => { 
-    console.log('Phone mockup loaded');
-    if(tileImg) draw(); 
-  };
-  bottleImg.onload = () => { 
-    console.log('Bottle mockup loaded');
-    if(tileImg) draw(); 
-  };
-};
-loadMockups();
-
-function resize() {
-  const wrapper = document.getElementById('canvas-wrapper');
-  const size = Math.min(wrapper.clientWidth - 64, 800);
-  canvas.width = size;
-  canvas.height = size;
-  updateBackground();
-  draw();
-}
-
-window.addEventListener('resize', resize);
-resize();
-
-document.getElementById('logo').addEventListener('click', () => location.reload());
-canvas.addEventListener('click', e => { if (!tileImg && !isDragging) fileInput.click(); });
-uploadBtnHeader.addEventListener('click', () => fileInput.click());
-
-function updateBackground() {
-  if (tileImg) {
-    if (bgColor === 'checker') {
-      canvas.style.background = 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)';
-      canvas.style.backgroundSize = '40px 40px';
-    } else if (bgColor === 'wood') {
-      canvas.style.background = 'linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%)';
-      canvas.style.backgroundSize = '100% 100%';
-    } else if (bgColor === 'marble') {
-      canvas.style.background = 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 25%, #ffffff 50%, #e8e8e8 75%, #d0d0d0 100%)';
-      canvas.style.backgroundSize = '100% 100%';
-    } else {
-      canvas.style.background = bgColor;
-      canvas.style.backgroundSize = '100% 100%';
-    }
-  } else {
-    canvas.style.background = 'repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';
-    canvas.style.backgroundSize = '40px 40px';
-  }
-}
-
-function drawPattern(sx, sy, w, h, ts) {
-  const tilesX = Math.ceil(w / ts) + 4;
-  const tilesY = Math.ceil(h / ts) + 4;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  
-  for (let x = -2; x < tilesX; x++) {
-    for (let y = -2; y < tilesY; y++) {
-      let drawX = sx + x * ts + offsetPercentX * ts;
-      let drawY = sy + y * ts + offsetPercentY * ts;
-      
-      if (repeatType === 'half-drop') {
-        drawY += (Math.abs(x) % 2 === 1) ? ts / 2 : 0;
-      } else if (repeatType === 'brick') {
-        drawX += (Math.abs(y) % 2 === 1) ? ts / 2 : 0;
-      }
-      
-      ctx.drawImage(tileImg, drawX, drawY, ts, ts);
-    }
-  }
-}
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  if (!tileImg) {
-    emptyState.classList.add('visible');
-    canvas.classList.remove('has-image');
-    exportBtnHeader.disabled = true;
-    return;
-  }
-  
-  emptyState.classList.remove('visible');
-  canvas.classList.add('has-image');
-  exportBtnHeader.disabled = false;
-  
-  const baseTileSize = tileImg.width;
-  const effectiveTileSize = baseTileSize * patternScale;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.save();
-  
-  if (viewMode === 'tile') {
-    ctx.translate(panOffsetX, panOffsetY);
-    ctx.scale(zoomScale, zoomScale);
-    
-    const tilesX = Math.ceil(canvas.width / effectiveTileSize / zoomScale) + 6;
-    const tilesY = Math.ceil(canvas.height / effectiveTileSize / zoomScale) + 6;
-    const startTileX = Math.floor(-panOffsetX / (effectiveTileSize * zoomScale)) - 3;
-    const startTileY = Math.floor(-panOffsetY / (effectiveTileSize * zoomScale)) - 3;
-    
-    for (let x = startTileX; x < startTileX + tilesX; x++) {
-      for (let y = startTileY; y < startTileY + tilesY; y++) {
-        let drawX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
-        let drawY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
-        
-        if (repeatType === 'half-drop') {
-          drawY += (Math.abs(x) % 2 === 1) ? effectiveTileSize / 2 : 0;
-        } else if (repeatType === 'brick') {
-          drawX += (Math.abs(y) % 2 === 1) ? effectiveTileSize / 2 : 0;
-        }
-        
-        ctx.drawImage(tileImg, drawX, drawY, effectiveTileSize, effectiveTileSize);
-      }
-    }
-    
-    if (showGrid) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = 1 / zoomScale;
-      
-      for (let x = startTileX; x < startTileX + tilesX + 1; x++) {
-        let lineX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
-        ctx.beginPath();
-        ctx.moveTo(lineX, startTileY * effectiveTileSize - effectiveTileSize);
-        ctx.lineTo(lineX, (startTileY + tilesY + 1) * effectiveTileSize);
-        ctx.stroke();
-      }
-      
-      for (let y = startTileY; y < startTileY + tilesY + 1; y++) {
-        let lineY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
-        ctx.beginPath();
-        ctx.moveTo(startTileX * effectiveTileSize - effectiveTileSize, lineY);
-        ctx.lineTo((startTileX + tilesX + 1) * effectiveTileSize, lineY);
-        ctx.stroke();
-      }
-    }
-  } else {
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
-    ctx.translate(centerX, centerY);
-    
-    if (viewMode === 'phone') {
-      if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
-        const displaySize = mockupSize * 1.2;
-        
-        // Draw the mockup first (this includes the transparent case area)
-        ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
-        
-        // Then use destination-over to put pattern BEHIND the mockup
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-over';
-        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
-        ctx.restore();
-      } else {
-        ctx.fillStyle = '#888';
-        ctx.font = '20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Loading phone mockup...', 0, 0);
-      }
-    } else if (viewMode === 'fabric') {
-      const fabricWidth = mockupSize * 0.95;
-      const fabricHeight = fabricWidth * 0.8;
-      
-      ctx.save();
-      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
-      ctx.fillStyle = '#2a2a2a';
-      ctx.fill();
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.clip();
-      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
-      ctx.restore();
-    } else if (viewMode === 'fabric') {
-      const fabricWidth = mockupSize * 0.95;
-      const fabricHeight = fabricWidth * 0.8;
-      
-      ctx.save();
-      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
-      ctx.fillStyle = '#2a2a2a';
-      ctx.fill();
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.clip();
-      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
-      ctx.restore();
-    } else if (viewMode === 'bottle') {
-      if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
-        const displaySize = mockupSize * 1.2;
-        
-        // Draw the mockup first (this includes the transparent bottle wrap area)
-        ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
-        
-        // Then use destination-over to put pattern BEHIND the mockup
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-over';
-        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
-        ctx.restore();
-      } else {
-        ctx.fillStyle = '#888';
-        ctx.font = '20px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Loading bottle mockup...', 0, 0);
-      }
-    }
-  }
-  
-  ctx.restore();
-}
-
-function loadImage(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    tileImg = new Image();
-    tileImg.onload = () => {
-      updateBackground();
-      draw();
-    };
-    tileImg.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
-
-canvas.addEventListener('dragover', e => {
-  e.preventDefault();
-  canvas.style.opacity = '0.7';
-});
-
-canvas.addEventListener('dragleave', () => {
-  canvas.style.opacity = '1';
-});
-
-canvas.addEventListener('drop', e => {
-  e.preventDefault();
-  canvas.style.opacity = '1';
-  loadImage(e.dataTransfer.files[0]);
-});
-
-canvas.addEventListener('pointerdown', e => {
-  if (!tileImg || viewMode !== 'tile') return;
-  isDragging = true;
-  dragStartX = e.clientX - panOffsetX;
-  dragStartY = e.clientY - panOffsetY;
-  canvas.setPointerCapture(e.pointerId);
-});
-
-canvas.addEventListener('pointermove', e => {
-  if (!isDragging || viewMode !== 'tile') return;
-  panOffsetX = e.clientX - dragStartX;
-  panOffsetY = e.clientY - dragStartY;
-  draw();
-});
-
-canvas.addEventListener('pointerup', () => isDragging = false);
-canvas.addEventListener('pointerleave', () => isDragging = false);
-
-canvas.addEventListener('wheel', e => {
-  if (viewMode !== 'tile' || !tileImg) return;
-  e.preventDefault();
-  
-  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-  
-  let newScale = zoomScale * zoomFactor;
-  newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
-  
-  const scaleChange = newScale - zoomScale;
-  panOffsetX -= (mouseX - panOffsetX) * (scaleChange / zoomScale);
-  panOffsetY -= (mouseY - panOffsetY) * (scaleChange / zoomScale);
-  
-  zoomScale = newScale;
-  draw();
-}, { passive: false });
-
-let lastTouchDistance = 0;
-
-canvas.addEventListener('touchstart', e => {
-  if (e.touches.length === 2 && viewMode === 'tile' && tileImg) {
-    e.preventDefault();
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    lastTouchDistance = Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY
-    );
-  }
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  if (e.touches.length === 2 && viewMode === 'tile' && tileImg) {
-    e.preventDefault();
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    const currentDistance = Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY
-    );
-    
-    if (lastTouchDistance > 0) {
-      const zoomFactor = currentDistance / lastTouchDistance;
-      const rect = canvas.getBoundingClientRect();
-      const centerX = ((touch1.clientX + touch2.clientX) / 2) - rect.left;
-      const centerY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
-      
-      let newScale = zoomScale * zoomFactor;
-      newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
-      
-      const scaleChange = newScale - zoomScale;
-      panOffsetX -= (centerX - panOffsetX) * (scaleChange / zoomScale);
-      panOffsetY -= (centerY - panOffsetY) * (scaleChange / zoomScale);
-      
-      zoomScale = newScale;
-      draw();
-    }
-    
-    lastTouchDistance = currentDistance;
-  }
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => lastTouchDistance = 0);
-
-repeatSelect.addEventListener('change', e => {
-  repeatType = e.target.value;
-  draw();
-});
-
-viewModeSelect.addEventListener('change', e => {
-  viewMode = e.target.value;
-  draw();
-});
-
-bgColorSelect.addEventListener('change', e => {
-  bgColor = e.target.value;
-  updateBackground();
-  draw();
-});
-
-toggleGridBtn.addEventListener('click', () => {
-  showGrid = !showGrid;
-  toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
-  draw();
-});
-
-scaleSlider.addEventListener('input', e => {
-  patternScale = parseFloat(e.target.value);
-  scaleValue.textContent = patternScale.toFixed(1) + '×';
-  draw();
-});
-
-offsetXSlider.addEventListener('input', e => {
-  offsetPercentX = e.target.value / 100;
-  offsetXValue.textContent = e.target.value + '%';
-  draw();
-});
-
-offsetYSlider.addEventListener('input', e => {
-  offsetPercentY = e.target.value / 100;
-  offsetYValue.textContent = e.target.value + '%';
-  draw();
-});
-
-exportBtnHeader.addEventListener('click', () => {
-  if (!tileImg) {
-    alert('Please load a pattern first!');
-    return;
-  }
-  try {
-    const link = document.createElement('a');
-    link.download = 'rud3boy-pattern.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  } catch (error) {
-    console.error('Export failed:', error);
-    alert('Export failed. Please try again or take a screenshot.');
-  }
-});
-
-draw();
+const c=document.getElementById('canvas'),ctx=c.getContext('2d');
+const fi=document.getElementById('fileInput'),ubh=document.getElementById('uploadBtnHeader');
+const ebh=document.getElementById('exportBtnHeader'),tgb=document.getElementById('toggleGrid');
+const rs=document.getElementById('repeatType'),vms=document.getElementById('viewMode');
+const bgs=document.getElementById('bgColor'),ps=document.getElementById('patternScale');
+const oxs=document.getElementById('offsetX'),oys=document.getElementById('offsetY');
+const sv=document.getElementById('scaleValue'),oxv=document.getElementById('offsetXValue');
+const oyv=document.getElementById('offsetYValue'),es=document.getElementById('emptyState');
+let ti=null,sg=false,rt='full',bg='checker',vm='tile',psc=1,opx=0,opy=0;
+let pox=0,poy=0,zs=1,drag=false,dsx,dsy,phi=null,bti=null;
+const MZ=0.1,XZ=5;
+function rr(x,o,y,w,h,r){x.beginPath();x.moveTo(o+r,y);x.lineTo(o+w-r,y);x.arcTo(o+w,y,o+w,y+r,r);x.lineTo(o+w,y+h-r);x.arcTo(o+w,y+h,o+w-r,y+h,r);x.lineTo(o+r,y+h);x.arcTo(o,y+h,o,y+h-r,r);x.lineTo(o,y+r);x.arcTo(o,y,o+r,y,r);x.closePath();}
+const lm=()=>{phi=new Image();phi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/iphone.png';phi.crossOrigin='anonymous';phi.onerror=()=>console.error('Phone fail');bti=new Image();bti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/bottle.png';bti.crossOrigin='anonymous';bti.onerror=()=>console.error('Bottle fail');phi.onload=()=>{console.log('Phone OK');if(ti)dr();};bti.onload=()=>{console.log('Bottle OK');if(ti)dr();};};lm();
+function rz(){const w=document.getElementById('canvas-wrapper');const s=Math.min(w.clientWidth-64,800);c.width=s;c.height=s;ub();dr();}
+window.addEventListener('resize',rz);rz();
+document.getElementById('logo').addEventListener('click',()=>location.reload());
+c.addEventListener('click',e=>{if(!ti&&!drag)fi.click();});
+ubh.addEventListener('click',()=>fi.click());
+function ub(){if(ti){if(bg==='checker'){c.style.background='repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)';c.style.backgroundSize='40px 40px';}else if(bg==='marble'){c.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 25%, #ffffff 50%, #e8e8e8 75%, #d0d0d0 100%)';c.style.backgroundSize='100% 100%';}else{c.style.background=bg;c.style.backgroundSize='100% 100%';}}else{c.style.background='repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';c.style.backgroundSize='40px 40px';}}
+function dpc(x,sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4;const ty=Math.ceil(h/ts)+4;x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';for(let i=-2;i<tx;i++){for(let j=-2;j<ty;j++){let dx=sx+i*ts+opx*ts;let dy=sy+j*ts+opy*ts;if(rt==='half-drop'){dy+=(Math.abs(i)%2===1)?ts/2:0;}else if(rt==='brick'){dx+=(Math.abs(j)%2===1)?ts/2:0;}x.drawImage(ti,dx,dy,ts,ts);}}}
+function dp(sx,sy,w,h,ts){dpc(ctx,sx,sy,w,h,ts);}
+function dr(){ctx.clearRect(0,0,c.width,c.height);if(!ti){es.classList.add('visible');c.classList.remove('has-image');ebh.disabled=true;return;}es.classList.remove('visible');c.classList.add('has-image');ebh.disabled=false;const bts=ti.width;const ets=bts*psc;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.save();if(vm==='tile'){ctx.translate(pox,poy);ctx.scale(zs,zs);const tx=Math.ceil(c.width/ets/zs)+6;const ty=Math.ceil(c.height/ets/zs)+6;const stx=Math.floor(-pox/(ets*zs))-3;const sty=Math.floor(-poy/(ets*zs))-3;for(let x=stx;x<stx+tx;x++){for(let y=sty;y<sty+ty;y++){let dx=x*ets+opx*ets;let dy=y*ets+opy*ets;if(rt==='half-drop'){dy+=(Math.abs(x)%2===1)?ets/2:0;}else if(rt==='brick'){dx+=(Math.abs(y)%2===1)?ets/2:0;}ctx.drawImage(ti,dx,dy,ets,ets);}}if(sg){ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1/zs;for(let x=stx;x<stx+tx+1;x++){let lx=x*ets+opx*ets;ctx.beginPath();ctx.moveTo(lx,sty*ets-ets);ctx.lineTo(lx,(sty+ty+1)*ets);ctx.stroke();}for(let y=sty;y<sty+ty+1;y++){let ly=y*ets+opy*ets;ctx.beginPath();ctx.moveTo(stx*ets-ets,ly);ctx.lineTo((stx+tx+1)*ets,ly);ctx.stroke();}}}else{const cx=c.width/2;const cy=c.height/2;const ms=Math.min(c.width,c.height)*0.6;ctx.translate(cx,cy);if(vm==='phone'){if(phi&&phi.complete&&phi.naturalWidth>0){const ds=ms*1.2;const tc=document.createElement('canvas');tc.width=ds;tc.height=ds;const tcx=tc.getContext('2d');tcx.save();dpc(tcx,0,0,ds,ds,ets);tcx.restore();tcx.globalCompositeOperation='destination-in';tcx.drawImage(phi,0,0,ds,ds);ctx.drawImage(tc,-ds/2,-ds/2);ctx.drawImage(phi,-ds/2,-ds/2,ds,ds);}else{ctx.fillStyle='#888';ctx.font='20px sans-serif';ctx.textAlign='center';ctx.fillText('Loading phone...',0,0);}}else if(vm==='fabric'){const fw=ms*0.95;const fh=fw*0.8;ctx.save();rr(ctx,-fw/2,-fh/2,fw,fh,15);ctx.fillStyle='#2a2a2a';ctx.fill();ctx.strokeStyle='#444';ctx.lineWidth=2;ctx.stroke();ctx.clip();dp(-fw/2,-fh/2,fw,fh,ets);ctx.restore();}else if(vm==='bottle'){if(bti&&bti.complete&&bti.naturalWidth>0){const ds=ms*1.2;const tc=document.createElement('canvas');tc.width=ds;tc.height=ds;const tcx=tc.getContext('2d');tcx.save();dpc(tcx,0,0,ds,ds,ets);tcx.restore();tcx.globalCompositeOperation='destination-in';tcx.drawImage(bti,0,0,ds,ds);ctx.drawImage(tc,-ds/2,-ds/2);ctx.drawImage(bti,-ds/2,-ds/2,ds,ds);}else{ctx.fillStyle='#888';ctx.font='20px sans-serif';ctx.textAlign='center';ctx.fillText('Loading bottle...',0,0);}}}ctx.restore();}
+function li(f){if(!f)return;const r=new FileReader();r.onload=e=>{ti=new Image();ti.onload=()=>{ub();dr();};ti.src=e.target.result;};r.readAsDataURL(f);}
+fi.addEventListener('change',e=>li(e.target.files[0]));
+c.addEventListener('dragover',e=>{e.preventDefault();c.style.opacity='0.7';});
+c.addEventListener('dragleave',()=>{c.style.opacity='1';});
+c.addEventListener('drop',e=>{e.preventDefault();c.style.opacity='1';li(e.dataTransfer.files[0]);});
+c.addEventListener('pointerdown',e=>{if(!ti||vm!=='tile')return;drag=true;dsx=e.clientX-pox;dsy=e.clientY-poy;c.setPointerCapture(e.pointerId);});
+c.addEventListener('pointermove',e=>{if(!drag||vm!=='tile')return;pox=e.clientX-dsx;poy=e.clientY-dsy;dr();});
+c.addEventListener('pointerup',()=>drag=false);
+c.addEventListener('pointerleave',()=>drag=false);
+c.addEventListener('wheel',e=>{if(vm!=='tile'||!ti)return;e.preventDefault();const zf=e.deltaY<0?1.1:0.9;const r=c.getBoundingClientRect();const mx=e.clientX-r.left;const my=e.clientY-r.top;let ns=zs*zf;ns=Math.max(MZ,Math.min(XZ,ns));const sc=ns-zs;pox-=(mx-pox)*(sc/zs);poy-=(my-poy)*(sc/zs);zs=ns;dr();},{passive:false});
+let ltd=0;
+c.addEventListener('touchstart',e=>{if(e.touches.length===2&&vm==='tile'&&ti){e.preventDefault();const t1=e.touches[0];const t2=e.touches[1];ltd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);}},{passive:false});
+c.addEventListener('touchmove',e=>{if(e.touches.length===2&&vm==='tile'&&ti){e.preventDefault();const t1=e.touches[0];const t2=e.touches[1];const cd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);if(ltd>0){const zf=cd/ltd;const r=c.getBoundingClientRect();const cx=((t1.clientX+t2.clientX)/2)-r.left;const cy=((t1.clientY+t2.clientY)/2)-r.top;let ns=zs*zf;ns=Math.max(MZ,Math.min(XZ,ns));const sc=ns-zs;pox-=(cx-pox)*(sc/zs);poy-=(cy-poy)*(sc/zs);zs=ns;dr();}ltd=cd;}},{passive:false});
+c.addEventListener('touchend',()=>ltd=0);
+rs.addEventListener('change',e=>{rt=e.target.value;dr();});
+vms.addEventListener('change',e=>{vm=e.target.value;dr();});
+bgs.addEventListener('change',e=>{bg=e.target.value;ub();dr();});
+tgb.addEventListener('click',()=>{sg=!sg;tgb.textContent=sg?'Hide Grid':'Show Grid';dr();});
+ps.addEventListener('input',e=>{psc=parseFloat(e.target.value);sv.textContent=psc.toFixed(1)+'×';dr();});
+oxs.addEventListener('input',e=>{opx=e.target.value/100;oxv.textContent=e.target.value+'%';dr();});
+oys.addEventListener('input',e=>{opy=e.target.value/100;oyv.textContent=e.target.value+'%';dr();});
+ebh.addEventListener('click',()=>{if(!ti){alert('Please load a pattern first!');return;}try{const l=document.createElement('a');l.download='rud3boy-pattern.png';l.href=c.toDataURL('image/png');l.click();}catch(e){console.error('Export failed:',e);alert('Export failed. Please try again or take a screenshot.');}});
+dr();
 </script>
-
 </body>
 </html>
