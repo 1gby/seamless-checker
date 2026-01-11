@@ -473,44 +473,56 @@ justify-content: center;
 </div>
 
 <script>
-function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath()}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);
+  ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);
+  ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
 
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d');
-const fileInput=document.getElementById('fileInput');
-const uploadBtnHeader=document.getElementById('uploadBtnHeader');
-const exportBtnHeader=document.getElementById('exportBtnHeader');
-const toggleGridBtn=document.getElementById('toggleGrid');
-const repeatSelect=document.getElementById('repeatType');
-const viewModeSelect=document.getElementById('viewMode');
-const bgColorSelect=document.getElementById('bgColor');
-const scaleSlider=document.getElementById('patternScale');
-const offsetXSlider=document.getElementById('offsetX');
-const offsetYSlider=document.getElementById('offsetY');
-const scaleValue=document.getElementById('scaleValue');
-const offsetXValue=document.getElementById('offsetXValue');
-const offsetYValue=document.getElementById('offsetYValue');
-const emptyState=document.getElementById('emptyState');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const fileInput = document.getElementById('fileInput');
+const uploadBtnHeader = document.getElementById('uploadBtnHeader');
+const exportBtnHeader = document.getElementById('exportBtnHeader');
+const toggleGridBtn = document.getElementById('toggleGrid');
+const repeatSelect = document.getElementById('repeatType');
+const viewModeSelect = document.getElementById('viewMode');
+const bgColorSelect = document.getElementById('bgColor');
+const scaleSlider = document.getElementById('patternScale');
+const offsetXSlider = document.getElementById('offsetX');
+const offsetYSlider = document.getElementById('offsetY');
+const scaleValue = document.getElementById('scaleValue');
+const offsetXValue = document.getElementById('offsetXValue');
+const offsetYValue = document.getElementById('offsetYValue');
+const emptyState = document.getElementById('emptyState');
 
-let tileImg=null;
-let showGrid=false;
-let repeatType='full';
-let bgColor='checker';
-let viewMode='tile';
-let patternScale=1;
-let offsetPercentX=0;
-let offsetPercentY=0;
-let panOffsetX=0;
-let panOffsetY=0;
-let zoomScale=1;
-let isDragging=false;
+let tileImg = null;
+let showGrid = false;
+let repeatType = 'full';
+let bgColor = 'checker';
+let viewMode = 'tile';
+let patternScale = 1;
+let offsetPercentX = 0;
+let offsetPercentY = 0;
+let panOffsetX = 0;
+let panOffsetY = 0;
+let zoomScale = 1;
+let isDragging = false;
 let dragStartX;
 let dragStartY;
-let phoneImg=null;
-let bottleImg=null;
+let phoneImg = null;
+let bottleImg = null;
 
-const MIN_ZOOM=0.1;
-const MAX_ZOOM=5;
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 5;
 
 // Load mockup images
 const loadMockups = () => {
@@ -522,74 +534,74 @@ const loadMockups = () => {
   bottleImg.crossOrigin = "anonymous";
   bottleImg.src = 'https://raw.githubusercontent.com/1gby/seamless-checker/main/Mockups/bottle.png';
   
-  phoneImg.onload = () => draw();
-  bottleImg.onload = () => draw();
+  phoneImg.onload = () => { if(tileImg) draw(); };
+  bottleImg.onload = () => { if(tileImg) draw(); };
 };
 loadMockups();
 
-function resize(){
-  const wrapper=document.getElementById('canvas-wrapper');
-  const size=Math.min(wrapper.clientWidth-64,800);
-  canvas.width=size;
-  canvas.height=size;
+function resize() {
+  const wrapper = document.getElementById('canvas-wrapper');
+  const size = Math.min(wrapper.clientWidth - 64, 800);
+  canvas.width = size;
+  canvas.height = size;
   updateBackground();
   draw();
 }
 
-window.addEventListener('resize',resize);
+window.addEventListener('resize', resize);
 resize();
 
-document.getElementById('logo').addEventListener('click',()=>location.reload());
-canvas.addEventListener('click',e=>{if(!tileImg&&!isDragging)fileInput.click()});
-uploadBtnHeader.addEventListener('click',()=>fileInput.click());
+document.getElementById('logo').addEventListener('click', () => location.reload());
+canvas.addEventListener('click', e => { if (!tileImg && !isDragging) fileInput.click(); });
+uploadBtnHeader.addEventListener('click', () => fileInput.click());
 
-function updateBackground(){
-  if(tileImg){
-    if(bgColor==='checker'){
-      canvas.style.background='repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)';
-      canvas.style.backgroundSize='40px 40px';
-    } else if(bgColor==='wood'){
-      canvas.style.background='linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%)';
-      canvas.style.backgroundSize='100% 100%';
-    } else if(bgColor==='marble'){
-      canvas.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 25%, #ffffff 50%, #e8e8e8 75%, #d0d0d0 100%)';
-      canvas.style.backgroundSize='100% 100%';
+function updateBackground() {
+  if (tileImg) {
+    if (bgColor === 'checker') {
+      canvas.style.background = 'repeating-conic-gradient(#ccc 0% 25%, #999 0% 50%, #ccc 50% 75%, #999 75% 100%)';
+      canvas.style.backgroundSize = '40px 40px';
+    } else if (bgColor === 'wood') {
+      canvas.style.background = 'linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%)';
+      canvas.style.backgroundSize = '100% 100%';
+    } else if (bgColor === 'marble') {
+      canvas.style.background = 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 25%, #ffffff 50%, #e8e8e8 75%, #d0d0d0 100%)';
+      canvas.style.backgroundSize = '100% 100%';
     } else {
-      canvas.style.background=bgColor;
-      canvas.style.backgroundSize='100% 100%';
+      canvas.style.background = bgColor;
+      canvas.style.backgroundSize = '100% 100%';
     }
-  }else{
-    canvas.style.background='repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';
-    canvas.style.backgroundSize='40px 40px';
+  } else {
+    canvas.style.background = 'repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%, #2a2a2a 50% 75%, #1a1a1a 75% 100%)';
+    canvas.style.backgroundSize = '40px 40px';
   }
 }
 
-function drawPattern(sx,sy,w,h,ts){
-  const tilesX=Math.ceil(w/ts)+4;
-  const tilesY=Math.ceil(h/ts)+4;
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality='high';
+function drawPattern(sx, sy, w, h, ts) {
+  const tilesX = Math.ceil(w / ts) + 4;
+  const tilesY = Math.ceil(h / ts) + 4;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   
-  for(let x=-2;x<tilesX;x++){
-    for(let y=-2;y<tilesY;y++){
-      let drawX=sx+x*ts+offsetPercentX*ts;
-      let drawY=sy+y*ts+offsetPercentY*ts;
+  for (let x = -2; x < tilesX; x++) {
+    for (let y = -2; y < tilesY; y++) {
+      let drawX = sx + x * ts + offsetPercentX * ts;
+      let drawY = sy + y * ts + offsetPercentY * ts;
       
-      if(repeatType==='half-drop'){
-        drawY+=(Math.abs(x)%2===1)?ts/2:0;
-      }else if(repeatType==='brick'){
-        drawX+=(Math.abs(y)%2===1)?ts/2:0;
+      if (repeatType === 'half-drop') {
+        drawY += (Math.abs(x) % 2 === 1) ? ts / 2 : 0;
+      } else if (repeatType === 'brick') {
+        drawX += (Math.abs(y) % 2 === 1) ? ts / 2 : 0;
       }
       
-      ctx.drawImage(tileImg,drawX,drawY,ts,ts);
+      ctx.drawImage(tileImg, drawX, drawY, ts, ts);
     }
   }
 }
 
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  if(!tileImg){
+  if (!tileImg) {
     emptyState.classList.add('visible');
     canvas.classList.remove('has-image');
     exportBtnHeader.disabled = true;
@@ -600,179 +612,179 @@ function draw(){
   canvas.classList.add('has-image');
   exportBtnHeader.disabled = false;
   
-  const baseTileSize=tileImg.width;
-  const effectiveTileSize=baseTileSize*patternScale;
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality='high';
+  const baseTileSize = tileImg.width;
+  const effectiveTileSize = baseTileSize * patternScale;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.save();
   
-  if(viewMode==='tile'){
-    ctx.translate(panOffsetX,panOffsetY);
-    ctx.scale(zoomScale,zoomScale);
+  if (viewMode === 'tile') {
+    ctx.translate(panOffsetX, panOffsetY);
+    ctx.scale(zoomScale, zoomScale);
     
-    const tilesX=Math.ceil(canvas.width/effectiveTileSize/zoomScale)+6;
-    const tilesY=Math.ceil(canvas.height/effectiveTileSize/zoomScale)+6;
-    const startTileX=Math.floor(-panOffsetX/(effectiveTileSize*zoomScale))-3;
-    const startTileY=Math.floor(-panOffsetY/(effectiveTileSize*zoomScale))-3;
+    const tilesX = Math.ceil(canvas.width / effectiveTileSize / zoomScale) + 6;
+    const tilesY = Math.ceil(canvas.height / effectiveTileSize / zoomScale) + 6;
+    const startTileX = Math.floor(-panOffsetX / (effectiveTileSize * zoomScale)) - 3;
+    const startTileY = Math.floor(-panOffsetY / (effectiveTileSize * zoomScale)) - 3;
     
-    for(let x=startTileX;x<startTileX+tilesX;x++){
-      for(let y=startTileY;y<startTileY+tilesY;y++){
-        let drawX=x*effectiveTileSize+offsetPercentX*effectiveTileSize;
-        let drawY=y*effectiveTileSize+offsetPercentY*effectiveTileSize;
+    for (let x = startTileX; x < startTileX + tilesX; x++) {
+      for (let y = startTileY; y < startTileY + tilesY; y++) {
+        let drawX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
+        let drawY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
         
-        if(repeatType==='half-drop'){
-          drawY+=(Math.abs(x)%2===1)?effectiveTileSize/2:0;
-        }else if(repeatType==='brick'){
-          drawX+=(Math.abs(y)%2===1)?effectiveTileSize/2:0;
+        if (repeatType === 'half-drop') {
+          drawY += (Math.abs(x) % 2 === 1) ? effectiveTileSize / 2 : 0;
+        } else if (repeatType === 'brick') {
+          drawX += (Math.abs(y) % 2 === 1) ? effectiveTileSize / 2 : 0;
         }
         
-        ctx.drawImage(tileImg,drawX,drawY,effectiveTileSize,effectiveTileSize);
+        ctx.drawImage(tileImg, drawX, drawY, effectiveTileSize, effectiveTileSize);
       }
     }
     
-    if(showGrid){
-      ctx.strokeStyle='rgba(255,255,255,0.4)';
-      ctx.lineWidth=1/zoomScale;
+    if (showGrid) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1 / zoomScale;
       
-      for(let x=startTileX;x<startTileX+tilesX+1;x++){
-        let lineX=x*effectiveTileSize+offsetPercentX*effectiveTileSize;
+      for (let x = startTileX; x < startTileX + tilesX + 1; x++) {
+        let lineX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
         ctx.beginPath();
-        ctx.moveTo(lineX,startTileY*effectiveTileSize-effectiveTileSize);
-        ctx.lineTo(lineX,(startTileY+tilesY+1)*effectiveTileSize);
+        ctx.moveTo(lineX, startTileY * effectiveTileSize - effectiveTileSize);
+        ctx.lineTo(lineX, (startTileY + tilesY + 1) * effectiveTileSize);
         ctx.stroke();
       }
       
-      for(let y=startTileY;y<startTileY+tilesY+1;y++){
-        let lineY=y*effectiveTileSize+offsetPercentY*effectiveTileSize;
+      for (let y = startTileY; y < startTileY + tilesY + 1; y++) {
+        let lineY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
         ctx.beginPath();
-        ctx.moveTo(startTileX*effectiveTileSize-effectiveTileSize,lineY);
-        ctx.lineTo((startTileX+tilesX+1)*effectiveTileSize,lineY);
+        ctx.moveTo(startTileX * effectiveTileSize - effectiveTileSize, lineY);
+        ctx.lineTo((startTileX + tilesX + 1) * effectiveTileSize, lineY);
         ctx.stroke();
       }
     }
-  }else{
-    const centerX=canvas.width/2;
-    const centerY=canvas.height/2;
-    const mockupSize=Math.min(canvas.width,canvas.height)*0.6;
-    ctx.translate(centerX,centerY);
+  } else {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const mockupSize = Math.min(canvas.width, canvas.height) * 0.6;
+    ctx.translate(centerX, centerY);
     
-    if(viewMode==='phone'){
-      const phoneWidth=mockupSize*0.55;
-      const phoneHeight=phoneWidth*2.1;
+    if (viewMode === 'phone') {
+      const phoneWidth = mockupSize * 0.55;
+      const phoneHeight = phoneWidth * 2.1;
       
       ctx.save();
-      roundRect(ctx,-phoneWidth/2,-phoneHeight/2,phoneWidth,phoneHeight,35);
+      roundRect(ctx, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, 35);
       ctx.clip();
-      drawPattern(-phoneWidth/2,-phoneHeight/2,phoneWidth,phoneHeight,effectiveTileSize);
+      drawPattern(-phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, effectiveTileSize);
       ctx.restore();
       
-      if(phoneImg && phoneImg.complete){
-        ctx.drawImage(phoneImg, -phoneWidth/2, -phoneHeight/2, phoneWidth, phoneHeight);
-      }else{
-        roundRect(ctx,-phoneWidth/2,-phoneHeight/2,phoneWidth,phoneHeight,35);
-        ctx.strokeStyle='#000';
-        ctx.lineWidth=4;
+      if (phoneImg && phoneImg.complete) {
+        ctx.drawImage(phoneImg, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight);
+      } else {
+        roundRect(ctx, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, 35);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4;
         ctx.stroke();
         
-        const cameraSize=phoneWidth*0.15;
-        const cameraOffset=phoneWidth*0.15;
+        const cameraSize = phoneWidth * 0.15;
+        const cameraOffset = phoneWidth * 0.15;
         ctx.beginPath();
-        ctx.arc(-phoneWidth/2+cameraOffset+cameraSize/2,-phoneHeight/2+cameraOffset+cameraSize/2,cameraSize/2,0,Math.PI*2);
-        ctx.fillStyle='#0a0a0a';
+        ctx.arc(-phoneWidth / 2 + cameraOffset + cameraSize / 2, -phoneHeight / 2 + cameraOffset + cameraSize / 2, cameraSize / 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#0a0a0a';
         ctx.fill();
-        ctx.strokeStyle='#222';
-        ctx.lineWidth=2;
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 2;
         ctx.stroke();
       }
-    }else if(viewMode==='fabric'){
-      const fabricWidth=mockupSize*0.95;
-      const fabricHeight=fabricWidth*0.8;
+    } else if (viewMode === 'fabric') {
+      const fabricWidth = mockupSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
       
       ctx.save();
-      roundRect(ctx,-fabricWidth/2,-fabricHeight/2,fabricWidth,fabricHeight,15);
-      ctx.fillStyle='#2a2a2a';
+      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
       ctx.fill();
-      ctx.strokeStyle='#444';
-      ctx.lineWidth=2;
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
       ctx.stroke();
       ctx.clip();
-      drawPattern(-fabricWidth/2,-fabricHeight/2,fabricWidth,fabricHeight,effectiveTileSize);
+      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
-    }else if(viewMode==='bottle'){
-      const bottleWidth=mockupSize*0.45;
-      const bottleHeight=bottleWidth*2.3;
-      const capHeight=bottleHeight*0.12;
-      const neckHeight=bottleHeight*0.08;
-      const bodyTop=-bottleHeight/2+capHeight+neckHeight;
-      const bodyHeight=bottleHeight-capHeight-neckHeight;
+    } else if (viewMode === 'bottle') {
+      const bottleWidth = mockupSize * 0.45;
+      const bottleHeight = bottleWidth * 2.3;
+      const capHeight = bottleHeight * 0.12;
+      const neckHeight = bottleHeight * 0.08;
+      const bodyTop = -bottleHeight / 2 + capHeight + neckHeight;
+      const bodyHeight = bottleHeight - capHeight - neckHeight;
       
       ctx.save();
-      roundRect(ctx,-bottleWidth/2,bodyTop,bottleWidth,bodyHeight,25);
+      roundRect(ctx, -bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, 25);
       ctx.clip();
-      drawPattern(-bottleWidth/2,bodyTop,bottleWidth,bodyHeight,effectiveTileSize);
+      drawPattern(-bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
       ctx.restore();
       
-      if(bottleImg && bottleImg.complete){
-        ctx.drawImage(bottleImg, -bottleWidth/2, -bottleHeight/2, bottleWidth, bottleHeight);
-      }else{
-        roundRect(ctx,-bottleWidth/2,bodyTop,bottleWidth,bodyHeight,25);
-        ctx.strokeStyle='#000';
-        ctx.lineWidth=3;
+      if (bottleImg && bottleImg.complete) {
+        ctx.drawImage(bottleImg, -bottleWidth / 2, -bottleHeight / 2, bottleWidth, bottleHeight);
+      } else {
+        roundRect(ctx, -bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, 25);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
         ctx.stroke();
         
         ctx.save();
-        roundRect(ctx,-bottleWidth/2,bodyTop,bottleWidth,bodyHeight,25);
+        roundRect(ctx, -bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, 25);
         ctx.clip();
-        const gradient=ctx.createLinearGradient(-bottleWidth/2,0,bottleWidth/2,0);
-        gradient.addColorStop(0,'rgba(255,255,255,0)');
-        gradient.addColorStop(0.3,'rgba(255,255,255,0.15)');
-        gradient.addColorStop(0.5,'rgba(255,255,255,0.25)');
-        gradient.addColorStop(0.7,'rgba(255,255,255,0.15)');
-        gradient.addColorStop(1,'rgba(255,255,255,0)');
-        ctx.fillStyle=gradient;
-        ctx.fillRect(-bottleWidth/2,bodyTop,bottleWidth,bodyHeight);
+        const gradient = ctx.createLinearGradient(-bottleWidth / 2, 0, bottleWidth / 2, 0);
+        gradient.addColorStop(0, 'rgba(255,255,255,0)');
+        gradient.addColorStop(0.3, 'rgba(255,255,255,0.15)');
+        gradient.addColorStop(0.5, 'rgba(255,255,255,0.25)');
+        gradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-bottleWidth / 2, bodyTop, bottleWidth, bodyHeight);
         ctx.restore();
         
-        const neckWidth=bottleWidth*0.6;
-        ctx.fillStyle='#e8e8e8';
-        roundRect(ctx,-neckWidth/2,-bottleHeight/2+capHeight,neckWidth,neckHeight,8);
+        const neckWidth = bottleWidth * 0.6;
+        ctx.fillStyle = '#e8e8e8';
+        roundRect(ctx, -neckWidth / 2, -bottleHeight / 2 + capHeight, neckWidth, neckHeight, 8);
         ctx.fill();
-        ctx.strokeStyle='#000';
-        ctx.lineWidth=2;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
         ctx.stroke();
         
-        const capWidth=bottleWidth*0.65;
-        ctx.fillStyle='#2a2a2a';
-        roundRect(ctx,-capWidth/2,-bottleHeight/2,capWidth,capHeight,6);
+        const capWidth = bottleWidth * 0.65;
+        ctx.fillStyle = '#2a2a2a';
+        roundRect(ctx, -capWidth / 2, -bottleHeight / 2, capWidth, capHeight, 6);
         ctx.fill();
-        ctx.strokeStyle='#000';
-        ctx.lineWidth=2;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
         ctx.stroke();
         
-        ctx.strokeStyle='#444';
-        ctx.lineWidth=1;
-        for(let i=0;i<4;i++){
-          const y=-bottleHeight/2+(capHeight/5)*(i+1);
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) {
+          const y = -bottleHeight / 2 + (capHeight / 5) * (i + 1);
           ctx.beginPath();
-          ctx.moveTo(-capWidth/2+2,y);
-          ctx.lineTo(capWidth/2-2,y);
+          ctx.moveTo(-capWidth / 2 + 2, y);
+          ctx.lineTo(capWidth / 2 - 2, y);
           ctx.stroke();
         }
         
         ctx.beginPath();
-        ctx.ellipse(0,-bottleHeight/2+3,capWidth*0.45,capWidth*0.12,0,0,Math.PI*2);
-        ctx.fillStyle='#1a1a1a';
+        ctx.ellipse(0, -bottleHeight / 2 + 3, capWidth * 0.45, capWidth * 0.12, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#1a1a1a';
         ctx.fill();
-        ctx.strokeStyle='#000';
-        ctx.lineWidth=2;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
         ctx.stroke();
         
         ctx.beginPath();
-        ctx.ellipse(0,bodyTop+bodyHeight-5,bottleWidth*0.48,bottleWidth*0.08,0,0,Math.PI);
-        ctx.fillStyle='#333';
+        ctx.ellipse(0, bodyTop + bodyHeight - 5, bottleWidth * 0.48, bottleWidth * 0.08, 0, 0, Math.PI);
+        ctx.fillStyle = '#333';
         ctx.fill();
-        ctx.strokeStyle='#000';
-        ctx.lineWidth=2;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
         ctx.stroke();
       }
     }
@@ -781,169 +793,174 @@ function draw(){
   ctx.restore();
 }
 
-function loadImage(file){
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    tileImg.src=e.target.result;
+function loadImage(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    tileImg = new Image();
+    tileImg.onload = () => {
+      updateBackground();
+      draw();
+    };
+    tileImg.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-fileInput.addEventListener('change',e=>loadImage(e.target.files[0]));
+fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
 
-canvas.addEventListener('dragover',e=>{
+canvas.addEventListener('dragover', e => {
   e.preventDefault();
-  canvas.style.opacity='0.7';
+  canvas.style.opacity = '0.7';
 });
 
-canvas.addEventListener('dragleave',()=>{
-  canvas.style.opacity='1';
+canvas.addEventListener('dragleave', () => {
+  canvas.style.opacity = '1';
 });
 
-canvas.addEventListener('drop',e=>{
+canvas.addEventListener('drop', e => {
   e.preventDefault();
-  canvas.style.opacity='1';
+  canvas.style.opacity = '1';
   loadImage(e.dataTransfer.files[0]);
 });
 
-canvas.addEventListener('pointerdown',e=>{
-  if(!tileImg||viewMode!=='tile')return;
-  isDragging=true;
-  dragStartX=e.clientX-panOffsetX;
-  dragStartY=e.clientY-panOffsetY;
+canvas.addEventListener('pointerdown', e => {
+  if (!tileImg || viewMode !== 'tile') return;
+  isDragging = true;
+  dragStartX = e.clientX - panOffsetX;
+  dragStartY = e.clientY - panOffsetY;
   canvas.setPointerCapture(e.pointerId);
 });
 
-canvas.addEventListener('pointermove',e=>{
-  if(!isDragging||viewMode!=='tile')return;
-  panOffsetX=e.clientX-dragStartX;
-  panOffsetY=e.clientY-dragStartY;
+canvas.addEventListener('pointermove', e => {
+  if (!isDragging || viewMode !== 'tile') return;
+  panOffsetX = e.clientX - dragStartX;
+  panOffsetY = e.clientY - dragStartY;
   draw();
 });
 
-canvas.addEventListener('pointerup',()=>isDragging=false);
-canvas.addEventListener('pointerleave',()=>isDragging=false);
+canvas.addEventListener('pointerup', () => isDragging = false);
+canvas.addEventListener('pointerleave', () => isDragging = false);
 
-canvas.addEventListener('wheel',e=>{
-  if(viewMode!=='tile'||!tileImg)return;
+canvas.addEventListener('wheel', e => {
+  if (viewMode !== 'tile' || !tileImg) return;
   e.preventDefault();
   
-  const zoomFactor=e.deltaY<0?1.1:0.9;
-  const rect=canvas.getBoundingClientRect();
-  const mouseX=e.clientX-rect.left;
-  const mouseY=e.clientY-rect.top;
+  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
   
-  let newScale=zoomScale*zoomFactor;
-  newScale=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,newScale));
+  let newScale = zoomScale * zoomFactor;
+  newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
   
-  const scaleChange=newScale-zoomScale;
-  panOffsetX-=(mouseX-panOffsetX)*(scaleChange/zoomScale);
-  panOffsetY-=(mouseY-panOffsetY)*(scaleChange/zoomScale);
+  const scaleChange = newScale - zoomScale;
+  panOffsetX -= (mouseX - panOffsetX) * (scaleChange / zoomScale);
+  panOffsetY -= (mouseY - panOffsetY) * (scaleChange / zoomScale);
   
-  zoomScale=newScale;
+  zoomScale = newScale;
   draw();
-},{passive:false});
+}, { passive: false });
 
-let lastTouchDistance=0;
+let lastTouchDistance = 0;
 
-canvas.addEventListener('touchstart',e=>{
-  if(e.touches.length===2&&viewMode==='tile'&&tileImg){
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 2 && viewMode === 'tile' && tileImg) {
     e.preventDefault();
-    const touch1=e.touches[0];
-    const touch2=e.touches[1];
-    lastTouchDistance=Math.hypot(
-      touch2.clientX-touch1.clientX,
-      touch2.clientY-touch1.clientY
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    lastTouchDistance = Math.hypot(
+      touch2.clientX - touch1.clientX,
+      touch2.clientY - touch1.clientY
     );
   }
-},{passive:false});
+}, { passive: false });
 
-canvas.addEventListener('touchmove',e=>{
-  if(e.touches.length===2&&viewMode==='tile'&&tileImg){
+canvas.addEventListener('touchmove', e => {
+  if (e.touches.length === 2 && viewMode === 'tile' && tileImg) {
     e.preventDefault();
-    const touch1=e.touches[0];
-    const touch2=e.touches[1];
-    const currentDistance=Math.hypot(
-      touch2.clientX-touch1.clientX,
-      touch2.clientY-touch1.clientY
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    const currentDistance = Math.hypot(
+      touch2.clientX - touch1.clientX,
+      touch2.clientY - touch1.clientY
     );
     
-    if(lastTouchDistance>0){
-      const zoomFactor=currentDistance/lastTouchDistance;
-      const rect=canvas.getBoundingClientRect();
-      const centerX=((touch1.clientX+touch2.clientX)/2)-rect.left;
-      const centerY=((touch1.clientY+touch2.clientY)/2)-rect.top;
+    if (lastTouchDistance > 0) {
+      const zoomFactor = currentDistance / lastTouchDistance;
+      const rect = canvas.getBoundingClientRect();
+      const centerX = ((touch1.clientX + touch2.clientX) / 2) - rect.left;
+      const centerY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
       
-      let newScale=zoomScale*zoomFactor;
-      newScale=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,newScale));
+      let newScale = zoomScale * zoomFactor;
+      newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale));
       
-      const scaleChange=newScale-zoomScale;
-      panOffsetX-=(centerX-panOffsetX)*(scaleChange/zoomScale);
-      panOffsetY-=(centerY-panOffsetY)*(scaleChange/zoomScale);
+      const scaleChange = newScale - zoomScale;
+      panOffsetX -= (centerX - panOffsetX) * (scaleChange / zoomScale);
+      panOffsetY -= (centerY - panOffsetY) * (scaleChange / zoomScale);
       
-      zoomScale=newScale;
+      zoomScale = newScale;
       draw();
     }
     
-    lastTouchDistance=currentDistance;
+    lastTouchDistance = currentDistance;
   }
-},{passive:false});
+}, { passive: false });
 
-canvas.addEventListener('touchend',()=>lastTouchDistance=0);
+canvas.addEventListener('touchend', () => lastTouchDistance = 0);
 
-repeatSelect.addEventListener('change',e=>{
-  repeatType=e.target.value;
+repeatSelect.addEventListener('change', e => {
+  repeatType = e.target.value;
   draw();
 });
 
-viewModeSelect.addEventListener('change',e=>{
-  viewMode=e.target.value;
+viewModeSelect.addEventListener('change', e => {
+  viewMode = e.target.value;
   draw();
 });
 
-bgColorSelect.addEventListener('change',e=>{
-  bgColor=e.target.value;
+bgColorSelect.addEventListener('change', e => {
+  bgColor = e.target.value;
   updateBackground();
   draw();
 });
 
-toggleGridBtn.addEventListener('click',()=>{
-  showGrid=!showGrid;
-  toggleGridBtn.textContent=showGrid?'Hide Grid':'Show Grid';
+toggleGridBtn.addEventListener('click', () => {
+  showGrid = !showGrid;
+  toggleGridBtn.textContent = showGrid ? 'Hide Grid' : 'Show Grid';
   draw();
 });
 
-scaleSlider.addEventListener('input',e=>{
-  patternScale=parseFloat(e.target.value);
-  scaleValue.textContent=patternScale.toFixed(1)+'×';
+scaleSlider.addEventListener('input', e => {
+  patternScale = parseFloat(e.target.value);
+  scaleValue.textContent = patternScale.toFixed(1) + '×';
   draw();
 });
 
-offsetXSlider.addEventListener('input',e=>{
-  offsetPercentX=e.target.value/100;
-  offsetXValue.textContent=e.target.value+'%';
+offsetXSlider.addEventListener('input', e => {
+  offsetPercentX = e.target.value / 100;
+  offsetXValue.textContent = e.target.value + '%';
   draw();
 });
 
-offsetYSlider.addEventListener('input',e=>{
-  offsetPercentY=e.target.value/100;
-  offsetYValue.textContent=e.target.value+'%';
+offsetYSlider.addEventListener('input', e => {
+  offsetPercentY = e.target.value / 100;
+  offsetYValue.textContent = e.target.value + '%';
   draw();
 });
 
-exportBtnHeader.addEventListener('click',()=>{
-  if(!tileImg){
+exportBtnHeader.addEventListener('click', () => {
+  if (!tileImg) {
     alert('Please load a pattern first!');
     return;
   }
-  try{
-    const link=document.createElement('a');
-    link.download='rud3boy-pattern.png';
-    link.href=canvas.toDataURL('image/png');
+  try {
+    const link = document.createElement('a');
+    link.download = 'rud3boy-pattern.png';
+    link.href = canvas.toDataURL('image/png');
     link.click();
-  }catch(error){
-    console.error('Export failed:',error);
+  } catch (error) {
+    console.error('Export failed:', error);
     alert('Export failed. Please try again or take a screenshot.');
   }
 });
@@ -952,9 +969,4 @@ draw();
 </script>
 
 </body>
-</html>=new Image();
-    tileImg.onload=()=>{
-      updateBackground();
-      draw();
-    };
-    tileImg
+</html>
