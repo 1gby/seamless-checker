@@ -398,7 +398,6 @@ justify-content: center;
       </select>
     </div>
 
-```
 <div class="control-group">
   <label class="control-label">View Mode</label>
   <select id="viewMode">
@@ -450,7 +449,6 @@ justify-content: center;
   </div>
   <input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
-```
 
   </div>
 
@@ -676,14 +674,17 @@ function draw() {
     
     if (viewMode === 'phone') {
       if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
-        // Draw pattern first as background
         const displaySize = mockupSize * 1.2;
-        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
         
-        // Draw the phone mockup overlay (2048x2048)
+        // Draw the mockup first (this includes the transparent case area)
         ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+        
+        // Then use destination-over to put pattern BEHIND the mockup
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
+        ctx.restore();
       } else {
-        // Fallback text if image not loaded
         ctx.fillStyle = '#888';
         ctx.font = '20px sans-serif';
         ctx.textAlign = 'center';
@@ -719,14 +720,17 @@ function draw() {
       ctx.restore();
     } else if (viewMode === 'bottle') {
       if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
-        // Draw pattern first as background
         const displaySize = mockupSize * 1.2;
-        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
         
-        // Draw the bottle mockup overlay (2048x2048)
+        // Draw the mockup first (this includes the transparent bottle wrap area)
         ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+        
+        // Then use destination-over to put pattern BEHIND the mockup
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
+        ctx.restore();
       } else {
-        // Fallback text if image not loaded
         ctx.fillStyle = '#888';
         ctx.font = '20px sans-serif';
         ctx.textAlign = 'center';
