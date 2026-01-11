@@ -1,3 +1,5 @@
+Maybe I sent the wrong one
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -398,6 +400,7 @@ justify-content: center;
       </select>
     </div>
 
+```
 <div class="control-group">
   <label class="control-label">View Mode</label>
   <select id="viewMode">
@@ -449,6 +452,7 @@ justify-content: center;
   </div>
   <input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
+```
 
   </div>
 
@@ -620,39 +624,6 @@ function draw() {
   const effectiveTileSize = baseTileSize * patternScale;
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  
-  // Draw background for mockup views FIRST
-  if (viewMode !== 'tile') {
-    if (bgColor === 'checker') {
-      const checkerSize = 20;
-      for (let y = 0; y < canvas.height; y += checkerSize) {
-        for (let x = 0; x < canvas.width; x += checkerSize) {
-          ctx.fillStyle = ((x / checkerSize) + (y / checkerSize)) % 2 === 0 ? '#ccc' : '#999';
-          ctx.fillRect(x, y, checkerSize, checkerSize);
-        }
-      }
-    } else if (bgColor === 'wood') {
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-      gradient.addColorStop(0, '#8B4513');
-      gradient.addColorStop(0.5, '#A0522D');
-      gradient.addColorStop(1, '#8B4513');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else if (bgColor === 'marble') {
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, '#e0e0e0');
-      gradient.addColorStop(0.25, '#f5f5f5');
-      gradient.addColorStop(0.5, '#ffffff');
-      gradient.addColorStop(0.75, '#e8e8e8');
-      gradient.addColorStop(1, '#d0d0d0');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-  }
-  
   ctx.save();
   
   if (viewMode === 'tile') {
@@ -709,36 +680,60 @@ function draw() {
       if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
         const displaySize = mockupSize * 1.2;
         
-        // Create temp canvas for pattern
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = displaySize;
-        tempCanvas.height = displaySize;
-        const tempCtx = tempCanvas.getContext('2d');
+        // Draw the mockup first (this includes the transparent case area)
+        ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
         
-        // Draw pattern on temp canvas
-        const tilesX = Math.ceil(displaySize / effectiveTileSize) + 4;
-        const tilesY = Math.ceil(displaySize / effectiveTileSize) + 4;
+        // Then use destination-over to put pattern BEHIND the mockup
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#888';
+        ctx.font = '20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loading phone mockup...', 0, 0);
+      }
+    } else if (viewMode === 'fabric') {
+      const fabricWidth = mockupSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
+      
+      ctx.save();
+      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.clip();
+      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
+      ctx.restore();
+    } else if (viewMode === 'fabric') {
+      const fabricWidth = mockupSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
+      
+      ctx.save();
+      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.clip();
+      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
+      ctx.restore();
+    } else if (viewMode === 'bottle') {
+      if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
+        const displaySize = mockupSize * 1.2;
         
-        for (let x = -2; x < tilesX; x++) {
-          for (let y = -2; y < tilesY; y++) {
-            let drawX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
-            let drawY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
-            
-            if (repeatType === 'half-drop') {
-              drawY += (Math.abs(x) % 2 === 1) ? effectiveTileSize / 2 : 0;
-            } else if (repeatType === 'brick') {
-              drawX += (Math.abs(y) % 2 === 1) ? effectiveTileSize / 2 : 0;
-            }
-            
-            tempCtx.drawImage(tileImg, drawX, drawY, effectiveTileSize, effectiveTileSize);
-          }
-        }
-        
-        // Draw pattern
-        ctx.drawImage(tempCanvas, -displaySize / 2, -displaySize / 2);
-        
-        // Draw mockup on top
+        // Draw the mockup first (this includes the transparent bottle wrap area)
         ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+        
+        // Then use destination-over to put pattern BEHIND the mockup
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
+        ctx.restore();
       } else {
         ctx.fillStyle = '#888';
         ctx.font = '20px sans-serif';
@@ -927,60 +922,4 @@ draw();
 </script>
 
 </body>
-</html>(displaySize / effectiveTileSize) + 4;
-        const tilesY = Math.ceil(displaySize / effectiveTileSize) + 4;
-
-    for (let x = -2; x < tilesX; x++) {
-      for (let y = -2; y < tilesY; y++) {
-        let drawX = x * effectiveTileSize + offsetPercentX * effectiveTileSize;
-        let drawY = y * effectiveTileSize + offsetPercentY * effectiveTileSize;
-        
-        if (repeatType === 'half-drop') {
-          drawY += (Math.abs(x) % 2 === 1) ? effectiveTileSize / 2 : 0;
-        } else if (repeatType === 'brick') {
-          drawX += (Math.abs(y) % 2 === 1) ? effectiveTileSize / 2 : 0;
-        }
-        
-        tempCtx.drawImage(tileImg, drawX, drawY, effectiveTileSize, effectiveTileSize);
-      }
-    }
-    
-    // Draw pattern
-    ctx.drawImage(tempCanvas, -displaySize / 2, -displaySize / 2);
-    
-    // Draw mockup on top
-    ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
-  } else {
-    ctx.fillStyle = '#888';
-    ctx.font = '20px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Loading phone mockup...', 0, 0);
-  }
-} else if (viewMode === 'fabric') {
-  const fabricWidth = mockupSize * 0.95;
-  const fabricHeight = fabricWidth * 0.8;
-  
-  ctx.save();
-  roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
-  ctx.clip();
-  drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
-  ctx.restore();
-  
-  ctx.save();
-  roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
-  ctx.strokeStyle = '#444';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
-} else if (viewMode === 'bottle') {
-  if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
-    const displaySize = mockupSize * 1.2;
-    
-    // Create temp canvas for pattern
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = displaySize;
-    tempCanvas.height = displaySize;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    // Draw pattern on temp canvas
-    const tilesX = Math.ceil
+</html>
