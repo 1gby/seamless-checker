@@ -398,6 +398,7 @@ justify-content: center;
       </select>
     </div>
 
+```
 <div class="control-group">
   <label class="control-label">View Mode</label>
   <select id="viewMode">
@@ -449,6 +450,7 @@ justify-content: center;
   </div>
   <input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
+```
 
   </div>
 
@@ -673,18 +675,19 @@ function draw() {
     ctx.translate(centerX, centerY);
     
     if (viewMode === 'phone') {
-      const phoneWidth = mockupSize * 0.55;
-      const phoneHeight = phoneWidth * 2.1;
-      
-      ctx.save();
-      roundRect(ctx, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, 35);
-      ctx.clip();
-      drawPattern(-phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight, effectiveTileSize);
-      ctx.restore();
-      
-      // Draw the phone mockup overlay
       if (phoneImg && phoneImg.complete && phoneImg.naturalWidth > 0) {
-        ctx.drawImage(phoneImg, -phoneWidth / 2, -phoneHeight / 2, phoneWidth, phoneHeight);
+        // Draw pattern first as background
+        const displaySize = mockupSize * 1.2;
+        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
+        
+        // Draw the phone mockup overlay (2048x2048)
+        ctx.drawImage(phoneImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+      } else {
+        // Fallback text if image not loaded
+        ctx.fillStyle = '#888';
+        ctx.font = '20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loading phone mockup...', 0, 0);
       }
     } else if (viewMode === 'fabric') {
       const fabricWidth = mockupSize * 0.95;
@@ -700,23 +703,34 @@ function draw() {
       ctx.clip();
       drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
-    } else if (viewMode === 'bottle') {
-      const bottleWidth = mockupSize * 0.45;
-      const bottleHeight = bottleWidth * 2.3;
-      const capHeight = bottleHeight * 0.12;
-      const neckHeight = bottleHeight * 0.08;
-      const bodyTop = -bottleHeight / 2 + capHeight + neckHeight;
-      const bodyHeight = bottleHeight - capHeight - neckHeight;
+    } else if (viewMode === 'fabric') {
+      const fabricWidth = mockupSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
       
       ctx.save();
-      roundRect(ctx, -bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, 25);
+      roundRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
       ctx.clip();
-      drawPattern(-bottleWidth / 2, bodyTop, bottleWidth, bodyHeight, effectiveTileSize);
+      drawPattern(-fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, effectiveTileSize);
       ctx.restore();
-      
-      // Draw the bottle mockup overlay
+    } else if (viewMode === 'bottle') {
       if (bottleImg && bottleImg.complete && bottleImg.naturalWidth > 0) {
-        ctx.drawImage(bottleImg, -bottleWidth / 2, -bottleHeight / 2, bottleWidth, bottleHeight);
+        // Draw pattern first as background
+        const displaySize = mockupSize * 1.2;
+        drawPattern(-displaySize / 2, -displaySize / 2, displaySize, displaySize, effectiveTileSize);
+        
+        // Draw the bottle mockup overlay (2048x2048)
+        ctx.drawImage(bottleImg, -displaySize / 2, -displaySize / 2, displaySize, displaySize);
+      } else {
+        // Fallback text if image not loaded
+        ctx.fillStyle = '#888';
+        ctx.font = '20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loading bottle mockup...', 0, 0);
       }
     }
   }
