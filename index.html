@@ -7,8 +7,10 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);color:#eee;min-height:100vh}
-#container{display:flex;flex-direction:column;min-height:100vh}
-#header{padding:1.5rem 2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+#container{display:flex;flex-direction:column;min-height:100vh;transition:all 0.3s}
+#container.fullscreen{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999}
+#header{padding:1.5rem 2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;transition:all 0.3s}
+#container.fullscreen #header{transform:translateY(-100%);opacity:0;pointer-events:none}
 .logo-section{display:flex;align-items:center;gap:1rem}
 #logo{height:42px;width:auto;cursor:pointer;transition:transform 0.3s;filter:drop-shadow(0 0 0px rgba(16,185,129,0)) drop-shadow(0 0 0px rgba(16,185,129,0));animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0)) drop-shadow(0 0 0px rgba(16,185,129,0))}50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}}
@@ -24,7 +26,9 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .upload-btn:hover,.sample-btn:hover,.export-btn-header:hover{transform:translateY(-2px)}
 .export-btn-header:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 #canvas-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative}
+#container.fullscreen #canvas-wrapper{padding:0}
 #canvas{max-width:1200px;width:100%;aspect-ratio:1;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:pointer;transition:all 0.3s}
+#container.fullscreen #canvas{max-width:100%;width:100vmin;height:100vmin;border-radius:0}
 #canvas.has-image{cursor:grab}
 #canvas.has-image:active{cursor:grabbing}
 #canvas:hover{box-shadow:0 25px 70px rgba(0,0,0,0.6)}
@@ -33,7 +37,15 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .empty-state-icon{font-size:4rem;margin-bottom:1rem;opacity:0.6}
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
-#controls{padding:2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center}
+.fullscreen-btn{position:fixed;top:1rem;right:1rem;background:rgba(26,26,46,0.9);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);color:#eee;padding:0.75rem;border-radius:12px;cursor:pointer;font-size:1.2rem;z-index:10000;transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
+.fullscreen-btn:hover{background:rgba(102,126,234,0.2);transform:scale(1.1)}
+#controls{padding:2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center;transition:all 0.3s;max-height:1000px;overflow:hidden}
+#controls.collapsed{max-height:60px;overflow:hidden}
+#container.fullscreen #controls{transform:translateY(100%);opacity:0;pointer-events:none}
+.controls-header{width:100%;text-align:center;cursor:pointer;padding:0.5rem;background:rgba(255,255,255,0.02);border-radius:8px;margin-bottom:1rem;transition:all 0.3s;user-select:none}
+.controls-header:hover{background:rgba(102,126,234,0.1)}
+.controls-header::after{content:'▼';display:inline-block;margin-left:0.5rem;transition:transform 0.3s}
+#controls.collapsed .controls-header::after{transform:rotate(180deg)}
 .control-group{display:flex;flex-direction:column;gap:0.5rem;min-width:180px;align-items:center}
 .control-label{font-size:0.85rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;text-align:center}
 select,button{padding:0.75rem 1rem;font-size:0.95rem;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#eee;cursor:pointer;transition:all 0.3s;font-family:inherit;width:100%}
@@ -47,7 +59,8 @@ input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);cursor:pointer;border:none;box-shadow:0 2px 8px rgba(102,126,234,0.4);transition:all 0.3s}
 input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 .slider-value{font-size:0.9rem;font-weight:600;color:#667eea;min-width:45px;text-align:right}
-#footer{padding:2rem;background:rgba(10,10,10,0.9);border-top:1px solid rgba(255,255,255,0.1)}
+#footer{padding:2rem;background:rgba(10,10,10,0.9);border-top:1px solid rgba(255,255,255,0.1);transition:all 0.3s}
+#container.fullscreen #footer{transform:translateY(100%);opacity:0;pointer-events:none}
 .footer-content{max-width:1200px;margin:0 auto;text-align:center}
 .footer-title{font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa}
 .footer-links{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-bottom:1.5rem}
@@ -70,6 +83,7 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 </head>
 <body>
 <div id="container">
+<button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
 <div id="header">
 <div class="logo-section">
 <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
@@ -88,7 +102,7 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/JoltCola.png">Jolt Cola</option>
 </select>
 </div>
-<button class="export-btn-header" id="exportBtnHeader" disabled>💾 Export</button>
+<button class="export-btn-header" id="exportBtnHeader" disabled>📤 Share</button>
 </div>
 </div>
 <div id="canvas-wrapper">
@@ -100,6 +114,7 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 </div>
 </div>
 <div id="controls">
+<div class="controls-header" id="controlsHeader">CONTROLS</div>
 <div class="control-group">
 <label class="control-label">Repeat Type</label>
 <select id="repeatType">
@@ -180,8 +195,8 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 </div>
 <script>
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
-const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),tg=g('toggleGrid'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue');
-let t=null,sg=false,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,dr=false,dsx,dsy,phi=null,bti=null;
+const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),tg=g('toggleGrid'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),fb=g('fullscreenBtn'),ch=g('controlsHeader'),ctr=g('controls'),cont=g('container');
+let t=null,sg=false,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,dr=false,dsx,dsy,phi=null,bti=null,isFs=false;
 const MZ=0.05,XZ=4;
 (()=>{phi=new Image();phi.crossOrigin='anonymous';phi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png';phi.onerror=()=>console.error('Phone fail');phi.onload=()=>{console.log('Phone OK');if(t)draw()};bti=new Image();bti.crossOrigin='anonymous';bti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bottle.png';bti.onerror=()=>console.error('Bottle fail');bti.onload=()=>{console.log('Bottle OK');if(t)draw()}})();
 function resize(){const w=g('canvas-wrapper'),sz=Math.min(w.clientWidth-64,1200);c.width=sz;c.height=sz;uBg();draw()}
@@ -190,6 +205,8 @@ g('logo').addEventListener('click',()=>location.reload());
 c.addEventListener('click',e=>{if(!t&&!dr)fi.click()});
 ub.addEventListener('click',()=>fi.click());
 ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;t=new Image();t.crossOrigin='anonymous';t.onload=()=>{const targetSize=300;s=Math.max(0.05,Math.min(3,targetSize/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();e.target.value=''};t.onerror=()=>{console.error('Sample fail');alert('Failed to load sample!');e.target.value=''};t.src=url});
+ch.addEventListener('click',()=>{ctr.classList.toggle('collapsed')});
+fb.addEventListener('click',()=>{isFs=!isFs;cont.classList.toggle('fullscreen');fb.textContent=isFs?'✕':'⛶';resize()});
 function uBg(){if(t){c.style.background=bg==='checker'?'repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%)':bg;c.style.backgroundSize=bg==='checker'?'40px 40px':'100% 100%'}else{c.style.background='repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%,#2a2a2a 50% 75%,#1a1a1a 75% 100%)';c.style.backgroundSize='40px 40px'}}
 function uInfo(){if(t){const sz=`${t.width} × ${t.height}px`,w=(t.width<3000||t.height<3000)?' ⚠️ Recommended: 3000×3000px minimum':' ✅';it.innerHTML=sz+w;pi.classList.add('visible')}else pi.classList.remove('visible')}
 function dpc(ctx,sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4,ty=Math.ceil(h/ts)+4;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';for(let i=-2;i<tx;i++)for(let j=-2;j<ty;j++){let dx=sx+i*ts+opx*ts,dy=sy+j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;ctx.drawImage(t,dx,dy,ts,ts)}}
@@ -216,7 +233,7 @@ ps.addEventListener('input',e=>{s=parseFloat(e.target.value);sv.textContent=s.to
 zs.addEventListener('input',e=>{z=parseFloat(e.target.value)/100;zv.textContent=e.target.value+'%';draw()});
 ox.addEventListener('input',e=>{opx=e.target.value/100;oxv.textContent=e.target.value+'%';draw()});
 oy.addEventListener('input',e=>{opy=e.target.value/100;oyv.textContent=e.target.value+'%';draw()});
-eb.addEventListener('click',()=>{if(!t){alert('Please load a pattern first!');return}try{const l=d.createElement('a');l.download='rud3boy-pattern.png';l.href=c.toDataURL('image/png');l.click()}catch(e){console.error('Export fail:',e);alert('Export failed!')}});
+eb.addEventListener('click',async()=>{if(!t){alert('Please load a pattern first!');return}try{const blob=await new Promise(res=>c.toBlob(res,'image/png'));const file=new File([blob],'rudeboy-pattern.png',{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Rudeboy Pattern',text:'Check out my pattern!'})}else{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=URL.createObjectURL(blob);l.click();URL.revokeObjectURL(l.href)}}catch(e){console.error('Share fail:',e);alert('Share failed! Trying download...');try{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=c.toDataURL('image/png');l.click()}catch(e2){alert('Download also failed!')}}});
 draw();
 </script>
 </body>
