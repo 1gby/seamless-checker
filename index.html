@@ -37,8 +37,12 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .empty-state-icon{font-size:4rem;margin-bottom:1rem;opacity:0.6}
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
-.fullscreen-btn{position:absolute;bottom:1rem;right:1rem;background:rgba(26,26,46,0.9);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);color:#eee;padding:0.5rem 0.75rem;border-radius:8px;cursor:pointer;font-size:1rem;z-index:100;transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
-.fullscreen-btn:hover{background:rgba(102,126,234,0.2);transform:scale(1.05)}
+.fullscreen-btn{position:absolute;bottom:0.5rem;right:0.5rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);color:#eee;padding:0.4rem;border-radius:6px;cursor:pointer;font-size:0.9rem;z-index:100;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.3);width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.fullscreen-btn:hover{background:rgba(102,126,234,0.3);transform:scale(1.1)}
+#container.fullscreen .fullscreen-btn{display:none}
+.exit-fullscreen{position:fixed;top:1rem;right:1rem;background:rgba(26,26,46,0.9);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);color:#eee;padding:0.75rem;border-radius:8px;cursor:pointer;font-size:1.2rem;z-index:10001;transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.5);display:none}
+.exit-fullscreen:hover{background:rgba(239,68,68,0.2);transform:scale(1.1)}
+#container.fullscreen .exit-fullscreen{display:flex;align-items:center;justify-content:center}
 #controls{padding:2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);transition:all 0.3s}
 .controls-buttons{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem}
 .controls-sliders{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center;transition:all 0.3s;max-height:1000px;overflow:hidden}
@@ -196,9 +200,10 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 <div class="footer-credit">Created by Rudeboy™</div>
 </div>
 </div>
+<div class="exit-fullscreen" id="exitFullscreen">✕</div>
 <script>
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
-const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),tg=g('toggleGrid'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),fb=g('fullscreenBtn'),ch=g('controlsHeader'),cont=g('container'),cs=g('controlsSliders');
+const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),tg=g('toggleGrid'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),fb=g('fullscreenBtn'),ef=g('exitFullscreen'),ch=g('controlsHeader'),cont=g('container'),cs=g('controlsSliders');
 let t=null,sg=false,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,dr=false,dsx,dsy,phi=null,bti=null,isFs=false;
 const MZ=0.05,XZ=4;
 (()=>{phi=new Image();phi.crossOrigin='anonymous';phi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png';phi.onerror=()=>console.error('Phone fail');phi.onload=()=>{if(t)draw()};bti=new Image();bti.crossOrigin='anonymous';bti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bottle.png';bti.onerror=()=>console.error('Bottle fail');bti.onload=()=>{if(t)draw()}})();
@@ -209,7 +214,9 @@ c.addEventListener('click',e=>{if(!t&&!dr)fi.click()});
 ub.addEventListener('click',()=>fi.click());
 ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.05,Math.min(3,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();e.target.value=''};t.onerror=()=>{alert('Failed to load sample!');e.target.value=''};t.src=url});
 ch.addEventListener('click',()=>cs.classList.toggle('collapsed'));
-fb.addEventListener('click',()=>{isFs=!isFs;cont.classList.toggle('fullscreen');fb.textContent=isFs?'✕':'⛶';resize()});
+fb.addEventListener('click',()=>{isFs=true;cont.classList.add('fullscreen');resize()});
+ef.addEventListener('click',()=>{isFs=false;cont.classList.remove('fullscreen');resize()});
+d.addEventListener('keydown',e=>{if(e.key==='Escape'&&isFs){isFs=false;cont.classList.remove('fullscreen');resize()}});
 function uBg(){if(t){c.style.background=bg==='checker'?'repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%)':bg;c.style.backgroundSize=bg==='checker'?'40px 40px':'100% 100%'}else{c.style.background='repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%,#2a2a2a 50% 75%,#1a1a1a 75% 100%)';c.style.backgroundSize='40px 40px'}}
 function uInfo(){if(t){const sz=`${t.width} × ${t.height}px`,w=(t.width<3000||t.height<3000)?' ⚠️ Recommended: 3000×3000px minimum':' ✅';it.innerHTML=sz+w;pi.classList.add('visible')}else pi.classList.remove('visible')}
 function dpc(ctx,sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4,ty=Math.ceil(h/ts)+4;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';for(let i=-2;i<tx;i++)for(let j=-2;j<ty;j++){let dx=sx+i*ts+opx*ts,dy=sy+j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;ctx.drawImage(t,dx,dy,ts,ts)}}
