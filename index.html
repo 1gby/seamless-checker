@@ -33,6 +33,10 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .empty-state-icon{font-size:4rem;margin-bottom:1rem;opacity:0.6}
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:10000;opacity:0;transition:opacity 0.3s}
+.loading-overlay.visible{display:flex;opacity:1}
+.loading-logo{width:80px;height:80px;opacity:0.6;animation:spin 1.5s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 #controls{padding:2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1)}
 .controls-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem}
 .controls-sliders{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;align-items:flex-start;transition:all 0.3s;max-height:1000px;overflow:hidden;row-gap:2.5rem;padding-bottom:1.5rem}
@@ -200,12 +204,19 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 <div class="footer-credit">Created by Rudeboy™</div>
 </div>
 </div>
+</div>
+<div class="loading-overlay" id="loadingOverlay">
+<img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
+</div>
 <script>
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
-const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),ch=g('controlsHeader'),cs=g('controlsSliders'),cq=g('canvasQuality'),ci=g('canvasInfo');
+function snap(val,step){return Math.round(val/step)*step}
+const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),ch=g('controlsHeader'),cs=g('controlsSliders'),cq=g('canvasQuality'),ci=g('canvasInfo'),lo=g('loadingOverlay');
 let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,dr=false,dsx,dsy,phi=null,bti=null,tti=null,bai=null,bsi=null,ipi=null,mui=null,maxCanvasSize=1200;
 const MZ=0.01,XZ=8;
 const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
+function showLoading(){lo.classList.add('visible')}
+function hideLoading(){lo.classList.remove('visible')}
 (()=>{phi=new Image();phi.crossOrigin='anonymous';phi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png';phi.onerror=()=>console.error('Phone fail');phi.onload=()=>{if(t)draw()};bti=new Image();bti.crossOrigin='anonymous';bti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bottle.png';bti.onerror=()=>console.error('Bottle fail');bti.onload=()=>{if(t)draw()};tti=new Image();tti.crossOrigin='anonymous';tti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/tote.png';tti.onerror=()=>console.error('Tote fail');tti.onload=()=>{if(t)draw()};bai=new Image();bai.crossOrigin='anonymous';bai.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bandana.png';bai.onerror=()=>console.error('Bandana fail');bai.onload=()=>{if(t)draw()};bsi=new Image();bsi.crossOrigin='anonymous';bsi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bedspread.png';bsi.onerror=()=>console.error('Bedspread fail');bsi.onload=()=>{if(t)draw()};ipi=new Image();ipi.crossOrigin='anonymous';ipi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/ipad.png';ipi.onerror=()=>console.error('iPad fail');ipi.onload=()=>{if(t)draw()};mui=new Image();mui.crossOrigin='anonymous';mui.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/mug.png';mui.onerror=()=>console.error('Mug fail');mui.onload=()=>{if(t)draw()}})();
 function updateCanvasInfo(){ci.textContent=`${maxCanvasSize}px (${qualityNames[maxCanvasSize]})`}
 function resize(){const w=g('canvas-wrapper'),sz=Math.min(w.clientWidth-64,maxCanvasSize);c.width=sz;c.height=sz;uBg();updateCanvasInfo();draw()}
@@ -213,7 +224,7 @@ window.addEventListener('resize',resize);resize();
 g('logo').addEventListener('click',()=>location.reload());
 c.addEventListener('click',e=>{if(!t&&!dr)fi.click()});
 ub.addEventListener('click',()=>fi.click());
-ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.01,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();e.target.value=''};t.onerror=()=>{alert('Failed to load sample!');e.target.value=''};t.src=url});
+ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;showLoading();t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.01,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading();e.target.value=''};t.onerror=()=>{hideLoading();alert('Failed to load sample!');e.target.value=''};t.src=url});
 ch.addEventListener('click',()=>cs.classList.toggle('collapsed'));
 cq.addEventListener('change',e=>{maxCanvasSize=parseInt(e.target.value);resize()});
 function uBg(){if(t){c.style.background=bg==='checker'?'repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%)':bg;c.style.backgroundSize=bg==='checker'?'40px 40px':'100% 100%'}else{c.style.background='repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%,#2a2a2a 50% 75%,#1a1a1a 75% 100%)';c.style.backgroundSize='40px 40px'}}
@@ -221,7 +232,7 @@ function uInfo(){if(t){const sz=`${t.width} × ${t.height}px`,w=(t.width<3000||t
 function dpc(ctx,sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4,ty=Math.ceil(h/ts)+4;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';for(let i=-2;i<tx;i++)for(let j=-2;j<ty;j++){let dx=sx+i*ts+opx*ts,dy=sy+j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;ctx.drawImage(t,dx,dy,ts,ts)}}
 function drawMockup(img){if(!img||!img.complete||!img.naturalWidth)return;const ds=Math.min(c.width,c.height)*0.6*1.2,pc=d.createElement('canvas');pc.width=ds;pc.height=ds;const pCtx=pc.getContext('2d');dpc(pCtx,0,0,ds,ds,t.width*s);const mc=d.createElement('canvas');mc.width=ds;mc.height=ds;const mCtx=mc.getContext('2d');mCtx.drawImage(img,0,0,ds,ds);const imgData=mCtx.getImageData(0,0,ds,ds),data=imgData.data;for(let i=0;i<data.length;i+=4)data[i+3]===0?(data[i]=255,data[i+1]=255,data[i+2]=255,data[i+3]=255):data[i+3]=0;mCtx.putImageData(imgData,0,0);pCtx.globalCompositeOperation='destination-in';pCtx.drawImage(mc,0,0);x.drawImage(pc,-ds/2,-ds/2);const oc=d.createElement('canvas');oc.width=ds;oc.height=ds;const oCtx=oc.getContext('2d');oCtx.drawImage(img,0,0,ds,ds);const oData=oCtx.getImageData(0,0,ds,ds).data;for(let i=0;i<oData.length;i+=4)if(oData[i+1]>100&&oData[i]<100&&oData[i+2]<100)oData[i+3]=0;oCtx.putImageData(new ImageData(oData,ds,ds),0,0);x.drawImage(oc,-ds/2,-ds/2)}
 function draw(){x.clearRect(0,0,c.width,c.height);if(!t){es.classList.add('visible');c.classList.remove('has-image');eb.disabled=true;return}es.classList.remove('visible');c.classList.add('has-image');eb.disabled=false;const ts=t.width*s,sg=v==='tile-grid';x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.save();if(v==='tile'||v==='tile-grid'){x.translate(px,py);x.scale(z,z);const tx=Math.ceil(c.width/ts/z)+6,ty=Math.ceil(c.height/ts/z)+6,stx=Math.floor(-px/(ts*z))-3,sty=Math.floor(-py/(ts*z))-3;for(let i=stx;i<stx+tx;i++)for(let j=sty;j<sty+ty;j++){let dx=i*ts+opx*ts,dy=j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;x.drawImage(t,dx,dy,ts,ts)}if(sg){x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1/z;for(let i=stx;i<stx+tx+1;i++){let lx=i*ts+opx*ts;x.beginPath();x.moveTo(lx,sty*ts-ts);x.lineTo(lx,(sty+ty+1)*ts);x.stroke()}for(let j=sty;j<sty+ty+1;j++){let ly=j*ts+opy*ts;x.beginPath();x.moveTo(stx*ts-ts,ly);x.lineTo((stx+tx+1)*ts,ly);x.stroke()}}}else{const cx=c.width/2,cy=c.height/2,ms=Math.min(c.width,c.height)*0.6;x.translate(cx,cy);if(v==='phone')drawMockup(phi);else if(v==='ipad')drawMockup(ipi);else if(v==='tote')drawMockup(tti);else if(v==='bandana')drawMockup(bai);else if(v==='bedspread')drawMockup(bsi);else if(v==='mug')drawMockup(mui);else if(v==='bottle')drawMockup(bti);else if(v==='fabric'){const fw=ms*0.95,fh=fw*0.8;x.save();rr(x,-fw/2,-fh/2,fw,fh,15);x.fillStyle='#2a2a2a';x.fill();x.strokeStyle='#444';x.lineWidth=2;x.stroke();x.clip();dpc(x,-fw/2,-fh/2,fw,fh,ts);x.restore()}}x.restore()}
-function li(f){if(!f)return;const r=new FileReader();r.onload=e=>{t=new Image();t.onload=()=>{s=Math.max(0.01,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw()};t.src=e.target.result};r.readAsDataURL(f)}
+function li(f){if(!f)return;showLoading();const r=new FileReader();r.onload=e=>{t=new Image();t.onload=()=>{s=Math.max(0.01,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading()};t.onerror=()=>{hideLoading();alert('Failed to load image!')};t.src=e.target.result};r.readAsDataURL(f)}
 fi.addEventListener('change',e=>li(e.target.files[0]));
 c.addEventListener('dragover',e=>{e.preventDefault();c.style.opacity='0.7'});
 c.addEventListener('dragleave',()=>c.style.opacity='1');
@@ -238,10 +249,10 @@ c.addEventListener('touchend',()=>ltd=0);
 rs.addEventListener('change',e=>{rt=e.target.value;draw()});
 vm.addEventListener('change',e=>{v=e.target.value;draw()});
 bc.addEventListener('change',e=>{bg=e.target.value;uBg();draw()});
-ps.addEventListener('input',e=>{s=parseFloat(e.target.value);sv.textContent=s.toFixed(2)+'×';draw()});
-zs.addEventListener('input',e=>{z=parseFloat(e.target.value)/100;zv.textContent=e.target.value+'%';draw()});
-ox.addEventListener('input',e=>{opx=e.target.value/100;oxv.textContent=e.target.value+'%';draw()});
-oy.addEventListener('input',e=>{opy=e.target.value/100;oyv.textContent=e.target.value+'%';draw()});
+ps.addEventListener('input',e=>{const raw=parseFloat(e.target.value);s=snap(raw,0.25);ps.value=s;sv.textContent=s.toFixed(2)+'×';draw()});
+zs.addEventListener('input',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,25);z=snapped/100;zs.value=snapped;zv.textContent=snapped+'%';draw()});
+ox.addEventListener('input',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opx=snapped/100;ox.value=snapped;oxv.textContent=snapped+'%';draw()});
+oy.addEventListener('input',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opy=snapped/100;oy.value=snapped;oyv.textContent=snapped+'%';draw()});
 eb.addEventListener('click',async()=>{if(!t){alert('Please load a pattern first!');return}try{const blob=await new Promise(res=>c.toBlob(res,'image/png'));const file=new File([blob],'rudeboy-pattern.png',{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Rudeboy Pattern',text:'Check out my pattern!'})}else{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=URL.createObjectURL(blob);l.click();URL.revokeObjectURL(l.href)}}catch(e){alert('Share failed! Trying download...');try{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=c.toDataURL('image/png');l.click()}catch(e2){alert('Download also failed!')}}});
 draw();
 </script>
