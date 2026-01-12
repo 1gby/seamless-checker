@@ -82,9 +82,10 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.5
 .pattern-info.visible{display:block}
 .easter-egg-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);display:none;align-items:center;justify-content:center;z-index:20000;opacity:0;transition:opacity 0.5s;overflow:hidden}
 .easter-egg-overlay.visible{display:flex;opacity:1}
-.easter-egg-logo{width:150px;height:150px;opacity:0;animation:spin-in 1s ease-out forwards}
+.easter-egg-logo{width:150px;height:150px;opacity:0;animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s}
 @keyframes spin-in{0%{transform:scale(0) rotate(0deg);opacity:0}100%{transform:scale(1) rotate(720deg);opacity:1}}
 @keyframes spin-twice{0%{transform:rotate(0deg)}100%{transform:rotate(720deg)}}
+@keyframes egg-glow{0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}}
 .matrix-canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 1s}
 .matrix-canvas.visible{opacity:1}
 @media(max-width:768px){
@@ -270,7 +271,7 @@ const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500,RELOAD_MIN_TIME=1500;
 const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
 function showLoading(reload=false){isReload=reload;loadStartTime=Date.now();imageLoaded=false;lo.classList.add('visible')}
 function hideLoading(){imageLoaded=true;const minTime=isReload?RELOAD_MIN_TIME:MIN_LOAD_TIME,elapsed=Date.now()-loadStartTime,remaining=Math.max(0,minTime-elapsed);setTimeout(()=>lo.classList.remove('visible'),remaining)}
-function startMatrix(){mc.width=window.innerWidth;mc.height=window.innerHeight;const ctx=mc.getContext('2d'),chars='CREATEDBYRUDEBOY420',fontSize=16,columns=mc.width/fontSize,drops=[];for(let i=0;i<columns;i++)drops[i]=1;function drawMatrix(){ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,mc.width,mc.height);ctx.fillStyle='#0F0';ctx.font=fontSize+'px monospace';for(let i=0;i<drops.length;i++){const text=chars[Math.floor(Math.random()*chars.length)];ctx.fillText(text,i*fontSize,drops[i]*fontSize);if(drops[i]*fontSize>mc.height&&Math.random()>0.975)drops[i]=0;drops[i]++}}matrixInterval=setInterval(drawMatrix,50)}
+function startMatrix(){mc.width=window.innerWidth;mc.height=window.innerHeight;const ctx=mc.getContext('2d'),message='CREATED BY RUDEBOY 420',fontSize=20,columns=mc.width/fontSize,drops=[],colors=['#10b981','#764ba2'];for(let i=0;i<columns;i++)drops[i]=Math.floor(Math.random()*-100);function drawMatrix(){ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,mc.width,mc.height);ctx.font=fontSize+'px monospace';for(let i=0;i<columns;i++){ctx.fillStyle=colors[i%2];for(let j=0;j<message.length;j++){const text=message[j];const y=(drops[i]-j)*fontSize;if(y>0&&y<mc.height)ctx.fillText(text,i*fontSize,y)}if(drops[i]*fontSize>mc.height+message.length*fontSize&&Math.random()>0.975)drops[i]=0;drops[i]++}}matrixInterval=setInterval(drawMatrix,50)}
 function stopMatrix(){if(matrixInterval){clearInterval(matrixInterval);matrixInterval=null}}
 ee.addEventListener('click',()=>{if(matrixActive)return;matrixActive=true;eeo.classList.add('visible');setTimeout(()=>{eel.style.transition='opacity 0.5s';eel.style.opacity='0';setTimeout(()=>{eel.style.display='none';mc.classList.add('visible');startMatrix()},500)},1000)});
 eeo.addEventListener('click',()=>{if(!matrixActive)return;matrixActive=false;mc.classList.remove('visible');stopMatrix();setTimeout(()=>{eel.style.display='block';eel.style.opacity='0';eel.style.animation='none';eel.style.transition='opacity 0.5s';setTimeout(()=>{eel.style.opacity='1';setTimeout(()=>{eel.style.transition='none';eel.style.animation='spin-twice 1s ease-out';setTimeout(()=>{eel.style.transition='opacity 0.5s';eel.style.opacity='0';setTimeout(()=>{eeo.classList.remove('visible');eel.style.animation='spin-in 1s ease-out forwards'},500)},1000)},50)},500)},500)});
