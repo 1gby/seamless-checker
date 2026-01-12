@@ -81,7 +81,8 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(102,126,2
 .footer-links a{color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.5rem 1rem;border-radius:8px;background:rgba(102,126,234,0.1)}
 .footer-links a:hover{background:rgba(102,126,234,0.2);transform:translateY(-2px)}
 .footer-links a:active{box-shadow:0 0 20px rgba(102,126,234,0.6)}
-.footer-credit{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.1rem}
+.footer-credit{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.1rem;cursor:pointer;transition:all 0.3s}
+.footer-credit:hover{opacity:0.8}
 .pattern-info{text-align:center;padding:1rem;color:#888;font-size:0.9rem;display:none}
 .pattern-info.visible{display:block}
 @media(max-width:768px){
@@ -244,7 +245,7 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(102,126,2
 <a href="https://www.redbubble.com/" target="_blank">Redbubble</a>
 <a href="https://www.zazzle.com/" target="_blank">Zazzle</a>
 </div>
-<div class="footer-credit">Created by Rudeboy™</div>
+<div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
 </div>
 </div>
 </div>
@@ -256,17 +257,17 @@ function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo
 function snap(val,step){return Math.round(val/step)*step}
 function snapScale(val){if(val>=0.25)return snap(val,0.25);return Math.max(0.05,snap(val,0.01))}
 function snapZoom(val){if(val>=25)return snap(val,25);return Math.max(1,Math.round(val))}
-const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),ch=g('controlsHeader'),cs=g('controlsSliders'),mh=g('mockupHeader'),ms=g('mockupSliders'),mz=g('mockupZoom'),mzv=g('mockupZoomValue'),mr=g('mockupRotate'),mrv=g('mockupRotateValue'),cq=g('canvasQuality'),ci=g('canvasInfo'),lo=g('loadingOverlay');
-let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,mockupZoom=1,mockupRotate=0,dr=false,dsx,dsy,phi=null,bti=null,tti=null,bai=null,bsi=null,ipi=null,mui=null,maxCanvasSize=1200;
-const MZ=0.01,XZ=8;
+const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),ch=g('controlsHeader'),cs=g('controlsSliders'),mh=g('mockupHeader'),ms=g('mockupSliders'),mz=g('mockupZoom'),mzv=g('mockupZoomValue'),mr=g('mockupRotate'),mrv=g('mockupRotateValue'),cq=g('canvasQuality'),ci=g('canvasInfo'),lo=g('loadingOverlay'),ee=g('easterEgg');
+let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,mockupZoom=1,mockupRotate=0,dr=false,dsx,dsy,phi=null,bti=null,tti=null,bai=null,bsi=null,ipi=null,mui=null,maxCanvasSize=1200,loadStartTime=0,imageLoaded=false;
+const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500;
 const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
-function showLoading(){lo.classList.add('visible')}
-function hideLoading(){lo.classList.remove('visible')}
+function showLoading(){loadStartTime=Date.now();imageLoaded=false;lo.classList.add('visible')}
+function hideLoading(){imageLoaded=true;const elapsed=Date.now()-loadStartTime,remaining=Math.max(0,MIN_LOAD_TIME-elapsed);setTimeout(()=>lo.classList.remove('visible'),remaining)}
 (()=>{phi=new Image();phi.crossOrigin='anonymous';phi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png';phi.onerror=()=>console.error('Phone fail');phi.onload=()=>{if(t)draw()};bti=new Image();bti.crossOrigin='anonymous';bti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bottle.png';bti.onerror=()=>console.error('Bottle fail');bti.onload=()=>{if(t)draw()};tti=new Image();tti.crossOrigin='anonymous';tti.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/tote.png';tti.onerror=()=>console.error('Tote fail');tti.onload=()=>{if(t)draw()};bai=new Image();bai.crossOrigin='anonymous';bai.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bandana.png';bai.onerror=()=>console.error('Bandana fail');bai.onload=()=>{if(t)draw()};bsi=new Image();bsi.crossOrigin='anonymous';bsi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bedspread.png';bsi.onerror=()=>console.error('Bedspread fail');bsi.onload=()=>{if(t)draw()};ipi=new Image();ipi.crossOrigin='anonymous';ipi.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/ipad.png';ipi.onerror=()=>console.error('iPad fail');ipi.onload=()=>{if(t)draw()};mui=new Image();mui.crossOrigin='anonymous';mui.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/mug.png';mui.onerror=()=>console.error('Mug fail');mui.onload=()=>{if(t)draw()}})();
 function updateCanvasInfo(){ci.textContent=`${maxCanvasSize}px (${qualityNames[maxCanvasSize]})`}
 function resize(){const w=g('canvas-wrapper'),sz=Math.min(w.clientWidth-64,maxCanvasSize);c.width=sz;c.height=sz;uBg();updateCanvasInfo();draw()}
 window.addEventListener('resize',resize);resize();
-g('logo').addEventListener('click',()=>location.reload());
+g('logo').addEventListener('click',()=>{showLoading();setTimeout(()=>location.reload(),100)});
 c.addEventListener('click',e=>{if(!t&&!dr)fi.click()});
 ub.addEventListener('click',()=>fi.click());
 ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;showLoading();t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.05,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading();e.target.value=''};t.onerror=()=>{hideLoading();alert('Failed to load sample!');e.target.value=''};t.src=url});
