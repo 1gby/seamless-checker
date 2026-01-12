@@ -39,8 +39,8 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 #controls{padding:2rem;background:rgba(26,26,46,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1)}
 .controls-row{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem}
-.controls-sliders{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;align-items:flex-start;transition:all 0.3s;max-height:1000px;overflow:hidden;row-gap:2.5rem;padding-bottom:1.5rem}
-.controls-sliders.collapsed{max-height:0;margin-top:0;padding-bottom:0}
+.controls-sliders{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;align-items:flex-start;transition:all 0.3s;max-height:0;overflow:hidden;row-gap:2.5rem;padding-bottom:0}
+.controls-sliders.open{max-height:1000px;padding-bottom:1.5rem}
 .controls-header{width:100%;text-align:center;cursor:pointer;padding:0.5rem;background:rgba(255,255,255,0.02);border-radius:8px;margin-bottom:1rem;transition:all 0.3s;user-select:none;font-weight:600;background:linear-gradient(135deg,#10b981 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .controls-header:hover{opacity:0.8}
 .control-group{display:flex;flex-direction:column;gap:0.5rem;min-width:180px;align-items:center}
@@ -176,7 +176,7 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 <label class="control-label">Scale</label>
 <span class="slider-value" id="scaleValue">1.0×</span>
 </div>
-<input type="range" id="patternScale" min="0.01" max="5" step="0.01" value="1">
+<input type="range" id="patternScale" min="0.05" max="5" step="0.01" value="1">
 </div>
 <div class="slider-group" style="min-width:300px">
 <div class="slider-header">
@@ -211,6 +211,8 @@ input[type="range"]::-moz-range-thumb:hover{transform:scale(1.2)}
 <script>
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
 function snap(val,step){return Math.round(val/step)*step}
+function snapScale(val){if(val>=0.25)return snap(val,0.25);return Math.max(0.05,snap(val,0.01))}
+function snapZoom(val){if(val>=25)return snap(val,25);return Math.max(1,Math.round(val))}
 const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),ch=g('controlsHeader'),cs=g('controlsSliders'),cq=g('canvasQuality'),ci=g('canvasInfo'),lo=g('loadingOverlay');
 let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,dr=false,dsx,dsy,phi=null,bti=null,tti=null,bai=null,bsi=null,ipi=null,mui=null,maxCanvasSize=1200;
 const MZ=0.01,XZ=8;
@@ -224,35 +226,39 @@ window.addEventListener('resize',resize);resize();
 g('logo').addEventListener('click',()=>location.reload());
 c.addEventListener('click',e=>{if(!t&&!dr)fi.click()});
 ub.addEventListener('click',()=>fi.click());
-ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;showLoading();t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.01,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading();e.target.value=''};t.onerror=()=>{hideLoading();alert('Failed to load sample!');e.target.value=''};t.src=url});
-ch.addEventListener('click',()=>cs.classList.toggle('collapsed'));
+ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;showLoading();t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.05,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading();e.target.value=''};t.onerror=()=>{hideLoading();alert('Failed to load sample!');e.target.value=''};t.src=url});
+ch.addEventListener('click',()=>cs.classList.toggle('open'));
 cq.addEventListener('change',e=>{maxCanvasSize=parseInt(e.target.value);resize()});
 function uBg(){if(t){c.style.background=bg==='checker'?'repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%)':bg;c.style.backgroundSize=bg==='checker'?'40px 40px':'100% 100%'}else{c.style.background='repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%,#2a2a2a 50% 75%,#1a1a1a 75% 100%)';c.style.backgroundSize='40px 40px'}}
 function uInfo(){if(t){const sz=`${t.width} × ${t.height}px`,w=(t.width<3000||t.height<3000)?' ⚠️ Recommended: 3000×3000px minimum':' ✅';it.innerHTML=sz+w;pi.classList.add('visible')}else pi.classList.remove('visible')}
 function dpc(ctx,sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4,ty=Math.ceil(h/ts)+4;ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';for(let i=-2;i<tx;i++)for(let j=-2;j<ty;j++){let dx=sx+i*ts+opx*ts,dy=sy+j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;ctx.drawImage(t,dx,dy,ts,ts)}}
 function drawMockup(img){if(!img||!img.complete||!img.naturalWidth)return;const ds=Math.min(c.width,c.height)*0.6*1.2,pc=d.createElement('canvas');pc.width=ds;pc.height=ds;const pCtx=pc.getContext('2d');dpc(pCtx,0,0,ds,ds,t.width*s);const mc=d.createElement('canvas');mc.width=ds;mc.height=ds;const mCtx=mc.getContext('2d');mCtx.drawImage(img,0,0,ds,ds);const imgData=mCtx.getImageData(0,0,ds,ds),data=imgData.data;for(let i=0;i<data.length;i+=4)data[i+3]===0?(data[i]=255,data[i+1]=255,data[i+2]=255,data[i+3]=255):data[i+3]=0;mCtx.putImageData(imgData,0,0);pCtx.globalCompositeOperation='destination-in';pCtx.drawImage(mc,0,0);x.drawImage(pc,-ds/2,-ds/2);const oc=d.createElement('canvas');oc.width=ds;oc.height=ds;const oCtx=oc.getContext('2d');oCtx.drawImage(img,0,0,ds,ds);const oData=oCtx.getImageData(0,0,ds,ds).data;for(let i=0;i<oData.length;i+=4)if(oData[i+1]>100&&oData[i]<100&&oData[i+2]<100)oData[i+3]=0;oCtx.putImageData(new ImageData(oData,ds,ds),0,0);x.drawImage(oc,-ds/2,-ds/2)}
 function draw(){x.clearRect(0,0,c.width,c.height);if(!t){es.classList.add('visible');c.classList.remove('has-image');eb.disabled=true;return}es.classList.remove('visible');c.classList.add('has-image');eb.disabled=false;const ts=t.width*s,sg=v==='tile-grid';x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.save();if(v==='tile'||v==='tile-grid'){x.translate(px,py);x.scale(z,z);const tx=Math.ceil(c.width/ts/z)+6,ty=Math.ceil(c.height/ts/z)+6,stx=Math.floor(-px/(ts*z))-3,sty=Math.floor(-py/(ts*z))-3;for(let i=stx;i<stx+tx;i++)for(let j=sty;j<sty+ty;j++){let dx=i*ts+opx*ts,dy=j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;x.drawImage(t,dx,dy,ts,ts)}if(sg){x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1/z;for(let i=stx;i<stx+tx+1;i++){let lx=i*ts+opx*ts;x.beginPath();x.moveTo(lx,sty*ts-ts);x.lineTo(lx,(sty+ty+1)*ts);x.stroke()}for(let j=sty;j<sty+ty+1;j++){let ly=j*ts+opy*ts;x.beginPath();x.moveTo(stx*ts-ts,ly);x.lineTo((stx+tx+1)*ts,ly);x.stroke()}}}else{const cx=c.width/2,cy=c.height/2,ms=Math.min(c.width,c.height)*0.6;x.translate(cx,cy);if(v==='phone')drawMockup(phi);else if(v==='ipad')drawMockup(ipi);else if(v==='tote')drawMockup(tti);else if(v==='bandana')drawMockup(bai);else if(v==='bedspread')drawMockup(bsi);else if(v==='mug')drawMockup(mui);else if(v==='bottle')drawMockup(bti);else if(v==='fabric'){const fw=ms*0.95,fh=fw*0.8;x.save();rr(x,-fw/2,-fh/2,fw,fh,15);x.fillStyle='#2a2a2a';x.fill();x.strokeStyle='#444';x.lineWidth=2;x.stroke();x.clip();dpc(x,-fw/2,-fh/2,fw,fh,ts);x.restore()}}x.restore()}
-function li(f){if(!f)return;showLoading();const r=new FileReader();r.onload=e=>{t=new Image();t.onload=()=>{s=Math.max(0.01,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading()};t.onerror=()=>{hideLoading();alert('Failed to load image!')};t.src=e.target.result};r.readAsDataURL(f)}
+function li(f){if(!f)return;showLoading();const r=new FileReader();r.onload=e=>{t=new Image();t.onload=()=>{s=Math.max(0.05,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading()};t.onerror=()=>{hideLoading();alert('Failed to load image!')};t.src=e.target.result};r.readAsDataURL(f)}
 fi.addEventListener('change',e=>li(e.target.files[0]));
 c.addEventListener('dragover',e=>{e.preventDefault();c.style.opacity='0.7'});
 c.addEventListener('dragleave',()=>c.style.opacity='1');
 c.addEventListener('drop',e=>{e.preventDefault();c.style.opacity='1';li(e.dataTransfer.files[0])});
-c.addEventListener('pointerdown',e=>{if(!t||(v!=='tile'&&v!=='tile-grid'))return;dr=true;dsx=e.clientX-px;dsy=e.clientY-py;c.setPointerCapture(e.pointerId)});
-c.addEventListener('pointermove',e=>{if(!dr||(v!=='tile'&&v!=='tile-grid'))return;px=e.clientX-dsx;py=e.clientY-dsy;draw()});
+c.addEventListener('pointerdown',e=>{if(!t)return;dr=true;dsx=e.clientX-px;dsy=e.clientY-py;c.setPointerCapture(e.pointerId)});
+c.addEventListener('pointermove',e=>{if(!dr)return;px=e.clientX-dsx;py=e.clientY-dsy;draw()});
 c.addEventListener('pointerup',()=>dr=false);
 c.addEventListener('pointerleave',()=>dr=false);
-c.addEventListener('wheel',e=>{if((v!=='tile'&&v!=='tile-grid')||!t)return;e.preventDefault();const zf=e.deltaY<0?1.1:0.9,r=c.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;let nz=z*zf;nz=Math.max(MZ,Math.min(XZ,nz));const sc=nz-z;px-=(mx-px)*(sc/z);py-=(my-py)*(sc/z);z=nz;zs.value=Math.round(z*100);zv.textContent=Math.round(z*100)+'%';draw()},{passive:false});
+c.addEventListener('wheel',e=>{if(!t)return;e.preventDefault();const zf=e.deltaY<0?1.1:0.9,r=c.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;let nz=z*zf;nz=Math.max(MZ,Math.min(XZ,nz));const sc=nz-z;px-=(mx-px)*(sc/z);py-=(my-py)*(sc/z);z=nz;zs.value=Math.round(z*100);zv.textContent=Math.round(z*100)+'%';draw()},{passive:false});
 let ltd=0;
-c.addEventListener('touchstart',e=>{if(e.touches.length===2&&(v==='tile'||v==='tile-grid')&&t){e.preventDefault();const t1=e.touches[0],t2=e.touches[1];ltd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY)}},{passive:false});
-c.addEventListener('touchmove',e=>{if(e.touches.length===2&&(v==='tile'||v==='tile-grid')&&t){e.preventDefault();const t1=e.touches[0],t2=e.touches[1],cd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);if(ltd>0){const zf=cd/ltd,r=c.getBoundingClientRect(),cx=((t1.clientX+t2.clientX)/2)-r.left,cy=((t1.clientY+t2.clientY)/2)-r.top;let nz=z*zf;nz=Math.max(MZ,Math.min(XZ,nz));const sc=nz-z;px-=(cx-px)*(sc/z);py-=(cy-py)*(sc/z);z=nz;zs.value=Math.round(z*100);zv.textContent=Math.round(z*100)+'%';draw()}ltd=cd}},{passive:false});
+c.addEventListener('touchstart',e=>{if(e.touches.length===2&&t){e.preventDefault();const t1=e.touches[0],t2=e.touches[1];ltd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY)}},{passive:false});
+c.addEventListener('touchmove',e=>{if(e.touches.length===2&&t){e.preventDefault();const t1=e.touches[0],t2=e.touches[1],cd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);if(ltd>0){const zf=cd/ltd,r=c.getBoundingClientRect(),cx=((t1.clientX+t2.clientX)/2)-r.left,cy=((t1.clientY+t2.clientY)/2)-r.top;let nz=z*zf;nz=Math.max(MZ,Math.min(XZ,nz));const sc=nz-z;px-=(cx-px)*(sc/z);py-=(cy-py)*(sc/z);z=nz;zs.value=Math.round(z*100);zv.textContent=Math.round(z*100)+'%';draw()}ltd=cd}},{passive:false});
 c.addEventListener('touchend',()=>ltd=0);
 rs.addEventListener('change',e=>{rt=e.target.value;draw()});
 vm.addEventListener('change',e=>{v=e.target.value;draw()});
 bc.addEventListener('change',e=>{bg=e.target.value;uBg();draw()});
-ps.addEventListener('input',e=>{const raw=parseFloat(e.target.value);s=snap(raw,0.25);ps.value=s;sv.textContent=s.toFixed(2)+'×';draw()});
-zs.addEventListener('input',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,25);z=snapped/100;zs.value=snapped;zv.textContent=snapped+'%';draw()});
-ox.addEventListener('input',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opx=snapped/100;ox.value=snapped;oxv.textContent=snapped+'%';draw()});
-oy.addEventListener('input',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opy=snapped/100;oy.value=snapped;oyv.textContent=snapped+'%';draw()});
+ps.addEventListener('input',e=>{const raw=parseFloat(e.target.value);s=raw;sv.textContent=s.toFixed(2)+'×';draw()});
+ps.addEventListener('change',e=>{const raw=parseFloat(e.target.value);s=snapScale(raw);ps.value=s;sv.textContent=s.toFixed(2)+'×';draw()});
+zs.addEventListener('input',e=>{const raw=parseInt(e.target.value);z=raw/100;zv.textContent=raw+'%';draw()});
+zs.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snapZoom(raw);z=snapped/100;zs.value=snapped;zv.textContent=snapped+'%';draw()});
+ox.addEventListener('input',e=>{const raw=parseInt(e.target.value);opx=raw/100;oxv.textContent=raw+'%';draw()});
+ox.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opx=snapped/100;ox.value=snapped;oxv.textContent=snapped+'%';draw()});
+oy.addEventListener('input',e=>{const raw=parseInt(e.target.value);opy=raw/100;oyv.textContent=raw+'%';draw()});
+oy.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opy=snapped/100;oy.value=snapped;oyv.textContent=snapped+'%';draw()});
 eb.addEventListener('click',async()=>{if(!t){alert('Please load a pattern first!');return}try{const blob=await new Promise(res=>c.toBlob(res,'image/png'));const file=new File([blob],'rudeboy-pattern.png',{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Rudeboy Pattern',text:'Check out my pattern!'})}else{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=URL.createObjectURL(blob);l.click();URL.revokeObjectURL(l.href)}}catch(e){alert('Share failed! Trying download...');try{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=c.toDataURL('image/png');l.click()}catch(e2){alert('Download also failed!')}}});
 draw();
 </script>
