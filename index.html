@@ -49,18 +49,15 @@ select:active,button:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px 
 .controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:1200px;margin:0 auto}
 .control-group{display:flex;flex-direction:column;gap:0.5rem}
 .control-label{font-size:0.85rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;text-align:center;margin-bottom:0.5rem}
-.slider-dropdown{margin-bottom:1rem}
+.sliders-container{display:flex;flex-direction:column;gap:1rem;max-width:400px;margin:0 auto}
+.slider-dropdown{margin-bottom:0}
 .slider-dropdown-header{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;display:flex;justify-content:space-between;align-items:center;user-select:none}
 .slider-dropdown-header:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px rgba(102,126,234,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 .slider-dropdown-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease;margin-top:0.5rem}
 .slider-dropdown.open .slider-dropdown-content{max-height:200px}
 .slider-group{display:flex;flex-direction:column;gap:0.75rem;padding:1.2rem 1.5rem;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-radius:16px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);position:relative}
-.slider-header{display:flex;justify-content:space-between;align-items:center}
 .slider-wrapper{position:relative}
-.slider-tooltip{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) scale(0);padding:0.5rem 0.75rem;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-radius:12px;border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.37);color:#333;font-size:0.9rem;font-weight:700;pointer-events:none;opacity:0;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;z-index:100}
-.slider-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(255,255,255,0.95)}
-.slider-tooltip.visible{opacity:1;transform:translateX(-50%) scale(1)}
 input[type="range"]{width:100%;height:10px;border-radius:5px;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);outline:none;-webkit-appearance:none;transition:all 0.3s;box-shadow:inset 0 2px 4px rgba(0,0,0,0.4),inset 0 -1px 2px rgba(255,255,255,0.08)}
 input[type="range"]:active{background:rgba(255,255,255,0.15)}
 input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,0.98) 0%,rgba(255,255,255,0.9) 100%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.5),0 0 0 4px rgba(102,126,234,0.35),inset 0 2px 4px rgba(255,255,255,0.7),inset 0 -2px 4px rgba(0,0,0,0.15);transition:all 0.3s;border:2px solid rgba(102,126,234,0.5)}
@@ -185,15 +182,15 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 </div>
 
 <div class="controls-section" id="controlsSection">
+<div class="sliders-container">
 <div class="slider-dropdown" data-slider="offsetX">
 <div class="slider-dropdown-header">
 <span>Offset X</span>
-<span id="offsetXValue">0%</span>
+<span class="slider-value" id="offsetXValue">0%</span>
 </div>
 <div class="slider-dropdown-content">
 <div class="slider-group">
 <div class="slider-wrapper">
-<div class="slider-tooltip" id="offsetXTooltip">0%</div>
 <input type="range" id="offsetX" min="0" max="100" value="0">
 </div>
 </div>
@@ -203,12 +200,11 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 <div class="slider-dropdown" data-slider="offsetY">
 <div class="slider-dropdown-header">
 <span>Offset Y</span>
-<span id="offsetYValue">0%</span>
+<span class="slider-value" id="offsetYValue">0%</span>
 </div>
 <div class="slider-dropdown-content">
 <div class="slider-group">
 <div class="slider-wrapper">
-<div class="slider-tooltip" id="offsetYTooltip">0%</div>
 <input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
 </div>
@@ -218,12 +214,11 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 <div class="slider-dropdown" data-slider="scale">
 <div class="slider-dropdown-header">
 <span>Scale</span>
-<span id="scaleValue">1.0×</span>
+<span class="slider-value" id="scaleValue">1.0×</span>
 </div>
 <div class="slider-dropdown-content">
 <div class="slider-group">
 <div class="slider-wrapper">
-<div class="slider-tooltip" id="scaleTooltip">1.0×</div>
 <input type="range" id="patternScale" min="0.05" max="5" step="0.01" value="1">
 </div>
 </div>
@@ -233,13 +228,13 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 <div class="slider-dropdown" data-slider="zoom">
 <div class="slider-dropdown-header">
 <span>Zoom</span>
-<span id="zoomValue">100%</span>
+<span class="slider-value" id="zoomValue">100%</span>
 </div>
 <div class="slider-dropdown-content">
 <div class="slider-group">
 <div class="slider-wrapper">
-<div class="slider-tooltip" id="zoomTooltip">100%</div>
 <input type="range" id="zoomSlider" min="1" max="800" step="1" value="100">
+</div>
 </div>
 </div>
 </div>
@@ -247,15 +242,15 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 </div>
 
 <div class="controls-section" id="mockupsSection">
+<div class="sliders-container">
 <div class="slider-dropdown" data-slider="mockupZoom">
 <div class="slider-dropdown-header">
 <span>Mockup Zoom</span>
-<span id="mockupZoomValue">100%</span>
+<span class="slider-value" id="mockupZoomValue">100%</span>
 </div>
 <div class="slider-dropdown-content">
 <div class="slider-group">
 <div class="slider-wrapper">
-<div class="slider-tooltip" id="mockupZoomTooltip">100%</div>
 <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
 </div>
 </div>
@@ -265,13 +260,13 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 <div class="slider-dropdown" data-slider="mockupRotate">
 <div class="slider-dropdown-header">
 <span>Mockup Rotate</span>
-<span id="mockupRotateValue">0°</span>
+<span class="slider-value" id="mockupRotateValue">0°</span>
 </div>
 <div class="slider-dropdown-content">
 <div class="slider-group">
 <div class="slider-wrapper">
-<div class="slider-tooltip" id="mockupRotateTooltip">0°</div>
 <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
+</div>
 </div>
 </div>
 </div>
@@ -314,9 +309,7 @@ function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo
 function snap(val,step){return Math.round(val/step)*step}
 function snapScale(val){if(val>=0.25)return snap(val,0.25);return Math.max(0.05,snap(val,0.01))}
 function snapZoom(val){if(val>=25)return snap(val,25);return Math.max(1,Math.round(val))}
-function showTooltip(tooltip,value){tooltip.textContent=value;tooltip.classList.add('visible')}
-function hideTooltip(tooltip){tooltip.classList.remove('visible')}
-const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),mz=g('mockupZoom'),mzv=g('mockupZoomValue'),mr=g('mockupRotate'),mrv=g('mockupRotateValue'),cq=g('canvasQuality'),ci=g('canvasInfo'),lo=g('loadingOverlay'),ee=g('easterEgg'),eeo=g('easterEggOverlay'),eel=g('easterEggLogo'),mc=g('matrixCanvas'),oxtt=g('offsetXTooltip'),oytt=g('offsetYTooltip'),stt=g('scaleTooltip'),ztt=g('zoomTooltip'),mztt=g('mockupZoomTooltip'),mrtt=g('mockupRotateTooltip'),md=g('masterDropdown'),setS=g('settingsSection'),conS=g('controlsSection'),mokS=g('mockupsSection'),stoS=g('storesSection');
+const d=document,g=d.getElementById.bind(d),c=g('canvas'),x=c.getContext('2d'),fi=g('fileInput'),ub=g('uploadBtnHeader'),ss=g('sampleSelect'),eb=g('exportBtnHeader'),rs=g('repeatType'),vm=g('viewMode'),bc=g('bgColor'),ps=g('patternScale'),ox=g('offsetX'),oy=g('offsetY'),sv=g('scaleValue'),oxv=g('offsetXValue'),oyv=g('offsetYValue'),es=g('emptyState'),pi=g('patternInfo'),it=g('infoText'),zs=g('zoomSlider'),zv=g('zoomValue'),mz=g('mockupZoom'),mzv=g('mockupZoomValue'),mr=g('mockupRotate'),mrv=g('mockupRotateValue'),cq=g('canvasQuality'),ci=g('canvasInfo'),lo=g('loadingOverlay'),ee=g('easterEgg'),eeo=g('easterEggOverlay'),eel=g('easterEggLogo'),mc=g('matrixCanvas'),md=g('masterDropdown'),setS=g('settingsSection'),conS=g('controlsSection'),mokS=g('mockupsSection'),stoS=g('storesSection');
 let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,mockupZoom=1,mockupRotate=0,dr=false,dsx,dsy,phi=null,bti=null,tti=null,bai=null,bsi=null,ipi=null,mui=null,maxCanvasSize=1200,loadStartTime=0,imageLoaded=false,isReload=false,matrixActive=false,matrixInterval=null;
 const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500,RELOAD_MIN_TIME=1500;
 const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
@@ -359,28 +352,16 @@ c.addEventListener('touchend',()=>ltd=0);
 rs.addEventListener('change',e=>{rt=e.target.value;draw()});
 vm.addEventListener('change',e=>{v=e.target.value;draw()});
 bc.addEventListener('change',e=>{bg=e.target.value;uBg();draw()});
-ps.addEventListener('input',e=>{const raw=parseFloat(e.target.value);s=raw;sv.textContent=s.toFixed(2)+'×';showTooltip(stt,s.toFixed(2)+'×');draw()});
-ps.addEventListener('change',e=>{const raw=parseFloat(e.target.value);s=snapScale(raw);ps.value=s;sv.textContent=s.toFixed(2)+'×';hideTooltip(stt);draw()});
-ps.addEventListener('pointerup',()=>hideTooltip(stt));
-ps.addEventListener('pointerleave',()=>hideTooltip(stt));
-zs.addEventListener('input',e=>{const raw=parseInt(e.target.value);z=raw/100;zv.textContent=raw+'%';showTooltip(ztt,raw+'%');draw()});
-zs.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snapZoom(raw);z=snapped/100;zs.value=snapped;zv.textContent=snapped+'%';hideTooltip(ztt);draw()});
-zs.addEventListener('pointerup',()=>hideTooltip(ztt));
-zs.addEventListener('pointerleave',()=>hideTooltip(ztt));
-ox.addEventListener('input',e=>{const raw=parseInt(e.target.value);opx=raw/100;oxv.textContent=raw+'%';showTooltip(oxtt,raw+'%');draw()});
-ox.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opx=snapped/100;ox.value=snapped;oxv.textContent=snapped+'%';hideTooltip(oxtt);draw()});
-ox.addEventListener('pointerup',()=>hideTooltip(oxtt));
-ox.addEventListener('pointerleave',()=>hideTooltip(oxtt));
-oy.addEventListener('input',e=>{const raw=parseInt(e.target.value);opy=raw/100;oyv.textContent=raw+'%';showTooltip(oytt,raw+'%');draw()});
-oy.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opy=snapped/100;oy.value=snapped;oyv.textContent=snapped+'%';hideTooltip(oytt);draw()});
-oy.addEventListener('pointerup',()=>hideTooltip(oytt));
-oy.addEventListener('pointerleave',()=>hideTooltip(oytt));
-mz.addEventListener('input',e=>{mockupZoom=parseInt(e.target.value)/100;mzv.textContent=e.target.value+'%';showTooltip(mztt,e.target.value+'%');draw()});
-mz.addEventListener('pointerup',()=>hideTooltip(mztt));
-mz.addEventListener('pointerleave',()=>hideTooltip(mztt));
-mr.addEventListener('input',e=>{mockupRotate=parseInt(e.target.value);mrv.textContent=e.target.value+'°';showTooltip(mrtt,e.target.value+'°');draw()});
-mr.addEventListener('pointerup',()=>hideTooltip(mrtt));
-mr.addEventListener('pointerleave',()=>hideTooltip(mrtt));
+ps.addEventListener('input',e=>{const raw=parseFloat(e.target.value);s=raw;sv.textContent=s.toFixed(2)+'×';draw()});
+ps.addEventListener('change',e=>{const raw=parseFloat(e.target.value);s=snapScale(raw);ps.value=s;sv.textContent=s.toFixed(2)+'×';draw()});
+zs.addEventListener('input',e=>{const raw=parseInt(e.target.value);z=raw/100;zv.textContent=raw+'%';draw()});
+zs.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snapZoom(raw);z=snapped/100;zs.value=snapped;zv.textContent=snapped+'%';draw()});
+ox.addEventListener('input',e=>{const raw=parseInt(e.target.value);opx=raw/100;oxv.textContent=raw+'%';draw()});
+ox.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opx=snapped/100;ox.value=snapped;oxv.textContent=snapped+'%';draw()});
+oy.addEventListener('input',e=>{const raw=parseInt(e.target.value);opy=raw/100;oyv.textContent=raw+'%';draw()});
+oy.addEventListener('change',e=>{const raw=parseInt(e.target.value);const snapped=snap(raw,10);opy=snapped/100;oy.value=snapped;oyv.textContent=snapped+'%';draw()});
+mz.addEventListener('input',e=>{mockupZoom=parseInt(e.target.value)/100;mzv.textContent=e.target.value+'%';draw()});
+mr.addEventListener('input',e=>{mockupRotate=parseInt(e.target.value);mrv.textContent=e.target.value+'°';draw()});
 eb.addEventListener('click',async()=>{if(!t){alert('Please load a pattern first!');return}try{const blob=await new Promise(res=>c.toBlob(res,'image/png'));const file=new File([blob],'rudeboy-pattern.png',{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Rudeboy Pattern',text:'Check out my pattern!'})}else{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=URL.createObjectURL(blob);l.click();URL.revokeObjectURL(l.href)}}catch(e){if(e.name!=='AbortError'){const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=c.toDataURL('image/png');l.click()}}});
 draw();
 </script>
