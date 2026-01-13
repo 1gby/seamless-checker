@@ -40,7 +40,6 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 @keyframes spin-glow{0%{transform:rotate(0deg);filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8))}50%{transform:rotate(360deg);filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8))}51%{filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8))}100%{transform:rotate(720deg);filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8))}}
 #controls{padding:2rem;background:rgba(0,0,0,0.6);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-top:1px solid rgba(255,255,255,0.1);box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05)}
 .master-dropdown-wrapper{max-width:400px;margin:0 auto 1.5rem}
-.control-label{font-size:0.85rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;text-align:center;margin-bottom:0.5rem}
 select,button{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;font-family:inherit;width:100%}
 select:hover,button:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 select:focus,button:focus{outline:none;border-color:rgba(102,126,234,0.5);box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
@@ -49,6 +48,13 @@ select:active,button:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px 
 .controls-section.active{display:block}
 .controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;max-width:1200px;margin:0 auto}
 .control-group{display:flex;flex-direction:column;gap:0.5rem}
+.control-label{font-size:0.85rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;text-align:center;margin-bottom:0.5rem}
+.slider-dropdown{margin-bottom:1rem}
+.slider-dropdown-header{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.slider-dropdown-header:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px rgba(102,126,234,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.slider-dropdown-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease;margin-top:0.5rem}
+.slider-dropdown.open .slider-dropdown-content{max-height:200px}
 .slider-group{display:flex;flex-direction:column;gap:0.75rem;padding:1.2rem 1.5rem;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-radius:16px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);position:relative}
 .slider-header{display:flex;justify-content:space-between;align-items:center}
 .slider-wrapper{position:relative}
@@ -123,9 +129,8 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 </div>
 <div id="controls">
 <div class="master-dropdown-wrapper">
-<label class="control-label">Options</label>
 <select id="masterDropdown">
-<option value="">Select Section...</option>
+<option value="">Options</option>
 <option value="settings">Settings</option>
 <option value="controls">Controls</option>
 <option value="mockups">Mockups</option>
@@ -180,42 +185,58 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 </div>
 
 <div class="controls-section" id="controlsSection">
-<div class="controls-grid">
-<div class="slider-group">
-<div class="slider-header">
-<label class="control-label">Offset X</label>
-<span class="slider-value" id="offsetXValue">0%</span>
+<div class="slider-dropdown" data-slider="offsetX">
+<div class="slider-dropdown-header">
+<span>Offset X</span>
+<span id="offsetXValue">0%</span>
 </div>
+<div class="slider-dropdown-content">
+<div class="slider-group">
 <div class="slider-wrapper">
 <div class="slider-tooltip" id="offsetXTooltip">0%</div>
 <input type="range" id="offsetX" min="0" max="100" value="0">
 </div>
 </div>
-<div class="slider-group">
-<div class="slider-header">
-<label class="control-label">Offset Y</label>
-<span class="slider-value" id="offsetYValue">0%</span>
 </div>
+</div>
+
+<div class="slider-dropdown" data-slider="offsetY">
+<div class="slider-dropdown-header">
+<span>Offset Y</span>
+<span id="offsetYValue">0%</span>
+</div>
+<div class="slider-dropdown-content">
+<div class="slider-group">
 <div class="slider-wrapper">
 <div class="slider-tooltip" id="offsetYTooltip">0%</div>
 <input type="range" id="offsetY" min="0" max="100" value="0">
 </div>
 </div>
-<div class="slider-group">
-<div class="slider-header">
-<label class="control-label">Scale</label>
-<span class="slider-value" id="scaleValue">1.0×</span>
 </div>
+</div>
+
+<div class="slider-dropdown" data-slider="scale">
+<div class="slider-dropdown-header">
+<span>Scale</span>
+<span id="scaleValue">1.0×</span>
+</div>
+<div class="slider-dropdown-content">
+<div class="slider-group">
 <div class="slider-wrapper">
 <div class="slider-tooltip" id="scaleTooltip">1.0×</div>
 <input type="range" id="patternScale" min="0.05" max="5" step="0.01" value="1">
 </div>
 </div>
-<div class="slider-group">
-<div class="slider-header">
-<label class="control-label">Zoom</label>
-<span class="slider-value" id="zoomValue">100%</span>
 </div>
+</div>
+
+<div class="slider-dropdown" data-slider="zoom">
+<div class="slider-dropdown-header">
+<span>Zoom</span>
+<span id="zoomValue">100%</span>
+</div>
+<div class="slider-dropdown-content">
+<div class="slider-group">
 <div class="slider-wrapper">
 <div class="slider-tooltip" id="zoomTooltip">100%</div>
 <input type="range" id="zoomSlider" min="1" max="800" step="1" value="100">
@@ -223,27 +244,35 @@ input[type="range"]::-moz-range-thumb:active{box-shadow:0 2px 8px rgba(0,0,0,0.6
 </div>
 </div>
 </div>
+</div>
 
 <div class="controls-section" id="mockupsSection">
-<div class="controls-grid">
-<div class="slider-group">
-<div class="slider-header">
-<label class="control-label">Mockup Zoom</label>
-<span class="slider-value" id="mockupZoomValue">100%</span>
+<div class="slider-dropdown" data-slider="mockupZoom">
+<div class="slider-dropdown-header">
+<span>Mockup Zoom</span>
+<span id="mockupZoomValue">100%</span>
 </div>
+<div class="slider-dropdown-content">
+<div class="slider-group">
 <div class="slider-wrapper">
 <div class="slider-tooltip" id="mockupZoomTooltip">100%</div>
 <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
 </div>
 </div>
-<div class="slider-group">
-<div class="slider-header">
-<label class="control-label">Mockup Rotate</label>
-<span class="slider-value" id="mockupRotateValue">0°</span>
 </div>
+</div>
+
+<div class="slider-dropdown" data-slider="mockupRotate">
+<div class="slider-dropdown-header">
+<span>Mockup Rotate</span>
+<span id="mockupRotateValue">0°</span>
+</div>
+<div class="slider-dropdown-content">
+<div class="slider-group">
 <div class="slider-wrapper">
 <div class="slider-tooltip" id="mockupRotateTooltip">0°</div>
 <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
+</div>
 </div>
 </div>
 </div>
@@ -292,6 +321,7 @@ let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,mockupZ
 const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500,RELOAD_MIN_TIME=1500;
 const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
 md.addEventListener('change',e=>{setS.classList.remove('active');conS.classList.remove('active');mokS.classList.remove('active');stoS.classList.remove('active');const v=e.target.value;if(v==='settings')setS.classList.add('active');else if(v==='controls')conS.classList.add('active');else if(v==='mockups')mokS.classList.add('active');else if(v==='stores')stoS.classList.add('active')});
+document.querySelectorAll('.slider-dropdown-header').forEach(header=>{header.addEventListener('click',()=>{const parent=header.parentElement;const wasOpen=parent.classList.contains('open');document.querySelectorAll('.slider-dropdown').forEach(sd=>sd.classList.remove('open'));if(!wasOpen)parent.classList.add('open')})});
 function showLoading(reload=false){isReload=reload;loadStartTime=Date.now();imageLoaded=false;lo.classList.add('visible')}
 function hideLoading(){imageLoaded=true;const minTime=isReload?RELOAD_MIN_TIME:MIN_LOAD_TIME,elapsed=Date.now()-loadStartTime,remaining=Math.max(0,minTime-elapsed);setTimeout(()=>lo.classList.remove('visible'),remaining)}
 function startMatrix(){mc.width=window.innerWidth;mc.height=window.innerHeight;const ctx=mc.getContext('2d'),message='CREATED BY RUDEBOY',fontSize=Math.ceil(window.innerWidth/message.length),columns=mc.width/fontSize,drops=[],colors=['#10b981','#764ba2'];for(let i=0;i<columns;i++)drops[i]=Math.floor(Math.random()*-100);function drawMatrix(){ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,mc.width,mc.height);ctx.font=fontSize+'px monospace';for(let i=0;i<columns;i++){const charIndex=i%message.length;const text=message[charIndex];ctx.fillStyle=colors[i%2];ctx.fillText(text,i*fontSize,drops[i]*fontSize);if(drops[i]*fontSize>mc.height&&Math.random()>0.975)drops[i]=0;drops[i]++}}matrixInterval=setInterval(drawMatrix,50)}
