@@ -279,7 +279,7 @@ eeo.addEventListener('click',()=>{if(!matrixActive)return;matrixActive=false;mc.
 function updateCanvasInfo(){ci.textContent=`${maxCanvasSize}px (${qualityNames[maxCanvasSize]})`}
 function resize(){const w=g('canvas-wrapper'),sz=Math.min(w.clientWidth-64,maxCanvasSize);c.width=sz;c.height=sz;uBg();updateCanvasInfo();draw()}
 window.addEventListener('resize',resize);resize();
-g('logo').addEventListener('click',()=>{showLoading(true);setTimeout(()=>location.reload(),3000)});
+g('logo').addEventListener('click',()=>{showLoading(true);setTimeout(()=>location.reload(),2800)});
 c.addEventListener('click',e=>{if(!t&&!dr)fi.click()});
 ub.addEventListener('click',()=>fi.click());
 ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;showLoading(false);t=new Image();t.crossOrigin='anonymous';t.onload=()=>{s=Math.max(0.05,Math.min(5,300/t.width));ps.value=s;sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading();e.target.value=''};t.onerror=()=>{hideLoading();alert('Failed to load sample!');e.target.value=''};t.src=url});
