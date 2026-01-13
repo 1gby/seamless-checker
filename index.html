@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rudeboy™ Seamless Pattern Checker</title>
+<title>Rudeboy™ Seamless Pattern Checker - Baby Build v3.8</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);color:#eee;min-height:100vh}
@@ -289,7 +290,6 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);box-shadow:0 
 <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
 </div>
 <script>
-[JAVASCRIPT REMAINS IDENTICAL TO PREVIOUS VERSION]
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
 function snap(val,step){return Math.round(val/step)*step}
 function snapScale(val){if(val>=0.25)return snap(val,0.25);return Math.max(0.05,snap(val,0.01))}
