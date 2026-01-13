@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rudeboy™ Seamless Pattern Checker - Baby Build v3.8</title>
+<title>Rudeboy™ Seamless Pattern Checker - Baby Build v3.9</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);color:#eee;min-height:100vh}
@@ -23,14 +23,15 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .upload-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 12px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .sample-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 12px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .export-btn-header{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 12px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.upload-btn:hover,.sample-btn:hover,.export-btn-header:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12)}
-.upload-btn:hover{box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 18px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.sample-btn:hover{box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 18px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.export-btn-header:hover{box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 18px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.upload-btn:active,.sample-btn:active,.export-btn-header:active{transform:translateY(0)}
-.upload-btn:active{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.7),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.sample-btn:active{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.7),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.export-btn-header:active{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.7),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.upload-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.sample-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.export-btn-header{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.upload-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 15px rgba(118,75,162,0.5),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.sample-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 15px rgba(16,185,129,0.5),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.export-btn-header:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 15px rgba(118,75,162,0.5),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.upload-btn:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.sample-btn:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.export-btn-header:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 @keyframes btn-glow{0%{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 0px rgba(102,126,234,0),inset 0 2px 0 rgba(255,255,255,0.15)}50%{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(102,126,234,0.8),inset 0 2px 0 rgba(255,255,255,0.25)}100%{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 0px rgba(102,126,234,0),inset 0 2px 0 rgba(255,255,255,0.15)}}
 .export-btn-header:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 #canvas-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative}
@@ -55,6 +56,17 @@ select,button{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;backgrou
 #repeatType{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 12px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 #viewMode{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 12px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 #bgColor{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 12px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#masterDropdown{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#canvasQuality{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#repeatType{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#viewMode{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#bgColor{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown[data-slider="zoom"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 select:hover,button:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 select:focus,button:focus{outline:none;border-color:rgba(102,126,234,0.5);box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 select:active,button:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px rgba(102,126,234,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
