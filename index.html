@@ -470,24 +470,72 @@ else{clearInterval(fadeOut);els.audio.pause();els.audio.currentTime=0}
 function startMatrix(){
 const canvas=els.mc,ctx=canvas.getContext('2d');
 canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-const msg='Created by Rudeboy',charW=20;
-const cols=Math.floor(canvas.width/charW);
+const msg='CREATED BY RUDEBOY';
+const fontSize=Math.ceil(canvas.width/msg.length);
 const drops=[];
-for(let i=0;i<cols;i++)drops[i]=Math.random()*-100;
+for(let i=0;i<msg.length;i++)drops[i]=Math.random()*-100;
+
+let messageMode=false;
+let currentWord=0;
+const words=['CREATED','BY','RUDEBOY'];
+const wordStartPositions=[0,8,11];
+let messageTimer=0;
+const MESSAGE_INTERVAL=12000;
+
 function draw(){
-ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.font='20px monospace';
-for(let i=0;i<drops.length;i++){
-const charIndex=i%msg.length;
-const char=msg[charIndex];
+ctx.fillStyle='rgba(0,0,0,0.03)';ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.font=fontSize+'px monospace';
+
+if(!messageMode){
+messageTimer+=50;
+if(messageTimer>=MESSAGE_INTERVAL){
+messageMode=true;
+currentWord=0;
+messageTimer=0;
+for(let i=0;i<msg.length;i++)drops[i]=0;
+}
+}
+
+for(let i=0;i<msg.length;i++){
+let char;
+if(messageMode){
+const word=words[currentWord];
+const wordStart=wordStartPositions[currentWord];
+const wordEnd=wordStart+word.length;
+if(i>=wordStart&&i<wordEnd){
+char=msg[i];
+}else{
+char=' ';
+}
+}else{
+char=msg[i];
+}
+
 ctx.fillStyle=i%2===0?'#10b981':'#764ba2';
-ctx.fillText(char,i*charW,drops[i]*charW);
-if(drops[i]*charW>canvas.height&&Math.random()>0.975)drops[i]=0;
+ctx.fillText(char,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height&&Math.random()>0.975){
+drops[i]=0;
+if(messageMode){
+const maxDrop=Math.max(...drops);
+if(maxDrop*fontSize>canvas.height+fontSize*5){
+currentWord++;
+if(currentWord>=words.length){
+messageMode=false;
+currentWord=0;
+for(let j=0;j<msg.length;j++)drops[j]=Math.random()*-100;
+}else{
+for(let j=0;j<msg.length;j++)drops[j]=0;
+}
+}
+}
+}
 drops[i]++;
 }
 }
 matrixInterval=setInterval(draw,50);
 }
+
 function stopMatrix(){if(matrixInterval){clearInterval(matrixInterval);matrixInterval=null}}
 
 els.ee.addEventListener('click',()=>{
