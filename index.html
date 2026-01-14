@@ -1,4 +1,4 @@
-<!-- Rudeboy Pattern Checker - Trick v1.1.7 -->
+<!-- Rudeboy Pattern Checker - Trick v1.1.8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,17 +88,15 @@ input[type="range"]::-moz-range-thumb{width:52px;height:32px;border-radius:100px
 input[type="range"]::-moz-range-thumb:hover{transform:scale(1.05);background:rgba(255,255,255,0.15);box-shadow:0 6px 20px rgba(0,0,0,0.35),0 3px 10px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.5),inset 0 -1px 0 rgba(0,0,0,0.1)}
 input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rgba(255,255,255,0.15);box-shadow:0 2px 12px rgba(0,0,0,0.4),0 1px 6px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.4),inset 0 -1px 0 rgba(0,0,0,0.15)}
 .slider-value{font-size:0.9rem;font-weight:600;color:#667eea;min-width:45px;text-align:right}
-.region-buttons{display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
-.region-btn{padding:0.75rem 1.5rem;border-radius:16px;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee}
-.region-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12)}
-.region-btn.usa.active{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(255,255,255,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);background:rgba(255,255,255,0.15)}
-.region-btn.canada.active{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(239,68,68,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);background:rgba(255,255,255,0.15)}
-.region-btn.europe.active{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(59,130,246,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);background:rgba(255,255,255,0.15)}
-.store-dropdown{margin-bottom:0}
-.store-dropdown-header{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;display:flex;justify-content:space-between;align-items:center;user-select:none}
-.store-dropdown-header:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2)}
-.store-dropdown-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease;margin-top:0.5rem}
-.store-dropdown.open .store-dropdown-content{max-height:600px}
+.country-dropdowns{display:flex;flex-direction:column;gap:1rem;max-width:360px;margin:0 auto}
+.country-dropdown{margin-bottom:0}
+.country-dropdown-header{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.country-dropdown-header:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2)}
+.country-dropdown[data-country="usa"] .country-dropdown-header.active{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(255,255,255,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);background:rgba(255,255,255,0.15)}
+.country-dropdown[data-country="canada"] .country-dropdown-header.active{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(239,68,68,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);background:rgba(255,255,255,0.15)}
+.country-dropdown[data-country="europe"] .country-dropdown-header.active{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(59,130,246,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);background:rgba(255,255,255,0.15)}
+.country-dropdown-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease;margin-top:0.5rem}
+.country-dropdown.open .country-dropdown-content{max-height:600px}
 .store-list{display:flex;flex-direction:column;gap:1rem}
 .store-link{color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:block;font-weight:600;text-align:center}
 .store-link:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
@@ -115,7 +113,7 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 @keyframes egg-glow{0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}}
 .matrix-canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 1s}
 .matrix-canvas.visible{opacity:1}
-@media(max-width:768px){#header{padding:1rem;flex-direction:column;align-items:stretch}.logo-section{justify-content:center}.header-buttons{gap:0.5rem;padding:0;max-width:100%}.title{font-size:1.2rem}#canvas-wrapper{padding:1rem}#controls{padding:1.5rem 1rem}.region-buttons{gap:0.75rem}}
+@media(max-width:768px){#header{padding:1rem;flex-direction:column;align-items:stretch}.logo-section{justify-content:center}.header-buttons{gap:0.5rem;padding:0;max-width:100%}.title{font-size:1.2rem}#canvas-wrapper{padding:1rem}#controls{padding:1.5rem 1rem}}
 </style>
 <title>Rudeboy™ Seamless Pattern Checker</title>
 </head>
@@ -283,17 +281,13 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 <div style="text-align:center;margin-bottom:1.5rem">
 <div style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa">Turn your patterns into real products!</div>
 </div>
-<div class="region-buttons">
-<button class="region-btn usa active" data-region="usa">🇺🇸 USA</button>
-<button class="region-btn canada" data-region="canada">🇨🇦 Canada</button>
-<button class="region-btn europe" data-region="europe">🇪🇺 Europe</button>
-</div>
-<div class="store-dropdown open" id="storeDropdownUSA">
-<div class="store-dropdown-header">
-<span>Top 10 Canvas Stores (USA)</span>
+<div class="country-dropdowns">
+<div class="country-dropdown" data-country="usa">
+<div class="country-dropdown-header">
+<span>🇺🇸 USA</span>
 <span>▼</span>
 </div>
-<div class="store-dropdown-content">
+<div class="country-dropdown-content">
 <div class="store-list">
 <a href="https://canvasondemand.com/" target="_blank" class="store-link">Canvas On Demand</a>
 <a href="https://www.canvaspop.com/" target="_blank" class="store-link">Canvaspop</a>
@@ -308,12 +302,12 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 </div>
 </div>
 </div>
-<div class="store-dropdown" id="storeDropdownCanada" style="display:none">
-<div class="store-dropdown-header">
-<span>Top 10 Canvas Stores (Canada)</span>
+<div class="country-dropdown" data-country="canada">
+<div class="country-dropdown-header">
+<span>🇨🇦 Canada</span>
 <span>▼</span>
 </div>
-<div class="store-dropdown-content">
+<div class="country-dropdown-content">
 <div class="store-list">
 <a href="https://posterjack.ca/" target="_blank" class="store-link">Posterjack</a>
 <a href="https://www.canvaspop.com/" target="_blank" class="store-link">Canvaspop</a>
@@ -328,12 +322,12 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 </div>
 </div>
 </div>
-<div class="store-dropdown" id="storeDropdownEurope" style="display:none">
-<div class="store-dropdown-header">
-<span>Top 10 Canvas Stores (Europe)</span>
+<div class="country-dropdown" data-country="europe">
+<div class="country-dropdown-header">
+<span>🇪🇺 Europe</span>
 <span>▼</span>
 </div>
-<div class="store-dropdown-content">
+<div class="country-dropdown-content">
 <div class="store-list">
 <a href="https://www.whitewall.com/" target="_blank" class="store-link">WhiteWall</a>
 <a href="https://www.photobook-europe.com/" target="_blank" class="store-link">Photobook Europe</a>
@@ -345,6 +339,7 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 <a href="https://www.gelato.com/" target="_blank" class="store-link">Gelato</a>
 <a href="https://www.smartphoto.com/" target="_blank" class="store-link">Smartphoto</a>
 <a href="https://www.canvasway.com/" target="_blank" class="store-link">CanvasWay</a>
+</div>
 </div>
 </div>
 </div>
@@ -384,16 +379,14 @@ mzv:g('mockupZoomValue'),mr:g('mockupRotate'),mrv:g('mockupRotateValue'),
 cq:g('canvasQuality'),ci:g('canvasInfo'),lo:g('loadingOverlay'),ee:g('easterEgg'),
 eeo:g('easterEggOverlay'),eel:g('easterEggLogo'),mc:g('matrixCanvas'),
 md:g('masterDropdown'),dispS:g('displaySection'),conS:g('controlsSection'),
-mokS:g('mockupsSection'),stoS:g('storesSection'),
-storesUSA:g('storeDropdownUSA'),storesCanada:g('storeDropdownCanada'),storesEurope:g('storeDropdownEurope'),
-audio:g('easterEggAudio')
+mokS:g('mockupsSection'),stoS:g('storesSection'),audio:g('easterEggAudio')
 };
 
 const x=els.c.getContext('2d');
 
 let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,
 mockupZoom=1,mockupRotate=0,dr=false,dsx,dsy,maxCanvasSize=1200,
-loadStartTime=0,isReload=false,matrixActive=false,matrixInterval=null,currentRegion='usa';
+loadStartTime=0,isReload=false,matrixActive=false,matrixInterval=null;
 
 const mockupImages={phi:null,bti:null,tti:null,bai:null,bsi:null,ipi:null,mui:null};
 const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500,RELOAD_MIN_TIME=1500;
@@ -417,15 +410,18 @@ const sections={display:els.dispS,controls:els.conS,mockups:els.mokS,stores:els.
 sections[e.target.value]?.classList.add('active');
 });
 
-d.querySelectorAll('.region-btn').forEach(btn=>{
-btn.addEventListener('click',()=>{
-d.querySelectorAll('.region-btn').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
-const region=btn.dataset.region;
-[els.storesUSA,els.storesCanada,els.storesEurope].forEach(s=>s.style.display='none');
-if(region==='usa'){els.storesUSA.style.display='block';els.storesUSA.classList.add('open')}
-else if(region==='canada'){els.storesCanada.style.display='block';els.storesCanada.classList.add('open')}
-else if(region==='europe'){els.storesEurope.style.display='block';els.storesEurope.classList.add('open')}
+d.querySelectorAll('.country-dropdown-header').forEach(header=>{
+header.addEventListener('click',()=>{
+const parent=header.parentElement;
+const wasOpen=parent.classList.contains('open');
+d.querySelectorAll('.country-dropdown').forEach(cd=>{
+cd.classList.remove('open');
+cd.querySelector('.country-dropdown-header').classList.remove('active');
+});
+if(!wasOpen){
+parent.classList.add('open');
+header.classList.add('active');
+}
 });
 });
 
@@ -434,13 +430,6 @@ header.addEventListener('click',()=>{
 const parent=header.parentElement,wasOpen=parent.classList.contains('open');
 d.querySelectorAll('.slider-dropdown').forEach(sd=>sd.classList.remove('open'));
 if(!wasOpen)parent.classList.add('open');
-});
-});
-
-d.querySelectorAll('.store-dropdown-header').forEach(header=>{
-header.addEventListener('click',()=>{
-const parent=header.parentElement;
-parent.classList.toggle('open');
 });
 });
 
@@ -481,18 +470,19 @@ else{clearInterval(fadeOut);els.audio.pause();els.audio.currentTime=0}
 function startMatrix(){
 const canvas=els.mc,ctx=canvas.getContext('2d');
 canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-const msg='CREATED BY RUDEBOY',cols=Math.floor(canvas.width/20);
-const fs=20,drops=[];
+const msg='Created by Rudeboy',charW=20;
+const cols=Math.floor(canvas.width/charW);
+const drops=[];
 for(let i=0;i<cols;i++)drops[i]=Math.random()*-100;
 function draw(){
 ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.fillStyle='#10b981';ctx.font=fs+'px monospace';
+ctx.font='20px monospace';
 for(let i=0;i<drops.length;i++){
-const char=msg[Math.floor(Math.random()*msg.length)];
-const altColor=i%2===0?'#10b981':'#764ba2';
-ctx.fillStyle=altColor;
-ctx.fillText(char,i*fs,drops[i]*fs);
-if(drops[i]*fs>canvas.height&&Math.random()>0.975)drops[i]=0;
+const charIndex=i%msg.length;
+const char=msg[charIndex];
+ctx.fillStyle=i%2===0?'#10b981':'#764ba2';
+ctx.fillText(char,i*charW,drops[i]*charW);
+if(drops[i]*charW>canvas.height&&Math.random()>0.975)drops[i]=0;
 drops[i]++;
 }
 }
