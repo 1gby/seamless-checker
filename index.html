@@ -1,3 +1,4 @@
+<!-- Rudeboy Pattern Checker - Trick v1.1.5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,16 +20,16 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 @keyframes glow-pulse{0%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}50%{filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8))}100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}}
 .title{font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0}
 .header-buttons{display:flex;align-items:stretch;gap:0.75rem;flex-wrap:nowrap;justify-content:center;width:100%;max-width:600px}
-.file-input-wrapper{position:relative;overflow:hidden;display:flex;flex:1}
-.file-input-wrapper input[type=file]{position:absolute;left:-9999px}
-.upload-btn,.export-btn-header,.sample-btn{padding:0.85rem 1rem;min-height:52px;color:white;border:none;border-radius:16px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;white-space:nowrap;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.file-input-wrapper{position:relative;display:flex;flex:1}
+.file-input-wrapper input[type=file]{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+.upload-btn,.export-btn-header,.sample-btn{padding:0.85rem 1rem;min-height:52px;color:white;border:none;border-radius:16px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;whitespace:nowrap;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .upload-btn,.export-btn-header{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .sample-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .upload-btn:hover,.export-btn-header:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .sample-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .upload-btn:active,.export-btn-header:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 .sample-btn:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.export-btn-header:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.export-btn-header:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 #canvas-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative}
 #canvas{max-width:1200px;width:100%;aspect-ratio:1;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.015);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06)}
 #canvas.has-image{cursor:grab}
@@ -46,21 +47,23 @@ body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 #controls{padding:2rem;background:rgba(0,0,0,0.6);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-top:1px solid rgba(255,255,255,0.1);box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05)}
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
 select,button{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;font-family:inherit;width:100%}
-#masterDropdown,#canvasQuality,#viewMode{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+select:hover,button:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2)}
+select:focus,button:focus{outline:none;border-color:rgba(102,126,234,0.5);box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+select:active,button:active{transform:translateY(0)}
+#masterDropdown{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#masterDropdown:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#masterDropdown:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+#canvasQuality,#viewMode{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#canvasQuality:hover,#viewMode:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#canvasQuality:active,#viewMode:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 #repeatType,#bgColor{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#repeatType:hover,#bgColor:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+#repeatType:active,#bgColor:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,.slider-dropdown[data-slider="scale"] .slider-dropdown-header,.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,.slider-dropdown[data-slider="zoom"] .slider-dropdown-header,.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-select:hover,button:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#masterDropdown:hover,#canvasQuality:hover,#viewMode:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#repeatType:hover,#bgColor:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-select:focus,button:focus{outline:none;border-color:rgba(102,126,234,0.5);box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-select:active,button:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px rgba(102,126,234,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-#masterDropdown:active,#canvasQuality:active,#viewMode:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-#repeatType:active,#bgColor:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.slider-dropdown-header:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.slider-dropdown-header:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2)}
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 25px rgba(102,126,234,0.6),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:active,.slider-dropdown[data-slider="scale"] .slider-dropdown-header:active,.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:active,.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:active,.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
 .controls-section{display:none;transition:all 0.3s;margin-top:1.5rem}
@@ -80,6 +83,22 @@ input[type="range"]::-moz-range-thumb{width:52px;height:32px;border-radius:100px
 input[type="range"]::-moz-range-thumb:hover{transform:scale(1.05);background:rgba(255,255,255,0.15);box-shadow:0 6px 20px rgba(0,0,0,0.35),0 3px 10px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.5),inset 0 -1px 0 rgba(0,0,0,0.1)}
 input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rgba(255,255,255,0.15);box-shadow:0 2px 12px rgba(0,0,0,0.4),0 1px 6px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.4),inset 0 -1px 0 rgba(0,0,0,0.15)}
 .slider-value{font-size:0.9rem;font-weight:600;color:#667eea;min-width:45px;text-align:right}
+.region-buttons{display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.region-btn{padding:0.75rem 1.5rem;border-radius:16px;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee}
+.region-btn.usa{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(220,38,38,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.region-btn.usa:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(220,38,38,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.region-btn.usa:active,.region-btn.usa.active{box-shadow:0 0 0 3px rgba(220,38,38,0.2),0 0 30px rgba(220,38,38,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.region-btn.canada{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(239,68,68,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.region-btn.canada:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(239,68,68,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.region-btn.canada:active,.region-btn.canada.active{box-shadow:0 0 0 3px rgba(239,68,68,0.2),0 0 30px rgba(239,68,68,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.region-btn.europe{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(59,130,246,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.region-btn.europe:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(59,130,246,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+.region-btn.europe:active,.region-btn.europe.active{box-shadow:0 0 0 3px rgba(59,130,246,0.2),0 0 30px rgba(59,130,246,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
+.region-btn.active{background:rgba(255,255,255,0.15)}
+.store-list{display:none;flex-direction:column;gap:1rem}
+.store-list.active{display:flex}
+.store-link{color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:block;font-weight:600;text-align:center}
+.store-link:hover{transform:translateY(-2px);background:rgba(255,255,255,0.12);box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
 #footer{padding:2rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-top:1px solid rgba(255,255,255,0.1);box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05)}
 .footer-content{max-width:1200px;margin:0 auto;text-align:center}
 .footer-credit{font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.1rem;cursor:pointer;transition:all 0.3s}
@@ -93,7 +112,7 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 @keyframes egg-glow{0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}}
 .matrix-canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 1s}
 .matrix-canvas.visible{opacity:1}
-@media(max-width:768px){#header{padding:1rem;flex-direction:column;align-items:stretch}.logo-section{justify-content:center}.header-buttons{gap:0.5rem;padding:0;max-width:100%}.title{font-size:1.2rem}#canvas-wrapper{padding:1rem}#controls{padding:1.5rem 1rem}}
+@media(max-width:768px){#header{padding:1rem;flex-direction:column;align-items:stretch}.logo-section{justify-content:center}.header-buttons{gap:0.5rem;padding:0;max-width:100%}.title{font-size:1.2rem}#canvas-wrapper{padding:1rem}#controls{padding:1.5rem 1rem}.region-buttons{flex-direction:column;gap:0.75rem}}
 </style>
 </head>
 <body>
@@ -257,16 +276,49 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 </div>
 </div>
 <div class="controls-section" id="storesSection">
-<div style="text-align:center;margin-bottom:1rem">
+<div style="text-align:center;margin-bottom:1.5rem">
 <div style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa">Turn your patterns into real products!</div>
 </div>
-<div style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center">
-<a href="https://www.spoonflower.com/" target="_blank" style="color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:inline-block;font-weight:600">Spoonflower</a>
-<a href="https://www.printful.com/" target="_blank" style="color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:inline-block;font-weight:600">Printful</a>
-<a href="https://printify.com/" target="_blank" style="color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:inline-block;font-weight:600">Printify</a>
-<a href="https://society6.com/" target="_blank" style="color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:inline-block;font-weight:600">Society6</a>
-<a href="https://www.redbubble.com/" target="_blank" style="color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:inline-block;font-weight:600">Redbubble</a>
-<a href="https://www.zazzle.com/" target="_blank" style="color:#667eea;text-decoration:none;font-size:0.95rem;transition:all 0.3s;padding:0.75rem 1.5rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);display:inline-block;font-weight:600">Zazzle</a>
+<div class="region-buttons">
+<button class="region-btn usa active" data-region="usa">🇺🇸 USA</button>
+<button class="region-btn canada" data-region="canada">🇨🇦 Canada</button>
+<button class="region-btn europe" data-region="europe">🇪🇺 Europe</button>
+</div>
+<div class="store-list active" id="storesUSA">
+<a href="https://www.spoonflower.com/" target="_blank" class="store-link">Spoonflower</a>
+<a href="https://www.printful.com/" target="_blank" class="store-link">Printful</a>
+<a href="https://printify.com/" target="_blank" class="store-link">Printify</a>
+<a href="https://society6.com/" target="_blank" class="store-link">Society6</a>
+<a href="https://www.redbubble.com/" target="_blank" class="store-link">Redbubble</a>
+<a href="https://www.zazzle.com/" target="_blank" class="store-link">Zazzle</a>
+<a href="https://www.etsy.com/" target="_blank" class="store-link">Etsy</a>
+<a href="https://www.customink.com/" target="_blank" class="store-link">CustomInk</a>
+<a href="https://www.cafepress.com/" target="_blank" class="store-link">CafePress</a>
+<a href="https://www.contrado.com/" target="_blank" class="store-link">Contrado</a>
+</div>
+<div class="store-list" id="storesCanada">
+<a href="https://www.spoonflower.com/" target="_blank" class="store-link">Spoonflower</a>
+<a href="https://www.printful.com/" target="_blank" class="store-link">Printful</a>
+<a href="https://printify.com/" target="_blank" class="store-link">Printify</a>
+<a href="https://www.redbubble.com/" target="_blank" class="store-link">Redbubble</a>
+<a href="https://www.zazzle.ca/" target="_blank" class="store-link">Zazzle Canada</a>
+<a href="https://www.etsy.com/" target="_blank" class="store-link">Etsy</a>
+<a href="https://www.vistaprint.ca/" target="_blank" class="store-link">Vistaprint</a>
+<a href="https://www.customink.com/" target="_blank" class="store-link">CustomInk</a>
+<a href="https://www.contrado.com/" target="_blank" class="store-link">Contrado</a>
+<a href="https://www.artofwhere.com/" target="_blank" class="store-link">Art of Where</a>
+</div>
+<div class="store-list" id="storesEurope">
+<a href="https://www.spoonflower.com/" target="_blank" class="store-link">Spoonflower</a>
+<a href="https://www.printful.com/" target="_blank" class="store-link">Printful</a>
+<a href="https://printify.com/" target="_blank" class="store-link">Printify</a>
+<a href="https://www.redbubble.com/" target="_blank" class="store-link">Redbubble</a>
+<a href="https://www.zazzle.co.uk/" target="_blank" class="store-link">Zazzle UK</a>
+<a href="https://www.etsy.com/" target="_blank" class="store-link">Etsy</a>
+<a href="https://www.vistaprint.co.uk/" target="_blank" class="store-link">Vistaprint</a>
+<a href="https://www.contrado.co.uk/" target="_blank" class="store-link">Contrado</a>
+<a href="https://www.spreadshirt.co.uk/" target="_blank" class="store-link">Spreadshirt</a>
+<a href="https://www.pixartprinting.co.uk/" target="_blank" class="store-link">Pixartprinting</a>
 </div>
 </div>
 <div class="pattern-info" id="patternInfo">
@@ -286,6 +338,7 @@ input[type="range"]::-moz-range-thumb:active{transform:scale(0.98);background:rg
 <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
 <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
 </div>
+<audio id="easterEggAudio" preload="none"></audio>
 <script>
 // Utility Functions
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
@@ -305,7 +358,9 @@ mzv:g('mockupZoomValue'),mr:g('mockupRotate'),mrv:g('mockupRotateValue'),
 cq:g('canvasQuality'),ci:g('canvasInfo'),lo:g('loadingOverlay'),ee:g('easterEgg'),
 eeo:g('easterEggOverlay'),eel:g('easterEggLogo'),mc:g('matrixCanvas'),
 md:g('masterDropdown'),dispS:g('displaySection'),conS:g('controlsSection'),
-mokS:g('mockupsSection'),stoS:g('storesSection')
+mokS:g('mockupsSection'),stoS:g('storesSection'),
+storesUSA:g('storesUSA'),storesCanada:g('storesCanada'),storesEurope:g('storesEurope'),
+audio:g('easterEggAudio')
 };
 
 // Get canvas context once
@@ -314,7 +369,7 @@ const x=els.c.getContext('2d');
 // State Variables
 let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,
 mockupZoom=1,mockupRotate=0,dr=false,dsx,dsy,maxCanvasSize=1200,
-loadStartTime=0,isReload=false,matrixActive=false,matrixInterval=null;
+loadStartTime=0,isReload=false,matrixActive=false,matrixInterval=null,currentRegion='usa';
 
 // Mockup Images
 const mockupImages={phi:null,bti:null,tti:null,bai:null,bsi:null,ipi:null,mui:null};
@@ -323,11 +378,37 @@ const mockupImages={phi:null,bti:null,tti:null,bai:null,bsi:null,ipi:null,mui:nu
 const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500,RELOAD_MIN_TIME=1500;
 const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
 
+// Music Playlist
+const playlist=[
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/count.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/falling%20softly.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/fluid.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/i%20wanna%20take%20your%20body%20higher.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3',
+'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
+];
+
 // Master Dropdown Handler
 els.md.addEventListener('change',e=>{
 [els.dispS,els.conS,els.mokS,els.stoS].forEach(s=>s.classList.remove('active'));
 const sections={display:els.dispS,controls:els.conS,mockups:els.mokS,stores:els.stoS};
 sections[e.target.value]?.classList.add('active');
+});
+
+// Region Button Handler
+d.querySelectorAll('.region-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+d.querySelectorAll('.region-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+const region=btn.dataset.region;
+[els.storesUSA,els.storesCanada,els.storesEurope].forEach(s=>s.classList.remove('active'));
+if(region==='usa')els.storesUSA.classList.add('active');
+else if(region==='canada')els.storesCanada.classList.add('active');
+else if(region==='europe')els.storesEurope.classList.add('active');
+});
 });
 
 // Slider Dropdown Handlers
@@ -348,6 +429,32 @@ function hideLoading(){
 const elapsed=Date.now()-loadStartTime;
 const remaining=Math.max(0,(isReload?RELOAD_MIN_TIME:MIN_LOAD_TIME)-elapsed);
 setTimeout(()=>els.lo.classList.remove('visible'),remaining);
+}
+
+// Music Functions
+function playRandomTrack(){
+const randomTrack=playlist[Math.floor(Math.random()*playlist.length)];
+els.audio.src=randomTrack;
+els.audio.volume=0;
+els.audio.loop=true;
+els.audio.play().then(()=>{
+// Fade in audio
+let vol=0;
+const fadeIn=setInterval(()=>{
+if(vol<0.5){vol+=0.05;els.audio.volume=Math.min(vol,0.5)}
+else clearInterval(fadeIn);
+},100);
+}).catch(err=>console.log('Audio play failed:',err));
+}
+
+function stopMusic(){
+if(!els.audio.paused){
+let vol=els.audio.volume;
+const fadeOut=setInterval(()=>{
+if(vol>0){vol-=0.05;els.audio.volume=Math.max(vol,0)}
+else{clearInterval(fadeOut);els.audio.pause();els.audio.currentTime=0}
+},50);
+}
 }
 
 // Matrix Animation
@@ -375,6 +482,7 @@ function stopMatrix(){if(matrixInterval){clearInterval(matrixInterval);matrixInt
 els.ee.addEventListener('click',()=>{
 if(matrixActive)return;
 matrixActive=true;els.eeo.classList.add('visible');
+playRandomTrack();
 setTimeout(()=>{
 els.eel.style.transition='opacity 0.5s';els.eel.style.opacity='0';
 setTimeout(()=>{els.eel.style.display='none';els.mc.classList.add('visible');startMatrix()},500);
@@ -383,7 +491,7 @@ setTimeout(()=>{els.eel.style.display='none';els.mc.classList.add('visible');sta
 
 els.eeo.addEventListener('click',()=>{
 if(!matrixActive)return;
-matrixActive=false;els.mc.classList.remove('visible');stopMatrix();
+matrixActive=false;els.mc.classList.remove('visible');stopMatrix();stopMusic();
 setTimeout(()=>{
 els.eel.style.display='block';els.eel.style.opacity='0';els.eel.style.animation='none';
 els.eel.style.transition='opacity 0.5s';
