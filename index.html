@@ -1182,102 +1182,132 @@ function stopMusic() {
 /**
  * Start matrix rain animation
  */
-function startMatrix() {
-  const canvas = els.matrixCanvas;
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  const message = 'CREATED BY RUDEBOY';
-  const fontSize = Math.ceil(canvas.width / message.length);
-  const drops = [];
-  
-  // Initialize drops
-  for (let i = 0; i < message.length; i++) {
-    drops[i] = Math.random() * -100;
-  }
-  
-  let messageMode = false;
-  let currentWord = 0;
-  const words = ['CREATED', 'BY', 'RUDEBOY'];
-  const wordStartPositions = [0, 8, 11];
-  let messageTimer = 0;
-  const MESSAGE_INTERVAL = 12000;
-  let currentSpeed = 50;
-  
-  function draw() {
-    // Fade effect
-    if (messageMode) {
-      ctx.fillStyle = 'rgba(0,0,0,0.05)';
-    } else {
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = fontSize + 'px monospace';
-    
-    // Check if it's time to start message mode
-    if (!messageMode) {
-      messageTimer += currentSpeed;
-      if (messageTimer >= MESSAGE_INTERVAL) {
-        messageMode = true;
-        currentWord = 0;
-        messageTimer = 0;
-        for (let i = 0; i < message.length; i++) drops[i] = 0;
-        clearInterval(matrixInterval);
-        currentSpeed = 75;
-        matrixInterval = setInterval(draw, currentSpeed);
-      }
-    }
-    
-    // Draw characters
-    for (let i = 0; i < message.length; i++) {
-      let char;
-      
-      if (messageMode) {
-        const word = words[currentWord];
-        const wordStart = wordStartPositions[currentWord];
-        const wordEnd = wordStart + word.length;
-        
-        if (i >= wordStart && i < wordEnd) {
-          char = message[i];
-        } else {
-          char = ' ';
-        }
-      } else {
-        char = message[i];
-      }
-      
-      ctx.fillStyle = i % 2 === 0 ? '#10b981' : '#764ba2';
-      ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-      
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-        
-        if (messageMode) {
-          const maxDrop = Math.max(...drops);
-          if (maxDrop * fontSize > canvas.height + fontSize * 5) {
-            currentWord++;
-            if (currentWord >= words.length) {
-              // End message mode
-              messageMode = false;
-              currentWord = 0;
-              for (let j = 0; j < message.length; j++) drops[j] = Math.random() * -100;
-              clearInterval(matrixInterval);
-              currentSpeed = 50;
-              matrixInterval = setInterval(draw, currentSpeed);
-            } else {
-              // Next word
-              for (let j = 0; j < message.length; j++) drops[j] = 0;
-            }
-          }
-        }
-      }
-      
-      drops[i]++;
-    }
-  }
-  
-  matrixInterval = setInterval(draw, currentSpeed);
+function startMatrix(){
+const canvas=els.matrixCanvas,ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const msg='CREATED BY RUDEBOY';
+const fontSize=Math.ceil(canvas.width/msg.length);
+const drops=[];
+const dropSpeeds=[];
+
+for(let i=0;i<msg.length;i++){
+drops[i]=Math.random()*-100;
+dropSpeeds[i]=0.5+Math.random()*1.5;
+}
+
+let messageMode=false;
+let activeWords=[]; // Track which words are actively falling
+const words=['CREATED','BY','RUDEBOY'];
+const wordStartPositions=[0,8,11];
+const wordLengths=[7,2,7];
+let messageTimer=0;
+const MESSAGE_INTERVAL=12000;
+let currentSpeed=50;
+
+function draw(){
+if(messageMode){
+ctx.fillStyle='rgba(0,0,0,0.05)';
+}else{
+ctx.fillStyle='rgba(0,0,0,0.25)';
+}
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.font=fontSize+'px monospace';
+
+if(!messageMode){
+messageTimer+=currentSpeed;
+if(messageTimer>=MESSAGE_INTERVAL){
+messageMode=true;
+activeWords=[0]; // Start with CREATED
+messageTimer=0;
+for(let i=0;i<msg.length;i++){
+drops[i]=-100; // Start all off-screen
+dropSpeeds[i]=1;
+}
+// Only CREATED columns start at 0
+for(let i=0;i<7;i++){
+drops[i]=0;
+}
+clearInterval(matrixInterval);
+currentSpeed=75;
+matrixInterval=setInterval(draw,currentSpeed);
+}
+}
+
+for(let i=0;i<msg.length;i++){
+let char;
+if(messageMode){
+// Check if this column belongs to any active word
+let shouldShow=false;
+for(let w of activeWords){
+const wordStart=wordStartPositions[w];
+const wordEnd=wordStart+wordLengths[w];
+if(i>=wordStart&&i<wordEnd){
+char=msg[i];
+shouldShow=true;
+break;
+}
+}
+if(!shouldShow){
+char=' ';
+}
+}else{
+char=msg[i];
+}
+
+ctx.fillStyle=i%2===0?'#10b981':'#764ba2';
+ctx.fillText(char,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height&&Math.random()>0.975){
+drops[i]=Math.random()*-100;
+if(!messageMode){
+dropSpeeds[i]=0.5+Math.random()*1.5;
+}
+}
+
+drops[i]+=dropSpeeds[i];
+}
+
+// Check for cascading trigger during message mode (OUTSIDE the loop)
+if(messageMode){
+// Check if CREATED is halfway down to trigger BY
+if(activeWords.length===1&&activeWords[0]===0){
+const createdMaxDrop=Math.max(...drops.slice(0,7));
+if(createdMaxDrop*fontSize>canvas.height/2){
+activeWords.push(1); // Add BY
+for(let j=8;j<10;j++){
+drops[j]=0;
+}
+}
+}
+// Check if BY is halfway down to trigger RUDEBOY
+if(activeWords.length===2&&activeWords[1]===1){
+const byMaxDrop=Math.max(...drops.slice(8,10));
+if(byMaxDrop*fontSize>canvas.height/2){
+activeWords.push(2); // Add RUDEBOY
+for(let j=11;j<18;j++){
+drops[j]=0;
+}
+}
+}
+// Check if RUDEBOY (last word) finished falling
+if(activeWords.length===3){
+const rudeboyMaxDrop=Math.max(...drops.slice(11,18)); // Only check RUDEBOY columns
+if(rudeboyMaxDrop*fontSize>canvas.height+fontSize*5){
+// End message mode
+messageMode=false;
+activeWords=[];
+for(let j=0;j<msg.length;j++){
+drops[j]=Math.random()*-100;
+dropSpeeds[j]=0.5+Math.random()*1.5;
+}
+clearInterval(matrixInterval);
+currentSpeed=50;
+matrixInterval=setInterval(draw,currentSpeed);
+}
+}
+}
+}
+matrixInterval=setInterval(draw,currentSpeed);
 }
 
 /**
