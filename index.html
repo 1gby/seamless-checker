@@ -1,4 +1,4 @@
-<!-- Rudeboy Pattern Checker - PIMP v1.3 (Production Build with Weather) -->
+<!-- Rudeboy Pattern Checker - PIMP v1.4 (Production Build) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,7 +91,7 @@ body{
   pointer-events:none;
 }
 
-/* Button Base Style */
+/* Button Base Style with Liquid Glass */
 .upload-btn,.export-btn-header,.sample-btn{
   padding:0.85rem 1rem;
   min-height:52px;
@@ -109,59 +109,77 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  position:relative;
+  overflow:hidden;
+}
+
+.upload-btn::before,.export-btn-header::before,.sample-btn::before{
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%);
+  opacity:0;
+  transition:opacity 0.3s;
+}
+
+.upload-btn:hover::before,.export-btn-header:hover::before,.sample-btn:hover::before{
+  opacity:1;
 }
 
 /* Upload Button - Purple Glow */
 .upload-btn{
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .upload-btn:hover{
   transform:translateY(-2px);
-  background:rgba(255,255,255,0.12);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  background:rgba(255,255,255,0.15);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .upload-btn:active{
   transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 /* Sample Button - Green Glow */
 .sample-btn{
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .sample-btn:hover{
   transform:translateY(-2px);
-  background:rgba(255,255,255,0.12);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  background:rgba(255,255,255,0.15);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .sample-btn:active{
   transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 /* Export Button - Purple Glow */
 .export-btn-header{
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .export-btn-header:hover{
   transform:translateY(-2px);
-  background:rgba(255,255,255,0.12);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  background:rgba(255,255,255,0.15);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .export-btn-header:active{
   transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 .export-btn-header:disabled{
   opacity:0.4;
   cursor:not-allowed;
   transform:none;
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 /* ==================== CANVAS AREA ==================== */
@@ -267,11 +285,11 @@ select,button{
   padding:0.75rem 1rem;
   font-size:0.95rem;
   border-radius:16px;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
   color:#eee;
   cursor:pointer;
   transition:all 0.3s;
@@ -279,99 +297,99 @@ select,button{
   width:100%;
 }
 select:hover,button:hover{
-  background:rgba(255,255,255,0.12);
-  border-color:rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.25);
 }
 select:focus,button:focus{
   outline:none;
   border-color:rgba(102,126,234,0.5);
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 select:active,button:active{transform:translateY(0)}
 
-/* ==================== MASTER DROPDOWN (Purple) ==================== */
+/* ==================== MASTER DROPDOWN (Purple Liquid Glass) ==================== */
 #masterDropdown{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #masterDropdown:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #masterDropdown:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
-/* ==================== DISPLAY DROPDOWNS (Purple & Green) ==================== */
+/* ==================== DISPLAY DROPDOWNS (Purple & Green Liquid Glass) ==================== */
 #canvasQuality,#viewMode{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #canvasQuality:hover,#viewMode:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #canvasQuality:active,#viewMode:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 #repeatType,#bgColor{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #repeatType:hover,#bgColor:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #repeatType:active,#bgColor:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 /* ==================== STORES DROPDOWN (Purple) ==================== */
 #countryStores{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #countryStores:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 #countryStores:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
-/* ==================== SLIDER DROPDOWNS ==================== */
+/* ==================== SLIDER DROPDOWNS (Liquid Glass) ==================== */
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,
 .slider-dropdown[data-slider="scale"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,
 .slider-dropdown[data-slider="zoom"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown-header:hover{
-  background:rgba(255,255,255,0.12);
-  border-color:rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.25);
 }
 
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:hover,
 .slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:hover,
 .slider-dropdown[data-slider="zoom"] .slider-dropdown-header:hover,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:active,
 .slider-dropdown[data-slider="scale"] .slider-dropdown-header:active,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:active,
 .slider-dropdown[data-slider="zoom"] .slider-dropdown-header:active,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 /* ==================== CONTROLS SECTIONS ==================== */
@@ -397,11 +415,11 @@ select:active,button:active{transform:translateY(0)}
   padding:0.75rem 1rem;
   font-size:0.95rem;
   border-radius:16px;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
   color:#eee;
   cursor:pointer;
   transition:all 0.3s;
@@ -424,70 +442,77 @@ select:active,button:active{transform:translateY(0)}
   flex-direction:column;
   gap:0.75rem;
   padding:1.2rem 1.5rem;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   border-radius:16px;
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
   position:relative;
 }
 
 .slider-wrapper{position:relative}
 
-/* ==================== RANGE SLIDER ==================== */
+/* ==================== LIQUID GLASS RANGE SLIDER ==================== */
 input[type="range"]{
   width:100%;
-  height:6px;
+  height:8px;
   border-radius:20px;
-  background:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
-  border:none;
+  background:linear-gradient(90deg,rgba(102,126,234,0.3) 0%,rgba(118,75,162,0.3) 100%);
+  border:1px solid rgba(255,255,255,0.1);
   outline:none;
   -webkit-appearance:none;
   transition:all 0.3s;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* Liquid Glass Slider Thumb - WebKit */
 input[type="range"]::-webkit-slider-thumb{
   -webkit-appearance:none;
-  width:32px;
-  height:32px;
+  width:36px;
+  height:36px;
   border-radius:50%;
-  background:rgba(255,255,255,0.9);
+  background:rgba(255,255,255,0.95);
   cursor:pointer;
   border:2px solid rgba(255,255,255,1);
-  box-shadow:0 4px 12px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,255,255,0.5);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 12px rgba(102,126,234,0.6),inset 0 2px 4px rgba(255,255,255,0.6),inset 0 -2px 4px rgba(0,0,0,0.1);
   transition:all 0.3s;
+  backdrop-filter:blur(10px) saturate(180%);
+  -webkit-backdrop-filter:blur(10px) saturate(180%);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover{
-  transform:scale(1.1);
-  box-shadow:0 6px 16px rgba(0,0,0,0.5),inset 0 1px 2px rgba(255,255,255,0.6);
+  transform:scale(1.15);
+  box-shadow:0 6px 20px rgba(0,0,0,0.5),0 0 16px rgba(102,126,234,0.8),inset 0 2px 6px rgba(255,255,255,0.7),inset 0 -2px 6px rgba(0,0,0,0.15);
+  background:rgba(255,255,255,1);
 }
 
 input[type="range"]::-webkit-slider-thumb:active{
-  transform:scale(0.95);
-  box-shadow:0 2px 8px rgba(0,0,0,0.6),inset 0 1px 2px rgba(255,255,255,0.4);
+  transform:scale(1.05);
+  box-shadow:0 2px 10px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,1),inset 0 2px 4px rgba(255,255,255,0.5),inset 0 -2px 4px rgba(0,0,0,0.2);
 }
 
+/* Liquid Glass Slider Thumb - Firefox */
 input[type="range"]::-moz-range-thumb{
-  width:32px;
-  height:32px;
+  width:36px;
+  height:36px;
   border-radius:50%;
-  background:rgba(255,255,255,0.9);
+  background:rgba(255,255,255,0.95);
   cursor:pointer;
   border:2px solid rgba(255,255,255,1);
-  box-shadow:0 4px 12px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,255,255,0.5);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 12px rgba(102,126,234,0.6),inset 0 2px 4px rgba(255,255,255,0.6),inset 0 -2px 4px rgba(0,0,0,0.1);
   transition:all 0.3s;
 }
 
 input[type="range"]::-moz-range-thumb:hover{
-  transform:scale(1.1);
-  box-shadow:0 6px 16px rgba(0,0,0,0.5),inset 0 1px 2px rgba(255,255,255,0.6);
+  transform:scale(1.15);
+  box-shadow:0 6px 20px rgba(0,0,0,0.5),0 0 16px rgba(102,126,234,0.8),inset 0 2px 6px rgba(255,255,255,0.7),inset 0 -2px 6px rgba(0,0,0,0.15);
+  background:rgba(255,255,255,1);
 }
 
 input[type="range"]::-moz-range-thumb:active{
-  transform:scale(0.95);
-  box-shadow:0 2px 8px rgba(0,0,0,0.6),inset 0 1px 2px rgba(255,255,255,0.4);
+  transform:scale(1.05);
+  box-shadow:0 2px 10px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,1),inset 0 2px 4px rgba(255,255,255,0.5),inset 0 -2px 4px rgba(0,0,0,0.2);
 }
 
 .slider-value{
@@ -498,37 +523,39 @@ input[type="range"]::-moz-range-thumb:active{
   text-align:right;
 }
 
-/* ==================== WEATHER WIDGET ==================== */
+/* ==================== WEATHER WIDGET (Sleek & Compact) ==================== */
 .weather-widget{
-  text-align:center;
-  padding:1rem;
-  margin-bottom:1rem;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
   display:none;
-}
-.weather-widget.visible{display:block}
-.weather-widget.loading{opacity:0.6}
-
-.weather-main{
-  display:flex;
   align-items:center;
   justify-content:center;
   gap:1rem;
-  margin-bottom:0.5rem;
+  padding:0.75rem 1.5rem;
+  margin-bottom:1rem;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  font-size:0.9rem;
+  animation:weather-glow 4s ease-in-out infinite;
 }
 
+@keyframes weather-glow{
+  0%,100%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+  50%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+}
+
+.weather-widget.visible{display:flex}
+.weather-widget.loading{opacity:0.6}
+
 .weather-icon{
-  font-size:3rem;
+  font-size:1.8rem;
   line-height:1;
 }
 
 .weather-temp{
-  font-size:2.5rem;
+  font-size:1.5rem;
   font-weight:700;
   background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
   -webkit-background-clip:text;
@@ -536,10 +563,20 @@ input[type="range"]::-moz-range-thumb:active{
   background-clip:text;
 }
 
+.weather-time{
+  font-size:1rem;
+  font-weight:600;
+  color:#10b981;
+}
+
+.weather-divider{
+  color:rgba(255,255,255,0.3);
+  font-weight:300;
+}
+
 .weather-condition{
-  font-size:1.1rem;
+  font-size:0.95rem;
   color:#aaa;
-  margin-bottom:0.25rem;
 }
 
 .weather-location{
@@ -578,13 +615,13 @@ input[type="range"]::-moz-range-thumb:active{
   color:#888;
   font-size:0.9rem;
   display:none;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   border-radius:12px;
   margin-top:1rem;
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
 }
 .pattern-info.visible{display:block}
 
@@ -652,11 +689,16 @@ input[type="range"]::-moz-range-thumb:active{
   .title{font-size:1.2rem}
   #canvas-wrapper{padding:1rem}
   #controls{padding:1.5rem 1rem}
-  .weather-main{flex-direction:column;gap:0.5rem}
-  .weather-temp{font-size:2rem}
+  .weather-widget{
+    flex-wrap:wrap;
+    gap:0.5rem;
+    font-size:0.85rem;
+  }
+  .weather-temp{font-size:1.3rem}
+  .weather-icon{font-size:1.5rem}
 }
 </style>
-<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.3</title>
+<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.4</title>
 </head>
 <body>
 
@@ -678,6 +720,9 @@ input[type="range"]::-moz-range-thumb:active{
           <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Seamless.png">Seamless</option>
           <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Mushrooms.png">Mushrooms</option>
           <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/JoltCola.png">Jolt Cola</option>
+          <option value="SAMPLE_4">Sample 4</option>
+          <option value="SAMPLE_5">Sample 5</option>
+          <option value="SAMPLE_6">Sample 6</option>
         </select>
       </div>
       <button class="export-btn-header" id="exportBtnHeader" disabled>📤 Share</button>
@@ -698,10 +743,10 @@ input[type="range"]::-moz-range-thumb:active{
     <div class="master-dropdown-wrapper">
       <select id="masterDropdown">
         <option value="">Settings</option>
-        <option value="stores">Stores</option>
-        <option value="mockups">Mockups</option>
-        <option value="controls">Controls</option>
         <option value="display">Display</option>
+        <option value="controls">Controls</option>
+        <option value="mockups">Mockups</option>
+        <option value="stores">Stores</option>
       </select>
     </div>
 
@@ -870,12 +915,14 @@ input[type="range"]::-moz-range-thumb:active{
   <div id="footer">
     <div class="footer-content">
       <div class="weather-widget" id="weatherWidget">
-        <div class="weather-main">
-          <div class="weather-icon" id="weatherIcon">🌤️</div>
-          <div class="weather-temp" id="weatherTemp">--°</div>
-        </div>
-        <div class="weather-condition" id="weatherCondition">Loading weather...</div>
-        <div class="weather-location" id="weatherLocation">--</div>
+        <span class="weather-icon" id="weatherIcon">🌤️</span>
+        <span class="weather-temp" id="weatherTemp">--°</span>
+        <span class="weather-divider">|</span>
+        <span class="weather-time" id="weatherTime">--:--</span>
+        <span class="weather-divider">|</span>
+        <span class="weather-condition" id="weatherCondition">Loading...</span>
+        <span class="weather-divider">|</span>
+        <span class="weather-location" id="weatherLocation">--</span>
       </div>
       
       <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
@@ -966,6 +1013,7 @@ const els = {
   weatherWidget: getEl('weatherWidget'),
   weatherIcon: getEl('weatherIcon'),
   weatherTemp: getEl('weatherTemp'),
+  weatherTime: getEl('weatherTime'),
   weatherCondition: getEl('weatherCondition'),
   weatherLocation: getEl('weatherLocation')
 };
@@ -1022,7 +1070,13 @@ const playlist = [
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3',
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3',
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3',
+  'TRACK_10.mp3',
+  'TRACK_11.mp3',
+  'TRACK_12.mp3',
+  'TRACK_13.mp3',
+  'TRACK_14.mp3',
+  'TRACK_15.mp3'
 ];
 
 let shuffledPlaylist = [...playlist];
@@ -1037,12 +1091,25 @@ function shuffleArray(array) {
 
 shuffleArray(shuffledPlaylist);
 
+function updateTime() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+  els.weatherTime.textContent = `${displayHours}:${displayMinutes} ${ampm}`;
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+
 async function getWeather() {
   els.weatherWidget.classList.add('visible');
   els.weatherWidget.classList.add('loading');
   
   if (!navigator.geolocation) {
-    els.weatherCondition.textContent = 'Geolocation not supported';
+    els.weatherCondition.textContent = 'Location unavailable';
     els.weatherWidget.classList.remove('loading');
     return;
   }
@@ -1061,16 +1128,16 @@ async function getWeather() {
       }
     } catch (error) {
       console.error('Weather fetch error:', error);
-      els.weatherCondition.textContent = 'Unable to load weather';
+      els.weatherCondition.textContent = 'Weather unavailable';
       els.weatherIcon.textContent = '🌐';
-      els.weatherLocation.textContent = 'Location services unavailable';
+      els.weatherLocation.textContent = 'Service unavailable';
       els.weatherWidget.classList.remove('loading');
     }
   }, (error) => {
     console.error('Geolocation error:', error);
-    els.weatherCondition.textContent = 'Location access denied';
+    els.weatherCondition.textContent = 'Location denied';
     els.weatherIcon.textContent = '📍';
-    els.weatherLocation.textContent = 'Enable location services';
+    els.weatherLocation.textContent = 'Enable location';
     els.weatherWidget.classList.remove('loading');
   });
 }
@@ -1104,7 +1171,7 @@ function getWeatherIconFromCode(code) {
 }
 
 function getWeatherCondition(code) {
-  if (code === 0) return 'Clear sky';
+  if (code === 0) return 'Clear';
   if (code === 1) return 'Mainly clear';
   if (code === 2) return 'Partly cloudy';
   if (code === 3) return 'Overcast';
@@ -1119,6 +1186,18 @@ function getWeatherCondition(code) {
 }
 
 getWeather();
+
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+if (isIOS) {
+  const masterDropdown = els.masterDropdown;
+  const options = Array.from(masterDropdown.options);
+  const firstOption = options.shift();
+  options.reverse();
+  masterDropdown.innerHTML = '';
+  masterDropdown.appendChild(firstOption);
+  options.forEach(opt => masterDropdown.appendChild(opt));
+}
 
 els.masterDropdown.addEventListener('change', (e) => {
   [els.displaySection, els.controlsSection, els.mockupsSection, els.storesSection]
@@ -1170,8 +1249,17 @@ function playRandomTrack() {
     currentTrackIndex = 0;
   }
   
-  els.audio.src = shuffledPlaylist[currentTrackIndex];
+  const trackUrl = shuffledPlaylist[currentTrackIndex];
   currentTrackIndex++;
+  
+  if (trackUrl.includes('TRACK_')) {
+    if (matrixActive) {
+      playRandomTrack();
+    }
+    return;
+  }
+  
+  els.audio.src = trackUrl;
   els.audio.volume = 0;
   els.audio.loop = false;
   
@@ -1185,7 +1273,12 @@ function playRandomTrack() {
         clearInterval(fadeIn);
       }
     }, 100);
-  }).catch(err => console.log('Audio play failed:', err));
+  }).catch(err => {
+    console.log('Audio play failed:', err);
+    if (matrixActive) {
+      playRandomTrack();
+    }
+  });
 }
 
 els.audio.addEventListener('ended', () => {
@@ -1441,6 +1534,12 @@ els.uploadBtn.addEventListener('click', () => els.fileInput.click());
 els.sampleSelect.addEventListener('change', (e) => {
   const url = e.target.value;
   if (!url) return;
+  
+  if (url.startsWith('SAMPLE_')) {
+    alert('Please add your sample image URL!');
+    e.target.value = '';
+    return;
+  }
   
   showLoading(false);
   const img = new Image();
