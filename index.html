@@ -1,3 +1,4 @@
+<!-- Rudeboy Pattern Checker - PIMP v1.3 (Production Build with Weather) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,383 +8,1927 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
+/* ==================== GLOBAL RESET ==================== */
 :root{color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;background:#000}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);color:#eee;min-height:100vh;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+
+/* ==================== BODY & CONTAINER ==================== */
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);
+  color:#eee;
+  min-height:100vh;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+}
 #container{display:flex;flex-direction:column;min-height:100vh}
-#header{padding:1.5rem 2rem;background:rgba(0,0,0,0.6);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+
+/* ==================== HEADER ==================== */
+#header{
+  padding:1.5rem 2rem;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:2rem;
+  flex-wrap:wrap;
+}
+
 .logo-section{display:flex;align-items:center;gap:1.5rem}
-#logo{height:42px;width:auto;cursor:pointer;transition:transform 0.3s,filter 0.3s;filter:drop-shadow(0 0 0px rgba(16,185,129,0));animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}}
+
+/* Logo Animation */
+#logo{
+  height:42px;
+  width:auto;
+  cursor:pointer;
+  transition:transform 0.3s,filter 0.3s;
+  filter:drop-shadow(0 0 0px rgba(16,185,129,0));
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+  50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}
+}
 #logo:hover{transform:scale(1.05)}
 #logo:active{animation:glow-pulse 0.4s ease-out;transform:scale(0.98)}
-@keyframes glow-pulse{0%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}50%{filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8))}100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}}
-.title{font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0}
-.header-buttons{display:flex;align-items:center;gap:0.75rem;flex-wrap:nowrap;justify-content:center;width:100%;max-width:600px}
+@keyframes glow-pulse{
+  0%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+  50%{filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8))}
+  100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+}
+
+.title{
+  font-size:1.5rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin:0;
+}
+
+/* ==================== HEADER BUTTONS ==================== */
+.header-buttons{
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+  flex-wrap:nowrap;
+  justify-content:center;
+  width:100%;
+  max-width:600px;
+}
+
 .file-input-wrapper{position:relative;display:flex;flex:1}
-.file-input-wrapper input[type=file]{position:absolute;left:-9999px;opacity:0;pointer-events:none}
-.upload-btn,.export-btn-header,.sample-btn{padding:0.85rem 1rem;min-height:52px;color:white;border:none;border-radius:16px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;white-space:nowrap;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.12);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:1px solid rgba(255,255,255,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 3px 6px rgba(255,255,255,0.3),inset 0 -3px 6px rgba(0,0,0,0.3);position:relative}
-.upload-btn::before,.sample-btn::before,.export-btn-header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,0.2) 0%,rgba(255,255,255,0) 50%,rgba(0,0,0,0.1) 100%);pointer-events:none}
-.upload-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 3px 6px rgba(255,255,255,0.3),inset 0 -3px 6px rgba(0,0,0,0.3)}
-.upload-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 4px 8px rgba(255,255,255,0.4),inset 0 -4px 8px rgba(0,0,0,0.35)}
-.upload-btn:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 4px rgba(255,255,255,0.25),inset 0 -2px 4px rgba(0,0,0,0.4)}
-.sample-btn{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 3px 6px rgba(255,255,255,0.3),inset 0 -3px 6px rgba(0,0,0,0.3)}
-.sample-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(16,185,129,0.8),inset 0 4px 8px rgba(255,255,255,0.4),inset 0 -4px 8px rgba(0,0,0,0.35)}
-.sample-btn:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 4px rgba(255,255,255,0.25),inset 0 -2px 4px rgba(0,0,0,0.4)}
-.export-btn-header{box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 3px 6px rgba(255,255,255,0.3),inset 0 -3px 6px rgba(0,0,0,0.3)}
-.export-btn-header:hover{transform:translateY(-2px);background:rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 4px 8px rgba(255,255,255,0.4),inset 0 -4px 8px rgba(0,0,0,0.35)}
-.export-btn-header:active{transform:translateY(0);box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 4px rgba(255,255,255,0.25),inset 0 -2px 4px rgba(0,0,0,0.4)}
-.export-btn-header:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#canvas-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative}
-#canvas{max-width:1200px;width:100%;aspect-ratio:1;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.015);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06)}
+.file-input-wrapper input[type=file]{
+  position:absolute;
+  left:-9999px;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* Button Base Style */
+.upload-btn,.export-btn-header,.sample-btn{
+  padding:0.85rem 1rem;
+  min-height:52px;
+  color:white;
+  border:none;
+  border-radius:16px;
+  font-size:0.9rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+  width:100%;
+  white-space:nowrap;
+  text-align:center;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+/* Upload Button - Purple Glow */
+.upload-btn{
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.upload-btn:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.12);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.upload-btn:active{
+  transform:translateY(0);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* Sample Button - Green Glow */
+.sample-btn{
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.sample-btn:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.12);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.sample-btn:active{
+  transform:translateY(0);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* Export Button - Purple Glow */
+.export-btn-header{
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.export-btn-header:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.12);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.export-btn-header:active{
+  transform:translateY(0);
+  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+.export-btn-header:disabled{
+  opacity:0.4;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+/* ==================== CANVAS AREA ==================== */
+#canvas-wrapper{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2rem;
+  position:relative;
+}
+
+#canvas{
+  max-width:1200px;
+  width:100%;
+  aspect-ratio:1;
+  border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  cursor:pointer;
+  transition:all 0.3s;
+  background:rgba(255,255,255,0.015);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.06);
+}
 #canvas.has-image{cursor:grab}
 #canvas.has-image:active{cursor:grabbing}
 #canvas:hover{box-shadow:0 25px 70px rgba(0,0,0,0.6)}
-.empty-state{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;opacity:0;transition:opacity 0.3s}
+
+/* Empty State */
+.empty-state{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.3s;
+}
 .empty-state.visible{opacity:1}
 .empty-state-icon{font-size:4rem;margin-bottom:1rem;opacity:0.6}
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
-.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);display:none;align-items:center;justify-content:center;z-index:10000;opacity:0;transition:opacity 0.3s}
+
+/* ==================== LOADING OVERLAY ==================== */
+.loading-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+  opacity:0;
+  transition:opacity 0.3s;
+}
 .loading-overlay.visible{display:flex;opacity:1}
-.loading-logo{width:120px;height:120px;opacity:0.8;animation:spin-glow 3s linear infinite}
-@keyframes spin-glow{0%{transform:rotate(0deg);filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8))}50%{transform:rotate(360deg);filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8))}51%{filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8))}100%{transform:rotate(720deg);filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8))}}
-#controls{padding:2rem;background:rgba(0,0,0,0.6);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-top:1px solid rgba(255,255,255,0.1);box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05)}
+
+.loading-logo{
+  width:120px;
+  height:120px;
+  opacity:0.8;
+  animation:spin-glow 3s linear infinite;
+}
+@keyframes spin-glow{
+  0%{
+    transform:rotate(0deg);
+    filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+  }
+  50%{
+    transform:rotate(360deg);
+    filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+  }
+  51%{
+    filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+  }
+  100%{
+    transform:rotate(720deg);
+    filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+  }
+}
+
+/* ==================== CONTROLS SECTION ==================== */
+#controls{
+  padding:2rem;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-top:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
-select,button{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;font-family:inherit;width:100%}
-select:hover,button:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2)}
-select:focus,button:focus{outline:none;border-color:rgba(102,126,234,0.5);box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
+
+/* ==================== SELECT & BUTTON BASE STYLES ==================== */
+select,button{
+  padding:0.75rem 1rem;
+  font-size:0.95rem;
+  border-radius:16px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  cursor:pointer;
+  transition:all 0.3s;
+  font-family:inherit;
+  width:100%;
+}
+select:hover,button:hover{
+  background:rgba(255,255,255,0.12);
+  border-color:rgba(255,255,255,0.2);
+}
+select:focus,button:focus{
+  outline:none;
+  border-color:rgba(102,126,234,0.5);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
 select:active,button:active{transform:translateY(0)}
-#masterDropdown{background:rgba(255,255,255,0.12);backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);border:1px solid rgba(255,255,255,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 3px 6px rgba(255,255,255,0.3),inset 0 -3px 6px rgba(0,0,0,0.3);position:relative}
-#masterDropdown::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,0.2) 0%,rgba(255,255,255,0) 50%,rgba(0,0,0,0.1) 100%);pointer-events:none}
-#masterDropdown:hover{background:rgba(255,255,255,0.15);box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 4px 8px rgba(255,255,255,0.4),inset 0 -4px 8px rgba(0,0,0,0.35)}
-#masterDropdown:active{box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 4px rgba(255,255,255,0.25),inset 0 -2px 4px rgba(0,0,0,0.4)}
-#canvasQuality,#viewMode{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#canvasQuality:hover,#viewMode:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#canvasQuality:active,#viewMode:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-#repeatType,#bgColor{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#repeatType:hover,#bgColor:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#repeatType:active,#bgColor:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-#countryStores{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#countryStores:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-#countryStores:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,.slider-dropdown[data-slider="scale"] .slider-dropdown-header,.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,.slider-dropdown[data-slider="zoom"] .slider-dropdown-header,.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.slider-dropdown-header:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.2)}
-.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:hover,.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:hover{box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2)}
-.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:active,.slider-dropdown[data-slider="scale"] .slider-dropdown-header:active,.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:active,.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:active,.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:active{box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25)}
-.controls-section{display:none;transition:all 0.3s;margin-top:1.5rem}
+
+/* ==================== MASTER DROPDOWN (Purple) ==================== */
+#masterDropdown{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#masterDropdown:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#masterDropdown:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* ==================== DISPLAY DROPDOWNS (Purple & Green) ==================== */
+#canvasQuality,#viewMode{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#canvasQuality:hover,#viewMode:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#canvasQuality:active,#viewMode:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+#repeatType,#bgColor{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#repeatType:hover,#bgColor:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#repeatType:active,#bgColor:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* ==================== STORES DROPDOWN (Purple) ==================== */
+#countryStores{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#countryStores:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+#countryStores:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* ==================== SLIDER DROPDOWNS ==================== */
+.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header,
+.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,
+.slider-dropdown[data-slider="zoom"] .slider-dropdown-header,
+.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.slider-dropdown-header:hover{
+  background:rgba(255,255,255,0.12);
+  border-color:rgba(255,255,255,0.2);
+}
+
+.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:hover,
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover,
+.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:hover,
+.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:hover,
+.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:active,
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header:active,
+.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:active,
+.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:active,
+.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* ==================== CONTROLS SECTIONS ==================== */
+.controls-section{
+  display:none;
+  transition:all 0.3s;
+  margin-top:1.5rem;
+}
 .controls-section.active{display:block}
-.settings-dropdowns,.sliders-container{display:flex;flex-direction:column;gap:1rem;max-width:360px;margin:0 auto}
+
+.settings-dropdowns,.sliders-container{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  max-width:360px;
+  margin:0 auto;
+}
+
+/* ==================== SLIDER COMPONENTS ==================== */
 .slider-dropdown{margin-bottom:0}
-.slider-dropdown-header{padding:0.75rem 1rem;font-size:0.95rem;border-radius:16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);color:#eee;cursor:pointer;transition:all 0.3s;display:flex;justify-content:space-between;align-items:center;user-select:none}
-.slider-dropdown-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease;margin-top:0.5rem}
+
+.slider-dropdown-header{
+  padding:0.75rem 1rem;
+  font-size:0.95rem;
+  border-radius:16px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  cursor:pointer;
+  transition:all 0.3s;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  user-select:none;
+}
+
+.slider-dropdown-content{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.3s ease;
+  margin-top:0.5rem;
+}
 .slider-dropdown.open .slider-dropdown-content{max-height:200px}
-.slider-group{display:flex;flex-direction:column;gap:0.75rem;padding:1.2rem 1.5rem;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-radius:16px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);position:relative}
+
+.slider-group{
+  display:flex;
+  flex-direction:column;
+  gap:0.75rem;
+  padding:1.2rem 1.5rem;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  position:relative;
+}
+
 .slider-wrapper{position:relative}
-input[type="range"]{width:100%;height:6px;border-radius:20px;background:linear-gradient(90deg,#667eea 0%,#764ba2 100%);border:none;outline:none;-webkit-appearance:none;transition:all 0.3s}
-input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:52px;height:32px;border-radius:100px;background:rgba(255,255,255,0.15);backdrop-filter:blur(20px) saturate(200%);-webkit-backdrop-filter:blur(20px) saturate(200%);cursor:pointer;border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 3px 6px rgba(255,255,255,0.4),inset 0 -3px 6px rgba(0,0,0,0.3);transition:all 0.3s;position:relative}
-input[type="range"]::-webkit-slider-thumb::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:100px;background:linear-gradient(135deg,rgba(255,255,255,0.3) 0%,rgba(255,255,255,0) 50%,rgba(0,0,0,0.2) 100%);pointer-events:none}
-input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.08);background:rgba(255,255,255,0.2);box-shadow:0 12px 40px rgba(0,0,0,0.5),inset 0 4px 8px rgba(255,255,255,0.5),inset 0 -4px 8px rgba(0,0,0,0.35)}
-input[type="range"]::-webkit-slider-thumb:active{transform:scale(0.95);background:rgba(255,255,255,0.25);box-shadow:0 4px 16px rgba(0,0,0,0.6),inset 0 2px 4px rgba(255,255,255,0.3),inset 0 -2px 4px rgba(0,0,0,0.4)}
-input[type="range"]::-moz-range-thumb{width:52px;height:32px;border-radius:100px;background:rgba(255,255,255,0.15);cursor:pointer;border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 3px 6px rgba(255,255,255,0.4),inset 0 -3px 6px rgba(0,0,0,0.3);transition:all 0.3s}
-input[type="range"]::-moz-range-thumb:hover{transform:scale(1.08);background:rgba(255,255,255,0.2);box-shadow:0 12px 40px rgba(0,0,0,0.5),inset 0 4px 8px rgba(255,255,255,0.5),inset 0 -4px 8px rgba(0,0,0,0.35)}
-input[type="range"]::-moz-range-thumb:active{transform:scale(0.95);background:rgba(255,255,255,0.25);box-shadow:0 4px 16px rgba(0,0,0,0.6),inset 0 2px 4px rgba(255,255,255,0.3),inset 0 -2px 4px rgba(0,0,0,0.4)}
-.slider-value{font-size:0.9rem;font-weight:600;color:#667eea;min-width:45px;text-align:right}
-#footer{padding:2rem;background:rgba(0,0,0,0.5);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-top:1px solid rgba(255,255,255,0.1);box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05)}
+
+/* ==================== RANGE SLIDER ==================== */
+input[type="range"]{
+  width:100%;
+  height:6px;
+  border-radius:20px;
+  background:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+  border:none;
+  outline:none;
+  -webkit-appearance:none;
+  transition:all 0.3s;
+}
+
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.9);
+  cursor:pointer;
+  border:2px solid rgba(255,255,255,1);
+  box-shadow:0 4px 12px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,255,255,0.5);
+  transition:all 0.3s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover{
+  transform:scale(1.1);
+  box-shadow:0 6px 16px rgba(0,0,0,0.5),inset 0 1px 2px rgba(255,255,255,0.6);
+}
+
+input[type="range"]::-webkit-slider-thumb:active{
+  transform:scale(0.95);
+  box-shadow:0 2px 8px rgba(0,0,0,0.6),inset 0 1px 2px rgba(255,255,255,0.4);
+}
+
+input[type="range"]::-moz-range-thumb{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.9);
+  cursor:pointer;
+  border:2px solid rgba(255,255,255,1);
+  box-shadow:0 4px 12px rgba(0,0,0,0.4),inset 0 1px 2px rgba(255,255,255,0.5);
+  transition:all 0.3s;
+}
+
+input[type="range"]::-moz-range-thumb:hover{
+  transform:scale(1.1);
+  box-shadow:0 6px 16px rgba(0,0,0,0.5),inset 0 1px 2px rgba(255,255,255,0.6);
+}
+
+input[type="range"]::-moz-range-thumb:active{
+  transform:scale(0.95);
+  box-shadow:0 2px 8px rgba(0,0,0,0.6),inset 0 1px 2px rgba(255,255,255,0.4);
+}
+
+.slider-value{
+  font-size:0.9rem;
+  font-weight:600;
+  color:#667eea;
+  min-width:45px;
+  text-align:right;
+}
+
+/* ==================== WEATHER WIDGET ==================== */
+.weather-widget{
+  text-align:center;
+  padding:1rem;
+  margin-bottom:1rem;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.2),inset 0 -2px 0 rgba(0,0,0,0.2);
+  display:none;
+}
+.weather-widget.visible{display:block}
+.weather-widget.loading{opacity:0.6}
+
+.weather-main{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+  margin-bottom:0.5rem;
+}
+
+.weather-icon{
+  font-size:3rem;
+  line-height:1;
+}
+
+.weather-temp{
+  font-size:2.5rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.weather-condition{
+  font-size:1.1rem;
+  color:#aaa;
+  margin-bottom:0.25rem;
+}
+
+.weather-location{
+  font-size:0.9rem;
+  color:#888;
+}
+
+/* ==================== FOOTER ==================== */
+#footer{
+  padding:2rem;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-top:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
 .footer-content{max-width:1200px;margin:0 auto;text-align:center}
-.footer-credit{font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.1rem;cursor:pointer;transition:all 0.3s}
+
+.footer-credit{
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-size:1.1rem;
+  cursor:pointer;
+  transition:all 0.3s;
+}
 .footer-credit:hover{opacity:0.8;transform:scale(1.02)}
-.pattern-info{text-align:center;padding:1rem;color:#888;font-size:0.9rem;display:none;background:rgba(255,255,255,0.08);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-radius:12px;margin-top:1rem;border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2)}
+
+/* ==================== PATTERN INFO ==================== */
+.pattern-info{
+  text-align:center;
+  padding:1rem;
+  color:#888;
+  font-size:0.9rem;
+  display:none;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-radius:12px;
+  margin-top:1rem;
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+}
 .pattern-info.visible{display:block}
-.easter-egg-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);display:none;align-items:center;justify-content:center;z-index:20000;opacity:0;transition:opacity 0.5s;overflow:hidden}
+
+/* ==================== EASTER EGG OVERLAY ==================== */
+.easter-egg-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.95);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:20000;
+  opacity:0;
+  transition:opacity 0.5s;
+  overflow:hidden;
+}
 .easter-egg-overlay.visible{display:flex;opacity:1}
-.easter-egg-logo{width:150px;height:150px;opacity:0;animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s}
-@keyframes spin-in{0%{transform:scale(0) rotate(0deg);opacity:0}100%{transform:scale(1) rotate(720deg);opacity:1}}
-@keyframes egg-glow{0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}}
-.matrix-canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 1s}
+
+.easter-egg-logo{
+  width:150px;
+  height:150px;
+  opacity:0;
+  animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
+}
+
+@keyframes spin-in{
+  0%{transform:scale(0) rotate(0deg);opacity:0}
+  100%{transform:scale(1) rotate(720deg);opacity:1}
+}
+
+@keyframes egg-glow{
+  0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}
+  50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}
+}
+
+.matrix-canvas{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  transition:opacity 1s;
+}
 .matrix-canvas.visible{opacity:1}
-@media(max-width:768px){#header{padding:1rem;flex-direction:column;align-items:stretch}.logo-section{justify-content:center}.header-buttons{gap:0.5rem;padding:0;max-width:100%}.title{font-size:1.2rem}#canvas-wrapper{padding:1rem}#controls{padding:1.5rem 1rem}}
+
+/* ==================== MOBILE RESPONSIVE ==================== */
+@media(max-width:768px){
+  #header{
+    padding:1rem;
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .logo-section{justify-content:center}
+  .header-buttons{
+    gap:0.5rem;
+    padding:0;
+    max-width:100%;
+  }
+  .title{font-size:1.2rem}
+  #canvas-wrapper{padding:1rem}
+  #controls{padding:1.5rem 1rem}
+  .weather-main{flex-direction:column;gap:0.5rem}
+  .weather-temp{font-size:2rem}
+}
 </style>
-<title>Rudeboy™ Pattern Checker - Trick v1.2.0-B</title>
+<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.3</title>
 </head>
 <body>
+
 <div id="container">
-<div id="header">
-<div class="logo-section">
-<img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
-<h1 class="title">Pattern Checker By Rudeboy™</h1>
+  
+  <div id="header">
+    <div class="logo-section">
+      <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
+      <h1 class="title">Pattern Checker By Rudeboy™</h1>
+    </div>
+    <div class="header-buttons">
+      <div class="file-input-wrapper">
+        <input type="file" id="fileInput" accept="image/*">
+        <button class="upload-btn" id="uploadBtnHeader">📁 Upload</button>
+      </div>
+      <div class="file-input-wrapper">
+        <select class="sample-btn" id="sampleSelect">
+          <option value="">Sample</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Seamless.png">Seamless</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Mushrooms.png">Mushrooms</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/JoltCola.png">Jolt Cola</option>
+        </select>
+      </div>
+      <button class="export-btn-header" id="exportBtnHeader" disabled>📤 Share</button>
+    </div>
+  </div>
+
+  <div id="canvas-wrapper">
+    <canvas id="canvas"></canvas>
+    <div class="empty-state visible" id="emptyState">
+      <div class="empty-state-icon">🎨</div>
+      <div class="empty-state-text">Click to upload your pattern</div>
+      <div class="empty-state-subtext">or drag & drop a square tile here</div>
+    </div>
+  </div>
+
+  <div id="controls">
+    
+    <div class="master-dropdown-wrapper">
+      <select id="masterDropdown">
+        <option value="">Settings</option>
+        <option value="stores">Stores</option>
+        <option value="mockups">Mockups</option>
+        <option value="controls">Controls</option>
+        <option value="display">Display</option>
+      </select>
+    </div>
+
+    <div class="controls-section" id="displaySection">
+      <div class="settings-dropdowns">
+        <select id="canvasQuality">
+          <option value="1200">Canvas Quality: Standard (1200px)</option>
+          <option value="1600">Canvas Quality: High (1600px)</option>
+          <option value="2400">Canvas Quality: Ultra (2400px)</option>
+          <option value="3200">Canvas Quality: Max (3200px)</option>
+        </select>
+        <select id="repeatType">
+          <option value="full">Repeat Type: Full Drop</option>
+          <option value="half-drop">Repeat Type: Half Drop</option>
+          <option value="brick">Repeat Type: Brick</option>
+        </select>
+        <select id="viewMode">
+          <option value="tile">View Mode: Infinite Tile</option>
+          <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
+          <option value="phone">View Mode: Phone Case</option>
+          <option value="ipad">View Mode: iPad Case</option>
+          <option value="tote">View Mode: Tote Bag</option>
+          <option value="bandana">View Mode: Bandana</option>
+          <option value="bedspread">View Mode: Bedspread</option>
+          <option value="mug">View Mode: Mug</option>
+          <option value="fabric">View Mode: Fabric Swatch</option>
+          <option value="bottle">View Mode: Water Bottle</option>
+        </select>
+        <select id="bgColor">
+          <option value="checker">Background: Transparent Grid</option>
+          <option value="#000000">Background: Black</option>
+          <option value="#ffffff">Background: White</option>
+          <option value="#1a1a1a">Background: Gray</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="controls-section" id="controlsSection">
+      <div class="sliders-container">
+        
+        <div class="slider-dropdown" data-slider="offsetX">
+          <div class="slider-dropdown-header">
+            <span>Offset X</span>
+            <span class="slider-value" id="offsetXValue">0%</span>
+          </div>
+          <div class="slider-dropdown-content">
+            <div class="slider-group">
+              <div class="slider-wrapper">
+                <input type="range" id="offsetX" min="0" max="100" value="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slider-dropdown" data-slider="offsetY">
+          <div class="slider-dropdown-header">
+            <span>Offset Y</span>
+            <span class="slider-value" id="offsetYValue">0%</span>
+          </div>
+          <div class="slider-dropdown-content">
+            <div class="slider-group">
+              <div class="slider-wrapper">
+                <input type="range" id="offsetY" min="0" max="100" value="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slider-dropdown" data-slider="scale">
+          <div class="slider-dropdown-header">
+            <span>Scale</span>
+            <span class="slider-value" id="scaleValue">1.0×</span>
+          </div>
+          <div class="slider-dropdown-content">
+            <div class="slider-group">
+              <div class="slider-wrapper">
+                <input type="range" id="patternScale" min="0.05" max="5" step="0.01" value="1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slider-dropdown" data-slider="zoom">
+          <div class="slider-dropdown-header">
+            <span>Zoom</span>
+            <span class="slider-value" id="zoomValue">100%</span>
+          </div>
+          <div class="slider-dropdown-content">
+            <div class="slider-group">
+              <div class="slider-wrapper">
+                <input type="range" id="zoomSlider" min="1" max="800" step="1" value="100">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="controls-section" id="mockupsSection">
+      <div class="sliders-container">
+        
+        <div class="slider-dropdown" data-slider="mockupZoom">
+          <div class="slider-dropdown-header">
+            <span>Mockup Zoom</span>
+            <span class="slider-value" id="mockupZoomValue">100%</span>
+          </div>
+          <div class="slider-dropdown-content">
+            <div class="slider-group">
+              <div class="slider-wrapper">
+                <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slider-dropdown" data-slider="mockupRotate">
+          <div class="slider-dropdown-header">
+            <span>Mockup Rotate</span>
+            <span class="slider-value" id="mockupRotateValue">0°</span>
+          </div>
+          <div class="slider-dropdown-content">
+            <div class="slider-group">
+              <div class="slider-wrapper">
+                <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="controls-section" id="storesSection">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <div style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa">Turn your patterns into real products!</div>
+      </div>
+      <div class="settings-dropdowns">
+        <select id="countryStores">
+          <option value="">Select Store</option>
+          <option value="https://www.gelato.com/">Gelato 🇪🇺</option>
+          <option value="https://www.contrado.co.uk/">Contrado 🇪🇺</option>
+          <option value="https://www.saal-digital.com/">Saal Digital 🇪🇺</option>
+          <option value="https://www.photobook-europe.com/">Photobook Europe 🇪🇺</option>
+          <option value="https://www.whitewall.com/">WhiteWall 🇪🇺</option>
+          <option value="https://www.canvaspeople.com/">CanvasPeople 🇺🇸</option>
+          <option value="https://www.canvaschamp.com/">CanvasChamp 🇺🇸</option>
+          <option value="https://www.mpix.com/">Mpix 🇺🇸</option>
+          <option value="https://www.canvaspop.com/">Canvaspop 🇺🇸</option>
+          <option value="https://canvasondemand.com/">Canvas On Demand 🇺🇸</option>
+          <option value="https://www.canvascanada.ca/">CanvasCanada.ca 🇨🇦</option>
+          <option value="https://www.canvaschamp.ca/">CanvasChamp.ca 🇨🇦</option>
+          <option value="https://www.bestcanvas.ca/">BestCanvas.ca 🇨🇦</option>
+          <option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
+          <option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pattern-info" id="patternInfo">
+      <strong>Pattern:</strong> <span id="infoText"></span> <strong>| Canvas:</strong> <span id="canvasInfo">1200px (Standard)</span>
+    </div>
+
+  </div>
+
+  <div id="footer">
+    <div class="footer-content">
+      <div class="weather-widget" id="weatherWidget">
+        <div class="weather-main">
+          <div class="weather-icon" id="weatherIcon">🌤️</div>
+          <div class="weather-temp" id="weatherTemp">--°</div>
+        </div>
+        <div class="weather-condition" id="weatherCondition">Loading weather...</div>
+        <div class="weather-location" id="weatherLocation">--</div>
+      </div>
+      
+      <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
+    </div>
+  </div>
+
 </div>
-<div class="header-buttons">
-<div class="file-input-wrapper">
-<input type="file" id="fileInput" accept="image/*">
-<button class="upload-btn" id="uploadBtnHeader">📁 Upload</button>
-</div>
-<div class="file-input-wrapper">
-<select class="sample-btn" id="sampleSelect">
-<option value="">Sample</option>
-<option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Seamless.png">Seamless</option>
-<option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Mushrooms.png">Mushrooms</option>
-<option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/JoltCola.png">Jolt Cola</option>
-</select>
-</div>
-<button class="export-btn-header" id="exportBtnHeader" disabled>📤 Share</button>
-</div>
-</div>
-<div id="canvas-wrapper">
-<canvas id="canvas"></canvas>
-<div class="empty-state visible" id="emptyState">
-<div class="empty-state-icon">🎨</div>
-<div class="empty-state-text">Click to upload your pattern</div>
-<div class="empty-state-subtext">or drag & drop a square tile here</div>
-</div>
-</div>
-<div id="controls">
-<div class="master-dropdown-wrapper">
-<select id="masterDropdown">
-<option value="">Settings</option>
-<option value="stores">Stores</option>
-<option value="mockups">Mockups</option>
-<option value="controls">Controls</option>
-<option value="display">Display</option>
-</select>
-</div>
-<div class="controls-section" id="displaySection">
-<div class="settings-dropdowns">
-<select id="canvasQuality">
-<option value="1200">Canvas Quality: Standard (1200px)</option>
-<option value="1600">Canvas Quality: High (1600px)</option>
-<option value="2400">Canvas Quality: Ultra (2400px)</option>
-<option value="3200">Canvas Quality: Max (3200px)</option>
-</select>
-<select id="repeatType">
-<option value="full">Repeat Type: Full Drop</option>
-<option value="half-drop">Repeat Type: Half Drop</option>
-<option value="brick">Repeat Type: Brick</option>
-</select>
-<select id="viewMode">
-<option value="tile">View Mode: Infinite Tile</option>
-<option value="tile-grid">View Mode: Infinite Tile + Grid</option>
-<option value="phone">View Mode: Phone Case</option>
-<option value="ipad">View Mode: iPad Case</option>
-<option value="tote">View Mode: Tote Bag</option>
-<option value="bandana">View Mode: Bandana</option>
-<option value="bedspread">View Mode: Bedspread</option>
-<option value="mug">View Mode: Mug</option>
-<option value="fabric">View Mode: Fabric Swatch</option>
-<option value="bottle">View Mode: Water Bottle</option>
-</select>
-<select id="bgColor">
-<option value="checker">Background: Transparent Grid</option>
-<option value="#000000">Background: Black</option>
-<option value="#ffffff">Background: White</option>
-<option value="#1a1a1a">Background: Gray</option>
-</select>
-</div>
-</div>
-<div class="controls-section" id="controlsSection">
-<div class="sliders-container">
-<div class="slider-dropdown" data-slider="offsetX">
-<div class="slider-dropdown-header">
-<span>Offset X</span>
-<span class="slider-value" id="offsetXValue">0%</span>
-</div>
-<div class="slider-dropdown-content">
-<div class="slider-group">
-<div class="slider-wrapper">
-<input type="range" id="offsetX" min="0" max="100" value="0">
-</div>
-</div>
-</div>
-</div>
-<div class="slider-dropdown" data-slider="offsetY">
-<div class="slider-dropdown-header">
-<span>Offset Y</span>
-<span class="slider-value" id="offsetYValue">0%</span>
-</div>
-<div class="slider-dropdown-content">
-<div class="slider-group">
-<div class="slider-wrapper">
-<input type="range" id="offsetY" min="0" max="100" value="0">
-</div>
-</div>
-</div>
-</div>
-<div class="slider-dropdown" data-slider="scale">
-<div class="slider-dropdown-header">
-<span>Scale</span>
-<span class="slider-value" id="scaleValue">1.0×</span>
-</div>
-<div class="slider-dropdown-content">
-<div class="slider-group">
-<div class="slider-wrapper">
-<input type="range" id="patternScale" min="0.05" max="5" step="0.01" value="1">
-</div>
-</div>
-</div>
-</div>
-<div class="slider-dropdown" data-slider="zoom">
-<div class="slider-dropdown-header">
-<span>Zoom</span>
-<span class="slider-value" id="zoomValue">100%</span>
-</div>
-<div class="slider-dropdown-content">
-<div class="slider-group">
-<div class="slider-wrapper">
-<input type="range" id="zoomSlider" min="1" max="800" step="1" value="100">
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="controls-section" id="mockupsSection">
-<div class="sliders-container">
-<div class="slider-dropdown" data-slider="mockupZoom">
-<div class="slider-dropdown-header">
-<span>Mockup Zoom</span>
-<span class="slider-value" id="mockupZoomValue">100%</span>
-</div>
-<div class="slider-dropdown-content">
-<div class="slider-group">
-<div class="slider-wrapper">
-<input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
-</div>
-</div>
-</div>
-</div>
-<div class="slider-dropdown" data-slider="mockupRotate">
-<div class="slider-dropdown-header">
-<span>Mockup Rotate</span>
-<span class="slider-value" id="mockupRotateValue">0°</span>
-</div>
-<div class="slider-dropdown-content">
-<div class="slider-group">
-<div class="slider-wrapper">
-<input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="controls-section" id="storesSection">
-<div style="text-align:center;margin-bottom:1.5rem">
-<div style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa">Turn your patterns into real products!</div>
-</div>
-<div class="settings-dropdowns">
-<select id="countryStores">
-<option value="">Select Store</option>
-<option value="https://www.gelato.com/">Gelato 🇪🇺</option>
-<option value="https://www.contrado.co.uk/">Contrado 🇪🇺</option>
-<option value="https://www.saal-digital.com/">Saal Digital 🇪🇺</option>
-<option value="https://www.photobook-europe.com/">Photobook Europe 🇪🇺</option>
-<option value="https://www.whitewall.com/">WhiteWall 🇪🇺</option>
-<option value="https://www.canvaspeople.com/">CanvasPeople 🇺🇸</option>
-<option value="https://www.canvaschamp.com/">CanvasChamp 🇺🇸</option>
-<option value="https://www.mpix.com/">Mpix 🇺🇸</option>
-<option value="https://www.canvaspop.com/">Canvaspop 🇺🇸</option>
-<option value="https://canvasondemand.com/">Canvas On Demand 🇺🇸</option>
-<option value="https://www.canvascanada.ca/">CanvasCanada.ca 🇨🇦</option>
-<option value="https://www.canvaschamp.ca/">CanvasChamp.ca 🇨🇦</option>
-<option value="https://www.bestcanvas.ca/">BestCanvas.ca 🇨🇦</option>
-<option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
-<option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
-</select>
-</div>
-</div>
-<div class="pattern-info" id="patternInfo">
-<strong>Pattern:</strong> <span id="infoText"></span> <strong>| Canvas:</strong> <span id="canvasInfo">1200px (Standard)</span>
-</div>
-</div>
-<div id="footer">
-<div class="footer-content">
-<div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
-</div>
-</div>
-</div>
+
 <div class="loading-overlay" id="loadingOverlay">
-<img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
+  <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
 </div>
+
 <div class="easter-egg-overlay" id="easterEggOverlay">
-<canvas class="matrix-canvas" id="matrixCanvas"></canvas>
-<img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
+  <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
+  <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
 </div>
+
 <audio id="easterEggAudio" preload="none"></audio>
+
 <script>
-function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.arcTo(x+w,y,x+w,y+r,r);c.lineTo(x+w,y+h-r);c.arcTo(x+w,y+h,x+w-r,y+h,r);c.lineTo(x+r,y+h);c.arcTo(x,y+h,x,y+h-r,r);c.lineTo(x,y+r);c.arcTo(x,y,x+r,y,r);c.closePath()}
-function snap(val,step){return Math.round(val/step)*step}
-function snapScale(val){return val>=0.25?snap(val,0.25):Math.max(0.05,snap(val,0.01))}
-function snapZoom(val){return val>=25?snap(val,25):Math.max(1,Math.round(val))}
-const d=document,g=d.getElementById.bind(d);
-const els={c:g('canvas'),fi:g('fileInput'),ub:g('uploadBtnHeader'),ss:g('sampleSelect'),eb:g('exportBtnHeader'),rs:g('repeatType'),vm:g('viewMode'),bc:g('bgColor'),ps:g('patternScale'),ox:g('offsetX'),oy:g('offsetY'),sv:g('scaleValue'),oxv:g('offsetXValue'),oyv:g('offsetYValue'),es:g('emptyState'),pi:g('patternInfo'),it:g('infoText'),zs:g('zoomSlider'),zv:g('zoomValue'),mz:g('mockupZoom'),mzv:g('mockupZoomValue'),mr:g('mockupRotate'),mrv:g('mockupRotateValue'),cq:g('canvasQuality'),ci:g('canvasInfo'),lo:g('loadingOverlay'),ee:g('easterEgg'),eeo:g('easterEggOverlay'),eel:g('easterEggLogo'),mc:g('matrixCanvas'),md:g('masterDropdown'),dispS:g('displaySection'),conS:g('controlsSection'),mokS:g('mockupsSection'),stoS:g('storesSection'),audio:g('easterEggAudio'),countryStores:g('countryStores')};
-const x=els.c.getContext('2d');
-let t=null,rt='full',bg='checker',v='tile',s=1,opx=0,opy=0,px=0,py=0,z=1,mockupZoom=1,mockupRotate=0,dr=false,dsx,dsy,maxCanvasSize=1200,loadStartTime=0,isReload=false,matrixActive=false,matrixInterval=null;
-const mockupImages={phi:null,bti:null,tti:null,bai:null,bsi:null,ipi:null,mui:null};
-const MZ=0.01,XZ=8,MIN_LOAD_TIME=1500,RELOAD_MIN_TIME=1500;
-const qualityNames={1200:'Standard',1600:'High',2400:'Ultra',3200:'Max'};
-const playlist=['https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/count.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/falling%20softly.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/fluid.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/i%20wanna%20take%20your%20body%20higher.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3','https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'];
-let shuffledPlaylist=[...playlist];
-let currentTrackIndex=0;
-function shuffleArray(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]]}}
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function snap(val, step) {
+  return Math.round(val / step) * step;
+}
+
+function snapScale(val) {
+  return val >= 0.25 ? snap(val, 0.25) : Math.max(0.05, snap(val, 0.01));
+}
+
+function snapZoom(val) {
+  return val >= 25 ? snap(val, 25) : Math.max(1, Math.round(val));
+}
+
+const doc = document;
+const getEl = doc.getElementById.bind(doc);
+
+const els = {
+  canvas: getEl('canvas'),
+  fileInput: getEl('fileInput'),
+  uploadBtn: getEl('uploadBtnHeader'),
+  sampleSelect: getEl('sampleSelect'),
+  exportBtn: getEl('exportBtnHeader'),
+  repeatType: getEl('repeatType'),
+  viewMode: getEl('viewMode'),
+  bgColor: getEl('bgColor'),
+  canvasQuality: getEl('canvasQuality'),
+  canvasInfo: getEl('canvasInfo'),
+  patternScale: getEl('patternScale'),
+  offsetX: getEl('offsetX'),
+  offsetY: getEl('offsetY'),
+  zoomSlider: getEl('zoomSlider'),
+  mockupZoom: getEl('mockupZoom'),
+  mockupRotate: getEl('mockupRotate'),
+  scaleValue: getEl('scaleValue'),
+  offsetXValue: getEl('offsetXValue'),
+  offsetYValue: getEl('offsetYValue'),
+  zoomValue: getEl('zoomValue'),
+  mockupZoomValue: getEl('mockupZoomValue'),
+  mockupRotateValue: getEl('mockupRotateValue'),
+  emptyState: getEl('emptyState'),
+  patternInfo: getEl('patternInfo'),
+  infoText: getEl('infoText'),
+  loadingOverlay: getEl('loadingOverlay'),
+  easterEgg: getEl('easterEgg'),
+  easterEggOverlay: getEl('easterEggOverlay'),
+  easterEggLogo: getEl('easterEggLogo'),
+  matrixCanvas: getEl('matrixCanvas'),
+  audio: getEl('easterEggAudio'),
+  masterDropdown: getEl('masterDropdown'),
+  displaySection: getEl('displaySection'),
+  controlsSection: getEl('controlsSection'),
+  mockupsSection: getEl('mockupsSection'),
+  storesSection: getEl('storesSection'),
+  countryStores: getEl('countryStores'),
+  weatherWidget: getEl('weatherWidget'),
+  weatherIcon: getEl('weatherIcon'),
+  weatherTemp: getEl('weatherTemp'),
+  weatherCondition: getEl('weatherCondition'),
+  weatherLocation: getEl('weatherLocation')
+};
+
+const ctx = els.canvas.getContext('2d');
+
+let tileImage = null;
+let repeatType = 'full';
+let backgroundColor = 'checker';
+let viewMode = 'tile';
+let scale = 1;
+let offsetPercentX = 0;
+let offsetPercentY = 0;
+let panX = 0;
+let panY = 0;
+let zoom = 1;
+let mockupZoom = 1;
+let mockupRotate = 0;
+let isDragging = false;
+let dragStartX, dragStartY;
+let maxCanvasSize = 1200;
+let loadStartTime = 0;
+let isReload = false;
+let matrixActive = false;
+let matrixInterval = null;
+
+const mockupImages = {
+  phone: null,
+  bottle: null,
+  tote: null,
+  bandana: null,
+  bedspread: null,
+  ipad: null,
+  mug: null
+};
+
+const MIN_ZOOM = 0.01;
+const MAX_ZOOM = 8;
+const MIN_LOAD_TIME = 1500;
+const RELOAD_MIN_TIME = 1500;
+const qualityNames = {
+  1200: 'Standard',
+  1600: 'High',
+  2400: 'Ultra',
+  3200: 'Max'
+};
+
+const playlist = [
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/count.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/falling%20softly.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/fluid.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/i%20wanna%20take%20your%20body%20higher.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3',
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
+];
+
+let shuffledPlaylist = [...playlist];
+let currentTrackIndex = 0;
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 shuffleArray(shuffledPlaylist);
-els.md.addEventListener('change',e=>{[els.dispS,els.conS,els.mokS,els.stoS].forEach(s=>s.classList.remove('active'));const sections={display:els.dispS,controls:els.conS,mockups:els.mokS,stores:els.stoS};sections[e.target.value]?.classList.add('active')});
-els.countryStores.addEventListener('change',e=>{if(e.target.value){window.open(e.target.value,'_blank');e.target.value=''}});
-d.querySelectorAll('.slider-dropdown-header').forEach(header=>{header.addEventListener('click',()=>{const parent=header.parentElement,wasOpen=parent.classList.contains('open');d.querySelectorAll('.slider-dropdown').forEach(sd=>sd.classList.remove('open'));if(!wasOpen)parent.classList.add('open')})});
-function showLoading(reload=false){isReload=reload;loadStartTime=Date.now();els.lo.classList.add('visible')}
-function hideLoading(){const elapsed=Date.now()-loadStartTime;const remaining=Math.max(0,(isReload?RELOAD_MIN_TIME:MIN_LOAD_TIME)-elapsed);setTimeout(()=>els.lo.classList.remove('visible'),remaining)}
-function playRandomTrack(){if(currentTrackIndex>=shuffledPlaylist.length){shuffleArray(shuffledPlaylist);currentTrackIndex=0}els.audio.src=shuffledPlaylist[currentTrackIndex];currentTrackIndex++;els.audio.volume=0;els.audio.loop=false;els.audio.play().then(()=>{let vol=0;const fadeIn=setInterval(()=>{if(vol<0.5){vol+=0.05;els.audio.volume=Math.min(vol,0.5)}else clearInterval(fadeIn)},100)}).catch(err=>console.log('Audio play failed:',err))}
-els.audio.addEventListener('ended',()=>{if(matrixActive)playRandomTrack()});
-function stopMusic(){if(!els.audio.paused){let vol=els.audio.volume;const fadeOut=setInterval(()=>{if(vol>0){vol-=0.05;els.audio.volume=Math.max(vol,0)}else{clearInterval(fadeOut);els.audio.pause();els.audio.currentTime=0}},50)}}
-function startMatrix(){const canvas=els.mc,ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;const msg='CREATED BY RUDEBOY';const fontSize=Math.ceil(canvas.width/msg.length);const drops=[];const dropSpeeds=[];for(let i=0;i<msg.length;i++){drops[i]=Math.random()*-100;dropSpeeds[i]=0.5+Math.random()*1.5}let messageMode=false;let activeWords=[];const words=['CREATED','BY','RUDEBOY'];const wordStartPositions=[0,8,11];const wordLengths=[7,2,7];let messageTimer=0;const MESSAGE_INTERVAL=12000;let currentSpeed=50;function draw(){if(messageMode){ctx.fillStyle='rgba(0,0,0,0.05)'}else{ctx.fillStyle='rgba(0,0,0,0.25)'}ctx.fillRect(0,0,canvas.width,canvas.height);ctx.font=fontSize+'px monospace';if(!messageMode){messageTimer+=currentSpeed;if(messageTimer>=MESSAGE_INTERVAL){messageMode=true;activeWords=[0];messageTimer=0;for(let i=0;i<msg.length;i++){drops[i]=-100;dropSpeeds[i]=1}for(let i=0;i<7;i++){drops[i]=0}clearInterval(matrixInterval);currentSpeed=75;matrixInterval=setInterval(draw,currentSpeed)}}for(let i=0;i<msg.length;i++){let char;if(messageMode){let shouldShow=false;for(let w of activeWords){const wordStart=wordStartPositions[w];const wordEnd=wordStart+wordLengths[w];if(i>=wordStart&&i<wordEnd){char=msg[i];shouldShow=true;break}}if(!shouldShow){char=' '}}else{char=msg[i]}ctx.fillStyle=i%2===0?'#10b981':'#764ba2';ctx.fillText(char,i*fontSize,drops[i]*fontSize);if(drops[i]*fontSize>canvas.height&&Math.random()>0.975){drops[i]=Math.random()*-100;if(!messageMode){dropSpeeds[i]=0.5+Math.random()*1.5}}drops[i]+=dropSpeeds[i]}if(messageMode){if(activeWords.length===1&&activeWords[0]===0){const createdMaxDrop=Math.max(...drops.slice(0,7));if(createdMaxDrop*fontSize>canvas.height/2){activeWords.push(1);for(let j=8;j<10;j++){drops[j]=0}}}if(activeWords.length===2&&activeWords[1]===1){const byMaxDrop=Math.max(...drops.slice(8,10));if(byMaxDrop*fontSize>canvas.height/2){activeWords.push(2);for(let j=11;j<18;j++){drops[j]=0}}}if(activeWords.length===3){const rudeboyMaxDrop=Math.max(...drops.slice(11,18));if(rudeboyMaxDrop*fontSize>canvas.height+fontSize*5){messageMode=false;activeWords=[];for(let j=0;j<msg.length;j++){drops[j]=Math.random()*-100;dropSpeeds[j]=0.5+Math.random()*1.5}clearInterval(matrixInterval);currentSpeed=50;matrixInterval=setInterval(draw,currentSpeed)}}}}matrixInterval=setInterval(draw,currentSpeed)}
-function stopMatrix(){if(matrixInterval){clearInterval(matrixInterval);matrixInterval=null}}
-els.ee.addEventListener('click',()=>{if(matrixActive)return;matrixActive=true;els.eeo.classList.add('visible');playRandomTrack();setTimeout(()=>{els.eel.style.transition='opacity 0.5s';els.eel.style.opacity='0';setTimeout(()=>{els.eel.style.display='none';els.mc.classList.add('visible');startMatrix()},500)},1000)});
-els.eeo.addEventListener('click',()=>{if(!matrixActive)return;matrixActive=false;els.mc.classList.remove('visible');stopMatrix();stopMusic();setTimeout(()=>{els.eel.style.display='block';els.eel.style.opacity='0';els.eel.style.animation='none';els.eel.style.transition='opacity 0.5s';setTimeout(()=>{els.eel.style.opacity='1';setTimeout(()=>{els.eel.style.transition='none';els.eel.style.animation='spin-twice 1s ease-out';setTimeout(()=>{els.eel.style.transition='opacity 0.5s';els.eel.style.opacity='0';setTimeout(()=>{els.eeo.classList.remove('visible');els.eel.style.animation='spin-in 1s ease-out forwards'},500)},1000)},50)},500)},500)});
-(()=>{const imgs=[{key:'phi',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png'},{key:'bti',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bottle.png'},{key:'tti',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/tote.png'},{key:'bai',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bandana.png'},{key:'bsi',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bedspread.png'},{key:'ipi',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/ipad.png'},{key:'mui',url:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/mug.png'}];imgs.forEach(({key,url})=>{const img=new Image();img.crossOrigin='anonymous';img.src=url;img.onload=()=>{mockupImages[key]=img;if(t)draw()};img.onerror=()=>console.error(`${key} failed to load`)})})();
-function updateCanvasInfo(){els.ci.textContent=`${maxCanvasSize}px (${qualityNames[maxCanvasSize]})`}
-function resize(){const sz=Math.min(els.c.parentElement.clientWidth-64,maxCanvasSize);els.c.width=sz;els.c.height=sz;uBg();updateCanvasInfo();draw()}
-window.addEventListener('resize',resize);resize();
-g('logo').addEventListener('click',()=>{showLoading(true);setTimeout(()=>location.reload(),2800)});
-els.c.addEventListener('click',()=>{if(!t&&!dr)els.fi.click()});
-els.ub.addEventListener('click',()=>els.fi.click());
-els.ss.addEventListener('change',e=>{const url=e.target.value;if(!url)return;showLoading(false);const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{t=img;s=Math.max(0.05,Math.min(5,300/t.width));els.ps.value=s;els.sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading();e.target.value=''};img.onerror=()=>{hideLoading();alert('Failed to load sample!');e.target.value=''};img.src=url});
-els.cq.addEventListener('change',e=>{maxCanvasSize=parseInt(e.target.value);resize()});
-function uBg(){if(t){els.c.style.background=bg==='checker'?'repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%)':bg;els.c.style.backgroundSize=bg==='checker'?'40px 40px':'100% 100%'}else{els.c.style.background='repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%,#2a2a2a 50% 75%,#1a1a1a 75% 100%)';els.c.style.backgroundSize='40px 40px'}}
-function uInfo(){if(t){const sz=`${t.width} × ${t.height}px`;const w=(t.width<3000||t.height<3000)?' ⚠️ Recommended: 3000×3000px minimum':' ✅';els.it.innerHTML=sz+w;els.pi.classList.add('visible')}else els.pi.classList.remove('visible')}
-function dpc(ctx,sx,sy,w,h,ts){const tx=Math.ceil(w/ts)+4,ty=Math.ceil(h/ts)+4;for(let i=-2;i<tx;i++){for(let j=-2;j<ty;j++){let dx=sx+i*ts+opx*ts,dy=sy+j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;ctx.drawImage(t,dx,dy,ts,ts)}}}
-function drawMockup(img){if(!img||!img.complete||!img.naturalWidth)return;const ds=Math.min(els.c.width,els.c.height)*0.72*mockupZoom;const pc=d.createElement('canvas');pc.width=ds;pc.height=ds;const pCtx=pc.getContext('2d');pCtx.save();pCtx.translate(ds/2,ds/2);pCtx.scale(z,z);pCtx.translate(-ds/2,-ds/2);dpc(pCtx,0,0,ds,ds,t.width*s);pCtx.restore();const mc=d.createElement('canvas');mc.width=ds;mc.height=ds;const mCtx=mc.getContext('2d');mCtx.drawImage(img,0,0,ds,ds);const imgData=mCtx.getImageData(0,0,ds,ds),data=imgData.data;for(let i=0;i<data.length;i+=4){if(data[i+3]===0){data[i]=255;data[i+1]=255;data[i+2]=255;data[i+3]=255}else data[i+3]=0}mCtx.putImageData(imgData,0,0);pCtx.globalCompositeOperation='destination-in';pCtx.drawImage(mc,0,0);x.save();x.rotate(mockupRotate*Math.PI/180);x.drawImage(pc,-ds/2,-ds/2);x.restore();const oc=d.createElement('canvas');oc.width=ds;oc.height=ds;const oCtx=oc.getContext('2d');oCtx.drawImage(img,0,0,ds,ds);const oData=oCtx.getImageData(0,0,ds,ds).data;for(let i=0;i<oData.length;i+=4){if(oData[i+1]>100&&oData[i]<100&&oData[i+2]<100)oData[i+3]=0}oCtx.putImageData(new ImageData(oData,ds,ds),0,0);x.save();x.rotate(mockupRotate*Math.PI/180);x.drawImage(oc,-ds/2,-ds/2);x.restore()}
-function draw(){x.clearRect(0,0,els.c.width,els.c.height);if(!t){els.es.classList.add('visible');els.c.classList.remove('has-image');els.eb.disabled=true;return}els.es.classList.remove('visible');els.c.classList.add('has-image');els.eb.disabled=false;const ts=t.width*s,sg=v==='tile-grid';x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.save();if(v==='tile'||v==='tile-grid'){x.translate(px,py);x.scale(z,z);const tx=Math.ceil(els.c.width/ts/z)+6,ty=Math.ceil(els.c.height/ts/z)+6;const stx=Math.floor(-px/(ts*z))-3,sty=Math.floor(-py/(ts*z))-3;for(let i=stx;i<stx+tx;i++){for(let j=sty;j<sty+ty;j++){let dx=i*ts+opx*ts,dy=j*ts+opy*ts;if(rt==='half-drop')dy+=(Math.abs(i)%2===1)?ts/2:0;else if(rt==='brick')dx+=(Math.abs(j)%2===1)?ts/2:0;x.drawImage(t,dx,dy,ts,ts)}}if(sg){x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1/z;for(let i=stx;i<stx+tx+1;i++){let lx=i*ts+opx*ts;x.beginPath();x.moveTo(lx,sty*ts-ts);x.lineTo(lx,(sty+ty+1)*ts);x.stroke()}for(let j=sty;j<sty+ty+1;j++){let ly=j*ts+opy*ts;x.beginPath();x.moveTo(stx*ts-ts,ly);x.lineTo((stx+tx+1)*ts,ly);x.stroke()}}}else{x.translate(els.c.width/2,els.c.height/2);const mockups={phone:mockupImages.phi,ipad:mockupImages.ipi,tote:mockupImages.tti,bandana:mockupImages.bai,bedspread:mockupImages.bsi,mug:mockupImages.mui,bottle:mockupImages.bti};if(mockups[v])drawMockup(mockups[v]);else if(v==='fabric'){const ms=Math.min(els.c.width,els.c.height)*0.6,fw=ms*0.95,fh=fw*0.8;x.save();rr(x,-fw/2,-fh/2,fw,fh,15);x.fillStyle='#2a2a2a';x.fill();x.strokeStyle='#444';x.lineWidth=2;x.stroke();x.clip();dpc(x,-fw/2,-fh/2,fw,fh,ts);x.restore()}}x.restore()}
-function li(f){if(!f)return;showLoading(false);const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{t=img;s=Math.max(0.05,Math.min(5,300/t.width));els.ps.value=s;els.sv.textContent=s.toFixed(2)+'×';uBg();uInfo();draw();hideLoading()};img.onerror=()=>{hideLoading();alert('Failed to load image!')};img.src=e.target.result};r.readAsDataURL(f)}
-els.fi.addEventListener('change',e=>li(e.target.files[0]));
-els.c.addEventListener('dragover',e=>{e.preventDefault();els.c.style.opacity='0.7'});
-els.c.addEventListener('dragleave',()=>els.c.style.opacity='1');
-els.c.addEventListener('drop',e=>{e.preventDefault();els.c.style.opacity='1';li(e.dataTransfer.files[0])});
-els.c.addEventListener('pointerdown',e=>{if(!t||(v!=='tile'&&v!=='tile-grid'))return;dr=true;dsx=e.clientX-px;dsy=e.clientY-py;els.c.setPointerCapture(e.pointerId)});
-els.c.addEventListener('pointermove',e=>{if(!dr||(v!=='tile'&&v!=='tile-grid'))return;px=e.clientX-dsx;py=e.clientY-dsy;draw()});
-els.c.addEventListener('pointerup',()=>dr=false);
-els.c.addEventListener('pointerleave',()=>dr=false);
-els.c.addEventListener('wheel',e=>{if(!t)return;e.preventDefault();const zf=e.deltaY<0?1.1:0.9,r=els.c.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;let nz=Math.max(MZ,Math.min(XZ,z*zf));const sc=nz-z;px-=(mx-px)*(sc/z);py-=(my-py)*(sc/z);z=nz;els.zs.value=Math.round(z*100);els.zv.textContent=Math.round(z*100)+'%';draw()},{passive:false});
-let ltd=0;
-els.c.addEventListener('touchstart',e=>{if(e.touches.length===2&&t){e.preventDefault();const t1=e.touches[0],t2=e.touches[1];ltd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY)}},{passive:false});
-els.c.addEventListener('touchmove',e=>{if(e.touches.length===2&&t){e.preventDefault();const t1=e.touches[0],t2=e.touches[1];const cd=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);if(ltd>0){const zf=cd/ltd,r=els.c.getBoundingClientRect();const cx=((t1.clientX+t2.clientX)/2)-r.left,cy=((t1.clientY+t2.clientY)/2)-r.top;let nz=Math.max(MZ,Math.min(XZ,z*zf));const sc=nz-z;px-=(cx-px)*(sc/z);py-=(cy-py)*(sc/z);z=nz;els.zs.value=Math.round(z*100);els.zv.textContent=Math.round(z*100)+'%';draw()}ltd=cd}},{passive:false});
-els.c.addEventListener('touchend',()=>ltd=0);
-els.rs.addEventListener('change',e=>{rt=e.target.value;draw()});
-els.vm.addEventListener('change',e=>{v=e.target.value;draw()});
-els.bc.addEventListener('change',e=>{bg=e.target.value;uBg();draw()});
-els.ps.addEventListener('input',e=>{s=parseFloat(e.target.value);els.sv.textContent=s.toFixed(2)+'×';draw()});
-els.ps.addEventListener('change',e=>{s=snapScale(parseFloat(e.target.value));els.ps.value=s;els.sv.textContent=s.toFixed(2)+'×';draw()});
-els.zs.addEventListener('input',e=>{z=parseInt(e.target.value)/100;els.zv.textContent=e.target.value+'%';draw()});
-els.zs.addEventListener('change',e=>{const snapped=snapZoom(parseInt(e.target.value));z=snapped/100;els.zs.value=snapped;els.zv.textContent=snapped+'%';draw()});
-els.ox.addEventListener('input',e=>{opx=parseInt(e.target.value)/100;els.oxv.textContent=e.target.value+'%';draw()});
-els.ox.addEventListener('change',e=>{const snapped=snap(parseInt(e.target.value),10);opx=snapped/100;els.ox.value=snapped;els.oxv.textContent=snapped+'%';draw()});
-els.oy.addEventListener('input',e=>{opy=parseInt(e.target.value)/100;els.oyv.textContent=e.target.value+'%';draw()});
-els.oy.addEventListener('change',e=>{const snapped=snap(parseInt(e.target.value),10);opy=snapped/100;els.oy.value=snapped;els.oyv.textContent=snapped+'%';draw()});
-els.mz.addEventListener('input',e=>{mockupZoom=parseInt(e.target.value)/100;els.mzv.textContent=e.target.value+'%';draw()});
-els.mr.addEventListener('input',e=>{mockupRotate=parseInt(e.target.value);els.mrv.textContent=e.target.value+'°';draw()});
-els.eb.addEventListener('click',async()=>{if(!t){alert('Please load a pattern first!');return}try{const blob=await new Promise(res=>els.c.toBlob(res,'image/png'));const file=new File([blob],'rudeboy-pattern.png',{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Rudeboy Pattern',text:'Check out my pattern!'})}else{const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=URL.createObjectURL(blob);l.click();URL.revokeObjectURL(l.href)}}catch(e){if(e.name!=='AbortError'){const l=d.createElement('a');l.download='rudeboy-pattern.png';l.href=els.c.toDataURL('image/png');l.click()}}});
+
+async function getWeather() {
+  els.weatherWidget.classList.add('visible');
+  els.weatherWidget.classList.add('loading');
+  
+  if (!navigator.geolocation) {
+    els.weatherCondition.textContent = 'Geolocation not supported';
+    els.weatherWidget.classList.remove('loading');
+    return;
+  }
+  
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const { latitude, longitude } = position.coords;
+    
+    try {
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+      );
+      const data = await response.json();
+      
+      if (data.current_weather) {
+        displayWeatherOpenMeteo(data, latitude, longitude);
+      }
+    } catch (error) {
+      console.error('Weather fetch error:', error);
+      els.weatherCondition.textContent = 'Unable to load weather';
+      els.weatherIcon.textContent = '🌐';
+      els.weatherLocation.textContent = 'Location services unavailable';
+      els.weatherWidget.classList.remove('loading');
+    }
+  }, (error) => {
+    console.error('Geolocation error:', error);
+    els.weatherCondition.textContent = 'Location access denied';
+    els.weatherIcon.textContent = '📍';
+    els.weatherLocation.textContent = 'Enable location services';
+    els.weatherWidget.classList.remove('loading');
+  });
+}
+
+function displayWeatherOpenMeteo(data, lat, lon) {
+  const tempC = Math.round(data.current_weather.temperature);
+  const tempF = Math.round((tempC * 9/5) + 32);
+  
+  const isUS = (lat > 24 && lat < 50 && lon > -125 && lon < -66);
+  const temp = isUS ? tempF : tempC;
+  const unit = isUS ? '°F' : '°C';
+  
+  els.weatherTemp.textContent = `${temp}${unit}`;
+  els.weatherCondition.textContent = getWeatherCondition(data.current_weather.weathercode);
+  els.weatherLocation.textContent = 'Your Location';
+  els.weatherIcon.textContent = getWeatherIconFromCode(data.current_weather.weathercode);
+  els.weatherWidget.classList.remove('loading');
+}
+
+function getWeatherIconFromCode(code) {
+  if (code === 0) return '☀️';
+  if (code === 1 || code === 2) return '🌤️';
+  if (code === 3) return '☁️';
+  if (code === 45 || code === 48) return '🌫️';
+  if (code >= 51 && code <= 67) return '🌧️';
+  if (code >= 71 && code <= 77) return '❄️';
+  if (code >= 80 && code <= 82) return '🌦️';
+  if (code >= 85 && code <= 86) return '❄️';
+  if (code >= 95 && code <= 99) return '⛈️';
+  return '🌡️';
+}
+
+function getWeatherCondition(code) {
+  if (code === 0) return 'Clear sky';
+  if (code === 1) return 'Mainly clear';
+  if (code === 2) return 'Partly cloudy';
+  if (code === 3) return 'Overcast';
+  if (code === 45) return 'Foggy';
+  if (code === 48) return 'Rime fog';
+  if (code >= 51 && code <= 67) return 'Rainy';
+  if (code >= 71 && code <= 77) return 'Snowy';
+  if (code >= 80 && code <= 82) return 'Rain showers';
+  if (code >= 85 && code <= 86) return 'Snow showers';
+  if (code >= 95 && code <= 99) return 'Thunderstorm';
+  return 'Unknown';
+}
+
+getWeather();
+
+els.masterDropdown.addEventListener('change', (e) => {
+  [els.displaySection, els.controlsSection, els.mockupsSection, els.storesSection]
+    .forEach(section => section.classList.remove('active'));
+  
+  const sections = {
+    display: els.displaySection,
+    controls: els.controlsSection,
+    mockups: els.mockupsSection,
+    stores: els.storesSection
+  };
+  
+  if (sections[e.target.value]) {
+    sections[e.target.value].classList.add('active');
+  }
+});
+
+els.countryStores.addEventListener('change', (e) => {
+  if (e.target.value) {
+    window.open(e.target.value, '_blank');
+    e.target.value = '';
+  }
+});
+
+doc.querySelectorAll('.slider-dropdown-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const parent = header.parentElement;
+    const wasOpen = parent.classList.contains('open');
+    doc.querySelectorAll('.slider-dropdown').forEach(sd => sd.classList.remove('open'));
+    if (!wasOpen) parent.classList.add('open');
+  });
+});
+
+function showLoading(reload = false) {
+  isReload = reload;
+  loadStartTime = Date.now();
+  els.loadingOverlay.classList.add('visible');
+}
+
+function hideLoading() {
+  const elapsed = Date.now() - loadStartTime;
+  const remaining = Math.max(0, (isReload ? RELOAD_MIN_TIME : MIN_LOAD_TIME) - elapsed);
+  setTimeout(() => els.loadingOverlay.classList.remove('visible'), remaining);
+}
+
+function playRandomTrack() {
+  if (currentTrackIndex >= shuffledPlaylist.length) {
+    shuffleArray(shuffledPlaylist);
+    currentTrackIndex = 0;
+  }
+  
+  els.audio.src = shuffledPlaylist[currentTrackIndex];
+  currentTrackIndex++;
+  els.audio.volume = 0;
+  els.audio.loop = false;
+  
+  els.audio.play().then(() => {
+    let vol = 0;
+    const fadeIn = setInterval(() => {
+      if (vol < 0.5) {
+        vol += 0.05;
+        els.audio.volume = Math.min(vol, 0.5);
+      } else {
+        clearInterval(fadeIn);
+      }
+    }, 100);
+  }).catch(err => console.log('Audio play failed:', err));
+}
+
+els.audio.addEventListener('ended', () => {
+  if (matrixActive) {
+    playRandomTrack();
+  }
+});
+
+function stopMusic() {
+  if (!els.audio.paused) {
+    let vol = els.audio.volume;
+    const fadeOut = setInterval(() => {
+      if (vol > 0) {
+        vol -= 0.05;
+        els.audio.volume = Math.max(vol, 0);
+      } else {
+        clearInterval(fadeOut);
+        els.audio.pause();
+        els.audio.currentTime = 0;
+      }
+    }, 50);
+  }
+}
+
+function startMatrix(){
+const canvas=els.matrixCanvas,ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const msg='CREATED BY RUDEBOY';
+const fontSize=Math.ceil(canvas.width/msg.length);
+const drops=[];
+const dropSpeeds=[];
+
+for(let i=0;i<msg.length;i++){
+drops[i]=Math.random()*-100;
+dropSpeeds[i]=0.5+Math.random()*1.5;
+}
+
+let messageMode=false;
+let activeWords=[];
+const words=['CREATED','BY','RUDEBOY'];
+const wordStartPositions=[0,8,11];
+const wordLengths=[7,2,7];
+let messageTimer=0;
+const MESSAGE_INTERVAL=12000;
+let currentSpeed=50;
+
+function draw(){
+if(messageMode){
+ctx.fillStyle='rgba(0,0,0,0.05)';
+}else{
+ctx.fillStyle='rgba(0,0,0,0.25)';
+}
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.font=fontSize+'px monospace';
+
+if(!messageMode){
+messageTimer+=currentSpeed;
+if(messageTimer>=MESSAGE_INTERVAL){
+messageMode=true;
+activeWords=[0];
+messageTimer=0;
+for(let i=0;i<msg.length;i++){
+drops[i]=-100;
+dropSpeeds[i]=1;
+}
+for(let i=0;i<7;i++){
+drops[i]=0;
+}
+clearInterval(matrixInterval);
+currentSpeed=75;
+matrixInterval=setInterval(draw,currentSpeed);
+}
+}
+
+for(let i=0;i<msg.length;i++){
+let char;
+if(messageMode){
+let shouldShow=false;
+for(let w of activeWords){
+const wordStart=wordStartPositions[w];
+const wordEnd=wordStart+wordLengths[w];
+if(i>=wordStart&&i<wordEnd){
+char=msg[i];
+shouldShow=true;
+break;
+}
+}
+if(!shouldShow){
+char=' ';
+}
+}else{
+char=msg[i];
+}
+
+ctx.fillStyle=i%2===0?'#10b981':'#764ba2';
+ctx.fillText(char,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height&&Math.random()>0.975){
+drops[i]=Math.random()*-100;
+if(!messageMode){
+dropSpeeds[i]=0.5+Math.random()*1.5;
+}
+}
+
+drops[i]+=dropSpeeds[i];
+}
+
+if(messageMode){
+if(activeWords.length===1&&activeWords[0]===0){
+const createdMaxDrop=Math.max(...drops.slice(0,7));
+if(createdMaxDrop*fontSize>canvas.height/2){
+activeWords.push(1);
+for(let j=8;j<10;j++){
+drops[j]=0;
+}
+}
+}
+if(activeWords.length===2&&activeWords[1]===1){
+const byMaxDrop=Math.max(...drops.slice(8,10));
+if(byMaxDrop*fontSize>canvas.height/2){
+activeWords.push(2);
+for(let j=11;j<18;j++){
+drops[j]=0;
+}
+}
+}
+if(activeWords.length===3){
+const rudeboyMaxDrop=Math.max(...drops.slice(11,18));
+if(rudeboyMaxDrop*fontSize>canvas.height+fontSize*5){
+messageMode=false;
+activeWords=[];
+for(let j=0;j<msg.length;j++){
+drops[j]=Math.random()*-100;
+dropSpeeds[j]=0.5+Math.random()*1.5;
+}
+clearInterval(matrixInterval);
+currentSpeed=50;
+matrixInterval=setInterval(draw,currentSpeed);
+}
+}
+}
+}
+matrixInterval=setInterval(draw,currentSpeed);
+}
+
+function stopMatrix() {
+  if (matrixInterval) {
+    clearInterval(matrixInterval);
+    matrixInterval = null;
+  }
+}
+
+els.easterEgg.addEventListener('click', () => {
+  if (matrixActive) return;
+  
+  matrixActive = true;
+  els.easterEggOverlay.classList.add('visible');
+  playRandomTrack();
+  
+  setTimeout(() => {
+    els.easterEggLogo.style.transition = 'opacity 0.5s';
+    els.easterEggLogo.style.opacity = '0';
+    setTimeout(() => {
+      els.easterEggLogo.style.display = 'none';
+      els.matrixCanvas.classList.add('visible');
+      startMatrix();
+    }, 500);
+  }, 1000);
+});
+
+els.easterEggOverlay.addEventListener('click', () => {
+  if (!matrixActive) return;
+  
+  matrixActive = false;
+  els.matrixCanvas.classList.remove('visible');
+  stopMatrix();
+  stopMusic();
+  
+  setTimeout(() => {
+    els.easterEggLogo.style.display = 'block';
+    els.easterEggLogo.style.opacity = '0';
+    els.easterEggLogo.style.animation = 'none';
+    els.easterEggLogo.style.transition = 'opacity 0.5s';
+    
+    setTimeout(() => {
+      els.easterEggLogo.style.opacity = '1';
+      setTimeout(() => {
+        els.easterEggLogo.style.transition = 'none';
+        els.easterEggLogo.style.animation = 'spin-twice 1s ease-out';
+        setTimeout(() => {
+          els.easterEggLogo.style.transition = 'opacity 0.5s';
+          els.easterEggLogo.style.opacity = '0';
+          setTimeout(() => {
+            els.easterEggOverlay.classList.remove('visible');
+            els.easterEggLogo.style.animation = 'spin-in 1s ease-out forwards';
+          }, 500);
+        }, 1000);
+      }, 50);
+    }, 500);
+  }, 500);
+});
+
+(function loadMockupImages() {
+  const images = [
+    { key: 'phone', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png' },
+    { key: 'bottle', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bottle.png' },
+    { key: 'tote', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/tote.png' },
+    { key: 'bandana', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bandana.png' },
+    { key: 'bedspread', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bedspread.png' },
+    { key: 'ipad', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/ipad.png' },
+    { key: 'mug', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/mug.png' }
+  ];
+  
+  images.forEach(({ key, url }) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = url;
+    img.onload = () => {
+      mockupImages[key] = img;
+      if (tileImage) draw();
+    };
+    img.onerror = () => console.error(`${key} failed to load`);
+  });
+})();
+
+function updateCanvasInfo() {
+  els.canvasInfo.textContent = `${maxCanvasSize}px (${qualityNames[maxCanvasSize]})`;
+}
+
+function resizeCanvas() {
+  const size = Math.min(els.canvas.parentElement.clientWidth - 64, maxCanvasSize);
+  els.canvas.width = size;
+  els.canvas.height = size;
+  updateBackground();
+  updateCanvasInfo();
+  draw();
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+getEl('logo').addEventListener('click', () => {
+  showLoading(true);
+  setTimeout(() => location.reload(), 2800);
+});
+
+els.canvas.addEventListener('click', () => {
+  if (!tileImage && !isDragging) els.fileInput.click();
+});
+
+els.uploadBtn.addEventListener('click', () => els.fileInput.click());
+
+els.sampleSelect.addEventListener('change', (e) => {
+  const url = e.target.value;
+  if (!url) return;
+  
+  showLoading(false);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  
+  img.onload = () => {
+    tileImage = img;
+    scale = Math.max(0.05, Math.min(5, 300 / tileImage.width));
+    els.patternScale.value = scale;
+    els.scaleValue.textContent = scale.toFixed(2) + '×';
+    updateBackground();
+    updateInfo();
+    draw();
+    hideLoading();
+    e.target.value = '';
+  };
+  
+  img.onerror = () => {
+    hideLoading();
+    alert('Failed to load sample!');
+    e.target.value = '';
+  };
+  
+  img.src = url;
+});
+
+els.canvasQuality.addEventListener('change', (e) => {
+  maxCanvasSize = parseInt(e.target.value);
+  resizeCanvas();
+});
+
+function updateBackground() {
+  if (tileImage) {
+    els.canvas.style.background = backgroundColor === 'checker' ?
+      'repeating-conic-gradient(#ccc 0% 25%,#999 0% 50%,#ccc 50% 75%,#999 75% 100%)' : backgroundColor;
+    els.canvas.style.backgroundSize = backgroundColor === 'checker' ? '40px 40px' : '100% 100%';
+  } else {
+    els.canvas.style.background = 'repeating-conic-gradient(#2a2a2a 0% 25%,#1a1a1a 0% 50%,#2a2a2a 50% 75%,#1a1a1a 75% 100%)';
+    els.canvas.style.backgroundSize = '40px 40px';
+  }
+}
+
+function updateInfo() {
+  if (tileImage) {
+    const size = `${tileImage.width} × ${tileImage.height}px`;
+    const warning = (tileImage.width < 3000 || tileImage.height < 3000) ? 
+      ' ⚠️ Recommended: 3000×3000px minimum' : ' ✅';
+    els.infoText.innerHTML = size + warning;
+    els.patternInfo.classList.add('visible');
+  } else {
+    els.patternInfo.classList.remove('visible');
+  }
+}
+
+function drawPatternToContext(ctx, startX, startY, width, height, tileSize) {
+  const tilesX = Math.ceil(width / tileSize) + 4;
+  const tilesY = Math.ceil(height / tileSize) + 4;
+  
+  for (let i = -2; i < tilesX; i++) {
+    for (let j = -2; j < tilesY; j++) {
+      let drawX = startX + i * tileSize + offsetPercentX * tileSize;
+      let drawY = startY + j * tileSize + offsetPercentY * tileSize;
+      
+      if (repeatType === 'half-drop') {
+        drawY += (Math.abs(i) % 2 === 1) ? tileSize / 2 : 0;
+      } else if (repeatType === 'brick') {
+        drawX += (Math.abs(j) % 2 === 1) ? tileSize / 2 : 0;
+      }
+      
+      ctx.drawImage(tileImage, drawX, drawY, tileSize, tileSize);
+    }
+  }
+}
+
+function drawMockup(mockupImg) {
+  if (!mockupImg || !mockupImg.complete || !mockupImg.naturalWidth) return;
+  
+  const displaySize = Math.min(els.canvas.width, els.canvas.height) * 0.72 * mockupZoom;
+  
+  const patternCanvas = doc.createElement('canvas');
+  patternCanvas.width = displaySize;
+  patternCanvas.height = displaySize;
+  const patternCtx = patternCanvas.getContext('2d');
+  
+  patternCtx.save();
+  patternCtx.translate(displaySize / 2, displaySize / 2);
+  patternCtx.scale(zoom, zoom);
+  patternCtx.translate(-displaySize / 2, -displaySize / 2);
+  drawPatternToContext(patternCtx, 0, 0, displaySize, displaySize, tileImage.width * scale);
+  patternCtx.restore();
+  
+  const maskCanvas = doc.createElement('canvas');
+  maskCanvas.width = displaySize;
+  maskCanvas.height = displaySize;
+  const maskCtx = maskCanvas.getContext('2d');
+  maskCtx.drawImage(mockupImg, 0, 0, displaySize, displaySize);
+  
+  const imgData = maskCtx.getImageData(0, 0, displaySize, displaySize);
+  const data = imgData.data;
+  
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] === 0) {
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
+      data[i + 3] = 255;
+    } else {
+      data[i + 3] = 0;
+    }
+  }
+  
+  maskCtx.putImageData(imgData, 0, 0);
+  
+  patternCtx.globalCompositeOperation = 'destination-in';
+  patternCtx.drawImage(maskCanvas, 0, 0);
+  
+  ctx.save();
+  ctx.rotate(mockupRotate * Math.PI / 180);
+  ctx.drawImage(patternCanvas, -displaySize / 2, -displaySize / 2);
+  ctx.restore();
+  
+  const overlayCanvas = doc.createElement('canvas');
+  overlayCanvas.width = displaySize;
+  overlayCanvas.height = displaySize;
+  const overlayCtx = overlayCanvas.getContext('2d');
+  overlayCtx.drawImage(mockupImg, 0, 0, displaySize, displaySize);
+  
+  const overlayData = overlayCtx.getImageData(0, 0, displaySize, displaySize).data;
+  for (let i = 0; i < overlayData.length; i += 4) {
+    if (overlayData[i + 1] > 100 && overlayData[i] < 100 && overlayData[i + 2] < 100) {
+      overlayData[i + 3] = 0;
+    }
+  }
+  overlayCtx.putImageData(new ImageData(overlayData, displaySize, displaySize), 0, 0);
+  
+  ctx.save();
+  ctx.rotate(mockupRotate * Math.PI / 180);
+  ctx.drawImage(overlayCanvas, -displaySize / 2, -displaySize / 2);
+  ctx.restore();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+  
+  if (!tileImage) {
+    els.emptyState.classList.add('visible');
+    els.canvas.classList.remove('has-image');
+    els.exportBtn.disabled = true;
+    return;
+  }
+  
+  els.emptyState.classList.remove('visible');
+  els.canvas.classList.add('has-image');
+  els.exportBtn.disabled = false;
+  
+  const tileSize = tileImage.width * scale;
+  const showGrid = viewMode === 'tile-grid';
+  
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.save();
+  
+  if (viewMode === 'tile' || viewMode === 'tile-grid') {
+    ctx.translate(panX, panY);
+    ctx.scale(zoom, zoom);
+    
+    const tilesX = Math.ceil(els.canvas.width / tileSize / zoom) + 6;
+    const tilesY = Math.ceil(els.canvas.height / tileSize / zoom) + 6;
+    const startTileX = Math.floor(-panX / (tileSize * zoom)) - 3;
+    const startTileY = Math.floor(-panY / (tileSize * zoom)) - 3;
+    
+    for (let i = startTileX; i < startTileX + tilesX; i++) {
+      for (let j = startTileY; j < startTileY + tilesY; j++) {
+        let drawX = i * tileSize + offsetPercentX * tileSize;
+        let drawY = j * tileSize + offsetPercentY * tileSize;
+        
+        if (repeatType === 'half-drop') {
+          drawY += (Math.abs(i) % 2 === 1) ? tileSize / 2 : 0;
+        } else if (repeatType === 'brick') {
+          drawX += (Math.abs(j) % 2 === 1) ? tileSize / 2 : 0;
+        }
+        
+        ctx.drawImage(tileImage, drawX, drawY, tileSize, tileSize);
+      }
+    }
+    
+    if (showGrid) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1 / zoom;
+      
+      for (let i = startTileX; i < startTileX + tilesX + 1; i++) {
+        let lineX = i * tileSize + offsetPercentX * tileSize;
+        ctx.beginPath();
+        ctx.moveTo(lineX, startTileY * tileSize - tileSize);
+        ctx.lineTo(lineX, (startTileY + tilesY + 1) * tileSize);
+        ctx.stroke();
+      }
+      
+      for (let j = startTileY; j < startTileY + tilesY + 1; j++) {
+        let lineY = j * tileSize + offsetPercentY * tileSize;
+        ctx.beginPath();
+        ctx.moveTo(startTileX * tileSize - tileSize, lineY);
+        ctx.lineTo((startTileX + tilesX + 1) * tileSize, lineY);
+        ctx.stroke();
+      }
+    }
+  } else {
+    ctx.translate(els.canvas.width / 2, els.canvas.height / 2);
+    
+    const mockups = {
+      phone: mockupImages.phone,
+      ipad: mockupImages.ipad,
+      tote: mockupImages.tote,
+      bandana: mockupImages.bandana,
+      bedspread: mockupImages.bedspread,
+      mug: mockupImages.mug,
+      bottle: mockupImages.bottle
+    };
+    
+    if (mockups[viewMode]) {
+      drawMockup(mockups[viewMode]);
+    } else if (viewMode === 'fabric') {
+      const maxSize = Math.min(els.canvas.width, els.canvas.height) * 0.6;
+      const fabricWidth = maxSize * 0.95;
+      const fabricHeight = fabricWidth * 0.8;
+      
+      ctx.save();
+      roundedRect(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, 15);
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.clip();
+      
+      drawPatternToContext(ctx, -fabricWidth / 2, -fabricHeight / 2, fabricWidth, fabricHeight, tileSize);
+      ctx.restore();
+    }
+  }
+  
+  ctx.restore();
+}
+
+function loadImage(file) {
+  if (!file) return;
+  
+  showLoading(false);
+  const reader = new FileReader();
+  
+  reader.onload = (e) => {
+    const img = new Image();
+    
+    img.onload = () => {
+      tileImage = img;
+      scale = Math.max(0.05, Math.min(5, 300 / tileImage.width));
+      els.patternScale.value = scale;
+      els.scaleValue.textContent = scale.toFixed(2) + '×';
+      updateBackground();
+      updateInfo();
+      draw();
+      hideLoading();
+    };
+    
+    img.onerror = () => {
+      hideLoading();
+      alert('Failed to load image!');
+    };
+    
+    img.src = e.target.result;
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+els.fileInput.addEventListener('change', (e) => loadImage(e.target.files[0]));
+
+els.canvas.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  els.canvas.style.opacity = '0.7';
+});
+
+els.canvas.addEventListener('dragleave', () => {
+  els.canvas.style.opacity = '1';
+});
+
+els.canvas.addEventListener('drop', (e) => {
+  e.preventDefault();
+  els.canvas.style.opacity = '1';
+  loadImage(e.dataTransfer.files[0]);
+});
+
+els.canvas.addEventListener('pointerdown', (e) => {
+  if (!tileImage || (viewMode !== 'tile' && viewMode !== 'tile-grid')) return;
+  isDragging = true;
+  dragStartX = e.clientX - panX;
+  dragStartY = e.clientY - panY;
+  els.canvas.setPointerCapture(e.pointerId);
+});
+
+els.canvas.addEventListener('pointermove', (e) => {
+  if (!isDragging || (viewMode !== 'tile' && viewMode !== 'tile-grid')) return;
+  panX = e.clientX - dragStartX;
+  panY = e.clientY - dragStartY;
+  draw();
+});
+
+els.canvas.addEventListener('pointerup', () => isDragging = false);
+els.canvas.addEventListener('pointerleave', () => isDragging = false);
+
+els.canvas.addEventListener('wheel', (e) => {
+  if (!tileImage) return;
+  e.preventDefault();
+  
+  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+  const rect = els.canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  let newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * zoomFactor));
+  const scale = newZoom - zoom;
+  
+  panX -= (mouseX - panX) * (scale / zoom);
+  panY -= (mouseY - panY) * (scale / zoom);
+  zoom = newZoom;
+  
+  els.zoomSlider.value = Math.round(zoom * 100);
+  els.zoomValue.textContent = Math.round(zoom * 100) + '%';
+  draw();
+}, { passive: false });
+
+let lastTouchDistance = 0;
+
+els.canvas.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 2 && tileImage) {
+    e.preventDefault();
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    lastTouchDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+  }
+}, { passive: false });
+
+els.canvas.addEventListener('touchmove', (e) => {
+  if (e.touches.length === 2 && tileImage) {
+    e.preventDefault();
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    const currentDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+    
+    if (lastTouchDistance > 0) {
+      const zoomFactor = currentDistance / lastTouchDistance;
+      const rect = els.canvas.getBoundingClientRect();
+      const centerX = ((touch1.clientX + touch2.clientX) / 2) - rect.left;
+      const centerY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
+      
+      let newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * zoomFactor));
+      const scale = newZoom - zoom;
+      
+      panX -= (centerX - panX) * (scale / zoom);
+      panY -= (centerY - panY) * (scale / zoom);
+      zoom = newZoom;
+      
+      els.zoomSlider.value = Math.round(zoom * 100);
+      els.zoomValue.textContent = Math.round(zoom * 100) + '%';
+      draw();
+    }
+    
+    lastTouchDistance = currentDistance;
+  }
+}, { passive: false });
+
+els.canvas.addEventListener('touchend', () => lastTouchDistance = 0);
+
+els.repeatType.addEventListener('change', (e) => {
+  repeatType = e.target.value;
+  draw();
+});
+
+els.viewMode.addEventListener('change', (e) => {
+  viewMode = e.target.value;
+  draw();
+});
+
+els.bgColor.addEventListener('change', (e) => {
+  backgroundColor = e.target.value;
+  updateBackground();
+  draw();
+});
+
+els.patternScale.addEventListener('input', (e) => {
+  scale = parseFloat(e.target.value);
+  els.scaleValue.textContent = scale.toFixed(2) + '×';
+  draw();
+});
+
+els.patternScale.addEventListener('change', (e) => {
+  scale = snapScale(parseFloat(e.target.value));
+  els.patternScale.value = scale;
+  els.scaleValue.textContent = scale.toFixed(2) + '×';
+  draw();
+});
+
+els.zoomSlider.addEventListener('input', (e) => {
+  zoom = parseInt(e.target.value) / 100;
+  els.zoomValue.textContent = e.target.value + '%';
+  draw();
+});
+
+els.zoomSlider.addEventListener('change', (e) => {
+  const snapped = snapZoom(parseInt(e.target.value));
+  zoom = snapped / 100;
+  els.zoomSlider.value = snapped;
+  els.zoomValue.textContent = snapped + '%';
+  draw();
+});
+
+els.offsetX.addEventListener('input', (e) => {
+  offsetPercentX = parseInt(e.target.value) / 100;
+  els.offsetXValue.textContent = e.target.value + '%';
+  draw();
+});
+
+els.offsetX.addEventListener('change', (e) => {
+  const snapped = snap(parseInt(e.target.value), 10);
+  offsetPercentX = snapped / 100;
+  els.offsetX.value = snapped;
+  els.offsetXValue.textContent = snapped + '%';
+  draw();
+});
+
+els.offsetY.addEventListener('input', (e) => {
+  offsetPercentY = parseInt(e.target.value) / 100;
+  els.offsetYValue.textContent = e.target.value + '%';
+  draw();
+});
+
+els.offsetY.addEventListener('change', (e) => {
+  const snapped = snap(parseInt(e.target.value), 10);
+  offsetPercentY = snapped / 100;
+  els.offsetY.value = snapped;
+  els.offsetYValue.textContent = snapped + '%';
+  draw();
+});
+
+els.mockupZoom.addEventListener('input', (e) => {
+  mockupZoom = parseInt(e.target.value) / 100;
+  els.mockupZoomValue.textContent = e.target.value + '%';
+  draw();
+});
+
+els.mockupRotate.addEventListener('input', (e) => {
+  mockupRotate = parseInt(e.target.value);
+  els.mockupRotateValue.textContent = e.target.value + '°';
+  draw();
+});
+
+els.exportBtn.addEventListener('click', async () => {
+  if (!tileImage) {
+    alert('Please load a pattern first!');
+    return;
+  }
+  
+  try {
+    const blob = await new Promise(resolve => els.canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], 'rudeboy-pattern.png', { type: 'image/png' });
+    
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Rudeboy Pattern',
+        text: 'Check out my pattern!'
+      });
+    } else {
+      const link = doc.createElement('a');
+      link.download = 'rudeboy-pattern.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      const link = doc.createElement('a');
+      link.download = 'rudeboy-pattern.png';
+      link.href = els.canvas.toDataURL('image/png');
+      link.click();
+    }
+  }
+});
+
 draw();
 </script>
 </body>
