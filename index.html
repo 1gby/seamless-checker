@@ -1271,15 +1271,25 @@ function getWeatherCondition(code) {
 getWeather();
 
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isAndroid = /Android/.test(navigator.userAgent);
+const isMobile = isIOS || isAndroid;
 
 if (isIOS) {
   const masterDropdown = els.masterDropdown;
   const options = Array.from(masterDropdown.options);
-  const firstOption = options.shift();
-  options.reverse();
+  
+  const placeholder = options[0];
+  const display = options[1];
+  const controls = options[2];
+  const mockups = options[3];
+  const stores = options[4];
+  
   masterDropdown.innerHTML = '';
-  masterDropdown.appendChild(firstOption);
-  options.forEach(opt => masterDropdown.appendChild(opt));
+  masterDropdown.appendChild(placeholder);
+  masterDropdown.appendChild(stores);
+  masterDropdown.appendChild(mockups);
+  masterDropdown.appendChild(controls);
+  masterDropdown.appendChild(display);
 }
 
 els.masterDropdown.addEventListener('change', (e) => {
