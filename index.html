@@ -1270,19 +1270,9 @@ function getWeatherCondition(code) {
 
 getWeather();
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-if (isIOS) {
-  const masterDropdown = els.masterDropdown;
-  const options = Array.from(masterDropdown.options);
-  const placeholder = options.shift(); // Remove "Settings"
-  
-  options.reverse(); // Reverse: Stores → Mockups → Controls → Display
-  
-  masterDropdown.innerHTML = '';
-  masterDropdown.appendChild(placeholder);
-  options.forEach(opt => masterDropdown.appendChild(opt));
-}
+// iOS displays select options in DOM order (no visual reversal needed)
+// So we keep the normal HTML order: Display, Controls, Mockups, Stores
+// This works correctly on all platforms
 
 els.masterDropdown.addEventListener('change', (e) => {
   [els.displaySection, els.controlsSection, els.mockupsSection, els.storesSection]
