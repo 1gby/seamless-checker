@@ -1,4 +1,4 @@
-<!-- Rudeboy Pattern Checker - PIMP v1.5 FINAL (All Fixes Applied) -->
+<!-- Rudeboy Pattern Checker - PIMP v1.7 (Custom Export + Hex Checker) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -225,6 +225,124 @@ body{
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
 
+/* ==================== EXPORT MODAL ==================== */
+.export-modal{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  opacity:0;
+  transition:opacity 0.3s;
+  padding:2rem;
+}
+.export-modal.visible{display:flex;opacity:1}
+
+.export-modal-content{
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  padding:2rem;
+  max-width:400px;
+  width:100%;
+}
+
+.export-modal-title{
+  font-size:1.5rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin:0 0 1.5rem 0;
+  text-align:center;
+}
+
+.export-options{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+
+.export-option{
+  display:flex;
+  flex-direction:column;
+  gap:0.5rem;
+}
+
+.export-option-label{
+  font-size:0.9rem;
+  font-weight:600;
+  color:#aaa;
+}
+
+.export-option select,
+.export-option input{
+  padding:0.75rem 1rem;
+  font-size:0.95rem;
+  border-radius:12px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  font-family:inherit;
+  width:100%;
+}
+
+.export-buttons{
+  display:flex;
+  gap:1rem;
+}
+
+.export-btn-confirm,
+.export-btn-cancel{
+  flex:1;
+  padding:0.85rem 1rem;
+  border-radius:12px;
+  font-size:0.95rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:none;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+}
+
+.export-btn-confirm{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.export-btn-confirm:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.export-btn-cancel{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(239,68,68,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.export-btn-cancel:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(239,68,68,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
 /* ==================== LOADING OVERLAY ==================== */
 .loading-overlay{
   position:fixed;
@@ -319,13 +437,13 @@ select:active,button:active{transform:translateY(0)}
 }
 
 /* ==================== DISPLAY DROPDOWNS (Purple & Green Liquid Glass) ==================== */
-#canvasQuality,#viewMode{
+#canvasQuality,#viewMode,#gridSize,#seamlessTest{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#canvasQuality:hover,#viewMode:hover{
+#canvasQuality:hover,#viewMode:hover,#gridSize:hover,#seamlessTest:hover{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#canvasQuality:active,#viewMode:active{
+#canvasQuality:active,#viewMode:active,#gridSize:active,#seamlessTest:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
@@ -634,7 +752,7 @@ input[type="range"]::-moz-range-thumb:active{
   }
 }
 
-/* ==================== TOOLS SECTION (PHASE 1) ==================== */
+/* ==================== TOOLS SECTION ==================== */
 .tools-section{
   display:none;
   margin-top:1.5rem;
@@ -663,6 +781,24 @@ input[type="range"]::-moz-range-thumb:active{
   -webkit-text-fill-color:transparent;
   background-clip:text;
   margin:0 0 0.75rem 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.palette-toggle{
+  font-size:0.75rem;
+  padding:0.3rem 0.6rem;
+  border-radius:8px;
+  background:rgba(16,185,129,0.2);
+  color:#10b981;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:1px solid rgba(16,185,129,0.3);
+}
+
+.palette-toggle:hover{
+  background:rgba(16,185,129,0.3);
 }
 
 /* Color Palette - 1x9 Horizontal */
@@ -671,6 +807,10 @@ input[type="range"]::-moz-range-thumb:active{
   grid-template-columns:repeat(9,1fr);
   gap:0.5rem;
   margin-top:0.75rem;
+}
+
+.color-palette.hex-mode{
+  display:none;
 }
 
 .color-swatch{
@@ -728,7 +868,47 @@ input[type="range"]::-moz-range-thumb:active{
   text-shadow:0 0 4px rgba(0,0,0,0.8);
 }
 
-/* Single Slider Calculator */
+/* Hex Checker */
+.hex-checker{
+  display:none;
+  margin-top:0.75rem;
+}
+
+.hex-checker.active{
+  display:block;
+}
+
+.hex-input-row{
+  display:flex;
+  gap:0.5rem;
+  margin-bottom:0.75rem;
+}
+
+.hex-input{
+  flex:1;
+  padding:0.75rem;
+  border-radius:12px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  font-family:'Courier New',monospace;
+  font-size:0.95rem;
+  font-weight:600;
+}
+
+.hex-preview{
+  width:100%;
+  height:80px;
+  border-radius:12px;
+  border:2px solid rgba(255,255,255,0.3);
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  transition:all 0.3s;
+}
+
+/* Single Slider Calculator (SIZE + DPI) */
 .calc-single-slider{
   margin-top:0.75rem;
 }
@@ -808,7 +988,7 @@ input[type="range"]::-moz-range-thumb:active{
 }
 .footer-credit:hover{opacity:0.8;transform:scale(1.02)}
 
-/* ==================== PATTERN INFO BAR (PREMIUM PILLS) ==================== */
+/* ==================== PATTERN INFO BAR (PREMIUM PILLS WITH COLORED TEXT) ==================== */
 .pattern-info{
   display:none;
   flex-wrap:wrap;
@@ -851,11 +1031,26 @@ input[type="range"]::-moz-range-thumb:active{
 }
 
 .info-pill .info-value{
-  color:#eee;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-weight:700;
 }
 
-.info-pill .info-value.success{color:#10b981}
-.info-pill .info-value.warning{color:#f59e0b}
+.info-pill .info-value.success{
+  background:linear-gradient(135deg,#10b981 0%,#059669 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.info-pill .info-value.warning{
+  background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
 
 /* ==================== EASTER EGG OVERLAY ==================== */
 .easter-egg-overlay{
@@ -946,9 +1141,15 @@ input[type="range"]::-moz-range-thumb:active{
     font-size:0.75rem;
     padding:0.4rem 0.8rem;
   }
+  .export-modal-content{
+    padding:1.5rem;
+  }
+  .export-buttons{
+    flex-direction:column;
+  }
 }
 </style>
-<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.5 FINAL</title>
+<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.7</title>
 </head>
 <body>
 
@@ -975,7 +1176,7 @@ input[type="range"]::-moz-range-thumb:active{
           <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Wu-Tang.png">Wu-Tang</option>
         </select>
       </div>
-      <button class="export-btn-header" id="exportBtnHeader" disabled>📤 Share</button>
+      <button class="export-btn-header" id="exportBtnHeader" disabled>📤 Export</button>
     </div>
   </div>
 
@@ -1031,6 +1232,17 @@ input[type="range"]::-moz-range-thumb:active{
           <option value="#000000">Background: Black</option>
           <option value="#ffffff">Background: White</option>
           <option value="#1a1a1a">Background: Gray</option>
+        </select>
+        <select id="seamlessTest">
+          <option value="off">Seamless Test: Off</option>
+          <option value="on">Seamless Test: On (Red Edges)</option>
+        </select>
+        <select id="gridSize">
+          <option value="off">Grid Overlay: Off</option>
+          <option value="1">Grid Overlay: 1 inch</option>
+          <option value="2">Grid Overlay: 2 inches</option>
+          <option value="6">Grid Overlay: 6 inches</option>
+          <option value="12">Grid Overlay: 12 inches</option>
         </select>
       </div>
     </div>
@@ -1133,20 +1345,28 @@ input[type="range"]::-moz-range-thumb:active{
 
     <div class="controls-section tools-section" id="toolsSection">
       
-      <!-- Color Palette Card -->
+      <!-- Color Palette Card with Hex Checker Toggle -->
       <div class="tool-card" id="colorPaletteCard">
-        <div class="tool-title">🎨 Color Palette</div>
+        <div class="tool-title">
+          <span>🎨 Color Palette</span>
+          <span class="palette-toggle" id="paletteToggle">Hex Checker</span>
+        </div>
         <div class="color-palette" id="colorPalette"></div>
+        <div class="hex-checker" id="hexChecker">
+          <div class="hex-input-row">
+            <input type="text" class="hex-input" id="hexInput" placeholder="#FF0000" maxlength="7">
+          </div>
+          <div class="hex-preview" id="hexPreview"></div>
+        </div>
       </div>
 
-      <!-- Dimension Calculator Card -->
+      <!-- Dimension Calculator Card (SIZE + DPI) -->
       <div class="tool-card" id="dimensionCalcCard">
         <div class="tool-title">📐 Dimension Calculator (inches)</div>
         <div class="calc-single-slider">
           <div class="calc-label-row">
             <div>
-              <span class="calc-label active" id="labelWidth" data-field="width">Width</span>
-              <span class="calc-label" id="labelHeight" data-field="height">Height</span>
+              <span class="calc-label active" id="labelSize" data-field="size">Size</span>
               <span class="calc-label" id="labelDPI" data-field="dpi">DPI</span>
             </div>
             <span class="calc-current-value" id="currentValue">24"</span>
@@ -1154,7 +1374,7 @@ input[type="range"]::-moz-range-thumb:active{
           <input type="range" id="calcSlider" min="1" max="200" value="24">
         </div>
         <div class="calc-result">
-          <div class="calc-result-value" id="calcResultValue">3600 × 5400px</div>
+          <div class="calc-result-value" id="calcResultValue">3600 × 3600px</div>
         </div>
       </div>
 
@@ -1228,6 +1448,41 @@ input[type="range"]::-moz-range-thumb:active{
     </div>
   </div>
 
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="export-modal" id="exportModal">
+  <div class="export-modal-content">
+    <div class="export-modal-title">📤 Custom Export</div>
+    <div class="export-options">
+      <div class="export-option">
+        <div class="export-option-label">Resolution</div>
+        <select id="exportRes">
+          <option value="current">Current Canvas (1200px)</option>
+          <option value="1600">High (1600px)</option>
+          <option value="2400">Ultra (2400px)</option>
+          <option value="3200">Max (3200px)</option>
+          <option value="4800">Print (4800px)</option>
+          <option value="custom">Custom Size</option>
+        </select>
+      </div>
+      <div class="export-option" id="customSizeOption" style="display:none">
+        <div class="export-option-label">Custom Size (px)</div>
+        <input type="number" id="customSize" min="100" max="10000" value="2400" placeholder="2400">
+      </div>
+      <div class="export-option">
+        <div class="export-option-label">Format</div>
+        <select id="exportFormat">
+          <option value="png">PNG (Lossless)</option>
+          <option value="jpg">JPG (Smaller)</option>
+        </select>
+      </div>
+    </div>
+    <div class="export-buttons">
+      <button class="export-btn-confirm" id="exportConfirm">Export</button>
+      <button class="export-btn-cancel" id="exportCancel">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -1321,11 +1576,23 @@ const els = {
   weatherLocation: getEl('weatherLocation'),
   colorPalette: getEl('colorPalette'),
   calcSlider: getEl('calcSlider'),
-  labelWidth: getEl('labelWidth'),
-  labelHeight: getEl('labelHeight'),
+  labelSize: getEl('labelSize'),
   labelDPI: getEl('labelDPI'),
   currentValue: getEl('currentValue'),
-  calcResultValue: getEl('calcResultValue')
+  calcResultValue: getEl('calcResultValue'),
+  seamlessTest: getEl('seamlessTest'),
+  gridSize: getEl('gridSize'),
+  exportModal: getEl('exportModal'),
+  exportRes: getEl('exportRes'),
+  exportFormat: getEl('exportFormat'),
+  customSize: getEl('customSize'),
+  customSizeOption: getEl('customSizeOption'),
+  exportConfirm: getEl('exportConfirm'),
+  exportCancel: getEl('exportCancel'),
+  paletteToggle: getEl('paletteToggle'),
+  hexChecker: getEl('hexChecker'),
+  hexInput: getEl('hexInput'),
+  hexPreview: getEl('hexPreview')
 };
 
 const ctx = els.canvas.getContext('2d');
@@ -1349,6 +1616,9 @@ let loadStartTime = 0;
 let isReload = false;
 let matrixActive = false;
 let matrixInterval = null;
+let seamlessTestMode = false;
+let gridOverlaySize = 0;
+let hexCheckerMode = false;
 
 const mockupImages = {
   phone: null,
@@ -1364,12 +1634,6 @@ const MIN_ZOOM = 0.01;
 const MAX_ZOOM = 8;
 const MIN_LOAD_TIME = 1500;
 const RELOAD_MIN_TIME = 1500;
-const qualityNames = {
-  1200: 'Standard',
-  1600: 'High',
-  2400: 'Ultra',
-  3200: 'Max'
-};
 
 const playlist = [
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3',
@@ -1494,7 +1758,7 @@ function displayWeatherOpenMeteo(data, lat, lon, cityName) {
   const unit = isUS ? '°F' : '°C';
   
   els.weatherTemp.textContent = `${temp}${unit}`;
-  els.weatherCondition.textContent = getWeatherCondition(data.current_weather.weathercode);
+  els.weatherCondition.textContent = getRudeboyWeatherCondition(data.current_weather.weathercode);
   els.weatherLocation.textContent = cityName;
   els.weatherIcon.textContent = getWeatherIconFromCode(data.current_weather.weathercode);
   els.weatherWidget.classList.remove('loading');
@@ -1513,18 +1777,16 @@ function getWeatherIconFromCode(code) {
   return '🌡️';
 }
 
-function getWeatherCondition(code) {
-  if (code === 0) return 'Clear';
-  if (code === 1) return 'Mainly clear';
-  if (code === 2) return 'Partly cloudy';
-  if (code === 3) return 'Overcast';
-  if (code === 45) return 'Foggy';
-  if (code === 48) return 'Rime fog';
-  if (code >= 51 && code <= 67) return 'Rainy';
-  if (code >= 71 && code <= 77) return 'Snowy';
-  if (code >= 80 && code <= 82) return 'Rain showers';
-  if (code >= 85 && code <= 86) return 'Snow showers';
-  if (code >= 95 && code <= 99) return 'Thunderstorm';
+function getRudeboyWeatherCondition(code) {
+  if (code === 0) return 'Let the sunshine';
+  if (code === 1 || code === 2) return "It's Cloudly Bitch";
+  if (code === 3) return "It's Cloudly Bitch";
+  if (code === 45 || code === 48) return "Can't see shit";
+  if (code >= 51 && code <= 67) return 'Wet T-Shirt Weather';
+  if (code >= 71 && code <= 77) return 'Fucking Snow';
+  if (code >= 80 && code <= 82) return "She's a squirter";
+  if (code >= 85 && code <= 86) return 'Fucking Snow';
+  if (code >= 95 && code <= 99) return 'Zeus is Pissed';
   return 'Unknown';
 }
 
@@ -1536,6 +1798,51 @@ function rgbToHex(r, g, b) {
     return hex.length === 1 ? '0' + hex : hex;
   }).join('');
 }
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('');
+  }
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return { r, g, b };
+}
+
+function isValidHex(hex) {
+  return /^#?([0-9A-F]{3}|[0-9A-F]{6})$/i.test(hex);
+}
+
+els.paletteToggle.addEventListener('click', () => {
+  hexCheckerMode = !hexCheckerMode;
+  if (hexCheckerMode) {
+    els.colorPalette.classList.add('hex-mode');
+    els.hexChecker.classList.add('active');
+    els.paletteToggle.textContent = 'Color Palette';
+  } else {
+    els.colorPalette.classList.remove('hex-mode');
+    els.hexChecker.classList.remove('active');
+    els.paletteToggle.textContent = 'Hex Checker';
+  }
+});
+
+els.hexInput.addEventListener('input', (e) => {
+  let hex = e.target.value.trim();
+  
+  if (!hex.startsWith('#')) {
+    hex = '#' + hex;
+    els.hexInput.value = hex;
+  }
+  
+  if (isValidHex(hex)) {
+    const rgb = hexToRgb(hex);
+    els.hexPreview.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+  }
+});
+
+els.hexInput.value = '#FF0000';
+els.hexPreview.style.backgroundColor = '#FF0000';
 
 function analyzePattern() {
   if (!tileImage) return;
@@ -1636,28 +1943,25 @@ function analyzePattern() {
 }
 
 let calcValues = {
-  width: 24,
-  height: 36,
+  size: 24,
   dpi: 150
 };
 
-let calcActiveField = 'width';
+let calcActiveField = 'size';
 
 function updateCalcDisplay() {
-  [els.labelWidth, els.labelHeight, els.labelDPI].forEach(label => {
+  [els.labelSize, els.labelDPI].forEach(label => {
     label.classList.remove('active');
   });
   
-  const activeLabel = calcActiveField === 'width' ? els.labelWidth :
-                       calcActiveField === 'height' ? els.labelHeight :
-                       els.labelDPI;
+  const activeLabel = calcActiveField === 'size' ? els.labelSize : els.labelDPI;
   activeLabel.classList.add('active');
   
   const value = calcValues[calcActiveField];
   const unit = calcActiveField === 'dpi' ? '' : '"';
   els.currentValue.textContent = value + unit;
   
-  if (calcActiveField === 'width' || calcActiveField === 'height') {
+  if (calcActiveField === 'size') {
     els.calcSlider.min = '1';
     els.calcSlider.max = '200';
   } else {
@@ -1667,18 +1971,12 @@ function updateCalcDisplay() {
   
   els.calcSlider.value = value;
   
-  const pxWidth = Math.round(calcValues.width * calcValues.dpi);
-  const pxHeight = Math.round(calcValues.height * calcValues.dpi);
-  els.calcResultValue.textContent = `${pxWidth} × ${pxHeight}px`;
+  const px = Math.round(calcValues.size * calcValues.dpi);
+  els.calcResultValue.textContent = `${px} × ${px}px`;
 }
 
-els.labelWidth.addEventListener('click', () => {
-  calcActiveField = 'width';
-  updateCalcDisplay();
-});
-
-els.labelHeight.addEventListener('click', () => {
-  calcActiveField = 'height';
+els.labelSize.addEventListener('click', () => {
+  calcActiveField = 'size';
   updateCalcDisplay();
 });
 
@@ -1693,6 +1991,125 @@ els.calcSlider.addEventListener('input', (e) => {
 });
 
 updateCalcDisplay();
+
+els.seamlessTest.addEventListener('change', (e) => {
+  seamlessTestMode = e.target.value === 'on';
+  draw();
+});
+
+els.gridSize.addEventListener('change', (e) => {
+  gridOverlaySize = e.target.value === 'off' ? 0 : parseInt(e.target.value);
+  draw();
+});
+
+els.exportRes.addEventListener('change', (e) => {
+  if (e.target.value === 'custom') {
+    els.customSizeOption.style.display = 'block';
+  } else {
+    els.customSizeOption.style.display = 'none';
+  }
+  
+  if (e.target.value === 'current') {
+    e.target.options[0].text = `Current Canvas (${maxCanvasSize}px)`;
+  }
+});
+
+els.exportBtn.addEventListener('click', () => {
+  if (!tileImage) return;
+  els.exportRes.options[0].text = `Current Canvas (${maxCanvasSize}px)`;
+  els.exportModal.classList.add('visible');
+});
+
+els.exportCancel.addEventListener('click', () => {
+  els.exportModal.classList.remove('visible');
+});
+
+els.exportConfirm.addEventListener('click', async () => {
+  if (!tileImage) return;
+  
+  let exportSize = maxCanvasSize;
+  
+  if (els.exportRes.value === 'custom') {
+    exportSize = parseInt(els.customSize.value) || 2400;
+  } else if (els.exportRes.value !== 'current') {
+    exportSize = parseInt(els.exportRes.value);
+  }
+  
+  els.exportModal.classList.remove('visible');
+  showLoading(false);
+  
+  setTimeout(async () => {
+    const exportCanvas = doc.createElement('canvas');
+    exportCanvas.width = exportSize;
+    exportCanvas.height = exportSize;
+    const exportCtx = exportCanvas.getContext('2d');
+    
+    exportCtx.imageSmoothingEnabled = true;
+    exportCtx.imageSmoothingQuality = 'high';
+    
+    const tileSize = tileImage.width * scale;
+    
+    exportCtx.save();
+    exportCtx.translate(panX * (exportSize / maxCanvasSize), panY * (exportSize / maxCanvasSize));
+    exportCtx.scale(zoom, zoom);
+    
+    const tilesX = Math.ceil(exportSize / tileSize / zoom) + 6;
+    const tilesY = Math.ceil(exportSize / tileSize / zoom) + 6;
+    const startTileX = Math.floor(-(panX * (exportSize / maxCanvasSize)) / (tileSize * zoom)) - 3;
+    const startTileY = Math.floor(-(panY * (exportSize / maxCanvasSize)) / (tileSize * zoom)) - 3;
+    
+    for (let i = startTileX; i < startTileX + tilesX; i++) {
+      for (let j = startTileY; j < startTileY + tilesY; j++) {
+        let drawX = i * tileSize + offsetPercentX * tileSize;
+        let drawY = j * tileSize + offsetPercentY * tileSize;
+        
+        if (repeatType === 'half-drop') {
+          drawY += (Math.abs(i) % 2 === 1) ? tileSize / 2 : 0;
+        } else if (repeatType === 'brick') {
+          drawX += (Math.abs(j) % 2 === 1) ? tileSize / 2 : 0;
+        }
+        
+        exportCtx.drawImage(tileImage, drawX, drawY, tileSize, tileSize);
+      }
+    }
+    
+    exportCtx.restore();
+    
+    const format = els.exportFormat.value === 'jpg' ? 'image/jpeg' : 'image/png';
+    const quality = els.exportFormat.value === 'jpg' ? 0.95 : undefined;
+    
+    exportCanvas.toBlob(async (blob) => {
+      const ext = els.exportFormat.value === 'jpg' ? '.jpg' : '.png';
+      const file = new File([blob], `rudeboy-pattern-${exportSize}px${ext}`, { type: format });
+      
+      try {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Rudeboy Pattern',
+            text: `Check out my ${exportSize}px pattern!`
+          });
+        } else {
+          const link = doc.createElement('a');
+          link.download = `rudeboy-pattern-${exportSize}px${ext}`;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          const link = doc.createElement('a');
+          link.download = `rudeboy-pattern-${exportSize}px${ext}`;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      }
+      
+      hideLoading();
+    }, format, quality);
+  }, 100);
+});
 
 els.masterDropdown.addEventListener('change', (e) => {
   [els.displaySection, els.controlsSection, els.mockupsSection, els.toolsSection, els.storesSection]
@@ -2082,6 +2499,67 @@ function drawPatternToContext(ctx, startX, startY, width, height, tileSize) {
   }
 }
 
+function drawSeamlessTest(tileSize) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,0,0,0.8)';
+  ctx.lineWidth = 3 / zoom;
+  
+  const tilesX = Math.ceil(els.canvas.width / tileSize / zoom) + 6;
+  const tilesY = Math.ceil(els.canvas.height / tileSize / zoom) + 6;
+  const startTileX = Math.floor(-panX / (tileSize * zoom)) - 3;
+  const startTileY = Math.floor(-panY / (tileSize * zoom)) - 3;
+  
+  for (let i = startTileX; i < startTileX + tilesX; i++) {
+    for (let j = startTileY; j < startTileY + tilesY; j++) {
+      let drawX = i * tileSize + offsetPercentX * tileSize;
+      let drawY = j * tileSize + offsetPercentY * tileSize;
+      
+      if (repeatType === 'half-drop') {
+        drawY += (Math.abs(i) % 2 === 1) ? tileSize / 2 : 0;
+      } else if (repeatType === 'brick') {
+        drawX += (Math.abs(j) % 2 === 1) ? tileSize / 2 : 0;
+      }
+      
+      ctx.strokeRect(drawX, drawY, tileSize, tileSize);
+    }
+  }
+  
+  ctx.restore();
+}
+
+function drawGridOverlay(tileSize) {
+  if (gridOverlaySize === 0) return;
+  
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 2 / zoom;
+  ctx.setLineDash([5 / zoom, 5 / zoom]);
+  
+  const dpi = 150;
+  const gridPixelSize = gridOverlaySize * dpi;
+  
+  const startX = Math.floor(-panX / zoom / gridPixelSize) * gridPixelSize;
+  const startY = Math.floor(-panY / zoom / gridPixelSize) * gridPixelSize;
+  const endX = startX + Math.ceil(els.canvas.width / zoom / gridPixelSize + 2) * gridPixelSize;
+  const endY = startY + Math.ceil(els.canvas.height / zoom / gridPixelSize + 2) * gridPixelSize;
+  
+  for (let x = startX; x <= endX; x += gridPixelSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, startY);
+    ctx.lineTo(x, endY);
+    ctx.stroke();
+  }
+  
+  for (let y = startY; y <= endY; y += gridPixelSize) {
+    ctx.beginPath();
+    ctx.moveTo(startX, y);
+    ctx.lineTo(endX, y);
+    ctx.stroke();
+  }
+  
+  ctx.restore();
+}
+
 function drawMockup(mockupImg) {
   if (!mockupImg || !mockupImg.complete || !mockupImg.naturalWidth) return;
   
@@ -2214,6 +2692,15 @@ function draw() {
         ctx.stroke();
       }
     }
+    
+    if (seamlessTestMode) {
+      drawSeamlessTest(tileSize);
+    }
+    
+    if (gridOverlaySize > 0) {
+      drawGridOverlay(tileSize);
+    }
+    
   } else {
     ctx.translate(els.canvas.width / 2, els.canvas.height / 2);
     
@@ -2462,39 +2949,6 @@ els.mockupRotate.addEventListener('input', (e) => {
   mockupRotate = parseInt(e.target.value);
   els.mockupRotateValue.textContent = e.target.value + '°';
   draw();
-});
-
-els.exportBtn.addEventListener('click', async () => {
-  if (!tileImage) {
-    alert('Please load a pattern first!');
-    return;
-  }
-  
-  try {
-    const blob = await new Promise(resolve => els.canvas.toBlob(resolve, 'image/png'));
-    const file = new File([blob], 'rudeboy-pattern.png', { type: 'image/png' });
-    
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: 'Rudeboy Pattern',
-        text: 'Check out my pattern!'
-      });
-    } else {
-      const link = doc.createElement('a');
-      link.download = 'rudeboy-pattern.png';
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
-    }
-  } catch (e) {
-    if (e.name !== 'AbortError') {
-      const link = doc.createElement('a');
-      link.download = 'rudeboy-pattern.png';
-      link.href = els.canvas.toDataURL('image/png');
-      link.click();
-    }
-  }
 });
 
 draw();
