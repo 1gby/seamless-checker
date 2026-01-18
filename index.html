@@ -1,4 +1,4 @@
-<!-- Rudeboy Pattern Checker - PIMP v2.0 TopNotch -->
+<!-- Rudeboy Pattern Checker - P.I.M.P PRODUCTION -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -401,13 +401,12 @@ body{
 
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
 
-/* ==================== INSTRUCTIONS BUTTON ==================== */
-.instructions-wrapper{
-  max-width:360px;
-  margin:0 auto 1.5rem;
+/* ==================== INSTRUCTIONS ACCORDION (IN PREVIEW OPTIONS) ==================== */
+.instructions-accordion{
+  margin-bottom:1.5rem;
 }
 
-.instructions-btn{
+.instructions-accordion-header{
   padding:0.75rem 1rem;
   font-size:0.95rem;
   border-radius:16px;
@@ -419,33 +418,26 @@ body{
   color:#eee;
   cursor:pointer;
   transition:all 0.3s;
-  font-family:inherit;
-  width:100%;
   display:flex;
   justify-content:space-between;
   align-items:center;
   user-select:none;
 }
 
-.instructions-btn:hover{
+.instructions-accordion-header:hover{
   background:rgba(255,255,255,0.15);
   border-color:rgba(255,255,255,0.25);
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
-.instructions-btn:active{
-  transform:translateY(0);
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
-}
-
-.instructions-content{
+.instructions-accordion-content{
   max-height:0;
   overflow:hidden;
   transition:max-height 0.3s ease;
   margin-top:0.5rem;
 }
 
-.instructions-content.open{
+.instructions-accordion.open .instructions-accordion-content{
   max-height:2000px;
 }
 
@@ -556,13 +548,13 @@ select:active,button:active{transform:translateY(0)}
 }
 
 /* ==================== DISPLAY DROPDOWNS (Purple & Green Liquid Glass) ==================== */
-#canvasQuality,#viewMode,#gridSize{
+#canvasQuality,#gridSize{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#canvasQuality:hover,#viewMode:hover,#gridSize:hover{
+#canvasQuality:hover,#gridSize:hover{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#canvasQuality:active,#viewMode:active,#gridSize:active{
+#canvasQuality:active,#gridSize:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
@@ -577,13 +569,13 @@ select:active,button:active{transform:translateY(0)}
 }
 
 /* ==================== STORES DROPDOWN (Purple) ==================== */
-#countryStores{
+#countryStores,#viewMode{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#countryStores:hover{
+#countryStores:hover,#viewMode:hover{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#countryStores:active{
+#countryStores:active,#viewMode:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
@@ -853,666 +845,8 @@ input[type="range"]::-moz-range-thumb:active{
   min-width:45px;
   text-align:right;
 }
-/* ==================== WEATHER WIDGET (Sleek & Compact) ==================== */
-.weather-widget{
-  display:none;
-  align-items:center;
-  justify-content:center;
-  gap:1rem;
-  padding:0.75rem 1.5rem;
-  margin-bottom:1rem;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  font-size:0.9rem;
-  animation:weather-glow 4s ease-in-out infinite;
-}
-
-@keyframes weather-glow{
-  0%,100%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
-  50%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
-}
-
-.weather-widget.visible{display:flex}
-.weather-widget.loading{opacity:0.6}
-
-.weather-icon{
-  font-size:1.8rem;
-  line-height:1;
-}
-
-.weather-temp{
-  font-size:1.5rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-
-.weather-time{
-  font-size:1rem;
-  font-weight:600;
-  color:#10b981;
-}
-
-.weather-divider{
-  color:rgba(255,255,255,0.3);
-  font-weight:300;
-}
-
-.weather-condition{
-  font-size:0.95rem;
-  font-weight:600;
-  animation:condition-glow 4s ease-in-out infinite;
-}
-
-@keyframes condition-glow{
-  0%,100%{
-    color:#764ba2;
-    text-shadow:0 0 10px rgba(118,75,162,0.6);
-  }
-  50%{
-    color:#10b981;
-    text-shadow:0 0 10px rgba(16,185,129,0.6);
-  }
-}
-
-.weather-location{
-  font-size:0.9rem;
-  font-weight:600;
-  animation:location-glow 4s ease-in-out infinite;
-}
-
-@keyframes location-glow{
-  0%,100%{
-    color:#10b981;
-    text-shadow:0 0 8px rgba(16,185,129,0.6);
-  }
-  50%{
-    color:#764ba2;
-    text-shadow:0 0 8px rgba(118,75,162,0.6);
-  }
-}
-
-/* ==================== TOOLS SECTION ==================== */
-.tools-section{
-  display:none;
-  margin-top:1.5rem;
-}
-.tools-section.active{display:block}
-
-.tool-card{
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  padding:1.2rem 1.5rem;
-  margin-bottom:1rem;
-  max-width:360px;
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.tool-title{
-  font-size:1rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  margin:0 0 0.75rem 0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.palette-toggle{
-  font-size:0.75rem;
-  padding:0.3rem 0.6rem;
-  border-radius:8px;
-  background:rgba(16,185,129,0.2);
-  color:#10b981;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:1px solid rgba(16,185,129,0.3);
-}
-
-.palette-toggle:hover{
-  background:rgba(16,185,129,0.3);
-}
-
-/* Recommendations Toggle */
-.calc-recommendations-toggle{
-  font-size:0.75rem;
-  padding:0.3rem 0.6rem;
-  border-radius:8px;
-  background:rgba(118,75,162,0.2);
-  color:#764ba2;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:1px solid rgba(118,75,162,0.3);
-}
-
-.calc-recommendations-toggle:hover{
-  background:rgba(118,75,162,0.3);
-}
-
-.calc-recommendations{
-  display:none;
-  margin-top:0.75rem;
-  padding-top:0.75rem;
-  border-top:1px solid rgba(255,255,255,0.1);
-}
-
-.calc-recommendations.active{
-  display:block;
-}
-
-.calc-preset-group{
-  margin-bottom:1rem;
-}
-
-.calc-preset-label{
-  font-size:0.8rem;
-  font-weight:700;
-  color:#667eea;
-  margin-bottom:0.5rem;
-  text-transform:uppercase;
-  letter-spacing:0.5px;
-}
-
-.calc-preset-buttons{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:0.5rem;
-}
-
-.calc-preset-btn{
-  padding:0.5rem 0.75rem;
-  border-radius:8px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
-  color:#ccc;
-  font-size:0.75rem;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.3s;
-  text-align:center;
-}
-
-.calc-preset-btn:hover{
-  background:rgba(255,255,255,0.15);
-  border-color:rgba(255,255,255,0.3);
-  transform:translateY(-1px);
-  box-shadow:0 3px 14px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.35);
-}
-
-.calc-preset-btn:active{
-  transform:translateY(0);
-  box-shadow:0 1px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.25);
-}
-
-/* Color Palette - 1x9 Horizontal */
-.color-palette{
-  display:grid;
-  grid-template-columns:repeat(9,1fr);
-  gap:0.5rem;
-  margin-top:0.75rem;
-}
-
-.color-palette.hex-mode{
-  display:none;
-}
-
-.color-swatch{
-  width:100%;
-  aspect-ratio:1;
-  border-radius:8px;
-  border:2px solid rgba(255,255,255,0.3);
-  cursor:pointer;
-  transition:all 0.3s;
-  position:relative;
-  box-shadow:0 2px 8px rgba(0,0,0,0.3);
-}
-
-.color-swatch:hover{
-  transform:scale(1.1);
-  border-color:rgba(255,255,255,0.6);
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
-}
-
-.color-swatch:active{
-  transform:scale(0.98);
-}
-
-.hex-tooltip{
-  position:absolute;
-  bottom:calc(100% + 8px);
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.9);
-  color:#fff;
-  padding:0.3rem 0.6rem;
-  border-radius:6px;
-  font-size:0.7rem;
-  font-weight:600;
-  white-space:nowrap;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity 0.3s;
-  z-index:100;
-}
-
-.color-swatch:hover .hex-tooltip{
-  opacity:1;
-}
-
-.color-swatch.copied::after{
-  content:'✓';
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  color:#fff;
-  font-size:20px;
-  font-weight:bold;
-  text-shadow:0 0 4px rgba(0,0,0,0.8);
-}
-
-/* Hex Checker */
-.hex-checker{
-  display:none;
-  margin-top:0.75rem;
-}
-
-.hex-checker.active{
-  display:block;
-}
-
-.hex-input-row{
-  display:flex;
-  gap:0.5rem;
-  margin-bottom:0.75rem;
-}
-
-.hex-input{
-  flex:1;
-  padding:0.75rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  font-family:'Courier New',monospace;
-  font-size:0.95rem;
-  font-weight:600;
-}
-
-.hex-preview{
-  width:100%;
-  height:80px;
-  border-radius:12px;
-  border:2px solid rgba(255,255,255,0.3);
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
-  transition:all 0.3s;
-}
-
-/* Seamless Test Dropdown */
-.seamless-test-dropdown{
-  margin-bottom:1rem;
-}
-
-.seamless-test-dropdown select{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-}
-
-.seamless-test-dropdown select:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
-}
-
-.seamless-test-dropdown select:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
-}
-
-/* Dimension Calculator */
-.calc-single-slider{
-  margin-top:0.75rem;
-}
-
-.calc-label-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:0.5rem;
-}
-
-.calc-labels{
-  display:flex;
-  gap:0.5rem;
-}
-
-.calc-label{
-  font-size:1.2rem;
-  font-weight:700;
-  cursor:pointer;
-  padding:0.3rem 0.8rem;
-  border-radius:8px;
-  transition:all 0.3s;
-  user-select:none;
-}
-
-.calc-label.active{
-  background:rgba(102,126,234,0.2);
-  color:#667eea;
-}
-
-.calc-label:not(.active){
-  color:#666;
-}
-
-.calc-label:hover{
-  background:rgba(102,126,234,0.1);
-}
-
-/* Unit Buttons (Inches/CM) */
-.calc-unit-buttons{
-  display:flex;
-  gap:0.5rem;
-}
-
-.calc-unit-btn{
-  font-size:0.8rem;
-  padding:0.3rem 0.6rem;
-  border-radius:6px;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:1px solid rgba(118,75,162,0.3);
-  font-weight:600;
-  background:rgba(118,75,162,0.2);
-  color:#764ba2;
-  user-select:none;
-}
-
-.calc-unit-btn:hover{
-  background:rgba(118,75,162,0.3);
-}
-
-.calc-unit-btn.active{
-  background:rgba(16,185,129,0.2);
-  color:#10b981;
-  border:1px solid rgba(16,185,129,0.3);
-}
-
-.calc-unit-btn.active:hover{
-  background:rgba(16,185,129,0.3);
-}
-
-.calc-current-value{
-  font-size:1.2rem;
-  font-weight:700;
-  color:#667eea;
-}
-
-.calc-result{
-  margin-top:1rem;
-  padding:0.75rem;
-  background:rgba(16,185,129,0.1);
-  border-radius:8px;
-  border:1px solid rgba(16,185,129,0.3);
-  text-align:center;
-}
-
-.calc-result-value{
-  font-size:1.1rem;
-  font-weight:700;
-  color:#10b981;
-}
-
-/* ==================== STORES SECTION (NOW WITH MOCKUPS) ==================== */
-.stores-section{
-  display:none;
-  margin-top:1.5rem;
-}
-.stores-section.active{display:block}
-
-.stores-intro{
-  text-align:center;
-  margin-bottom:1.5rem;
-}
-
-.stores-intro-text{
-  font-size:1.1rem;
-  font-weight:600;
-  color:#aaa;
-  margin-bottom:1rem;
-}
-
-.stores-dropdowns{
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-  max-width:360px;
-  margin:0 auto 2rem;
-}
-
-/* Mockup Sliders in Stores Section */
-.mockup-sliders{
-  max-width:360px;
-  margin:0 auto;
-  padding-top:1.5rem;
-  border-top:1px solid rgba(255,255,255,0.1);
-}
-
-.mockup-section-label{
-  font-size:0.85rem;
-  font-weight:700;
-  color:#667eea;
-  text-align:center;
-  margin-bottom:1rem;
-  text-transform:uppercase;
-  letter-spacing:1px;
-}
-
-/* ==================== FOOTER ==================== */
-#footer{
-  padding:2rem;
-  background:rgba(0,0,0,0.5);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border-top:1px solid rgba(255,255,255,0.1);
-  box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-.footer-content{max-width:1200px;margin:0 auto;text-align:center}
-
-.footer-credit{
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  font-size:1.1rem;
-  cursor:pointer;
-  transition:all 0.3s;
-}
-.footer-credit:hover{opacity:0.8;transform:scale(1.02)}
-
-/* ==================== PATTERN INFO BAR (PREMIUM PILLS WITH COLORED TEXT) ==================== */
-.pattern-info{
-  display:none;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
-  gap:0.6rem;
-  padding:1rem 1.5rem;
-  margin-top:1rem;
-}
-.pattern-info.visible{display:flex}
-
-.info-pill{
-  padding:0.5rem 1rem;
-  border-radius:20px;
-  font-size:0.85rem;
-  font-weight:600;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
-  animation:pill-glow 4s ease-in-out infinite;
-  white-space:nowrap;
-}
-
-@keyframes pill-glow{
-  0%,100%{
-    box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(118,75,162,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
-    border-color:rgba(118,75,162,0.3);
-  }
-  50%{
-    box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(16,185,129,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
-    border-color:rgba(16,185,129,0.3);
-  }
-}
-
-.info-pill .info-label{
-  color:#aaa;
-  margin-right:0.3rem;
-}
-
-.info-pill .info-value{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  font-weight:700;
-}
-
-.info-pill .info-value.success{
-  background:linear-gradient(135deg,#10b981 0%,#059669 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-
-.info-pill .info-value.warning{
-  background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-
-/* ==================== EASTER EGG OVERLAY ==================== */
-.easter-egg-overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  background:rgba(0,0,0,0.95);
-  backdrop-filter:blur(30px);
-  -webkit-backdrop-filter:blur(30px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:20000;
-  opacity:0;
-  transition:opacity 0.5s;
-  overflow:hidden;
-}
-.easter-egg-overlay.visible{display:flex;opacity:1}
-
-.easter-egg-logo{
-  width:150px;
-  height:150px;
-  opacity:0;
-  animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
-}
-
-@keyframes spin-in{
-  0%{transform:scale(0) rotate(0deg);opacity:0}
-  100%{transform:scale(1) rotate(720deg);opacity:1}
-}
-
-@keyframes spin-out{
-  0%{transform:scale(1) rotate(0deg);opacity:1}
-  100%{transform:scale(0) rotate(-720deg);opacity:0}
-}
-
-@keyframes egg-glow{
-  0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}
-  50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}
-}
-
-.matrix-canvas{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  opacity:0;
-  transition:opacity 1s;
-}
-.matrix-canvas.visible{opacity:1}
-
-/* ==================== MOBILE RESPONSIVE ==================== */
-@media(max-width:768px){
-  #header{
-    padding:1rem;
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .logo-section{justify-content:center}
-  .header-buttons{
-    gap:0.5rem;
-    padding:0;
-    max-width:100%;
-  }
-  .title{font-size:1.2rem}
-  #canvas-wrapper{padding:1rem}
-  #controls{padding:1.5rem 1rem}
-  .weather-widget{
-    flex-wrap:wrap;
-    gap:0.5rem;
-    font-size:0.85rem;
-  }
-  .weather-temp{font-size:1.3rem}
-  .weather-icon{font-size:1.5rem}
-  .color-palette{
-    grid-template-columns:repeat(9,1fr);
-    gap:0.4rem;
-  }
-  .pattern-info{
-    font-size:0.8rem;
-    gap:0.4rem;
-    padding:0.75rem 1rem;
-  }
-  .info-pill{
-    font-size:0.75rem;
-    padding:0.4rem 0.8rem;
-  }
-  .export-modal-content{
-    padding:1.5rem;
-  }
-  .export-buttons{
-    flex-direction:column;
-  }
-  .calc-preset-buttons{
-    grid-template-columns:1fr;
-  }
-}
 </style>
-<title>Rudeboy™ Seamless Pattern Checker - PIMP v2.0 TopNotch</title>
+<title>Rudeboy™ Seamless Pattern Checker - P.I.M.P PRODUCTION</title>
 </head>
 <body>
 
@@ -1553,15 +887,25 @@ input[type="range"]::-moz-range-thumb:active{
 
   <div id="controls">
     
-    <!-- INSTRUCTIONS BUTTON -->
-    <div class="instructions-wrapper">
-      <button class="instructions-btn" id="instructionsBtn">
+    <div class="master-dropdown-wrapper">
+      <select id="masterDropdown">
+        <option value="">Settings</option>
+        <option value="display">Preview Options</option>
+        <option value="controls">Pattern Transform</option>
+        <option value="tools">Tools</option>
+        <option value="stores">Stores & Mockups</option>
+      </select>
+    </div>
+
+    <!-- INSTRUCTIONS ACCORDION (UNDER SETTINGS) -->
+    <div class="instructions-accordion" id="instructionsAccordion">
+      <div class="instructions-accordion-header">
         <span>📚 Instructions</span>
         <span>▼</span>
-      </button>
-      <div class="instructions-content" id="instructionsContent">
+      </div>
+      <div class="instructions-accordion-content">
         <div class="instructions-card">
-          <h3>🎨 Welcome to PIMP - Pattern Image Management Platform</h3>
+          <h3>👋 Welcome to P.I.M.P (Pattern Image Management Platform)</h3>
           <p>Your complete toolkit for creating, testing, and exporting seamless patterns for print-on-demand and digital products.</p>
           
           <h4>📤 Getting Started</h4>
@@ -1575,7 +919,7 @@ input[type="range"]::-moz-range-thumb:active{
           <ul>
             <li><strong>Preview Options:</strong> Adjust canvas quality, repeat types, backgrounds, grid overlays, and zoom</li>
             <li><strong>Pattern Transform:</strong> Fine-tune offset, scale, and positioning</li>
-            <li><strong>Stores:</strong> Preview on products (phone cases, tote bags, etc.) and access POD stores</li>
+            <li><strong>Stores & Mockups:</strong> Preview on products and access POD stores</li>
             <li><strong>Tools:</strong> Seamless test, color palette extractor, hex checker, and dimension calculator</li>
           </ul>
           
@@ -1615,18 +959,9 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
-    <div class="master-dropdown-wrapper">
-      <select id="masterDropdown">
-        <option value="">Settings</option>
-        <option value="display">Preview Options</option>
-        <option value="controls">Pattern Transform</option>
-        <option value="tools">Tools</option>
-        <option value="stores">Stores</option>
-      </select>
-    </div>
-
-    <!-- PREVIEW OPTIONS SECTION (GROUPED) -->
+    <!-- PREVIEW OPTIONS SECTION -->
     <div class="controls-section" id="displaySection">
+        
       
       <!-- Canvas & Quality Group -->
       <div class="preview-group">
@@ -1663,18 +998,6 @@ input[type="range"]::-moz-range-thumb:active{
       <div class="preview-group">
         <div class="preview-group-title">View & Display</div>
         <div class="preview-group-content">
-          <select id="viewMode">
-            <option value="tile">View Mode: Infinite Tile</option>
-            <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
-            <option value="phone">View Mode: Phone Case</option>
-            <option value="ipad">View Mode: iPad Case</option>
-            <option value="tote">View Mode: Tote Bag</option>
-            <option value="bandana">View Mode: Bandana</option>
-            <option value="bedspread">View Mode: Bedspread</option>
-            <option value="mug">View Mode: Mug</option>
-            <option value="fabric">View Mode: Fabric Swatch</option>
-            <option value="bottle">View Mode: Water Bottle</option>
-          </select>
           <select id="gridSize">
             <option value="off">Grid Overlay: Off</option>
             <option value="1">Grid Overlay: 1 inch</option>
@@ -1759,7 +1082,6 @@ input[type="range"]::-moz-range-thumb:active{
 
     <!-- TOOLS SECTION -->
     <div class="controls-section tools-section" id="toolsSection">
-      
       <!-- Seamless Test -->
       <div class="seamless-test-dropdown">
         <select id="seamlessTest">
@@ -1849,30 +1171,26 @@ input[type="range"]::-moz-range-thumb:active{
     <!-- STORES & MOCKUPS SECTION (COMBINED) -->
     <div class="controls-section stores-section" id="storesSection">
       <div class="stores-intro">
-        <div class="stores-intro-text">Turn your patterns into real products!</div>
+        <div class="stores-intro-text">Preview your pattern on products!</div>
       </div>
+      
+      <!-- View Mode for Mockups -->
       <div class="stores-dropdowns">
-        <select id="countryStores">
-          <option value="">Select Store</option>
-          <option value="https://www.gelato.com/">Gelato 🇪🇺</option>
-          <option value="https://www.contrado.co.uk/">Contrado 🇪🇺</option>
-          <option value="https://www.saal-digital.com/">Saal Digital 🇪🇺</option>
-          <option value="https://www.photobook-europe.com/">Photobook Europe 🇪🇺</option>
-          <option value="https://www.whitewall.com/">WhiteWall 🇪🇺</option>
-          <option value="https://www.canvaspeople.com/">CanvasPeople 🇺🇸</option>
-          <option value="https://www.canvaschamp.com/">CanvasChamp 🇺🇸</option>
-          <option value="https://www.mpix.com/">Mpix 🇺🇸</option>
-          <option value="https://www.canvaspop.com/">Canvaspop 🇺🇸</option>
-          <option value="https://canvasondemand.com/">Canvas On Demand 🇺🇸</option>
-          <option value="https://www.canvascanada.ca/">CanvasCanada.ca 🇨🇦</option>
-          <option value="https://www.canvaschamp.ca/">CanvasChamp.ca 🇨🇦</option>
-          <option value="https://www.bestcanvas.ca/">BestCanvas.ca 🇨🇦</option>
-          <option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
-          <option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
+        <select id="viewMode">
+          <option value="tile">View Mode: Infinite Tile</option>
+          <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
+          <option value="phone">Mockup: Phone Case</option>
+          <option value="ipad">Mockup: iPad Case</option>
+          <option value="tote">Mockup: Tote Bag</option>
+          <option value="bandana">Mockup: Bandana</option>
+          <option value="bedspread">Mockup: Bedspread</option>
+          <option value="mug">Mockup: Mug</option>
+          <option value="fabric">Mockup: Fabric Swatch</option>
+          <option value="bottle">Mockup: Water Bottle</option>
         </select>
       </div>
       
-      <!-- MOCKUP CONTROLS (MOVED HERE) -->
+      <!-- MOCKUP CONTROLS -->
       <div class="mockup-sliders">
         <div class="mockup-section-label">Mockup Controls</div>
         <div class="sliders-container">
@@ -1906,6 +1224,31 @@ input[type="range"]::-moz-range-thumb:active{
           </div>
 
         </div>
+      </div>
+      
+      <!-- POD STORES AT BOTTOM -->
+      <div class="stores-intro" style="margin-top:2rem">
+        <div class="stores-intro-text">Turn your patterns into real products!</div>
+      </div>
+      <div class="stores-dropdowns">
+        <select id="countryStores">
+          <option value="">Select Store</option>
+          <option value="https://www.gelato.com/">Gelato 🇪🇺</option>
+          <option value="https://www.contrado.co.uk/">Contrado 🇪🇺</option>
+          <option value="https://www.saal-digital.com/">Saal Digital 🇪🇺</option>
+          <option value="https://www.photobook-europe.com/">Photobook Europe 🇪🇺</option>
+          <option value="https://www.whitewall.com/">WhiteWall 🇪🇺</option>
+          <option value="https://www.canvaspeople.com/">CanvasPeople 🇺🇸</option>
+          <option value="https://www.canvaschamp.com/">CanvasChamp 🇺🇸</option>
+          <option value="https://www.mpix.com/">Mpix 🇺🇸</option>
+          <option value="https://www.canvaspop.com/">Canvaspop 🇺🇸</option>
+          <option value="https://canvasondemand.com/">Canvas On Demand 🇺🇸</option>
+          <option value="https://www.canvascanada.ca/">CanvasCanada.ca 🇨🇦</option>
+          <option value="https://www.canvaschamp.ca/">CanvasChamp.ca 🇨🇦</option>
+          <option value="https://www.bestcanvas.ca/">BestCanvas.ca 🇨🇦</option>
+          <option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
+          <option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
+        </select>
       </div>
     </div>
 
@@ -1999,6 +1342,550 @@ input[type="range"]::-moz-range-thumb:active{
 
 <audio id="easterEggAudio" preload="none"></audio>
 <script>
+/* ==================== MISSING CSS ADDITIONS ==================== */
+const styleAdditions = document.createElement('style');
+styleAdditions.textContent = `
+/* Weather Widget */
+.weather-widget{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+  padding:0.75rem 1.5rem;
+  margin-bottom:1rem;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  font-size:0.9rem;
+  animation:weather-glow 4s ease-in-out infinite;
+}
+
+@keyframes weather-glow{
+  0%,100%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+  50%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+}
+
+.weather-widget.visible{display:flex}
+.weather-widget.loading{opacity:0.6}
+
+.weather-icon{font-size:1.8rem;line-height:1}
+.weather-temp{
+  font-size:1.5rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.weather-time{font-size:1rem;font-weight:600;color:#10b981}
+.weather-divider{color:rgba(255,255,255,0.3);font-weight:300}
+.weather-condition{
+  font-size:0.95rem;
+  font-weight:600;
+  animation:condition-glow 4s ease-in-out infinite;
+}
+
+@keyframes condition-glow{
+  0%,100%{color:#764ba2;text-shadow:0 0 10px rgba(118,75,162,0.6)}
+  50%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
+}
+
+.weather-location{
+  font-size:0.9rem;
+  font-weight:600;
+  animation:location-glow 4s ease-in-out infinite;
+}
+
+@keyframes location-glow{
+  0%,100%{color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.6)}
+  50%{color:#764ba2;text-shadow:0 0 8px rgba(118,75,162,0.6)}
+}
+
+/* Tools Section */
+.tools-section{display:none;margin-top:1.5rem}
+.tools-section.active{display:block}
+
+.tool-card{
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  padding:1.2rem 1.5rem;
+  margin-bottom:1rem;
+  max-width:360px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.tool-title{
+  font-size:1rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin:0 0 0.75rem 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.palette-toggle{
+  font-size:0.75rem;
+  padding:0.3rem 0.6rem;
+  border-radius:8px;
+  background:rgba(16,185,129,0.2);
+  color:#10b981;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:1px solid rgba(16,185,129,0.3);
+}
+.palette-toggle:hover{background:rgba(16,185,129,0.3)}
+
+.calc-recommendations-toggle{
+  font-size:0.75rem;
+  padding:0.3rem 0.6rem;
+  border-radius:8px;
+  background:rgba(118,75,162,0.2);
+  color:#764ba2;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:1px solid rgba(118,75,162,0.3);
+}
+.calc-recommendations-toggle:hover{background:rgba(118,75,162,0.3)}
+
+.calc-recommendations{
+  display:none;
+  margin-top:0.75rem;
+  padding-top:0.75rem;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+.calc-recommendations.active{display:block}
+
+.calc-preset-group{margin-bottom:1rem}
+
+.calc-preset-label{
+  font-size:0.8rem;
+  font-weight:700;
+  color:#667eea;
+  margin-bottom:0.5rem;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.calc-preset-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.5rem;
+}
+
+.calc-preset-btn{
+  padding:0.5rem 0.75rem;
+  border-radius:8px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
+  color:#ccc;
+  font-size:0.75rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+  text-align:center;
+}
+
+.calc-preset-btn:hover{
+  background:rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.3);
+  transform:translateY(-1px);
+  box-shadow:0 3px 14px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.calc-preset-btn:active{
+  transform:translateY(0);
+  box-shadow:0 1px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* Color Palette - 1x9 Horizontal */
+.color-palette{
+  display:grid;
+  grid-template-columns:repeat(9,1fr);
+  gap:0.5rem;
+  margin-top:0.75rem;
+}
+
+.color-palette.hex-mode{display:none}
+
+.color-swatch{
+  width:100%;
+  aspect-ratio:1;
+  border-radius:8px;
+  border:2px solid rgba(255,255,255,0.3);
+  cursor:pointer;
+  transition:all 0.3s;
+  position:relative;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+
+.color-swatch:hover{
+  transform:scale(1.1);
+  border-color:rgba(255,255,255,0.6);
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+
+.color-swatch:active{transform:scale(0.98)}
+
+.hex-tooltip{
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.9);
+  color:#fff;
+  padding:0.3rem 0.6rem;
+  border-radius:6px;
+  font-size:0.7rem;
+  font-weight:600;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.3s;
+  z-index:100;
+}
+
+.color-swatch:hover .hex-tooltip{opacity:1}
+
+.color-swatch.copied::after{
+  content:'✓';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  color:#fff;
+  font-size:20px;
+  font-weight:bold;
+  text-shadow:0 0 4px rgba(0,0,0,0.8);
+}
+
+/* Hex Checker */
+.hex-checker{display:none;margin-top:0.75rem}
+.hex-checker.active{display:block}
+
+.hex-input-row{display:flex;gap:0.5rem;margin-bottom:0.75rem}
+
+.hex-input{
+  flex:1;
+  padding:0.75rem;
+  border-radius:12px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  font-family:'Courier New',monospace;
+  font-size:0.95rem;
+  font-weight:600;
+}
+
+.hex-preview{
+  width:100%;
+  height:80px;
+  border-radius:12px;
+  border:2px solid rgba(255,255,255,0.3);
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  transition:all 0.3s;
+}
+
+/* Seamless Test Dropdown */
+.seamless-test-dropdown{margin-bottom:1rem}
+
+.seamless-test-dropdown select{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.seamless-test-dropdown select:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.seamless-test-dropdown select:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* Dimension Calculator */
+.calc-single-slider{margin-top:0.75rem}
+
+.calc-label-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:0.5rem;
+}
+
+.calc-labels{display:flex;gap:0.5rem}
+
+.calc-label{
+  font-size:1.2rem;
+  font-weight:700;
+  cursor:pointer;
+  padding:0.3rem 0.8rem;
+  border-radius:8px;
+  transition:all 0.3s;
+  user-select:none;
+}
+
+.calc-label.active{background:rgba(102,126,234,0.2);color:#667eea}
+.calc-label:not(.active){color:#666}
+.calc-label:hover{background:rgba(102,126,234,0.1)}
+
+/* Unit Buttons (Inches/CM) */
+.calc-unit-buttons{display:flex;gap:0.5rem}
+
+.calc-unit-btn{
+  font-size:0.8rem;
+  padding:0.3rem 0.6rem;
+  border-radius:6px;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:1px solid rgba(118,75,162,0.3);
+  font-weight:600;
+  background:rgba(118,75,162,0.2);
+  color:#764ba2;
+  user-select:none;
+}
+
+.calc-unit-btn:hover{background:rgba(118,75,162,0.3)}
+
+.calc-unit-btn.active{
+  background:rgba(16,185,129,0.2);
+  color:#10b981;
+  border:1px solid rgba(16,185,129,0.3);
+}
+
+.calc-unit-btn.active:hover{background:rgba(16,185,129,0.3)}
+
+.calc-current-value{font-size:1.2rem;font-weight:700;color:#667eea}
+
+.calc-result{
+  margin-top:1rem;
+  padding:0.75rem;
+  background:rgba(16,185,129,0.1);
+  border-radius:8px;
+  border:1px solid rgba(16,185,129,0.3);
+  text-align:center;
+}
+
+.calc-result-value{font-size:1.1rem;font-weight:700;color:#10b981}
+
+/* Stores Section */
+.stores-section{display:none;margin-top:1.5rem}
+.stores-section.active{display:block}
+
+.stores-intro{text-align:center;margin-bottom:1.5rem}
+
+.stores-intro-text{
+  font-size:1.1rem;
+  font-weight:600;
+  color:#aaa;
+  margin-bottom:1rem;
+}
+
+.stores-dropdowns{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  max-width:360px;
+  margin:0 auto 2rem;
+}
+
+/* Mockup Sliders in Stores Section */
+.mockup-sliders{
+  max-width:360px;
+  margin:0 auto;
+  padding-top:1.5rem;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+
+.mockup-section-label{
+  font-size:0.85rem;
+  font-weight:700;
+  color:#667eea;
+  text-align:center;
+  margin-bottom:1rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+/* Footer */
+#footer{
+  padding:2rem;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-top:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.footer-content{max-width:1200px;margin:0 auto;text-align:center}
+
+.footer-credit{
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-size:1.1rem;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.footer-credit:hover{opacity:0.8;transform:scale(1.02)}
+
+/* Pattern Info Bar */
+.pattern-info{
+  display:none;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:0.6rem;
+  padding:1rem 1.5rem;
+  margin-top:1rem;
+}
+.pattern-info.visible{display:flex}
+
+.info-pill{
+  padding:0.5rem 1rem;
+  border-radius:20px;
+  font-size:0.85rem;
+  font-weight:600;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
+  animation:pill-glow 4s ease-in-out infinite;
+  white-space:nowrap;
+}
+
+@keyframes pill-glow{
+  0%,100%{
+    box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(118,75,162,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+    border-color:rgba(118,75,162,0.3);
+  }
+  50%{
+    box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(16,185,129,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
+    border-color:rgba(16,185,129,0.3);
+  }
+}
+
+.info-pill .info-label{color:#aaa;margin-right:0.3rem}
+
+.info-pill .info-value{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-weight:700;
+}
+
+.info-pill .info-value.success{
+  background:linear-gradient(135deg,#10b981 0%,#059669 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.info-pill .info-value.warning{
+  background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+/* Easter Egg Overlay */
+.easter-egg-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.95);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:20000;
+  opacity:0;
+  transition:opacity 0.5s;
+  overflow:hidden;
+}
+.easter-egg-overlay.visible{display:flex;opacity:1}
+
+.easter-egg-logo{
+  width:150px;
+  height:150px;
+  opacity:0;
+  animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
+}
+
+@keyframes spin-in{
+  0%{transform:scale(0) rotate(0deg);opacity:0}
+  100%{transform:scale(1) rotate(720deg);opacity:1}
+}
+
+@keyframes spin-out{
+  0%{transform:scale(1) rotate(0deg);opacity:1}
+  100%{transform:scale(0) rotate(-720deg);opacity:0}
+}
+
+@keyframes egg-glow{
+  0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}
+  50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}
+}
+
+.matrix-canvas{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  transition:opacity 1s;
+}
+.matrix-canvas.visible{opacity:1}
+
+/* Mobile Responsive */
+@media(max-width:768px){
+  #header{
+    padding:1rem;
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .logo-section{justify-content:center}
+  .header-buttons{gap:0.5rem;padding:0;max-width:100%}
+  .title{font-size:1.2rem}
+  #canvas-wrapper{padding:1rem}
+  #controls{padding:1.5rem 1rem}
+  .weather-widget{flex-wrap:wrap;gap:0.5rem;font-size:0.85rem}
+  .weather-temp{font-size:1.3rem}
+  .weather-icon{font-size:1.5rem}
+  .color-palette{grid-template-columns:repeat(9,1fr);gap:0.4rem}
+  .pattern-info{font-size:0.8rem;gap:0.4rem;padding:0.75rem 1rem}
+  .info-pill{font-size:0.75rem;padding:0.4rem 0.8rem}
+  .export-modal-content{padding:1.5rem}
+  .export-buttons{flex-direction:column}
+  .calc-preset-buttons{grid-template-columns:1fr}
+}
+`;
+document.head.appendChild(styleAdditions);
+
+/* ==================== CORE JAVASCRIPT ==================== */
 function roundedRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -2099,8 +1986,7 @@ const els = {
   hexPreview: getEl('hexPreview'),
   calcRecommendationsToggle: getEl('calcRecommendationsToggle'),
   calcRecommendations: getEl('calcRecommendations'),
-  instructionsBtn: getEl('instructionsBtn'),
-  instructionsContent: getEl('instructionsContent')
+  instructionsAccordion: getEl('instructionsAccordion')
 };
 
 const ctx = els.canvas.getContext('2d', { willReadFrequently: false });
@@ -2153,13 +2039,7 @@ const playlist = [
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3',
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3',
   'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3',
-  'TRACK_10.mp3',
-  'TRACK_11.mp3',
-  'TRACK_12.mp3',
-  'TRACK_13.mp3',
-  'TRACK_14.mp3',
-  'TRACK_15.mp3'
+  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
 ];
 
 let shuffledPlaylist = [...playlist];
@@ -2174,11 +2054,11 @@ function shuffleArray(array) {
 
 shuffleArray(shuffledPlaylist);
 
-// Instructions Toggle
-els.instructionsBtn.addEventListener('click', () => {
-  const isOpen = els.instructionsContent.classList.contains('open');
-  els.instructionsContent.classList.toggle('open', !isOpen);
-  els.instructionsBtn.querySelector('span:last-child').textContent = isOpen ? '▼' : '▲';
+// Instructions Accordion Toggle
+els.instructionsAccordion.querySelector('.instructions-accordion-header').addEventListener('click', () => {
+  const isOpen = els.instructionsAccordion.classList.contains('open');
+  els.instructionsAccordion.classList.toggle('open', !isOpen);
+  els.instructionsAccordion.querySelector('.instructions-accordion-header span:last-child').textContent = isOpen ? '▼' : '▲';
 });
 
 // Calculator Recommendations Toggle
@@ -2197,15 +2077,12 @@ doc.querySelectorAll('.calc-preset-btn').forEach(btn => {
     const px = btn.dataset.px;
     
     if (px) {
-      // Web preset - calculate based on pixels
       const pxVal = parseInt(px);
-      const inches = pxVal / 72; // Assume 72 DPI for web
-      
+      const inches = pxVal / 72;
       calcValues.size = useMetric ? Math.round(inches * 2.54) : Math.round(inches);
       calcValues.dpi = 72;
       calcActiveField = 'size';
     } else {
-      // Print/POD preset
       if (unit === 'in' && useMetric) {
         calcValues.size = Math.round(parseFloat(size) * 2.54);
       } else if (unit === 'cm' && !useMetric) {
@@ -2335,8 +2212,8 @@ function getWeatherIconFromCode(code) {
 
 function getRudeboyWeatherCondition(code) {
   if (code === 0) return 'Let the sunshine';
-  if (code === 1 || code === 2) return "It's Cloudly Bitch";
-  if (code === 3) return "It's Cloudly Bitch";
+  if (code === 1 || code === 2) return "It's Cloudy Bitch";
+  if (code === 3) return "It's Cloudy Bitch";
   if (code === 45 || code === 48) return "Can't see shit";
   if (code >= 51 && code <= 67) return 'Wet T-Shirt Weather';
   if (code >= 71 && code <= 77) return 'Fucking Snow';
@@ -2386,7 +2263,7 @@ els.paletteToggle.addEventListener('click', () => {
 els.hexInput.addEventListener('input', (e) => {
   let hex = e.target.value.trim();
   
-  if (!hex.startsWith('#')) {
+  if (!hex.startsWith('')) {
     hex = '#' + hex;
     els.hexInput.value = hex;
   }
@@ -2767,13 +2644,6 @@ function playRandomTrack() {
   
   const trackUrl = shuffledPlaylist[currentTrackIndex];
   currentTrackIndex++;
-  
-  if (trackUrl.includes('TRACK_')) {
-    if (matrixActive) {
-      playRandomTrack();
-    }
-    return;
-  }
   
   els.audio.src = trackUrl;
   els.audio.volume = 0;
@@ -3426,12 +3296,23 @@ els.canvas.addEventListener('pointerleave', () => isDragging = false);
 
 els.canvas.addEventListener('wheel', (e) => {
   if (!tileImage) return;
-  e.preventDefault();
   
-  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
   const rect = els.canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
+  const edgeDeadZone = 80;
+  
+  const isInDeadZone = 
+    mouseX < edgeDeadZone || 
+    mouseX > rect.width - edgeDeadZone || 
+    mouseY < edgeDeadZone || 
+    mouseY > rect.height - edgeDeadZone;
+  
+  if (isInDeadZone) return;
+  
+  e.preventDefault();
+  
+  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
   
   let newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * zoomFactor));
   const scaleChange = newZoom - zoom;
@@ -3467,8 +3348,21 @@ els.canvas.addEventListener('touchstart', (e) => {
 
 els.canvas.addEventListener('touchmove', (e) => {
   if (e.touches.length === 2 && tileImage) {
-    e.preventDefault();
+    const rect = els.canvas.getBoundingClientRect();
     const touch1 = e.touches[0];
+    const centerX = touch1.clientX - rect.left;
+    const centerY = touch1.clientY - rect.top;
+    const edgeDeadZone = 100;
+    
+    const isInDeadZone = 
+      centerX < edgeDeadZone || 
+      centerX > rect.width - edgeDeadZone || 
+      centerY < edgeDeadZone || 
+      centerY > rect.height - edgeDeadZone;
+    
+    if (isInDeadZone) return;
+    
+    e.preventDefault();
     const touch2 = e.touches[1];
     const currentDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
     
