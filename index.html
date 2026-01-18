@@ -1,4 +1,4 @@
-<!-- Rudeboy Pattern Checker - PIMP v2.0 PERFECT BUILD -->
+<!-- Rudeboy Pattern Checker - PIMP v2.0 TopNotch -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -401,6 +401,100 @@ body{
 
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
 
+/* ==================== INSTRUCTIONS BUTTON ==================== */
+.instructions-wrapper{
+  max-width:360px;
+  margin:0 auto 1.5rem;
+}
+
+.instructions-btn{
+  padding:0.75rem 1rem;
+  font-size:0.95rem;
+  border-radius:16px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  cursor:pointer;
+  transition:all 0.3s;
+  font-family:inherit;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  user-select:none;
+}
+
+.instructions-btn:hover{
+  background:rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.25);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.instructions-btn:active{
+  transform:translateY(0);
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+.instructions-content{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.3s ease;
+  margin-top:0.5rem;
+}
+
+.instructions-content.open{
+  max-height:2000px;
+}
+
+.instructions-card{
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  padding:1.5rem;
+}
+
+.instructions-card h3{
+  font-size:1.1rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin:0 0 0.75rem 0;
+}
+
+.instructions-card h4{
+  font-size:0.95rem;
+  font-weight:700;
+  color:#10b981;
+  margin:1rem 0 0.5rem 0;
+}
+
+.instructions-card p{
+  font-size:0.9rem;
+  line-height:1.6;
+  color:#ccc;
+  margin:0 0 0.75rem 0;
+}
+
+.instructions-card ul{
+  font-size:0.9rem;
+  line-height:1.6;
+  color:#ccc;
+  margin:0 0 0.75rem 0;
+  padding-left:1.5rem;
+}
+
+.instructions-card li{
+  margin-bottom:0.5rem;
+}
+
 /* ==================== SELECT & BUTTON BASE STYLES ==================== */
 select,button{
   padding:0.75rem 1rem;
@@ -759,7 +853,6 @@ input[type="range"]::-moz-range-thumb:active{
   min-width:45px;
   text-align:right;
 }
-
 /* ==================== WEATHER WIDGET (Sleek & Compact) ==================== */
 .weather-widget{
   display:none;
@@ -892,6 +985,80 @@ input[type="range"]::-moz-range-thumb:active{
 
 .palette-toggle:hover{
   background:rgba(16,185,129,0.3);
+}
+
+/* Recommendations Toggle */
+.calc-recommendations-toggle{
+  font-size:0.75rem;
+  padding:0.3rem 0.6rem;
+  border-radius:8px;
+  background:rgba(118,75,162,0.2);
+  color:#764ba2;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:1px solid rgba(118,75,162,0.3);
+}
+
+.calc-recommendations-toggle:hover{
+  background:rgba(118,75,162,0.3);
+}
+
+.calc-recommendations{
+  display:none;
+  margin-top:0.75rem;
+  padding-top:0.75rem;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+
+.calc-recommendations.active{
+  display:block;
+}
+
+.calc-preset-group{
+  margin-bottom:1rem;
+}
+
+.calc-preset-label{
+  font-size:0.8rem;
+  font-weight:700;
+  color:#667eea;
+  margin-bottom:0.5rem;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.calc-preset-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.5rem;
+}
+
+.calc-preset-btn{
+  padding:0.5rem 0.75rem;
+  border-radius:8px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
+  color:#ccc;
+  font-size:0.75rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+  text-align:center;
+}
+
+.calc-preset-btn:hover{
+  background:rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.3);
+  transform:translateY(-1px);
+  box-shadow:0 3px 14px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.calc-preset-btn:active{
+  transform:translateY(0);
+  box-shadow:0 1px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
 /* Color Palette - 1x9 Horizontal */
@@ -1112,6 +1279,51 @@ input[type="range"]::-moz-range-thumb:active{
   color:#10b981;
 }
 
+/* ==================== STORES SECTION (NOW WITH MOCKUPS) ==================== */
+.stores-section{
+  display:none;
+  margin-top:1.5rem;
+}
+.stores-section.active{display:block}
+
+.stores-intro{
+  text-align:center;
+  margin-bottom:1.5rem;
+}
+
+.stores-intro-text{
+  font-size:1.1rem;
+  font-weight:600;
+  color:#aaa;
+  margin-bottom:1rem;
+}
+
+.stores-dropdowns{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  max-width:360px;
+  margin:0 auto 2rem;
+}
+
+/* Mockup Sliders in Stores Section */
+.mockup-sliders{
+  max-width:360px;
+  margin:0 auto;
+  padding-top:1.5rem;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+
+.mockup-section-label{
+  font-size:0.85rem;
+  font-weight:700;
+  color:#667eea;
+  text-align:center;
+  margin-bottom:1rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
 /* ==================== FOOTER ==================== */
 #footer{
   padding:2rem;
@@ -1295,14 +1507,17 @@ input[type="range"]::-moz-range-thumb:active{
   .export-buttons{
     flex-direction:column;
   }
+  .calc-preset-buttons{
+    grid-template-columns:1fr;
+  }
 }
 </style>
-<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.7.3 FINAL</title>
+<title>Rudeboy™ Seamless Pattern Checker - PIMP v2.0 TopNotch</title>
 </head>
 <body>
 
 <div id="container">
-<div id="header">
+  <div id="header">
     <div class="logo-section">
       <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
       <h1 class="title">Pattern Checker By Rudeboy™</h1>
@@ -1338,12 +1553,73 @@ input[type="range"]::-moz-range-thumb:active{
 
   <div id="controls">
     
+    <!-- INSTRUCTIONS BUTTON -->
+    <div class="instructions-wrapper">
+      <button class="instructions-btn" id="instructionsBtn">
+        <span>📚 Instructions</span>
+        <span>▼</span>
+      </button>
+      <div class="instructions-content" id="instructionsContent">
+        <div class="instructions-card">
+          <h3>🎨 Welcome to PIMP - Pattern Image Management Platform</h3>
+          <p>Your complete toolkit for creating, testing, and exporting seamless patterns for print-on-demand and digital products.</p>
+          
+          <h4>📤 Getting Started</h4>
+          <ul>
+            <li><strong>Upload:</strong> Click the Upload button or drag & drop your square tile image</li>
+            <li><strong>Sample:</strong> Try our pre-loaded patterns to explore features</li>
+            <li><strong>Export:</strong> Save your work in multiple resolutions and formats</li>
+          </ul>
+          
+          <h4>⚙️ Settings Menu</h4>
+          <ul>
+            <li><strong>Preview Options:</strong> Adjust canvas quality, repeat types, backgrounds, grid overlays, and zoom</li>
+            <li><strong>Pattern Transform:</strong> Fine-tune offset, scale, and positioning</li>
+            <li><strong>Stores:</strong> Preview on products (phone cases, tote bags, etc.) and access POD stores</li>
+            <li><strong>Tools:</strong> Seamless test, color palette extractor, hex checker, and dimension calculator</li>
+          </ul>
+          
+          <h4>📐 Dimension Calculator</h4>
+          <p>Calculate perfect pixel dimensions for any size and DPI. Toggle between Size/DPI modes and inches/cm units. Click "Recommendations" for common presets:</p>
+          <ul>
+            <li><strong>Print:</strong> 4"×4" @ 300 DPI, 6"×6" @ 300 DPI, 8"×8" @ 300 DPI</li>
+            <li><strong>Web:</strong> 512px, 1024px, 2048px @ 72 DPI</li>
+            <li><strong>POD:</strong> Industry standards for print-on-demand platforms</li>
+          </ul>
+          
+          <h4>🎨 Color Tools</h4>
+          <ul>
+            <li><strong>Color Palette:</strong> Automatically extracts top 9 colors from your pattern (click to copy hex codes)</li>
+            <li><strong>Hex Checker:</strong> Test any hex color with live preview</li>
+          </ul>
+          
+          <h4>🔍 Pattern Testing</h4>
+          <ul>
+            <li><strong>Seamless Test:</strong> Red edge overlay to check tile alignment</li>
+            <li><strong>Grid Overlay:</strong> Visualize inches/measurements on canvas</li>
+            <li><strong>Repeat Types:</strong> Full Drop, Half Drop, Brick patterns</li>
+          </ul>
+          
+          <h4>💡 Pro Tips</h4>
+          <ul>
+            <li>Use <strong>Ultra (2400px)</strong> or <strong>Max (3200px)</strong> quality for final exports</li>
+            <li>Test seamless edges with the red edge tool before uploading to stores</li>
+            <li>Extract your color palette to create matching product descriptions</li>
+            <li>Use mockups to preview how patterns look on real products</li>
+            <li>Mouse wheel to zoom, click & drag to pan the canvas</li>
+          </ul>
+          
+          <h4>🏪 Print-on-Demand Ready</h4>
+          <p>Export at recommended sizes for Redbubble, Society6, Spoonflower, Zazzle, and more. Check the Stores section for direct links to top POD platforms.</p>
+        </div>
+      </div>
+    </div>
+
     <div class="master-dropdown-wrapper">
       <select id="masterDropdown">
         <option value="">Settings</option>
         <option value="display">Preview Options</option>
         <option value="controls">Pattern Transform</option>
-        <option value="mockups">Mockups</option>
         <option value="tools">Tools</option>
         <option value="stores">Stores</option>
       </select>
@@ -1481,42 +1757,6 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
-    <!-- MOCKUPS SECTION -->
-    <div class="controls-section" id="mockupsSection">
-      <div class="section-label">Mockup Controls</div>
-      <div class="sliders-container">
-        
-        <div class="slider-dropdown" data-slider="mockupZoom">
-          <div class="slider-dropdown-header">
-            <span>Mockup Zoom</span>
-            <span class="slider-value" id="mockupZoomValue">100%</span>
-          </div>
-          <div class="slider-dropdown-content">
-            <div class="slider-group">
-              <div class="slider-wrapper">
-                <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="slider-dropdown" data-slider="mockupRotate">
-          <div class="slider-dropdown-header">
-            <span>Mockup Rotate</span>
-            <span class="slider-value" id="mockupRotateValue">0°</span>
-          </div>
-          <div class="slider-dropdown-content">
-            <div class="slider-group">
-              <div class="slider-wrapper">
-                <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
     <!-- TOOLS SECTION -->
     <div class="controls-section tools-section" id="toolsSection">
       
@@ -1543,9 +1783,12 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- Dimension Calculator Card (SIZE + DPI + INCHES/CM BUTTONS) -->
+      <!-- Dimension Calculator Card with Recommendations -->
       <div class="tool-card" id="dimensionCalcCard">
-        <div class="tool-title">📐 Dimension Calculator</div>
+        <div class="tool-title">
+          <span>📐 Dimension Calculator</span>
+          <span class="calc-recommendations-toggle" id="calcRecommendationsToggle">Recommendations</span>
+        </div>
         <div class="calc-single-slider">
           <div class="calc-label-row">
             <div class="calc-labels">
@@ -1562,6 +1805,40 @@ input[type="range"]::-moz-range-thumb:active{
           </div>
           <input type="range" id="calcSlider" min="1" max="500" value="24">
         </div>
+        
+        <!-- Recommendations Section -->
+        <div class="calc-recommendations" id="calcRecommendations">
+          <div class="calc-preset-group">
+            <div class="calc-preset-label">Print Quality</div>
+            <div class="calc-preset-buttons">
+              <button class="calc-preset-btn" data-size="4" data-dpi="300" data-unit="in">4" × 4" @ 300 DPI</button>
+              <button class="calc-preset-btn" data-size="6" data-dpi="300" data-unit="in">6" × 6" @ 300 DPI</button>
+              <button class="calc-preset-btn" data-size="8" data-dpi="300" data-unit="in">8" × 8" @ 300 DPI</button>
+              <button class="calc-preset-btn" data-size="12" data-dpi="300" data-unit="in">12" × 12" @ 300 DPI</button>
+            </div>
+          </div>
+          
+          <div class="calc-preset-group">
+            <div class="calc-preset-label">Web/Digital</div>
+            <div class="calc-preset-buttons">
+              <button class="calc-preset-btn" data-px="512">512 × 512px</button>
+              <button class="calc-preset-btn" data-px="1024">1024 × 1024px</button>
+              <button class="calc-preset-btn" data-px="2048">2048 × 2048px</button>
+              <button class="calc-preset-btn" data-px="4096">4096 × 4096px</button>
+            </div>
+          </div>
+          
+          <div class="calc-preset-group">
+            <div class="calc-preset-label">Print-on-Demand</div>
+            <div class="calc-preset-buttons">
+              <button class="calc-preset-btn" data-size="10.67" data-dpi="150" data-unit="in">Redbubble (1600px)</button>
+              <button class="calc-preset-btn" data-size="16" data-dpi="150" data-unit="in">Society6 (2400px)</button>
+              <button class="calc-preset-btn" data-size="13.33" data-dpi="150" data-unit="in">Spoonflower (2000px)</button>
+              <button class="calc-preset-btn" data-size="21.33" data-dpi="150" data-unit="in">Zazzle (3200px)</button>
+            </div>
+          </div>
+        </div>
+        
         <div class="calc-result">
           <div class="calc-result-value" id="calcResultValue">3600 × 3600px</div>
         </div>
@@ -1569,12 +1846,12 @@ input[type="range"]::-moz-range-thumb:active{
 
     </div>
 
-    <!-- STORES SECTION -->
-    <div class="controls-section" id="storesSection">
-      <div style="text-align:center;margin-bottom:1.5rem">
-        <div style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa">Turn your patterns into real products!</div>
+    <!-- STORES & MOCKUPS SECTION (COMBINED) -->
+    <div class="controls-section stores-section" id="storesSection">
+      <div class="stores-intro">
+        <div class="stores-intro-text">Turn your patterns into real products!</div>
       </div>
-      <div class="settings-dropdowns">
+      <div class="stores-dropdowns">
         <select id="countryStores">
           <option value="">Select Store</option>
           <option value="https://www.gelato.com/">Gelato 🇪🇺</option>
@@ -1593,6 +1870,42 @@ input[type="range"]::-moz-range-thumb:active{
           <option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
           <option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
         </select>
+      </div>
+      
+      <!-- MOCKUP CONTROLS (MOVED HERE) -->
+      <div class="mockup-sliders">
+        <div class="mockup-section-label">Mockup Controls</div>
+        <div class="sliders-container">
+          
+          <div class="slider-dropdown" data-slider="mockupZoom">
+            <div class="slider-dropdown-header">
+              <span>Mockup Zoom</span>
+              <span class="slider-value" id="mockupZoomValue">100%</span>
+            </div>
+            <div class="slider-dropdown-content">
+              <div class="slider-group">
+                <div class="slider-wrapper">
+                  <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slider-dropdown" data-slider="mockupRotate">
+            <div class="slider-dropdown-header">
+              <span>Mockup Rotate</span>
+              <span class="slider-value" id="mockupRotateValue">0°</span>
+            </div>
+            <div class="slider-dropdown-content">
+              <div class="slider-group">
+                <div class="slider-wrapper">
+                  <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
 
@@ -1685,7 +1998,6 @@ input[type="range"]::-moz-range-thumb:active{
 </div>
 
 <audio id="easterEggAudio" preload="none"></audio>
-
 <script>
 function roundedRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -1755,7 +2067,6 @@ const els = {
   masterDropdown: getEl('masterDropdown'),
   displaySection: getEl('displaySection'),
   controlsSection: getEl('controlsSection'),
-  mockupsSection: getEl('mockupsSection'),
   toolsSection: getEl('toolsSection'),
   storesSection: getEl('storesSection'),
   countryStores: getEl('countryStores'),
@@ -1785,7 +2096,11 @@ const els = {
   paletteToggle: getEl('paletteToggle'),
   hexChecker: getEl('hexChecker'),
   hexInput: getEl('hexInput'),
-  hexPreview: getEl('hexPreview')
+  hexPreview: getEl('hexPreview'),
+  calcRecommendationsToggle: getEl('calcRecommendationsToggle'),
+  calcRecommendations: getEl('calcRecommendations'),
+  instructionsBtn: getEl('instructionsBtn'),
+  instructionsContent: getEl('instructionsContent')
 };
 
 const ctx = els.canvas.getContext('2d', { willReadFrequently: false });
@@ -1858,6 +2173,53 @@ function shuffleArray(array) {
 }
 
 shuffleArray(shuffledPlaylist);
+
+// Instructions Toggle
+els.instructionsBtn.addEventListener('click', () => {
+  const isOpen = els.instructionsContent.classList.contains('open');
+  els.instructionsContent.classList.toggle('open', !isOpen);
+  els.instructionsBtn.querySelector('span:last-child').textContent = isOpen ? '▼' : '▲';
+});
+
+// Calculator Recommendations Toggle
+els.calcRecommendationsToggle.addEventListener('click', () => {
+  const isActive = els.calcRecommendations.classList.contains('active');
+  els.calcRecommendations.classList.toggle('active', !isActive);
+  els.calcRecommendationsToggle.textContent = isActive ? 'Recommendations' : 'Hide';
+});
+
+// Preset Buttons
+doc.querySelectorAll('.calc-preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const size = btn.dataset.size;
+    const dpi = btn.dataset.dpi;
+    const unit = btn.dataset.unit;
+    const px = btn.dataset.px;
+    
+    if (px) {
+      // Web preset - calculate based on pixels
+      const pxVal = parseInt(px);
+      const inches = pxVal / 72; // Assume 72 DPI for web
+      
+      calcValues.size = useMetric ? Math.round(inches * 2.54) : Math.round(inches);
+      calcValues.dpi = 72;
+      calcActiveField = 'size';
+    } else {
+      // Print/POD preset
+      if (unit === 'in' && useMetric) {
+        calcValues.size = Math.round(parseFloat(size) * 2.54);
+      } else if (unit === 'cm' && !useMetric) {
+        calcValues.size = Math.round(parseFloat(size) / 2.54);
+      } else {
+        calcValues.size = Math.round(parseFloat(size));
+      }
+      calcValues.dpi = parseInt(dpi);
+      calcActiveField = 'size';
+    }
+    
+    updateCalcDisplay();
+  });
+});
 
 function updateTime() {
   const now = new Date();
@@ -1973,8 +2335,8 @@ function getWeatherIconFromCode(code) {
 
 function getRudeboyWeatherCondition(code) {
   if (code === 0) return 'Let the sunshine';
-  if (code === 1 || code === 2) return "It's Cloudy Bitch";
-  if (code === 3) return "It's Cloudy Bitch";
+  if (code === 1 || code === 2) return "It's Cloudly Bitch";
+  if (code === 3) return "It's Cloudly Bitch";
   if (code === 45 || code === 48) return "Can't see shit";
   if (code >= 51 && code <= 67) return 'Wet T-Shirt Weather';
   if (code >= 71 && code <= 77) return 'Fucking Snow';
@@ -2349,13 +2711,12 @@ els.exportConfirm.addEventListener('click', async () => {
 });
 
 els.masterDropdown.addEventListener('change', (e) => {
-  [els.displaySection, els.controlsSection, els.mockupsSection, els.toolsSection, els.storesSection]
+  [els.displaySection, els.controlsSection, els.toolsSection, els.storesSection]
     .forEach(section => section.classList.remove('active'));
   
   const sections = {
     display: els.displaySection,
     controls: els.controlsSection,
-    mockups: els.mockupsSection,
     tools: els.toolsSection,
     stores: els.storesSection
   };
