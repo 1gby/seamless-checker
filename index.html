@@ -1,4 +1,4 @@
-<!-- Rudeboy Pattern Checker - PIMP v1.7 (Custom Export + Hex Checker) -->
+<!-- Rudeboy Pattern Checker - PIMP v1.7.3 FINAL PERFECT BUILD -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +21,7 @@ body{
   min-height:100vh;
   padding-top:env(safe-area-inset-top);
   padding-bottom:env(safe-area-inset-bottom);
+  touch-action:pan-x pan-y;
 }
 #container{display:flex;flex-direction:column;min-height:100vh}
 
@@ -190,6 +191,7 @@ body{
   justify-content:center;
   padding:2rem;
   position:relative;
+  touch-action:none;
 }
 
 #canvas{
@@ -204,6 +206,7 @@ body{
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,0.06);
+  touch-action:none;
 }
 #canvas.has-image{cursor:grab}
 #canvas.has-image:active{cursor:grabbing}
@@ -436,14 +439,36 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* ==================== PREVIEW OPTIONS - GROUPED SECTIONS ==================== */
+.preview-group{
+  margin-bottom:1.5rem;
+}
+
+.preview-group-title{
+  font-size:0.75rem;
+  font-weight:700;
+  color:#667eea;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  margin-bottom:0.75rem;
+  padding-left:0.5rem;
+  opacity:0.8;
+}
+
+.preview-group-content{
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+}
+
 /* ==================== DISPLAY DROPDOWNS (Purple & Green Liquid Glass) ==================== */
-#canvasQuality,#viewMode,#gridSize,#seamlessTest{
+#canvasQuality,#viewMode,#gridSize{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#canvasQuality:hover,#viewMode:hover,#gridSize:hover,#seamlessTest:hover{
+#canvasQuality:hover,#viewMode:hover,#gridSize:hover{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
-#canvasQuality:active,#viewMode:active,#gridSize:active,#seamlessTest:active{
+#canvasQuality:active,#viewMode:active,#gridSize:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
@@ -470,13 +495,11 @@ select:active,button:active{transform:translateY(0)}
 
 /* ==================== SLIDER DROPDOWNS (Liquid Glass) ==================== */
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,
-.slider-dropdown[data-slider="scale"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,
-.slider-dropdown[data-slider="zoom"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -487,27 +510,36 @@ select:active,button:active{transform:translateY(0)}
 }
 
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:hover,
-.slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:hover{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:hover,
-.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:hover,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:hover{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:active,
-.slider-dropdown[data-slider="scale"] .slider-dropdown-header:active,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:active,
-.slider-dropdown[data-slider="zoom"] .slider-dropdown-header:active,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* ==================== SCALE SLIDER (CENTER-ALIGNED - Purple Glow) ==================== */
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.slider-dropdown[data-slider="scale"] .slider-dropdown-header:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
 /* ==================== CONTROLS SECTIONS ==================== */
@@ -524,6 +556,16 @@ select:active,button:active{transform:translateY(0)}
   gap:1rem;
   max-width:360px;
   margin:0 auto;
+}
+
+.section-label{
+  font-size:0.85rem;
+  font-weight:700;
+  color:#667eea;
+  text-align:center;
+  margin-bottom:0.5rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
 }
 
 /* ==================== SLIDER COMPONENTS ==================== */
@@ -570,6 +612,57 @@ select:active,button:active{transform:translateY(0)}
 }
 
 .slider-wrapper{position:relative}
+
+/* CENTER MARKER for Scale & Zoom Sliders */
+.slider-wrapper.centered::before{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  width:2px;
+  height:20px;
+  background:rgba(102,126,234,0.5);
+  pointer-events:none;
+  z-index:1;
+}
+
+/* ==================== ZOOM SLIDER (DISPLAY SECTION) ==================== */
+.zoom-slider-wrapper{
+  margin-bottom:1rem;
+}
+
+.zoom-slider-header{
+  padding:0.75rem 1rem;
+  font-size:0.95rem;
+  border-radius:16px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  color:#eee;
+  cursor:pointer;
+  transition:all 0.3s;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  user-select:none;
+}
+
+.zoom-slider-header:hover{
+  background:rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.25);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.zoom-slider-content{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.3s ease;
+  margin-top:0.5rem;
+}
+.zoom-slider-wrapper.open .zoom-slider-content{max-height:200px}
 
 /* ==================== PILL-SHAPED TRANSPARENT GLASS SLIDER ==================== */
 input[type="range"]{
@@ -908,7 +1001,24 @@ input[type="range"]::-moz-range-thumb:active{
   transition:all 0.3s;
 }
 
-/* Single Slider Calculator (SIZE + DPI) */
+/* Seamless Test Dropdown */
+.seamless-test-dropdown{
+  margin-bottom:1rem;
+}
+
+.seamless-test-dropdown select{
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.seamless-test-dropdown select:hover{
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.seamless-test-dropdown select:active{
+  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+/* Dimension Calculator */
 .calc-single-slider{
   margin-top:0.75rem;
 }
@@ -918,6 +1028,11 @@ input[type="range"]::-moz-range-thumb:active{
   justify-content:space-between;
   align-items:center;
   margin-bottom:0.5rem;
+}
+
+.calc-labels{
+  display:flex;
+  gap:0.5rem;
 }
 
 .calc-label{
@@ -941,6 +1056,39 @@ input[type="range"]::-moz-range-thumb:active{
 
 .calc-label:hover{
   background:rgba(102,126,234,0.1);
+}
+
+/* Unit Buttons (Inches/CM) */
+.calc-unit-buttons{
+  display:flex;
+  gap:0.5rem;
+}
+
+.calc-unit-btn{
+  font-size:0.8rem;
+  padding:0.3rem 0.6rem;
+  border-radius:6px;
+  cursor:pointer;
+  transition:all 0.3s;
+  border:1px solid rgba(118,75,162,0.3);
+  font-weight:600;
+  background:rgba(118,75,162,0.2);
+  color:#764ba2;
+  user-select:none;
+}
+
+.calc-unit-btn:hover{
+  background:rgba(118,75,162,0.3);
+}
+
+.calc-unit-btn.active{
+  background:rgba(16,185,129,0.2);
+  color:#10b981;
+  border:1px solid rgba(16,185,129,0.3);
+}
+
+.calc-unit-btn.active:hover{
+  background:rgba(16,185,129,0.3);
 }
 
 .calc-current-value{
@@ -1149,13 +1297,12 @@ input[type="range"]::-moz-range-thumb:active{
   }
 }
 </style>
-<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.7</title>
+<title>Rudeboy™ Seamless Pattern Checker - PIMP v1.7.3 FINAL</title>
 </head>
 <body>
 
 <div id="container">
-  
-  <div id="header">
+<div id="header">
     <div class="logo-section">
       <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
       <h1 class="title">Pattern Checker By Rudeboy™</h1>
@@ -1194,59 +1341,97 @@ input[type="range"]::-moz-range-thumb:active{
     <div class="master-dropdown-wrapper">
       <select id="masterDropdown">
         <option value="">Settings</option>
-        <option value="display">Display</option>
-        <option value="controls">Controls</option>
+        <option value="display">Preview Options</option>
+        <option value="controls">Pattern Transform</option>
         <option value="mockups">Mockups</option>
         <option value="tools">Tools</option>
         <option value="stores">Stores</option>
       </select>
     </div>
 
+    <!-- PREVIEW OPTIONS SECTION (GROUPED) -->
     <div class="controls-section" id="displaySection">
-      <div class="settings-dropdowns">
-        <select id="canvasQuality">
-          <option value="1200">Canvas Quality: Standard (1200px)</option>
-          <option value="1600">Canvas Quality: High (1600px)</option>
-          <option value="2400">Canvas Quality: Ultra (2400px)</option>
-          <option value="3200">Canvas Quality: Max (3200px)</option>
-        </select>
-        <select id="repeatType">
-          <option value="full">Repeat Type: Full Drop</option>
-          <option value="half-drop">Repeat Type: Half Drop</option>
-          <option value="brick">Repeat Type: Brick</option>
-        </select>
-        <select id="viewMode">
-          <option value="tile">View Mode: Infinite Tile</option>
-          <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
-          <option value="phone">View Mode: Phone Case</option>
-          <option value="ipad">View Mode: iPad Case</option>
-          <option value="tote">View Mode: Tote Bag</option>
-          <option value="bandana">View Mode: Bandana</option>
-          <option value="bedspread">View Mode: Bedspread</option>
-          <option value="mug">View Mode: Mug</option>
-          <option value="fabric">View Mode: Fabric Swatch</option>
-          <option value="bottle">View Mode: Water Bottle</option>
-        </select>
-        <select id="bgColor">
-          <option value="checker">Background: Transparent Grid</option>
-          <option value="#000000">Background: Black</option>
-          <option value="#ffffff">Background: White</option>
-          <option value="#1a1a1a">Background: Gray</option>
-        </select>
-        <select id="seamlessTest">
-          <option value="off">Seamless Test: Off</option>
-          <option value="on">Seamless Test: On (Red Edges)</option>
-        </select>
-        <select id="gridSize">
-          <option value="off">Grid Overlay: Off</option>
-          <option value="1">Grid Overlay: 1 inch</option>
-          <option value="2">Grid Overlay: 2 inches</option>
-          <option value="6">Grid Overlay: 6 inches</option>
-          <option value="12">Grid Overlay: 12 inches</option>
-        </select>
+      
+      <!-- Canvas & Quality Group -->
+      <div class="preview-group">
+        <div class="preview-group-title">Canvas & Quality</div>
+        <div class="preview-group-content">
+          <select id="canvasQuality">
+            <option value="1200">Canvas Quality: Standard (1200px)</option>
+            <option value="1600">Canvas Quality: High (1600px)</option>
+            <option value="2400">Canvas Quality: Ultra (2400px)</option>
+            <option value="3200">Canvas Quality: Max (3200px)</option>
+          </select>
+        </div>
       </div>
+
+      <!-- Pattern Settings Group -->
+      <div class="preview-group">
+        <div class="preview-group-title">Pattern Settings</div>
+        <div class="preview-group-content">
+          <select id="repeatType">
+            <option value="full">Repeat Type: Full Drop</option>
+            <option value="half-drop">Repeat Type: Half Drop</option>
+            <option value="brick">Repeat Type: Brick</option>
+          </select>
+          <select id="bgColor">
+            <option value="checker">Background: Transparent Grid</option>
+            <option value="#000000">Background: Black</option>
+            <option value="#ffffff">Background: White</option>
+            <option value="#1a1a1a">Background: Gray</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- View & Display Group -->
+      <div class="preview-group">
+        <div class="preview-group-title">View & Display</div>
+        <div class="preview-group-content">
+          <select id="viewMode">
+            <option value="tile">View Mode: Infinite Tile</option>
+            <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
+            <option value="phone">View Mode: Phone Case</option>
+            <option value="ipad">View Mode: iPad Case</option>
+            <option value="tote">View Mode: Tote Bag</option>
+            <option value="bandana">View Mode: Bandana</option>
+            <option value="bedspread">View Mode: Bedspread</option>
+            <option value="mug">View Mode: Mug</option>
+            <option value="fabric">View Mode: Fabric Swatch</option>
+            <option value="bottle">View Mode: Water Bottle</option>
+          </select>
+          <select id="gridSize">
+            <option value="off">Grid Overlay: Off</option>
+            <option value="1">Grid Overlay: 1 inch</option>
+            <option value="2">Grid Overlay: 2 inches</option>
+            <option value="6">Grid Overlay: 6 inches</option>
+            <option value="12">Grid Overlay: 12 inches</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Zoom Control Group -->
+      <div class="preview-group">
+        <div class="preview-group-title">Zoom Control</div>
+        <div class="preview-group-content">
+          <div class="zoom-slider-wrapper" id="zoomSliderWrapper">
+            <div class="zoom-slider-header">
+              <span>Zoom</span>
+              <span class="slider-value" id="zoomValue">100%</span>
+            </div>
+            <div class="zoom-slider-content">
+              <div class="slider-group">
+                <div class="slider-wrapper centered">
+                  <input type="range" id="zoomSlider" min="0" max="100" step="1" value="50">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
+    <!-- PATTERN TRANSFORM SECTION -->
     <div class="controls-section" id="controlsSection">
       <div class="sliders-container">
         
@@ -1278,29 +1463,16 @@ input[type="range"]::-moz-range-thumb:active{
           </div>
         </div>
 
+        <!-- SCALE SLIDER (CENTER-ALIGNED AT 1.0×) -->
         <div class="slider-dropdown" data-slider="scale">
           <div class="slider-dropdown-header">
             <span>Scale</span>
-            <span class="slider-value" id="scaleValue">1.0×</span>
+            <span class="slider-value" id="scaleValue">1.00×</span>
           </div>
           <div class="slider-dropdown-content">
             <div class="slider-group">
-              <div class="slider-wrapper">
-                <input type="range" id="patternScale" min="0.05" max="5" step="0.01" value="1">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="slider-dropdown" data-slider="zoom">
-          <div class="slider-dropdown-header">
-            <span>Zoom</span>
-            <span class="slider-value" id="zoomValue">100%</span>
-          </div>
-          <div class="slider-dropdown-content">
-            <div class="slider-group">
-              <div class="slider-wrapper">
-                <input type="range" id="zoomSlider" min="1" max="800" step="1" value="100">
+              <div class="slider-wrapper centered">
+                <input type="range" id="patternScale" min="0" max="100" step="1" value="50">
               </div>
             </div>
           </div>
@@ -1309,7 +1481,9 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
+    <!-- MOCKUPS SECTION -->
     <div class="controls-section" id="mockupsSection">
+      <div class="section-label">Mockup Controls</div>
       <div class="sliders-container">
         
         <div class="slider-dropdown" data-slider="mockupZoom">
@@ -1343,8 +1517,17 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
+    <!-- TOOLS SECTION -->
     <div class="controls-section tools-section" id="toolsSection">
       
+      <!-- Seamless Test -->
+      <div class="seamless-test-dropdown">
+        <select id="seamlessTest">
+          <option value="off">Seamless Test: Off</option>
+          <option value="on">Seamless Test: On (Red Edges)</option>
+        </select>
+      </div>
+
       <!-- Color Palette Card with Hex Checker Toggle -->
       <div class="tool-card" id="colorPaletteCard">
         <div class="tool-title">
@@ -1360,18 +1543,24 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- Dimension Calculator Card (SIZE + DPI) -->
+      <!-- Dimension Calculator Card (SIZE + DPI + INCHES/CM BUTTONS) -->
       <div class="tool-card" id="dimensionCalcCard">
-        <div class="tool-title">📐 Dimension Calculator (inches)</div>
+        <div class="tool-title">📐 Dimension Calculator</div>
         <div class="calc-single-slider">
           <div class="calc-label-row">
-            <div>
+            <div class="calc-labels">
               <span class="calc-label active" id="labelSize" data-field="size">Size</span>
               <span class="calc-label" id="labelDPI" data-field="dpi">DPI</span>
             </div>
-            <span class="calc-current-value" id="currentValue">24"</span>
+            <div class="calc-unit-buttons">
+              <span class="calc-unit-btn" id="btnInches" data-unit="inches">in</span>
+              <span class="calc-unit-btn active" id="btnCM" data-unit="cm">cm</span>
+            </div>
           </div>
-          <input type="range" id="calcSlider" min="1" max="200" value="24">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+            <span class="calc-current-value" id="currentValue">24 × 24cm</span>
+          </div>
+          <input type="range" id="calcSlider" min="1" max="500" value="24">
         </div>
         <div class="calc-result">
           <div class="calc-result-value" id="calcResultValue">3600 × 3600px</div>
@@ -1380,6 +1569,7 @@ input[type="range"]::-moz-range-thumb:active{
 
     </div>
 
+    <!-- STORES SECTION -->
     <div class="controls-section" id="storesSection">
       <div style="text-align:center;margin-bottom:1.5rem">
         <div style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;color:#aaa">Turn your patterns into real products!</div>
@@ -1540,6 +1730,7 @@ const els = {
   offsetX: getEl('offsetX'),
   offsetY: getEl('offsetY'),
   zoomSlider: getEl('zoomSlider'),
+  zoomSliderWrapper: getEl('zoomSliderWrapper'),
   mockupZoom: getEl('mockupZoom'),
   mockupRotate: getEl('mockupRotate'),
   scaleValue: getEl('scaleValue'),
@@ -1580,6 +1771,8 @@ const els = {
   labelDPI: getEl('labelDPI'),
   currentValue: getEl('currentValue'),
   calcResultValue: getEl('calcResultValue'),
+  btnInches: getEl('btnInches'),
+  btnCM: getEl('btnCM'),
   seamlessTest: getEl('seamlessTest'),
   gridSize: getEl('gridSize'),
   exportModal: getEl('exportModal'),
@@ -1595,7 +1788,7 @@ const els = {
   hexPreview: getEl('hexPreview')
 };
 
-const ctx = els.canvas.getContext('2d');
+const ctx = els.canvas.getContext('2d', { willReadFrequently: false });
 
 let tileImage = null;
 let repeatType = 'full';
@@ -1619,6 +1812,7 @@ let matrixInterval = null;
 let seamlessTestMode = false;
 let gridOverlaySize = 0;
 let hexCheckerMode = false;
+let useMetric = true;
 
 const mockupImages = {
   phone: null,
@@ -1779,8 +1973,8 @@ function getWeatherIconFromCode(code) {
 
 function getRudeboyWeatherCondition(code) {
   if (code === 0) return 'Let the sunshine';
-  if (code === 1 || code === 2) return "It's Cloudy Bitch";
-  if (code === 3) return "It's Cloudy Bitch";
+  if (code === 1 || code === 2) return "It's Cloudly Bitch";
+  if (code === 3) return "It's Cloudly Bitch";
   if (code === 45 || code === 48) return "Can't see shit";
   if (code >= 51 && code <= 67) return 'Wet T-Shirt Weather';
   if (code >= 71 && code <= 77) return 'Fucking Snow';
@@ -1958,21 +2152,34 @@ function updateCalcDisplay() {
   activeLabel.classList.add('active');
   
   const value = calcValues[calcActiveField];
-  const unit = calcActiveField === 'dpi' ? '' : '"';
-  els.currentValue.textContent = value + unit;
+  const unit = useMetric ? 'cm' : '"';
   
   if (calcActiveField === 'size') {
-    els.calcSlider.min = '1';
-    els.calcSlider.max = '200';
+    els.currentValue.textContent = `${value} × ${value}${unit}`;
+    
+    if (useMetric) {
+      els.calcSlider.min = '1';
+      els.calcSlider.max = '500';
+    } else {
+      els.calcSlider.min = '1';
+      els.calcSlider.max = '200';
+    }
   } else {
+    els.currentValue.textContent = value;
     els.calcSlider.min = '72';
     els.calcSlider.max = '600';
   }
   
   els.calcSlider.value = value;
   
-  const px = Math.round(calcValues.size * calcValues.dpi);
-  els.calcResultValue.textContent = `${px} × ${px}px`;
+  const sizeInInches = useMetric ? calcValues.size / 2.54 : calcValues.size;
+  const px = Math.round(sizeInInches * calcValues.dpi);
+  
+  if (px === 1) {
+    els.calcResultValue.textContent = `1 × 1px`;
+  } else {
+    els.calcResultValue.textContent = `${px} × ${px}px`;
+  }
 }
 
 els.labelSize.addEventListener('click', () => {
@@ -1983,6 +2190,36 @@ els.labelSize.addEventListener('click', () => {
 els.labelDPI.addEventListener('click', () => {
   calcActiveField = 'dpi';
   updateCalcDisplay();
+});
+
+els.btnInches.addEventListener('click', () => {
+  if (useMetric) {
+    useMetric = false;
+    els.btnInches.classList.add('active');
+    els.btnCM.classList.remove('active');
+    
+    if (calcActiveField === 'size') {
+      calcValues.size = Math.round(calcValues.size / 2.54);
+      els.calcSlider.max = '200';
+    }
+    
+    updateCalcDisplay();
+  }
+});
+
+els.btnCM.addEventListener('click', () => {
+  if (!useMetric) {
+    useMetric = true;
+    els.btnCM.classList.add('active');
+    els.btnInches.classList.remove('active');
+    
+    if (calcActiveField === 'size') {
+      calcValues.size = Math.round(calcValues.size * 2.54);
+      els.calcSlider.max = '500';
+    }
+    
+    updateCalcDisplay();
+  }
 });
 
 els.calcSlider.addEventListener('input', (e) => {
@@ -2142,6 +2379,11 @@ doc.querySelectorAll('.slider-dropdown-header').forEach(header => {
     doc.querySelectorAll('.slider-dropdown').forEach(sd => sd.classList.remove('open'));
     if (!wasOpen) parent.classList.add('open');
   });
+});
+
+els.zoomSliderWrapper.querySelector('.zoom-slider-header').addEventListener('click', () => {
+  const wasOpen = els.zoomSliderWrapper.classList.contains('open');
+  els.zoomSliderWrapper.classList.toggle('open', !wasOpen);
 });
 
 function showLoading(reload = false) {
@@ -2444,7 +2686,15 @@ els.sampleSelect.addEventListener('change', (e) => {
   img.onload = () => {
     tileImage = img;
     scale = Math.max(0.05, Math.min(5, 300 / tileImage.width));
-    els.patternScale.value = scale;
+    
+    let sliderVal;
+    if (scale <= 1.0) {
+      sliderVal = Math.round(((scale - 0.05) / 0.95) * 50);
+    } else {
+      sliderVal = Math.round(50 + ((scale - 1.0) / 4.0) * 50);
+    }
+    
+    els.patternScale.value = sliderVal;
     els.scaleValue.textContent = scale.toFixed(2) + '×';
     updateBackground();
     analyzePattern();
@@ -2750,7 +3000,15 @@ function loadImage(file) {
     img.onload = () => {
       tileImage = img;
       scale = Math.max(0.05, Math.min(5, 300 / tileImage.width));
-      els.patternScale.value = scale;
+      
+      let sliderVal;
+      if (scale <= 1.0) {
+        sliderVal = Math.round(((scale - 0.05) / 0.95) * 50);
+      } else {
+        sliderVal = Math.round(50 + ((scale - 1.0) / 4.0) * 50);
+      }
+      
+      els.patternScale.value = sliderVal;
       els.scaleValue.textContent = scale.toFixed(2) + '×';
       updateBackground();
       analyzePattern();
@@ -2815,14 +3073,23 @@ els.canvas.addEventListener('wheel', (e) => {
   const mouseY = e.clientY - rect.top;
   
   let newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * zoomFactor));
-  const scale = newZoom - zoom;
+  const scaleChange = newZoom - zoom;
   
-  panX -= (mouseX - panX) * (scale / zoom);
-  panY -= (mouseY - panY) * (scale / zoom);
+  panX -= (mouseX - panX) * (scaleChange / zoom);
+  panY -= (mouseY - panY) * (scaleChange / zoom);
   zoom = newZoom;
   
-  els.zoomSlider.value = Math.round(zoom * 100);
-  els.zoomValue.textContent = Math.round(zoom * 100) + '%';
+  const zoomPercent = Math.round(zoom * 100);
+  
+  let sliderVal;
+  if (zoomPercent <= 100) {
+    sliderVal = Math.round(((zoomPercent - 1) / 99) * 50);
+  } else {
+    sliderVal = Math.round(50 + ((zoomPercent - 100) / 700) * 50);
+  }
+  
+  els.zoomSlider.value = sliderVal;
+  els.zoomValue.textContent = zoomPercent + '%';
   draw();
 }, { passive: false });
 
@@ -2851,14 +3118,23 @@ els.canvas.addEventListener('touchmove', (e) => {
       const centerY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
       
       let newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * zoomFactor));
-      const scale = newZoom - zoom;
+      const scaleChange = newZoom - zoom;
       
-      panX -= (centerX - panX) * (scale / zoom);
-      panY -= (centerY - panY) * (scale / zoom);
+      panX -= (centerX - panX) * (scaleChange / zoom);
+      panY -= (centerY - panY) * (scaleChange / zoom);
       zoom = newZoom;
       
-      els.zoomSlider.value = Math.round(zoom * 100);
-      els.zoomValue.textContent = Math.round(zoom * 100) + '%';
+      const zoomPercent = Math.round(zoom * 100);
+      
+      let sliderVal;
+      if (zoomPercent <= 100) {
+        sliderVal = Math.round(((zoomPercent - 1) / 99) * 50);
+      } else {
+        sliderVal = Math.round(50 + ((zoomPercent - 100) / 700) * 50);
+      }
+      
+      els.zoomSlider.value = sliderVal;
+      els.zoomValue.textContent = zoomPercent + '%';
       draw();
     }
     
@@ -2885,28 +3161,75 @@ els.bgColor.addEventListener('change', (e) => {
 });
 
 els.patternScale.addEventListener('input', (e) => {
-  scale = parseFloat(e.target.value);
+  const sliderVal = parseInt(e.target.value);
+  
+  if (sliderVal <= 50) {
+    scale = 0.05 + (sliderVal / 50) * 0.95;
+  } else {
+    scale = 1.0 + ((sliderVal - 50) / 50) * 4.0;
+  }
+  
   els.scaleValue.textContent = scale.toFixed(2) + '×';
   draw();
 });
 
 els.patternScale.addEventListener('change', (e) => {
-  scale = snapScale(parseFloat(e.target.value));
-  els.patternScale.value = scale;
+  const sliderVal = parseInt(e.target.value);
+  
+  if (sliderVal <= 50) {
+    scale = 0.05 + (sliderVal / 50) * 0.95;
+  } else {
+    scale = 1.0 + ((sliderVal - 50) / 50) * 4.0;
+  }
+  
+  scale = snapScale(scale);
+  
+  let newSliderVal;
+  if (scale <= 1.0) {
+    newSliderVal = Math.round(((scale - 0.05) / 0.95) * 50);
+  } else {
+    newSliderVal = Math.round(50 + ((scale - 1.0) / 4.0) * 50);
+  }
+  
+  els.patternScale.value = newSliderVal;
   els.scaleValue.textContent = scale.toFixed(2) + '×';
   draw();
 });
 
 els.zoomSlider.addEventListener('input', (e) => {
-  zoom = parseInt(e.target.value) / 100;
-  els.zoomValue.textContent = e.target.value + '%';
+  const sliderVal = parseInt(e.target.value);
+  
+  if (sliderVal <= 50) {
+    zoom = (1 + (sliderVal / 50) * 99) / 100;
+  } else {
+    zoom = (100 + ((sliderVal - 50) / 50) * 700) / 100;
+  }
+  
+  els.zoomValue.textContent = Math.round(zoom * 100) + '%';
   draw();
 });
 
 els.zoomSlider.addEventListener('change', (e) => {
-  const snapped = snapZoom(parseInt(e.target.value));
+  const sliderVal = parseInt(e.target.value);
+  
+  if (sliderVal <= 50) {
+    zoom = (1 + (sliderVal / 50) * 99) / 100;
+  } else {
+    zoom = (100 + ((sliderVal - 50) / 50) * 700) / 100;
+  }
+  
+  const zoomPercent = Math.round(zoom * 100);
+  const snapped = snapZoom(zoomPercent);
   zoom = snapped / 100;
-  els.zoomSlider.value = snapped;
+  
+  let newSliderVal;
+  if (snapped <= 100) {
+    newSliderVal = Math.round(((snapped - 1) / 99) * 50);
+  } else {
+    newSliderVal = Math.round(50 + ((snapped - 100) / 700) * 50);
+  }
+  
+  els.zoomSlider.value = newSliderVal;
   els.zoomValue.textContent = snapped + '%';
   draw();
 });
