@@ -438,7 +438,8 @@ body{
 }
 
 .instructions-accordion.open .instructions-accordion-content{
-  max-height:2000px;
+  max-height:5000px;
+  overflow-y:auto;
 }
 
 .instructions-card{
@@ -449,6 +450,8 @@ body{
   border:1px solid rgba(255,255,255,0.2);
   box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
   padding:1.5rem;
+  max-height:70vh;
+  overflow-y:auto;
 }
 
 .instructions-card h3{
@@ -905,57 +908,65 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
       <div class="instructions-accordion-content">
         <div class="instructions-card">
-          <h3>👋 Welcome to P.I.M.P (Pattern Image Management Platform)</h3>
-          <p>Your complete toolkit for creating, testing, and exporting seamless patterns for print-on-demand and digital products.</p>
-          
-          <h4>📤 Getting Started</h4>
-          <ul>
-            <li><strong>Upload:</strong> Click the Upload button or drag & drop your square tile image</li>
-            <li><strong>Sample:</strong> Try our pre-loaded patterns to explore features</li>
-            <li><strong>Export:</strong> Save your work in multiple resolutions and formats</li>
-          </ul>
-          
-          <h4>⚙️ Settings Menu</h4>
-          <ul>
-            <li><strong>Preview Options:</strong> Adjust canvas quality, repeat types, backgrounds, grid overlays, and zoom</li>
-            <li><strong>Pattern Transform:</strong> Fine-tune offset, scale, and positioning</li>
-            <li><strong>Stores</strong> Preview on products and access POD stores</li>
-            <li><strong>Tools:</strong> Seamless test, color palette extractor, hex checker, and dimension calculator</li>
-          </ul>
-          
-          <h4>📐 Dimension Calculator</h4>
-          <p>Calculate perfect pixel dimensions for any size and DPI. Toggle between Size/DPI modes and inches/cm units. Click "Recommendations" for common presets:</p>
-          <ul>
-            <li><strong>Print:</strong> 4"×4" @ 300 DPI, 6"×6" @ 300 DPI, 8"×8" @ 300 DPI</li>
-            <li><strong>Web:</strong> 512px, 1024px, 2048px @ 72 DPI</li>
-            <li><strong>POD:</strong> Industry standards for print-on-demand platforms</li>
-          </ul>
-          
-          <h4>🎨 Color Tools</h4>
-          <ul>
-            <li><strong>Color Palette:</strong> Automatically extracts top 9 colors from your pattern (click to copy hex codes)</li>
-            <li><strong>Hex Checker:</strong> Test any hex color with live preview</li>
-          </ul>
-          
-          <h4>🔍 Pattern Testing</h4>
-          <ul>
-            <li><strong>Seamless Test:</strong> Red edge overlay to check tile alignment</li>
-            <li><strong>Grid Overlay:</strong> Visualize inches/measurements on canvas</li>
-            <li><strong>Repeat Types:</strong> Full Drop, Half Drop, Brick patterns</li>
-          </ul>
-          
-          <h4>💡 Pro Tips</h4>
-          <ul>
-            <li>Use <strong>Ultra (2400px)</strong> or <strong>Max (3200px)</strong> quality for final exports</li>
-            <li>Test seamless edges with the red edge tool before uploading to stores</li>
-            <li>Extract your color palette to create matching product descriptions</li>
-            <li>Use mockups to preview how patterns look on real products</li>
-            <li>Mouse wheel to zoom, click & drag to pan the canvas</li>
-          </ul>
-          
-          <h4>🏪 Print-on-Demand Ready</h4>
-          <p>Export at recommended sizes for Redbubble, Society6, Spoonflower, Zazzle, and more. Check the Stores section for direct links to top POD platforms.</p>
-        </div>
+  <h3>👋 Welcome to P.I.M.P (Pattern Image Management Platform)</h3>
+  <p>Your complete toolkit for creating, testing, and exporting seamless patterns for print-on-demand and digital products.</p>
+  
+  <h4>📤 Getting Started</h4>
+  <ul>
+    <li><strong>Upload:</strong> Click the Upload button or drag & drop your square tile image</li>
+    <li><strong>Sample:</strong> Try our pre-loaded patterns to explore features</li>
+    <li><strong>Export:</strong> Save your work in multiple resolutions and formats (PNG or JPG)</li>
+  </ul>
+  
+  <h4>⚙️ Settings Menu</h4>
+  <ul>
+    <li><strong>Preview Options:</strong> Canvas quality, repeat patterns, backgrounds, grid overlays, and zoom control</li>
+    <li><strong>Pattern Transform:</strong> Adjust offset X/Y, scale, and positioning with precision sliders</li>
+    <li><strong>Tools:</strong> Color palette extractor, hex checker, dimension calculator, and seamless edge test</li>
+    <li><strong>Stores:</strong> Preview patterns on product mockups and access POD store links</li>
+  </ul>
+  
+  <h4>📐 Dimension Calculator</h4>
+  <p>Calculate perfect pixel dimensions for any size and DPI. Toggle between Size/DPI modes and switch units (inches/cm). Click "Recommendations" for instant presets:</p>
+  <ul>
+    <li><strong>Print Quality:</strong> 4"×4" @ 300 DPI, 6"×6" @ 300 DPI, 8"×8" @ 300 DPI, 12"×12" @ 300 DPI</li>
+    <li><strong>Web/Digital:</strong> 512px, 1024px, 2048px, 4096px @ 72 DPI</li>
+    <li><strong>Print-on-Demand:</strong> Redbubble (1600px), Society6 (2400px), Spoonflower (2000px), Zazzle (3200px)</li>
+  </ul>
+  
+  <h4>🎨 Color Tools</h4>
+  <ul>
+    <li><strong>Color Palette:</strong> Auto-extracts top 9 dominant colors from your pattern (click any swatch to copy hex code)</li>
+    <li><strong>Hex Checker:</strong> Test any hex color with live preview - perfect for matching brand colors</li>
+  </ul>
+  
+  <h4>🔍 Pattern Testing & Display</h4>
+  <ul>
+    <li><strong>Repeat Types:</strong> Full Drop, Half Drop, Brick - see how your pattern tiles in different layouts</li>
+    <li><strong>Grid Overlay:</strong> Toggle measurement grid (1", 2", 6", 12") to visualize scale</li>
+    <li><strong>Seamless Test:</strong> Red edge overlay reveals alignment issues - found in Tools section</li>
+    <li><strong>Zoom & Pan:</strong> Mouse wheel to zoom (1%-800%), click & drag to pan around canvas</li>
+  </ul>
+  
+  <h4>🛍️ Product Mockups</h4>
+  <ul>
+    <li><strong>View Modes:</strong> Preview your pattern on phone cases, tote bags, mugs, bedding, and more</li>
+    <li><strong>Mockup Controls:</strong> Adjust zoom (100%-150%) and rotation (0-360°) for perfect product shots</li>
+  </ul>
+  
+  <h4>💡 Pro Tips</h4>
+  <ul>
+    <li>Use <strong>Ultra (2400px)</strong> or <strong>Max (3200px)</strong> canvas quality for final exports</li>
+    <li>Always run the seamless test (Tools section) before uploading to print-on-demand stores</li>
+    <li>Extract your color palette to create compelling product descriptions and tags</li>
+    <li>Use the dimension calculator to ensure your pattern meets platform requirements</li>
+    <li>Export multiple sizes at once by using the custom export feature</li>
+    <li>Pattern info bar shows quality score, contrast level, and unique color count</li>
+  </ul>
+  
+  <h4>🏪 Print-on-Demand Ready</h4>
+  <p>Export at recommended sizes for all major POD platforms. The Stores section includes direct links to Redbubble, Society6, Spoonflower, Zazzle, Gelato, Contrado, and more.</p>
+</div>
       </div>
     </div>
 
