@@ -893,7 +893,7 @@ input[type="range"]::-moz-range-thumb:active{
         <option value="display">Preview Options</option>
         <option value="controls">Pattern Transform</option>
         <option value="tools">Tools</option>
-        <option value="stores">Stores & Mockups</option>
+        <option value="stores">Stores</option>
       </select>
     </div>
 
@@ -919,7 +919,7 @@ input[type="range"]::-moz-range-thumb:active{
           <ul>
             <li><strong>Preview Options:</strong> Adjust canvas quality, repeat types, backgrounds, grid overlays, and zoom</li>
             <li><strong>Pattern Transform:</strong> Fine-tune offset, scale, and positioning</li>
-            <li><strong>Stores & Mockups:</strong> Preview on products and access POD stores</li>
+            <li><strong>Stores</strong> Preview on products and access POD stores</li>
             <li><strong>Tools:</strong> Seamless test, color palette extractor, hex checker, and dimension calculator</li>
           </ul>
           
@@ -1081,17 +1081,11 @@ input[type="range"]::-moz-range-thumb:active{
     </div>
 
     <!-- TOOLS SECTION -->
-    <div class="controls-section tools-section" id="toolsSection">
-      <!-- Seamless Test -->
-      <div class="seamless-test-dropdown">
-        <select id="seamlessTest">
-          <option value="off">Seamless Test: Off</option>
-          <option value="on">Seamless Test: On (Red Edges)</option>
-        </select>
-      </div>
+<div class="controls-section tools-section" id="toolsSection">
+  
+  <!-- Color Palette Card with Hex Checker Toggle -->
+  <div class="tool-card" id="colorPaletteCard">
 
-      <!-- Color Palette Card with Hex Checker Toggle -->
-      <div class="tool-card" id="colorPaletteCard">
         <div class="tool-title">
           <span>🎨 Color Palette</span>
           <span class="palette-toggle" id="paletteToggle">Hex Checker</span>
@@ -1118,9 +1112,9 @@ input[type="range"]::-moz-range-thumb:active{
               <span class="calc-label" id="labelDPI" data-field="dpi">DPI</span>
             </div>
             <div class="calc-unit-buttons">
-              <span class="calc-unit-btn" id="btnInches" data-unit="inches">in</span>
-              <span class="calc-unit-btn active" id="btnCM" data-unit="cm">cm</span>
-            </div>
+  <span class="calc-unit-btn active" id="btnInches" data-unit="inches">in</span>
+  <span class="calc-unit-btn" id="btnCM" data-unit="cm">cm</span>
+</div>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
             <span class="calc-current-value" id="currentValue">24 × 24cm</span>
@@ -1161,9 +1155,17 @@ input[type="range"]::-moz-range-thumb:active{
           </div>
         </div>
         
-        <div class="calc-result">
+                <div class="calc-result">
           <div class="calc-result-value" id="calcResultValue">3600 × 3600px</div>
         </div>
+      </div>
+
+      <!-- Seamless Test -->
+      <div class="seamless-test-dropdown">
+        <select id="seamlessTest">
+          <option value="off">Seamless Test: Off</option>
+          <option value="on">Seamless Test: On (Red Edges)</option>
+        </select>
       </div>
 
     </div>
@@ -1638,11 +1640,20 @@ styleAdditions.textContent = `
   border-radius:8px;
   transition:all 0.3s;
   user-select:none;
+  border:1px solid rgba(118,75,162,0.3);
+  background:rgba(118,75,162,0.2);
+  color:#764ba2;
 }
 
-.calc-label.active{background:rgba(102,126,234,0.2);color:#667eea}
-.calc-label:not(.active){color:#666}
-.calc-label:hover{background:rgba(102,126,234,0.1)}
+.calc-label:hover{background:rgba(118,75,162,0.3)}
+
+.calc-label.active{
+  background:rgba(16,185,129,0.2);
+  color:#10b981;
+  border:1px solid rgba(16,185,129,0.3);
+}
+
+.calc-label.active:hover{background:rgba(16,185,129,0.3)}
 
 /* Unit Buttons (Inches/CM) */
 .calc-unit-buttons{display:flex;gap:0.5rem}
@@ -2013,7 +2024,7 @@ let matrixInterval = null;
 let seamlessTestMode = false;
 let gridOverlaySize = 0;
 let hexCheckerMode = false;
-let useMetric = true;
+let useMetric = false;
 
 const mockupImages = {
   phone: null,
@@ -2376,7 +2387,7 @@ function analyzePattern() {
 }
 
 let calcValues = {
-  size: 24,
+  size: 9,
   dpi: 150
 };
 
@@ -2600,6 +2611,9 @@ els.masterDropdown.addEventListener('change', (e) => {
   
   if (sections[e.target.value]) {
     sections[e.target.value].classList.add('active');
+    els.instructionsAccordion.style.display = 'none';
+  } else {
+    els.instructionsAccordion.style.display = 'block';
   }
 });
 
