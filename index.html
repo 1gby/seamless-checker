@@ -1257,6 +1257,9 @@ input[type="range"]::-moz-range-thumb:active{
 
 .saved-pattern-delete{
   padding:0.5rem;
+  width:44px;
+  height:44px;
+  flex-shrink:0;
   border-radius:8px;
   background:rgba(239,68,68,0.2);
   border:1px solid rgba(239,68,68,0.3);
@@ -1264,6 +1267,9 @@ input[type="range"]::-moz-range-thumb:active{
   cursor:pointer;
   transition:all 0.3s;
   font-size:0.9rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .saved-pattern-delete:hover{
@@ -2749,6 +2755,10 @@ function renderSavedPatterns() {
 els.patternNameInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') savePattern();
 });
+
+renderSavedPatterns();
+
+getEl('savePatternBtn').addEventListener('click', savePattern);
 
 renderSavedPatterns();
 
