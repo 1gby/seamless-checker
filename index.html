@@ -2183,19 +2183,66 @@ const MIN_LOAD_TIME = 1500;
 const RELOAD_MIN_TIME = 1500;
 
 const playlist = [
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/count.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/falling%20softly.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/fluid.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/i%20wanna%20take%20your%20body%20higher.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/IKnow.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/JaffaDays.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/OtherWorlds.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/BabyBlue.mp3' ,
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3',
-  'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
+  {
+    title: 'Capone',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3'
+  },
+  {
+    title: 'Count',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/count.mp3'
+  },
+  {
+    title: 'Falling Softly',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/falling%20softly.mp3'
+  },
+  {
+    title: 'Fluid',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/fluid.mp3'
+  },
+  {
+    title: 'I Wanna Take Your Body Higher',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/i%20wanna%20take%20your%20body%20higher.mp3'
+  },
+  {
+    title: 'Journey',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3'
+  },
+  {
+    title: 'Moments',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3'
+  },
+  {
+    title: 'Stardrive',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3'
+  },
+  {
+    title: 'Sunset In Junipero',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
+  },
+  {
+    title: 'I Know',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/IKnow.mp3'
+  },
+  {
+    title: 'Other Worlds',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/OtherWorlds.mp3'
+  },
+  {
+    title: 'Baby Blue',
+    artist: 'Your Artist Here',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/BabyBlue.mp3'
+  }
 ];
 
 let shuffledPlaylist = [...playlist];
@@ -2946,14 +2993,26 @@ function playRandomTrack() {
     currentTrackIndex = 0;
   }
   
-  const trackUrl = shuffledPlaylist[currentTrackIndex];
+  const track = shuffledPlaylist[currentTrackIndex];
   currentTrackIndex++;
   
-  els.audio.src = trackUrl;
+  els.audio.src = track.url;
   els.audio.volume = 0;
   els.audio.loop = false;
   
   els.audio.play().then(() => {
+    // Update Media Session metadata for iOS Dynamic Island
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist,
+        album: 'Secret Stash',
+        artwork: [
+          { src: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png', sizes: '512x512', type: 'image/png' }
+        ]
+      });
+    }
+    
     let vol = 0;
     const fadeIn = setInterval(() => {
       if (vol < 0.5) {
@@ -2976,6 +3035,35 @@ els.audio.addEventListener('ended', () => {
     playRandomTrack();
   }
 });
+
+// ADD ALL OF THIS BELOW:
+// Media session action handlers for iOS Dynamic Island controls
+if ('mediaSession' in navigator) {
+  navigator.mediaSession.setActionHandler('play', () => {
+    if (matrixActive && els.audio.paused) {
+      els.audio.play();
+    }
+  });
+  
+  navigator.mediaSession.setActionHandler('pause', () => {
+    if (matrixActive) {
+      els.audio.pause();
+    }
+  });
+  
+  navigator.mediaSession.setActionHandler('nexttrack', () => {
+    if (matrixActive) {
+      playRandomTrack();
+    }
+  });
+  
+  navigator.mediaSession.setActionHandler('previoustrack', () => {
+    if (matrixActive) {
+      currentTrackIndex = Math.max(0, currentTrackIndex - 2);
+      playRandomTrack();
+    }
+  });
+}
 
 function stopMusic() {
   if (!els.audio.paused) {
