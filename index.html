@@ -3445,7 +3445,7 @@ function drawMockup(mockupImg) {
   
   const displaySize = Math.min(els.canvas.width, els.canvas.height) * 0.72 * mockupZoom;
   
-  // Step 1: Load the mockup image
+  // Create mockup canvas
   const mockupCanvas = doc.createElement('canvas');
   mockupCanvas.width = displaySize;
   mockupCanvas.height = displaySize;
@@ -3455,27 +3455,7 @@ function drawMockup(mockupImg) {
   const mockupData = mockupCtx.getImageData(0, 0, displaySize, displaySize);
   const pixels = mockupData.data;
   
-  // DEBUG: Sample some green pixels to see what color they actually are
-  let greenSamples = [];
-  for (let i = 0; i < pixels.length; i += 4) {
-    const r = pixels[i];
-    const g = pixels[i + 1];
-    const b = pixels[i + 2];
-    
-    // Look for bright green-ish pixels
-    if (g > 200 && g > r && g > b) {
-      greenSamples.push(`rgb(${r}, ${g}, ${b})`);
-      if (greenSamples.length >= 5) break; // Just need a few samples
-    }
-  }
-  
-  if (greenSamples.length > 0) {
-    console.log('Green samples found:', greenSamples);
-  } else {
-    console.log('No green pixels detected in mockup!');
-  }
-  
-  // Step 2: Create pattern canvas
+  // Create pattern canvas
   const patternCanvas = doc.createElement('canvas');
   patternCanvas.width = displaySize;
   patternCanvas.height = displaySize;
@@ -3491,41 +3471,29 @@ function drawMockup(mockupImg) {
   const patternData = patternCtx.getImageData(0, 0, displaySize, displaySize);
   const patternPixels = patternData.data;
   
-  // Step 3: Replace green pixels with pattern (more lenient detection)
-  let replacedCount = 0;
+  // Replace green pixels with pattern
   for (let i = 0; i < pixels.length; i += 4) {
     const r = pixels[i];
     const g = pixels[i + 1];
     const b = pixels[i + 2];
     const a = pixels[i + 3];
     
-    // More lenient green detection:
-    // - Green channel must be dominant
-    // - Green must be bright (>200)
-    // - Red and Blue must be low (<50)
+    // Detect bright green
     const isGreen = (g > 200) && (g > r + 50) && (g > b + 50) && (r < 50) && (b < 50) && (a > 0);
     
     if (isGreen) {
-      // Replace with pattern pixel
       pixels[i] = patternPixels[i];
       pixels[i + 1] = patternPixels[i + 1];
       pixels[i + 2] = patternPixels[i + 2];
       pixels[i + 3] = patternPixels[i + 3];
-      replacedCount++;
     }
   }
   
-  console.log(`Replaced ${replacedCount} green pixels with pattern`);
-  
-  // Put modified data back
   mockupCtx.putImageData(mockupData, 0, 0);
   
-  // Step 4: Draw to main canvas with rotation and centering
-  ctx.save();
-  ctx.translate(els.canvas.width / 2, els.canvas.height / 2);
+  // Draw (ctx is already centered by draw() function)
   ctx.rotate(mockupRotate * Math.PI / 180);
   ctx.drawImage(mockupCanvas, -displaySize / 2, -displaySize / 2);
-  ctx.restore();
 }
 
 function draw() {
