@@ -3471,48 +3471,33 @@ function drawMockup(mockupImg) {
   const patternData = patternCtx.getImageData(0, 0, displaySize, displaySize);
   const patternPixels = patternData.data;
   
-  // Step 3: Create output canvas
-  const outputCanvas = doc.createElement('canvas');
-  outputCanvas.width = displaySize;
-  outputCanvas.height = displaySize;
-  const outputCtx = outputCanvas.getContext('2d');
-  const outputData = outputCtx.createImageData(displaySize, displaySize);
-  const outputPixels = outputData.data;
-  
-  // Step 4: Replace ONLY pure green (#00FF00) with pattern
+  // Step 3: Replace ONLY pure green (#00FF00) with pattern - directly modify mockup data
   for (let i = 0; i < pixels.length; i += 4) {
     const r = pixels[i];
     const g = pixels[i + 1];
     const b = pixels[i + 2];
-    const a = pixels[i + 3];
     
-    // Check if pixel is pure green (#00FF00) with tolerance of ±5
-    const isGreen = (r >= 0 && r <= 5) && 
-                    (g >= 250 && g <= 255) && 
-                    (b >= 0 && b <= 5);
+    // Check if pixel is pure green (#00FF00) with small tolerance
+    const isGreen = (r <= 10) && (g >= 245) && (b <= 10);
     
     if (isGreen) {
-      // Replace with pattern
-      outputPixels[i] = patternPixels[i];
-      outputPixels[i + 1] = patternPixels[i + 1];
-      outputPixels[i + 2] = patternPixels[i + 2];
-      outputPixels[i + 3] = patternPixels[i + 3];
-    } else {
-      // Keep original mockup pixel
-      outputPixels[i] = r;
-      outputPixels[i + 1] = g;
-      outputPixels[i + 2] = b;
-      outputPixels[i + 3] = a;
+      // Replace with pattern pixel
+      pixels[i] = patternPixels[i];
+      pixels[i + 1] = patternPixels[i + 1];
+      pixels[i + 2] = patternPixels[i + 2];
+      pixels[i + 3] = patternPixels[i + 3];
     }
+    // If not green, keep original pixel (no else needed - we're modifying in place)
   }
   
-  outputCtx.putImageData(outputData, 0, 0);
+  // Put modified data back
+  mockupCtx.putImageData(mockupData, 0, 0);
   
-  // Step 5: Draw to main canvas with rotation
+  // Step 4: Draw to main canvas with rotation and centering
   ctx.save();
   ctx.translate(els.canvas.width / 2, els.canvas.height / 2);
   ctx.rotate(mockupRotate * Math.PI / 180);
-  ctx.drawImage(outputCanvas, -displaySize / 2, -displaySize / 2);
+  ctx.drawImage(mockupCanvas, -displaySize / 2, -displaySize / 2);
   ctx.restore();
 }
 
