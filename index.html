@@ -1875,6 +1875,7 @@ input[type="range"]::-moz-range-thumb:active{
           <option value="bandana">Mockup: Bandana</option>
           <option value="bedspread">Mockup: Bedspread</option>
           <option value="mug">Mockup: Mug</option>
+          <option value="sweatshirt">Mockup: Sweatshirt</option>
           <option value="fabric">Mockup: Fabric Swatch</option>
           <option value="bottle">Mockup: Water Bottle</option>
         </select>
@@ -2174,7 +2175,8 @@ const mockupImages = {
   bandana: null,
   bedspread: null,
   ipad: null,
-  mug: null
+  mug: null,
+  sweatshirt: null
 };
 
 const MIN_ZOOM = 0.01;
@@ -3261,7 +3263,8 @@ els.easterEggOverlay.addEventListener('click', () => {
     { key: 'bandana', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bandana.png' },
     { key: 'bedspread', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/bedspread.png' },
     { key: 'ipad', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/ipad.png' },
-    { key: 'mug', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/mug.png' }
+    { key: 'mug', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/mug.png' },
+    { key: 'sweatshirt', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/sweatshirt.png' }
   ];
   
   images.forEach(({ key, url }) => {
@@ -3589,6 +3592,7 @@ function draw() {
       bedspread: mockupImages.bedspread,
       mug: mockupImages.mug,
       bottle: mockupImages.bottle
+      sweatshirt: mockupImages.sweatshirt
     };
     
     if (mockups[viewMode]) {
