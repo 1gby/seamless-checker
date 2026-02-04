@@ -728,15 +728,24 @@ font-weight:300;
 flex-shrink:0;
 }
 
+.weather-condition-location{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:0.15rem;
+flex-shrink:1;
+overflow:hidden;
+max-width:150px;
+}
+
 .weather-condition{
-font-size:0.8rem;
+font-size:0.75rem;
 font-weight:600;
 animation:condition-glow 4s ease-in-out infinite;
 white-space:nowrap;
 overflow:hidden;
 text-overflow:ellipsis;
-max-width:110px;
-flex-shrink:1;
+max-width:100%;
 }
 
 @keyframes condition-glow{
@@ -745,14 +754,13 @@ flex-shrink:1;
 }
 
 .weather-location{
-font-size:0.8rem;
+font-size:0.7rem;
 font-weight:600;
 animation:location-glow 4s ease-in-out infinite;
 white-space:nowrap;
 overflow:hidden;
 text-overflow:ellipsis;
-max-width:100px;
-flex-shrink:1;
+max-width:100%;
 }
 
 @keyframes location-glow{
@@ -1422,9 +1430,10 @@ margin:0.5rem 0;
     <span class="weather-divider">|</span>
     <span class="weather-time" id="weatherTime">--:--</span>
     <span class="weather-divider">|</span>
-    <span class="weather-condition" id="weatherCondition">Loading...</span>
-    <span class="weather-divider">|</span>
-    <span class="weather-location" id="weatherLocation">--</span>
+    <div class="weather-condition-location">
+      <span class="weather-condition" id="weatherCondition">Loading...</span>
+      <span class="weather-location" id="weatherLocation">--</span>
+    </div>
   </div>
   
   <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
