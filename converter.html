@@ -1,6 +1,9 @@
-<!-- File Converter by Rudeboy™ - P.I.M.P PRODUCTION -->
+<!-- Universal File Converter - P.I.M.P PRODUCTION -->
+
 <!-- Powered by the same tech as Rudeboy Pattern Checker -->
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,10 +12,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png">
-<link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png">
-<link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png">
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
 <meta name="apple-mobile-web-app-title" content="File Converter">
 <style>
 /* ==================== GLOBAL RESET ==================== */
@@ -717,6 +720,105 @@ animation:location-glow 4s ease-in-out infinite;
 50%{color:#764ba2;text-shadow:0 0 8px rgba(118,75,162,0.6)}
 }
 
+/* ==================== ICON LINK BOXES ==================== */
+.icon-links{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:1rem;
+margin-bottom:1rem;
+}
+
+.icon-link-box{
+width:80px;
+height:80px;
+border-radius:16px;
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(255,255,255,0.2);
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+transition:all 0.3s;
+position:relative;
+overflow:hidden;
+text-decoration:none;
+}
+
+.icon-link-box::before{
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+opacity:0;
+transition:opacity 0.3s;
+pointer-events:none;
+}
+
+.icon-link-box img{
+width:50px;
+height:50px;
+object-fit:contain;
+transition:all 0.3s;
+position:relative;
+z-index:1;
+}
+
+.icon-link-box svg{
+width:50px;
+height:50px;
+transition:all 0.3s;
+position:relative;
+z-index:1;
+pointer-events:none;
+}
+
+.icon-link-box.purple{
+background:rgba(118,75,162,0.15);
+border-color:rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.icon-link-box.purple::before{
+background:radial-gradient(circle,rgba(16,185,129,0.3) 0%,transparent 70%);
+}
+
+.icon-link-box.purple:hover{
+background:rgba(118,75,162,0.2);
+border-color:rgba(118,75,162,0.4);
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,0.9),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+.icon-link-box.purple:hover::before{opacity:1}
+
+.icon-link-box.green{
+background:rgba(16,185,129,0.15);
+border-color:rgba(16,185,129,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.icon-link-box.green::before{
+background:radial-gradient(circle,rgba(118,75,162,0.3) 0%,transparent 70%);
+}
+
+.icon-link-box.green:hover{
+background:rgba(16,185,129,0.2);
+border-color:rgba(16,185,129,0.4);
+transform:translateY(-2px) scale(1.05);
+box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,0.9),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+.icon-link-box.green:hover::before{opacity:1}
+
+.icon-link-box:active{
+transform:translateY(0) scale(1);
+box-shadow:0 2px 12px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25);
+}
+
 .instructions-accordion{
 margin-bottom:1.5rem;
 }
@@ -881,7 +983,7 @@ margin:0.5rem 0;
 }
 </style>
 
-<title>File Converter by Rudeboy™</title>
+<title>Universal File Converter by Rudeboy™</title>
 </head>
 <body>
 
@@ -902,6 +1004,7 @@ margin:0.5rem 0;
         <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.wma,.aiff,.ape,.pdf,.doc,.docx,.txt,.rtf,.odt,.html,.md,.epub,.zip,.7z,.rar,.tar,.gz">
       </div>
 
+
   <!-- Standard Instructions (Always visible until file uploaded) -->
   <div class="instructions-accordion" id="standardInstructions" style="margin-top:1.5rem">
     <div class="instructions-accordion-header">
@@ -910,7 +1013,7 @@ margin:0.5rem 0;
     </div>
     <div class="instructions-accordion-content">
       <div class="instructions-card">
-        <h3>👋 Welcome to File Converter by Rudeboy™</h3>
+        <h3>👋 Welcome to Universal File Converter</h3>
         
         <h4>Quick Start:</h4>
         <ol>
@@ -1248,6 +1351,28 @@ margin:0.5rem 0;
 
   <div id="footer">
     <div class="footer-content">
+
+  <!-- Icon Link Boxes -->
+
+  <div class="icon-links">
+    <!-- Pattern Checker (Purple with Nova icon) -->
+    <a href="https://rudeboy-seamless-checker.vercel.app/" target="_blank" rel="noopener" class="icon-link-box purple">
+      <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png" alt="Pattern Checker">
+    </a>
+
+<!-- Ko-fi (Green with Ko-fi icon) -->
+<a href="https://ko-fi.com/rud3boy" target="_blank" rel="noopener" class="icon-link-box green">
+  <img src="https://storage.ko-fi.com/cdn/nav-logo-stroke.png" alt="Ko-fi">
+</a>
+
+<!-- Instagram (Purple with IG icon) -->
+<a href="https://www.instagram.com/createdbyrudeboy" target="_blank" rel="noopener" class="icon-link-box purple">
+  <svg viewBox="0 0 24 24" width="50" height="50" fill="currentColor" style="color:#E1306C;pointer-events:none">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </svg>
+</a>
+
+  </div>
 
   <div class="weather-widget" id="weatherWidget">
     <span class="weather-icon" id="weatherIcon">🌤️</span>
