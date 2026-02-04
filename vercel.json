@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/converter/:path*",
+      "destination": "https://your-converter-project-name.vercel.app/:path*"
+    }
+  ]
+}
