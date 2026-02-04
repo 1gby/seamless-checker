@@ -1,0 +1,2446 @@
+<!-- File Converter by Rudeboy™ - P.I.M.P PRODUCTION -->
+
+<!-- Powered by the same tech as Rudeboy Pattern Checker -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
+<meta name="apple-mobile-web-app-title" content="File Converter">
+<style>
+/* ==================== GLOBAL RESET ==================== */
+:root{color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;background:#000}
+
+/* ==================== BODY & CONTAINER ==================== */
+body{
+font-family:-apple-system,BlinkMacSystemFont,‘Segoe UI’,Roboto,‘Helvetica Neue’,Arial,sans-serif;
+background:linear-gradient(135deg,#000000 0%,#0a0a0a 50%,#1a1a2e 100%);
+color:#eee;
+min-height:100vh;
+padding-top:env(safe-area-inset-top);
+padding-bottom:env(safe-area-inset-bottom);
+touch-action:pan-x pan-y;
+}
+
+body.standalone-mode #header{
+background:rgba(0,0,0,0.8);
+backdrop-filter:blur(60px) saturate(200%);
+-webkit-backdrop-filter:blur(60px) saturate(200%);
+border-bottom:1px solid rgba(16,185,129,0.3);
+}
+
+body.standalone-mode .title::after{
+content:’ PWA’;
+font-size:0.6em;
+opacity:0.5;
+margin-left:0.3rem;
+}
+
+#container{display:flex;flex-direction:column;min-height:100vh}
+
+/* ==================== HEADER ==================== */
+#header{
+padding:1.5rem 2rem;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%);
+-webkit-backdrop-filter:blur(40px) saturate(180%);
+border-bottom:1px solid rgba(255,255,255,0.1);
+box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:2rem;
+flex-wrap:wrap;
+}
+
+.logo-section{display:flex;align-items:center;gap:1.5rem}
+
+#logo{
+height:42px;
+width:auto;
+cursor:pointer;
+transition:transform 0.3s,filter 0.3s;
+filter:drop-shadow(0 0 0px rgba(16,185,129,0));
+animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}
+}
+#logo:hover{transform:scale(1.05)}
+#logo:active{animation:glow-pulse 0.4s ease-out;transform:scale(0.98)}
+@keyframes glow-pulse{
+0%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+50%{filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8))}
+100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+}
+
+.title{
+font-size:1.5rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+margin:0;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+#main-content{
+flex:1;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:2rem;
+gap:2rem;
+}
+
+.converter-card{
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(0.9);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(0.9);
+border-radius:20px;
+border:1px solid rgba(255,255,255,0.15);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.4);
+padding:2.5rem;
+max-width:600px;
+width:100%;
+}
+
+.upload-area{
+border:2px solid rgba(102,126,234,0.3);
+border-radius:16px;
+padding:2rem;
+text-align:center;
+cursor:pointer;
+transition:all 0.3s;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+position:relative;
+overflow:hidden;
+}
+
+.upload-area::before{
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+background:radial-gradient(circle,rgba(102,126,234,0.15) 0%,transparent 70%);
+opacity:0;
+transition:opacity 0.3s;
+}
+
+.upload-area:hover::before{opacity:1}
+
+.upload-area:hover{
+border-color:rgba(118,75,162,0.5);
+background:rgba(255,255,255,0.08);
+transform:translateY(-2px);
+box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 30px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+.upload-area:active{
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 40px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25);
+}
+
+.upload-area.dragover{
+border-color:rgba(16,185,129,0.5);
+background:rgba(16,185,129,0.08);
+transform:scale(1.02);
+box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 35px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+.upload-icon{
+font-size:3rem;
+margin-bottom:0.75rem;
+opacity:0.9;
+filter:drop-shadow(0 0 10px rgba(102,126,234,0.5));
+}
+.upload-text{font-size:1.1rem;font-weight:600;margin-bottom:0.3rem;color:#eee}
+.upload-hint{font-size:0.85rem;color:#999}
+
+#fileInput{display:none}
+
+.file-info{
+display:none;
+margin-top:2rem;
+padding:1.5rem;
+background:rgba(0,0,0,0.4);
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.1);
+}
+
+.file-info.active{display:block}
+
+.file-details{
+display:flex;
+align-items:center;
+gap:1rem;
+margin-bottom:1.5rem;
+}
+
+.file-icon{font-size:2.5rem}
+.file-meta{flex:1}
+.file-name{font-weight:600;color:#eee;margin-bottom:0.3rem}
+.file-size{color:#999;font-size:0.9rem}
+
+.format-section{margin-bottom:1.5rem}
+
+.section-title{
+font-size:0.85rem;
+font-weight:700;
+color:#667eea;
+text-transform:uppercase;
+letter-spacing:1.5px;
+margin-bottom:0.75rem;
+}
+
+.format-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:0.5rem;
+}
+
+.format-btn{
+padding:0.65rem 0.3rem;
+border-radius:10px;
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(255,255,255,0.2);
+color:#eee;
+font-size:0.8rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+text-align:center;
+position:relative;
+overflow:hidden;
+white-space:nowrap;
+}
+
+/* Alternating green and purple buttons */
+.format-btn:nth-child(odd){
+background:rgba(16,185,129,0.15);
+border-color:rgba(16,185,129,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.format-btn:nth-child(even){
+background:rgba(118,75,162,0.15);
+border-color:rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.format-btn::before{
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+opacity:0;
+transition:opacity 0.3s;
+pointer-events:none;
+}
+
+/* GREEN BUTTONS GET PURPLE GLOW on hover */
+.format-btn:nth-child(odd)::before{
+background:radial-gradient(circle,rgba(118,75,162,0.3) 0%,transparent 70%);
+}
+
+.format-btn:nth-child(odd):hover{
+background:rgba(16,185,129,0.2);
+border-color:rgba(16,185,129,0.4);
+transform:translateY(-2px);
+box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,0.9),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+/* PURPLE BUTTONS GET GREEN GLOW on hover */
+.format-btn:nth-child(even)::before{
+background:radial-gradient(circle,rgba(16,185,129,0.3) 0%,transparent 70%);
+}
+
+.format-btn:nth-child(even):hover{
+background:rgba(118,75,162,0.2);
+border-color:rgba(118,75,162,0.4);
+transform:translateY(-2px);
+box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,0.9),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+.format-btn:hover::before{opacity:1}
+
+.format-btn:active{
+transform:translateY(0);
+box-shadow:0 2px 12px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.25);
+}
+
+.format-btn.selected{
+background:rgba(16,185,129,0.3);
+border-color:rgba(16,185,129,0.6);
+box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,0.9),0 0 40px rgba(16,185,129,0.5),inset 0 2px 0 rgba(255,255,255,0.35);
+color:#10b981;
+text-shadow:0 0 8px rgba(16,185,129,0.6);
+transform:translateY(-2px) scale(1.05);
+}
+
+.format-btn.selected::before{
+background:radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%);
+opacity:1;
+}
+
+@media(min-width:769px){
+.format-grid{
+grid-template-columns:repeat(auto-fill,minmax(85px,1fr));
+}
+.format-btn{
+padding:0.75rem;
+font-size:0.9rem;
+}
+}
+
+.quality-section{margin-bottom:1.5rem}
+
+.quality-slider{
+display:flex;
+align-items:center;
+gap:1rem;
+}
+
+.slider{
+flex:1;
+height:6px;
+border-radius:20px;
+background:linear-gradient(90deg,rgba(102,126,234,0.3) 0%,rgba(118,75,162,0.3) 100%);
+border:1px solid rgba(255,255,255,0.1);
+outline:none;
+-webkit-appearance:none;
+transition:all 0.3s;
+box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.slider::-webkit-slider-thumb{
+-webkit-appearance:none;
+width:60px;
+height:28px;
+border-radius:50px;
+background:rgba(255,255,255,0.3);
+cursor:pointer;
+border:2px solid rgba(255,255,255,0.6);
+box-shadow:
+0 4px 16px rgba(0,0,0,0.3),
+0 0 20px rgba(102,126,234,0.4),
+inset 0 2px 6px rgba(255,255,255,0.4),
+inset 0 -2px 6px rgba(0,0,0,0.1);
+transition:all 0.3s ease;
+backdrop-filter:blur(20px) saturate(180%);
+-webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+
+.slider::-webkit-slider-thumb:hover{
+transform:scale(1.08);
+background:rgba(255,255,255,0.4);
+box-shadow:
+0 6px 24px rgba(0,0,0,0.4),
+0 0 30px rgba(102,126,234,0.6),
+inset 0 2px 8px rgba(255,255,255,0.5),
+inset 0 -2px 8px rgba(0,0,0,0.15);
+}
+
+.slider::-webkit-slider-thumb:active{
+transform:scale(1.02);
+background:rgba(255,255,255,0.35);
+box-shadow:
+0 2px 12px rgba(0,0,0,0.5),
+0 0 35px rgba(118,75,162,0.8),
+inset 0 2px 6px rgba(255,255,255,0.45),
+inset 0 -2px 6px rgba(0,0,0,0.2);
+}
+
+.slider::-moz-range-thumb{
+width:60px;
+height:28px;
+border-radius:50px;
+background:rgba(255,255,255,0.3);
+cursor:pointer;
+border:2px solid rgba(255,255,255,0.6);
+box-shadow:
+0 4px 16px rgba(0,0,0,0.3),
+0 0 20px rgba(102,126,234,0.4),
+inset 0 2px 6px rgba(255,255,255,0.4),
+inset 0 -2px 6px rgba(0,0,0,0.1);
+transition:all 0.3s ease;
+}
+
+.slider-value{
+min-width:60px;
+font-weight:700;
+color:#667eea;
+text-align:right;
+}
+
+.convert-btn{
+width:100%;
+padding:1rem;
+border-radius:16px;
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(255,255,255,0.2);
+box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+color:#eee;
+font-size:1.1rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+margin-top:1.5rem;
+position:relative;
+overflow:hidden;
+}
+
+.convert-btn::before{
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+background:radial-gradient(circle,rgba(16,185,129,0.15) 0%,transparent 70%);
+opacity:0;
+transition:opacity 0.3s;
+}
+
+.convert-btn:hover::before{opacity:1}
+
+.convert-btn:hover{
+background:rgba(255,255,255,0.15);
+transform:translateY(-2px);
+box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 35px rgba(16,185,129,0.9),inset 0 2px 0 rgba(255,255,255,0.35);
+}
+
+.convert-btn:active{
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 45px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25);
+}
+
+.convert-btn:disabled{
+opacity:0.4;
+cursor:not-allowed;
+transform:none;
+box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 10px rgba(118,75,162,0.3),inset 0 2px 0 rgba(255,255,255,0.3);
+}
+
+.download-section{
+display:none;
+text-align:center;
+margin-top:2rem;
+padding:2rem;
+background:rgba(0,0,0,0.5);
+border-radius:16px;
+border:1px solid rgba(16,185,129,0.3);
+box-shadow:0 0 20px rgba(16,185,129,0.2);
+}
+
+.download-section.active{display:block}
+
+.success-icon{font-size:4rem;margin-bottom:1rem}
+.success-title{font-size:1.3rem;font-weight:700;color:#10b981;margin-bottom:0.5rem}
+.success-text{color:#999;margin-bottom:1.5rem}
+
+.download-btn{
+display:inline-block;
+padding:1rem 2rem;
+border-radius:16px;
+background:rgba(16,185,129,0.15);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(16,185,129,0.4);
+box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.7),inset 0 2px 0 rgba(255,255,255,0.3);
+color:#10b981;
+font-size:1.1rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+margin:0.5rem;
+position:relative;
+overflow:hidden;
+text-decoration:none;
+text-align:center;
+}
+
+.download-btn::before{
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+background:radial-gradient(circle,rgba(16,185,129,0.2) 0%,transparent 70%);
+opacity:0;
+transition:opacity 0.3s;
+}
+
+.download-btn:hover::before{opacity:1}
+
+.download-btn:hover{
+background:rgba(16,185,129,0.25);
+transform:translateY(-2px);
+box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 35px rgba(16,185,129,0.9);
+}
+
+.download-btn:active{
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 45px rgba(16,185,129,1);
+}
+
+.reset-btn{
+padding:1rem 2rem;
+border-radius:16px;
+background:rgba(239,68,68,0.15);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(239,68,68,0.4);
+box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 25px rgba(239,68,68,0.7),inset 0 2px 0 rgba(255,255,255,0.3);
+color:#ef4444;
+font-size:1.1rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+margin:0.5rem;
+position:relative;
+overflow:hidden;
+}
+
+.reset-btn::before{
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+background:radial-gradient(circle,rgba(239,68,68,0.2) 0%,transparent 70%);
+opacity:0;
+transition:opacity 0.3s;
+}
+
+.reset-btn:hover::before{opacity:1}
+
+.reset-btn:hover{
+background:rgba(239,68,68,0.25);
+transform:translateY(-2px);
+box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 35px rgba(239,68,68,0.9);
+}
+
+.reset-btn:active{
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 45px rgba(239,68,68,1);
+}
+
+/* ==================== LOADING OVERLAY ==================== */
+.loading-overlay{
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.85);
+backdrop-filter:blur(30px);
+-webkit-backdrop-filter:blur(30px);
+display:none;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:10000;
+opacity:0;
+transition:opacity 0.3s;
+}
+.loading-overlay.visible{display:flex;opacity:1}
+
+.loading-logo{
+width:120px;
+height:120px;
+opacity:0.8;
+animation:spin-glow 3s linear infinite;
+}
+@keyframes spin-glow{
+0%{
+transform:rotate(0deg);
+filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+}
+50%{
+transform:rotate(360deg);
+filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+}
+51%{
+filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+}
+100%{
+transform:rotate(720deg);
+filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+}
+}
+
+.loading-text{
+font-size:1.2rem;
+font-weight:600;
+color:#eee;
+margin-top:1.5rem;
+text-align:center;
+opacity:0.9;
+}
+
+.loading-subtext{
+font-size:0.9rem;
+color:#999;
+margin-top:0.5rem;
+text-align:center;
+display:none;
+}
+
+.loading-subtext:not(:empty){display:block}
+
+.progress-bar-container{
+width:280px;
+height:6px;
+background:rgba(255,255,255,0.1);
+border-radius:10px;
+margin:1.5rem auto 0;
+overflow:hidden;
+display:none;
+border:1px solid rgba(255,255,255,0.2);
+}
+
+.progress-bar-container.visible{display:block}
+
+.progress-bar-fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#10b981 0%,#764ba2 100%);
+border-radius:10px;
+transition:width 0.3s ease;
+box-shadow:0 0 10px rgba(16,185,129,0.6);
+}
+
+/* ==================== FOOTER ==================== */
+#footer{
+padding:2rem;
+background:rgba(0,0,0,0.5);
+backdrop-filter:blur(40px) saturate(180%);
+-webkit-backdrop-filter:blur(40px) saturate(180%);
+border-top:1px solid rgba(255,255,255,0.1);
+box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.footer-content{max-width:1200px;margin:0 auto;text-align:center}
+
+.footer-credit{
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+font-size:1.1rem;
+cursor:pointer;
+transition:all 0.3s;
+}
+.footer-credit:hover{opacity:0.8;transform:scale(1.02)}
+
+.weather-widget{
+display:none;
+align-items:center;
+justify-content:center;
+gap:1rem;
+padding:0.75rem 1.5rem;
+margin-bottom:1rem;
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:16px;
+border:1px solid rgba(255,255,255,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+font-size:0.9rem;
+animation:weather-glow 4s ease-in-out infinite;
+}
+
+@keyframes weather-glow{
+0%,100%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+50%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+}
+
+.weather-widget.visible{display:flex}
+.weather-widget.loading{opacity:0.6}
+
+.weather-icon{font-size:1.8rem;line-height:1}
+.weather-temp{
+font-size:1.5rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+}
+.weather-time{font-size:1rem;font-weight:600;color:#10b981}
+.weather-divider{color:rgba(255,255,255,0.3);font-weight:300}
+.weather-condition{
+font-size:0.95rem;
+font-weight:600;
+animation:condition-glow 4s ease-in-out infinite;
+}
+
+@keyframes condition-glow{
+0%,100%{color:#764ba2;text-shadow:0 0 10px rgba(118,75,162,0.6)}
+50%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
+}
+
+.weather-location{
+font-size:0.9rem;
+font-weight:600;
+animation:location-glow 4s ease-in-out infinite;
+}
+
+@keyframes location-glow{
+0%,100%{color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.6)}
+50%{color:#764ba2;text-shadow:0 0 8px rgba(118,75,162,0.6)}
+}
+
+.instructions-accordion{
+margin-bottom:1.5rem;
+}
+
+.instructions-accordion-header{
+padding:0.75rem 1rem;
+font-size:0.95rem;
+border-radius:16px;
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(255,255,255,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+color:#eee;
+cursor:pointer;
+transition:all 0.3s;
+display:flex;
+justify-content:space-between;
+align-items:center;
+user-select:none;
+}
+
+.instructions-accordion-header:hover{
+background:rgba(255,255,255,0.15);
+border-color:rgba(255,255,255,0.25);
+box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+.instructions-accordion-content{
+max-height:0;
+overflow:hidden;
+transition:max-height 0.3s ease;
+margin-top:0.5rem;
+}
+
+.instructions-accordion.open .instructions-accordion-content{
+max-height:5000px;
+overflow-y:auto;
+}
+
+.instructions-card{
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:16px;
+border:1px solid rgba(255,255,255,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+padding:1.5rem;
+max-height:70vh;
+overflow-y:auto;
+}
+
+.instructions-card h3{
+font-size:1.1rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+margin:0 0 0.75rem 0;
+}
+
+.instructions-card h4{
+font-size:0.95rem;
+font-weight:700;
+color:#10b981;
+margin:1rem 0 0.5rem 0;
+}
+
+.instructions-card p{
+font-size:0.9rem;
+line-height:1.6;
+color:#ccc;
+margin:0 0 0.75rem 0;
+}
+
+.instructions-card ul{
+font-size:0.9rem;
+line-height:1.6;
+color:#ccc;
+margin:0 0 0.75rem 0;
+padding-left:1.5rem;
+}
+
+.instructions-card li{
+margin-bottom:0.5rem;
+}
+
+.instructions-card strong{
+color:#10b981;
+font-weight:600;
+}
+
+/* ==================== EASTER EGG ==================== */
+.easter-egg-overlay{
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.95);
+backdrop-filter:blur(30px);
+-webkit-backdrop-filter:blur(30px);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:20000;
+opacity:0;
+transition:opacity 0.5s;
+overflow:hidden;
+}
+.easter-egg-overlay.visible{display:flex;opacity:1}
+
+.easter-egg-logo{
+width:150px;
+height:150px;
+opacity:0;
+animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
+}
+
+@keyframes spin-in{
+0%{transform:scale(0) rotate(0deg);opacity:0}
+100%{transform:scale(1) rotate(720deg);opacity:1}
+}
+
+@keyframes spin-out{
+0%{transform:scale(1) rotate(0deg);opacity:1}
+100%{transform:scale(0) rotate(-720deg);opacity:0}
+}
+
+@keyframes egg-glow{
+0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}
+50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}
+}
+
+.matrix-canvas{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+opacity:0;
+transition:opacity 1s;
+}
+.matrix-canvas.visible{opacity:1}
+
+@media(max-width:768px){
+#header{
+padding:1rem;
+flex-direction:column;
+align-items:stretch;
+}
+.logo-section{justify-content:center}
+.title{font-size:1.2rem}
+#main-content{padding:1rem}
+.converter-card{padding:1.5rem}
+.format-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+.download-btn,.reset-btn{
+width:100%;
+margin:0.5rem 0;
+}
+}
+</style>
+
+<title>File Converter by Rudeboy™</title>
+</head>
+<body>
+
+<div id="container">
+  <div id="header">
+    <div class="logo-section">
+      <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy Logo">
+      <h1 class="title">Universal File Converter</h1>
+    </div>
+  </div>
+
+  <div id="main-content">
+    <div class="converter-card">
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">🔄</div>
+        <div class="upload-text">Drop your file here</div>
+        <div class="upload-hint">Images • Videos • Audio • Documents • Archives</div>
+        <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.wma,.aiff,.ape,.pdf,.doc,.docx,.txt,.rtf,.odt,.html,.md,.epub,.zip,.7z,.rar,.tar,.gz">
+      </div>
+
+  <!-- Standard Instructions (Always visible until file uploaded) -->
+  <div class="instructions-accordion" id="standardInstructions" style="margin-top:1.5rem">
+    <div class="instructions-accordion-header">
+      <span>📚 How to Use This Converter</span>
+      <span>▼</span>
+    </div>
+    <div class="instructions-accordion-content">
+      <div class="instructions-card">
+        <h3>👋 Welcome to File Converter by Rudeboy™</h3>
+        
+        <h4>Quick Start:</h4>
+        <ol>
+          <li><strong>Upload:</strong> Click the upload area or drag & drop your file</li>
+          <li><strong>Select Format:</strong> Choose your desired output format from the buttons</li>
+          <li><strong>Adjust Quality:</strong> Use the slider (higher = better quality, larger file)</li>
+          <li><strong>Convert:</strong> Click the convert button and wait</li>
+          <li><strong>Download:</strong> Get your converted file</li>
+        </ol>
+        
+        <h4>Supported File Types (80+ formats):</h4>
+        <ul>
+          <li><strong>🖼️ Images:</strong> PNG, JPG, WebP, GIF, BMP, TIFF, SVG, AVIF, HEIC, PSD, RAW, DNG, CR2, NEF, EPS, PDF, ICO, JXL</li>
+          <li><strong>🎥 Videos:</strong> MP4, WebM, GIF, AVI, MOV, MKV, FLV, WMV, M4V, 3GP, OGV, VOB, TS, MTS, M2TS</li>
+          <li><strong>🎵 Audio:</strong> MP3, WAV, OGG, M4A, AAC, FLAC, WMA, AIFF, APE, OPUS, ALAC, AC3, AMR, AU, DTS, MP2, RA, MKA</li>
+          <li><strong>📄 Documents:</strong> PDF, DOCX, TXT, RTF, ODT, HTML, MD, EPUB, MOBI</li>
+          <li><strong>💾 Archives:</strong> ZIP, 7Z, RAR, TAR, GZ, BZ2, XZ, TAR.GZ, TAR.BZ2</li>
+        </ul>
+        
+        <h4>Color Space Conversions:</h4>
+        <p>For images, you can also convert between color spaces: RGB, CMYK, Grayscale, LAB, HSV</p>
+        
+        <h4>Quality Settings Guide:</h4>
+        <ul>
+          <li><strong>90-100%:</strong> Maximum quality. Larger files. Best for print, archiving, professional work</li>
+          <li><strong>70-89%:</strong> High quality. Balanced file size. Best for most uses, sharing, web</li>
+          <li><strong>50-69%:</strong> Good quality. Smaller files. Best for email, mobile, social media</li>
+        </ul>
+        
+        <p><strong>💡 Tip:</strong> After uploading a file, detailed format-specific instructions will appear below!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- File-specific Instructions (Shows when file uploaded, replaces standard instructions) -->
+  <div class="instructions-accordion" id="instructionsAccordion" style="display:none;margin-top:1.5rem">
+    <div class="instructions-accordion-header">
+      <span id="instructionsTitle">📚 Instructions</span>
+      <span>▼</span>
+    </div>
+    <div class="instructions-accordion-content">
+      <div class="instructions-card">
+        
+        <!-- Image Instructions -->
+        <div id="imageInstructions" style="display:none">
+          <h3>🖼️ Image Format Guide</h3>
+          
+          <h4>Best for Web:</h4>
+          <p><strong>WebP:</strong> Modern format, 25-35% smaller than PNG/JPG. Best overall for websites. Quality: 85-90%</p>
+          <p><strong>AVIF:</strong> Newest format, even smaller than WebP. Limited browser support (Chrome 85+, Firefox 93+). Quality: 80-85%</p>
+          <p><strong>JPG:</strong> Universal support, great for photos. Lossy = smaller files. Quality: 80-95% recommended</p>
+          <p><strong>PNG:</strong> Lossless, supports transparency. Larger files. Perfect for logos/graphics/screenshots. Quality: 100%</p>
+          
+          <h4>Best for Print:</h4>
+          <p><strong>TIFF:</strong> Print industry standard. Lossless, huge files, supports CMYK. Use 300 DPI minimum</p>
+          <p><strong>PDF:</strong> Universal, preserves quality, embeds fonts. Perfect for printers. Use CMYK + 300 DPI</p>
+          <p><strong>EPS:</strong> Vector format. Scalable to any size without quality loss. Professional print standard</p>
+          
+          <h4>Color Spaces Explained:</h4>
+          <p><strong>RGB:</strong> For screens (web, phones, monitors). Standard digital. Use for websites, social media, viewing</p>
+          <p><strong>CMYK:</strong> For printing (magazines, posters, merch). Required by print shops. Use for physical products</p>
+          <p><strong>Grayscale:</strong> Black & white. Smaller files. Use for documents, newspapers, artistic effects</p>
+          <p><strong>LAB:</strong> Professional color correction. Widest color gamut. Use for advanced editing</p>
+          <p><strong>HSV:</strong> Hue/Saturation/Value. Best for color manipulation. Use for artistic effects</p>
+          
+          <h4>Professional Formats:</h4>
+          <p><strong>PSD:</strong> Photoshop native. Preserves layers/adjustments. Huge files. Use for editing workflow</p>
+          <p><strong>RAW/DNG/CR2/NEF:</strong> Unprocessed camera data. Maximum editing flexibility. Convert to TIFF/PNG for final output</p>
+          
+          <h4>Quick Tips:</h4>
+          <ul>
+            <li><strong>Website images:</strong> WebP @ 85% or JPG @ 80-85%</li>
+            <li><strong>Print projects:</strong> TIFF or PDF in CMYK @ 300 DPI</li>
+            <li><strong>Logos/graphics:</strong> PNG @ 100% or SVG (vector)</li>
+            <li><strong>Social media:</strong> JPG @ 80-85%, max 2048px width</li>
+            <li><strong>Archiving:</strong> PNG @ 100% or TIFF (lossless)</li>
+          </ul>
+        </div>
+
+        <!-- Video Instructions -->
+        <div id="videoInstructions" style="display:none">
+          <h3>🎥 Video Format Guide</h3>
+          
+          <h4>Best for Social Media:</h4>
+          <p><strong>MP4 (H.264):</strong> Universal. Works on all devices. Perfect for YouTube, Instagram, TikTok, Facebook</p>
+          <p><strong>Recommended settings:</strong> 1080p, 30fps, bitrate 8-12 Mbps</p>
+          
+          <h4>Best for Web:</h4>
+          <p><strong>WebM:</strong> Free, open-source. Smaller files than MP4. Great for websites, HTML5 video</p>
+          
+          <h4>Best for Editing:</h4>
+          <p><strong>MOV (ProRes):</strong> Professional editing standard. Huge files, lossless</p>
+          <p><strong>MKV:</strong> Flexible container. Stores multiple audio tracks, subtitles</p>
+          
+          <h4>Quick Tips:</h4>
+          <ul>
+            <li><strong>Social media:</strong> MP4, 1080p, 30fps, H.264</li>
+            <li><strong>YouTube:</strong> MP4, up to 4K, 60fps possible</li>
+            <li><strong>Web embedding:</strong> WebM for smallest size</li>
+          </ul>
+        </div>
+
+        <!-- Audio Instructions -->
+        <div id="audioInstructions" style="display:none">
+          <h3>🎵 Audio Format Guide</h3>
+          
+          <h4>Lossless (Best Quality):</h4>
+          <p><strong>FLAC:</strong> Free Lossless. Perfect quality, ~50% smaller than WAV</p>
+          <p><strong>WAV:</strong> Uncompressed. Massive files. Industry standard</p>
+          <p><strong>ALAC:</strong> Apple Lossless. Perfect for Apple devices</p>
+          
+          <h4>Lossy (Compressed):</h4>
+          <p><strong>MP3:</strong> Universal support. Good compression</p>
+          <p><strong>AAC/M4A:</strong> Better than MP3 at same bitrate. Apple standard</p>
+          <p><strong>Opus:</strong> Modern, best compression. Great for streaming</p>
+          
+          <h4>Quick Tips:</h4>
+          <ul>
+            <li><strong>Music archiving:</strong> FLAC (lossless)</li>
+            <li><strong>General listening:</strong> MP3 @ 320 kbps</li>
+            <li><strong>Apple devices:</strong> AAC/M4A or ALAC</li>
+            <li><strong>Podcasts:</strong> MP3 @ 128 kbps</li>
+          </ul>
+        </div>
+
+        <!-- Document Instructions -->
+        <div id="documentInstructions" style="display:none">
+          <h3>📄 Document Format Guide</h3>
+          
+          <p><strong>PDF:</strong> Universal. Preserves formatting. Perfect for sharing</p>
+          <p><strong>DOCX:</strong> Microsoft Word. Industry standard. Fully editable</p>
+          <p><strong>HTML:</strong> Web pages. Readable by all browsers</p>
+          <p><strong>MD:</strong> Markdown. Simple text formatting for GitHub, blogs</p>
+        </div>
+
+        <!-- Archive Instructions -->
+        <div id="archiveInstructions" style="display:none">
+          <h3>💾 Archive Format Guide</h3>
+          
+          <p><strong>ZIP:</strong> Works everywhere. Fast. Good compression</p>
+          <p><strong>7Z:</strong> Highest compression. Slower</p>
+          <p><strong>TAR.GZ:</strong> Unix standard. Preserves permissions</p>
+        </div>
+
+        <!-- Default Instructions -->
+        <div id="defaultInstructions" style="display:none">
+          <p>Upload a file to see format-specific instructions!</p>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="file-info" id="fileInfo">
+    <div class="file-details">
+      <div class="file-icon" id="fileIcon">📄</div>
+      <div class="file-meta">
+        <div class="file-name" id="fileName">filename.ext</div>
+        <div class="file-size" id="fileSize">0 KB</div>
+      </div>
+    </div>
+
+    <!-- Preview of uploaded file -->
+    <div class="preview-section" id="uploadPreview" style="display:none;margin:1.5rem 0">
+      <div class="section-title" style="text-align:center;margin-bottom:1rem;color:#10b981">Original File Preview:</div>
+      <img id="uploadImagePreview" style="display:none;max-width:100%;max-height:300px;border-radius:12px;border:2px solid rgba(16,185,129,0.3)">
+      <audio id="uploadAudioPreview" controls style="display:none;width:100%;border-radius:12px"></audio>
+      <video id="uploadVideoPreview" controls style="display:none;width:100%;max-height:300px;border-radius:12px;border:2px solid rgba(16,185,129,0.3)"></video>
+    </div>
+
+    <div id="formatOptions" style="display:none">
+      <div class="format-section" id="imageFormats" style="display:none">
+        <div class="section-title">🖼️ Convert to Image Format:</div>
+        <div class="format-grid">
+          <button class="format-btn" data-format="png">PNG</button>
+          <button class="format-btn" data-format="jpg">JPG</button>
+          <button class="format-btn" data-format="webp">WebP</button>
+          <button class="format-btn" data-format="gif">GIF</button>
+          <button class="format-btn" data-format="bmp">BMP</button>
+          <button class="format-btn" data-format="ico">ICO</button>
+          <button class="format-btn" data-format="tiff">TIFF</button>
+          <button class="format-btn" data-format="svg">SVG</button>
+          <button class="format-btn" data-format="avif">AVIF</button>
+          <button class="format-btn" data-format="heic">HEIC</button>
+          <button class="format-btn" data-format="psd">PSD</button>
+          <button class="format-btn" data-format="raw">RAW</button>
+          <button class="format-btn" data-format="dng">DNG</button>
+          <button class="format-btn" data-format="cr2">CR2</button>
+          <button class="format-btn" data-format="nef">NEF</button>
+          <button class="format-btn" data-format="eps">EPS</button>
+          <button class="format-btn" data-format="pdf">PDF</button>
+          <button class="format-btn" data-format="jxl">JXL</button>
+        </div>
+        <div style="margin-top:1rem">
+          <div class="section-title">Color Space:</div>
+          <div class="format-grid">
+            <button class="format-btn" data-format="rgb">RGB</button>
+            <button class="format-btn" data-format="cmyk">CMYK</button>
+            <button class="format-btn" data-format="grayscale">Grayscale</button>
+            <button class="format-btn" data-format="lab">LAB</button>
+            <button class="format-btn" data-format="hsv">HSV</button>
+          </div>
+        </div>
+        <div style="margin-top:1rem">
+          <div class="section-title">📐 Custom Dimensions (optional):</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:0.5rem;align-items:center;margin-top:0.5rem">
+            <input type="number" id="customWidth" placeholder="Width" style="padding:0.75rem 0.5rem;border-radius:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#eee;font-size:0.85rem;width:100%">
+            <span style="color:#999;font-size:0.9rem">×</span>
+            <input type="number" id="customHeight" placeholder="Height" style="padding:0.75rem 0.5rem;border-radius:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#eee;font-size:0.85rem;width:100%">
+            <span style="color:#999;font-size:0.8rem">px</span>
+          </div>
+          <div style="margin-top:0.5rem;font-size:0.8rem;color:#999;text-align:center">Leave empty to keep original size</div>
+        </div>
+      </div>
+
+      <div class="format-section" id="videoFormats" style="display:none">
+        <div class="section-title">🎥 Convert to Video Format:</div>
+        <div class="format-grid">
+          <button class="format-btn" data-format="mp4">MP4</button>
+          <button class="format-btn" data-format="webm">WebM</button>
+          <button class="format-btn" data-format="gif">GIF</button>
+          <button class="format-btn" data-format="avi">AVI</button>
+          <button class="format-btn" data-format="mov">MOV</button>
+          <button class="format-btn" data-format="mkv">MKV</button>
+          <button class="format-btn" data-format="flv">FLV</button>
+          <button class="format-btn" data-format="wmv">WMV</button>
+          <button class="format-btn" data-format="m4v">M4V</button>
+          <button class="format-btn" data-format="3gp">3GP</button>
+          <button class="format-btn" data-format="ogv">OGV</button>
+          <button class="format-btn" data-format="vob">VOB</button>
+          <button class="format-btn" data-format="ts">TS</button>
+          <button class="format-btn" data-format="mts">MTS</button>
+          <button class="format-btn" data-format="m2ts">M2TS</button>
+        </div>
+        <div style="margin-top:0.75rem;font-size:0.85rem;color:#999;text-align:center">Note: Video conversion simulated for demo</div>
+      </div>
+
+      <div class="format-section" id="audioFormats" style="display:none">
+        <div class="section-title">🎵 Convert to Audio Format:</div>
+        <div class="format-grid">
+          <button class="format-btn" data-format="mp3">MP3</button>
+          <button class="format-btn" data-format="wav">WAV</button>
+          <button class="format-btn" data-format="ogg">OGG</button>
+          <button class="format-btn" data-format="m4a">M4A</button>
+          <button class="format-btn" data-format="aac">AAC</button>
+          <button class="format-btn" data-format="flac">FLAC</button>
+          <button class="format-btn" data-format="wma">WMA</button>
+          <button class="format-btn" data-format="aiff">AIFF</button>
+          <button class="format-btn" data-format="ape">APE</button>
+          <button class="format-btn" data-format="opus">OPUS</button>
+          <button class="format-btn" data-format="alac">ALAC</button>
+          <button class="format-btn" data-format="ac3">AC3</button>
+          <button class="format-btn" data-format="amr">AMR</button>
+          <button class="format-btn" data-format="au">AU</button>
+          <button class="format-btn" data-format="dts">DTS</button>
+          <button class="format-btn" data-format="mp2">MP2</button>
+          <button class="format-btn" data-format="ra">RA</button>
+          <button class="format-btn" data-format="mka">MKA</button>
+        </div>
+      </div>
+
+      <div class="format-section" id="documentFormats" style="display:none">
+        <div class="section-title">📄 Convert to Document Format:</div>
+        <div class="format-grid">
+          <button class="format-btn" data-format="pdf">PDF</button>
+          <button class="format-btn" data-format="docx">DOCX</button>
+          <button class="format-btn" data-format="txt">TXT</button>
+          <button class="format-btn" data-format="rtf">RTF</button>
+          <button class="format-btn" data-format="odt">ODT</button>
+          <button class="format-btn" data-format="html">HTML</button>
+          <button class="format-btn" data-format="md">MD</button>
+          <button class="format-btn" data-format="epub">EPUB</button>
+          <button class="format-btn" data-format="mobi">MOBI</button>
+        </div>
+      </div>
+
+      <div class="format-section" id="archiveFormats" style="display:none">
+        <div class="section-title">💾 Convert to Archive Format:</div>
+        <div class="format-grid">
+          <button class="format-btn" data-format="zip">ZIP</button>
+          <button class="format-btn" data-format="7z">7Z</button>
+          <button class="format-btn" data-format="rar">RAR</button>
+          <button class="format-btn" data-format="tar">TAR</button>
+          <button class="format-btn" data-format="gz">GZ</button>
+          <button class="format-btn" data-format="bz2">BZ2</button>
+          <button class="format-btn" data-format="xz">XZ</button>
+          <button class="format-btn" data-format="tar.gz">TAR.GZ</button>
+          <button class="format-btn" data-format="tar.bz2">TAR.BZ2</button>
+        </div>
+      </div>
+
+      <div class="quality-section">
+        <div class="section-title">Quality:</div>
+        <div class="quality-slider">
+          <input type="range" min="1" max="100" value="90" class="slider" id="qualitySlider">
+          <span class="slider-value" id="qualityValue">90%</span>
+        </div>
+      </div>
+
+      <button class="convert-btn" id="convertBtn" disabled>Select a format to convert</button>
+    </div>
+
+    <div class="download-section" id="downloadSection">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Conversion Complete!</div>
+      <div class="success-text" id="conversionResult">Your file is ready</div>
+      
+      <!-- Preview Section -->
+      <div class="preview-section" id="previewSection" style="display:none;margin:1.5rem 0">
+        <div class="section-title" style="text-align:center;margin-bottom:1rem">Preview:</div>
+        
+        <!-- Image Preview -->
+        <img id="imagePreview" style="display:none;max-width:100%;max-height:300px;border-radius:12px;border:2px solid rgba(255,255,255,0.2)">
+        
+        <!-- Audio Player -->
+        <audio id="audioPreview" controls style="display:none;width:100%;border-radius:12px;background:rgba(255,255,255,0.1)"></audio>
+        
+        <!-- Video Player -->
+        <video id="videoPreview" controls style="display:none;width:100%;max-height:300px;border-radius:12px;border:2px solid rgba(255,255,255,0.2)"></video>
+        
+        <!-- File Info -->
+        <div id="fileInfoPreview" style="display:none;margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.05);border-radius:12px;font-size:0.9rem">
+          <div style="color:#10b981;font-weight:600;margin-bottom:0.5rem">File Details:</div>
+          <div id="previewDetails"></div>
+        </div>
+      </div>
+      
+      <a class="download-btn" id="downloadBtn">💾 Download File</a>
+      <button class="reset-btn" id="resetBtn">🔄 Convert Another</button>
+    </div>
+  </div>
+</div>
+
+  </div>
+
+  <div id="footer">
+    <div class="footer-content">
+
+  <div class="weather-widget" id="weatherWidget">
+    <span class="weather-icon" id="weatherIcon">🌤️</span>
+    <span class="weather-temp" id="weatherTemp">--°</span>
+    <span class="weather-divider">|</span>
+    <span class="weather-time" id="weatherTime">--:--</span>
+    <span class="weather-divider">|</span>
+    <span class="weather-condition" id="weatherCondition">Loading...</span>
+    <span class="weather-divider">|</span>
+    <span class="weather-location" id="weatherLocation">--</span>
+  </div>
+  
+  <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
+</div>
+
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
+  <div class="loading-text" id="loadingText">Loading...</div>
+  <div class="loading-subtext" id="loadingSubtext"></div>
+  <div class="progress-bar-container" id="progressBarContainer">
+    <div class="progress-bar-fill" id="progressBarFill"></div>
+  </div>
+</div>
+
+<div class="easter-egg-overlay" id="easterEggOverlay">
+  <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
+  <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
+</div>
+
+<audio id="easterEggAudio" preload="none"></audio>
+
+<script>
+/* ==================== CONVERTER JAVASCRIPT ==================== */
+const doc = document;
+const getEl = doc.getElementById.bind(doc);
+
+const els = {
+  uploadArea: getEl('uploadArea'),
+  fileInput: getEl('fileInput'),
+  fileInfo: getEl('fileInfo'),
+  fileIcon: getEl('fileIcon'),
+  fileName: getEl('fileName'),
+  fileSize: getEl('fileSize'),
+  formatOptions: getEl('formatOptions'),
+  imageFormats: getEl('imageFormats'),
+  videoFormats: getEl('videoFormats'),
+  audioFormats: getEl('audioFormats'),
+  qualitySlider: getEl('qualitySlider'),
+  qualityValue: getEl('qualityValue'),
+  convertBtn: getEl('convertBtn'),
+  downloadSection: getEl('downloadSection'),
+  downloadBtn: getEl('downloadBtn'),
+  resetBtn: getEl('resetBtn'),
+  loadingOverlay: getEl('loadingOverlay'),
+  logo: getEl('logo'),
+  easterEgg: getEl('easterEgg'),
+  easterEggOverlay: getEl('easterEggOverlay'),
+  easterEggLogo: getEl('easterEggLogo'),
+  matrixCanvas: getEl('matrixCanvas'),
+  audio: getEl('easterEggAudio'),
+  weatherWidget: getEl('weatherWidget'),
+  weatherIcon: getEl('weatherIcon'),
+  weatherTemp: getEl('weatherTemp'),
+  weatherTime: getEl('weatherTime'),
+  weatherCondition: getEl('weatherCondition'),
+  weatherLocation: getEl('weatherLocation')
+};
+
+let currentFile = null;
+let selectedFormat = null;
+let fileType = null;
+let convertedBlob = null;
+let matrixActive = false;
+let matrixInterval = null;
+
+const playlist = [
+  {
+    title: 'Capone',
+    artist: 'Hey Pluto',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/capone.mp3'
+  },
+  {
+    title: 'Count',
+    artist: 'Fonss',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/count.mp3'
+  },
+  {
+    title: 'Falling Softly',
+    artist: 'Richard Smithson',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/falling%20softly.mp3'
+  },
+  {
+    title: 'Fluid',
+    artist: 'Mountaineer',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/fluid.mp3'
+  },
+  {
+    title: 'I Wanna Take Your Body Higher',
+    artist: 'SkyGaze',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/i%20wanna%20take%20your%20body%20higher.mp3'
+  },
+  {
+    title: 'Journey',
+    artist: 'Tatami',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/journey.mp3'
+  },
+  {
+    title: 'Moments',
+    artist: 'Tatami',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/moments.mp3'
+  },
+  {
+    title: 'Stardrive',
+    artist: 'Simon Folwar',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/stardrive.mp3'
+  },
+  {
+    title: 'Sunset In Junipero',
+    artist: 'Bach',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/sunset%20in%20junipero.mp3'
+  },
+  {
+    title: 'I Know',
+    artist: 'Matrika',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/IKnow.mp3'
+  },
+  {
+    title: 'Other Worlds',
+    artist: 'Carpetman',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/OtherWorlds.mp3'
+  },
+  {
+    title: 'JaffaDays',
+    artist: 'ToneBreak',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/JaffaDays.mp3'
+  },
+  {
+    title: 'Baby Blue',
+    artist: 'Action Bronson',
+    url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/secret%20stash/BabyBlue.mp3'
+  }
+];
+
+let shuffledPlaylist = [...playlist];
+let currentTrackIndex = 0;
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+shuffleArray(shuffledPlaylist);
+
+// Instructions accordion toggle
+const instructionsAccordion = getEl('instructionsAccordion');
+if (instructionsAccordion) {
+  instructionsAccordion.querySelector('.instructions-accordion-header').addEventListener('click', () => {
+    const isOpen = instructionsAccordion.classList.contains('open');
+    instructionsAccordion.classList.toggle('open', !isOpen);
+    instructionsAccordion.querySelector('.instructions-accordion-header span:last-child').textContent = isOpen ? '▼' : '▲';
+  });
+}
+
+// Standard instructions accordion toggle
+const standardInstructions = getEl('standardInstructions');
+if (standardInstructions) {
+  standardInstructions.querySelector('.instructions-accordion-header').addEventListener('click', () => {
+    const isOpen = standardInstructions.classList.contains('open');
+    standardInstructions.classList.toggle('open', !isOpen);
+    standardInstructions.querySelector('.instructions-accordion-header span:last-child').textContent = isOpen ? '▼' : '▲';
+  });
+}
+
+function showInstructions(type) {
+  // Hide standard instructions
+  const standardInstructions = getEl('standardInstructions');
+  if (standardInstructions) {
+    standardInstructions.style.display = 'none';
+  }
+  
+  // Show file-specific instructions accordion
+  const instructionsAccordion = getEl('instructionsAccordion');
+  if (instructionsAccordion) {
+    instructionsAccordion.style.display = 'block';
+  }
+  
+  // Hide all instruction sections
+  const sections = ['imageInstructions', 'videoInstructions', 'audioInstructions', 'documentInstructions', 'archiveInstructions', 'defaultInstructions'];
+  sections.forEach(id => {
+    const el = getEl(id);
+    if (el) el.style.display = 'none';
+  });
+  
+  // Show relevant section
+  const titleMap = {
+    image: '🖼️ Image Format Instructions',
+    video: '🎥 Video Format Instructions',
+    audio: '🎵 Audio Format Instructions',
+    document: '📄 Document Format Instructions',
+    archive: '💾 Archive Format Instructions'
+  };
+  
+  const sectionId = type + 'Instructions';
+  const section = getEl(sectionId);
+  if (section) {
+    section.style.display = 'block';
+    getEl('instructionsTitle').textContent = titleMap[type] || '📚 Instructions';
+  } else {
+    getEl('defaultInstructions').style.display = 'block';
+    getEl('instructionsTitle').textContent = '📚 Instructions';
+  }
+}
+
+function triggerHaptic(pattern = 'light') {
+  if (!navigator.vibrate) return;
+  
+  const patterns = {
+    light: 10,
+    medium: 20,
+    heavy: 30,
+    success: [20, 10, 20],
+    error: [50, 20, 50, 20, 50],
+    selection: 5
+  };
+  
+  navigator.vibrate(patterns[pattern] || 10);
+}
+
+function showLoading(options = {}) {
+  const {
+    message = 'Loading...',
+    subtext = '',
+    showProgress = false,
+    progress = 0
+  } = options;
+  
+  const loadingText = getEl('loadingText');
+  if (loadingText) loadingText.textContent = message;
+  
+  const loadingSubtext = getEl('loadingSubtext');
+  if (loadingSubtext) loadingSubtext.textContent = subtext;
+  
+  const progressContainer = getEl('progressBarContainer');
+  const progressFill = getEl('progressBarFill');
+  
+  if (showProgress && progressContainer && progressFill) {
+    progressContainer.classList.add('visible');
+    progressFill.style.width = `${progress}%`;
+  } else if (progressContainer) {
+    progressContainer.classList.remove('visible');
+  }
+  
+  els.loadingOverlay.classList.add('visible');
+}
+
+function hideLoading() {
+  setTimeout(() => {
+    els.loadingOverlay.classList.remove('visible');
+    const progressContainer = getEl('progressBarContainer');
+    const progressFill = getEl('progressBarFill');
+    if (progressContainer) progressContainer.classList.remove('visible');
+    if (progressFill) progressFill.style.width = '0%';
+  }, 500);
+}
+
+function updateLoadingProgress(percent, message) {
+  const progressFill = getEl('progressBarFill');
+  const loadingText = getEl('loadingText');
+  
+  if (progressFill) progressFill.style.width = `${percent}%`;
+  if (loadingText && message) loadingText.textContent = message;
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+els.uploadArea.addEventListener('click', () => els.fileInput.click());
+
+els.uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  els.uploadArea.classList.add('dragover');
+});
+
+els.uploadArea.addEventListener('dragleave', () => {
+  els.uploadArea.classList.remove('dragover');
+});
+
+els.uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  els.uploadArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  handleFile(file);
+});
+
+els.fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  handleFile(file);
+});
+
+els.qualitySlider.addEventListener('input', (e) => {
+  els.qualityValue.textContent = e.target.value + '%';
+  triggerHaptic();
+});
+
+doc.querySelectorAll('.format-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    doc.querySelectorAll('.format-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedFormat = btn.dataset.format;
+    els.convertBtn.disabled = false;
+    els.convertBtn.textContent = `Convert to ${selectedFormat.toUpperCase()}`;
+    triggerHaptic();
+  });
+});
+
+els.convertBtn.addEventListener('click', convertFile);
+els.downloadBtn.addEventListener('click', downloadFile);
+els.resetBtn.addEventListener('click', resetConverter);
+
+function handleFile(file) {
+  if (!file) return;
+
+  currentFile = file;
+  
+  // Hide standard instructions when file is uploaded
+  const standardInstructions = getEl('standardInstructions');
+  if (standardInstructions) {
+    standardInstructions.style.display = 'none';
+  }
+  
+  // Get file extension
+  const fileName = file.name.toLowerCase();
+  const extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+  
+  // Define file type arrays
+  const audioExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma', 'aiff', 'ape', 'opus', 'alac', 'ac3', 'amr', 'au', 'dts', 'mp2', 'ra', 'mka'];
+  const videoExtensions = ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'm4v', '3gp', 'ogv', 'vob', 'ts', 'mts', 'm2ts'];
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tiff', 'tif', 'avif', 'heic', 'psd', 'raw', 'dng', 'cr2', 'nef', 'eps', 'jxl'];
+  const documentExtensions = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'html', 'htm', 'md', 'epub', 'mobi'];
+  const archiveExtensions = ['zip', '7z', 'rar', 'tar', 'gz', 'bz2', 'xz', 'tgz', 'tbz2'];
+  
+  // Hide all format sections first
+  els.imageFormats.style.display = 'none';
+  els.videoFormats.style.display = 'none';
+  els.audioFormats.style.display = 'none';
+  if (getEl('documentFormats')) getEl('documentFormats').style.display = 'none';
+  if (getEl('archiveFormats')) getEl('archiveFormats').style.display = 'none';
+  
+  // Determine file type by MIME type first, then by extension
+  if (file.type.startsWith('image/') || imageExtensions.includes(extension)) {
+    fileType = 'image';
+    els.imageFormats.style.display = 'block';
+    els.fileIcon.textContent = '🖼️';
+    showInstructions('image');
+  } else if (file.type.startsWith('video/') || videoExtensions.includes(extension)) {
+    fileType = 'video';
+    els.videoFormats.style.display = 'block';
+    els.fileIcon.textContent = '🎥';
+    showInstructions('video');
+  } else if (file.type.startsWith('audio/') || audioExtensions.includes(extension)) {
+    fileType = 'audio';
+    els.audioFormats.style.display = 'block';
+    els.fileIcon.textContent = '🎵';
+    showInstructions('audio');
+  } else if (file.type.includes('document') || file.type.includes('text') || documentExtensions.includes(extension)) {
+    fileType = 'document';
+    if (getEl('documentFormats')) getEl('documentFormats').style.display = 'block';
+    els.fileIcon.textContent = '📄';
+    showInstructions('document');
+  } else if (file.type.includes('zip') || file.type.includes('compress') || archiveExtensions.includes(extension)) {
+    fileType = 'archive';
+    if (getEl('archiveFormats')) getEl('archiveFormats').style.display = 'block';
+    els.fileIcon.textContent = '💾';
+    showInstructions('archive');
+  } else {
+    // Default to image if unknown
+    fileType = 'image';
+    els.imageFormats.style.display = 'block';
+    els.fileIcon.textContent = '📄';
+    showInstructions('image');
+  }
+
+  els.fileName.textContent = file.name;
+  els.fileSize.textContent = formatFileSize(file.size);
+  
+  // Show upload preview
+  showUploadPreview(file);
+  
+  els.fileInfo.classList.add('active');
+  els.formatOptions.style.display = 'block';
+  triggerHaptic();
+}
+
+function showUploadPreview(file) {
+  const uploadPreview = getEl('uploadPreview');
+  const uploadImagePreview = getEl('uploadImagePreview');
+  const uploadAudioPreview = getEl('uploadAudioPreview');
+  const uploadVideoPreview = getEl('uploadVideoPreview');
+  
+  // Hide all previews first
+  uploadImagePreview.style.display = 'none';
+  uploadAudioPreview.style.display = 'none';
+  uploadVideoPreview.style.display = 'none';
+  uploadPreview.style.display = 'none';
+  
+  const url = URL.createObjectURL(file);
+  
+  if (fileType === 'image') {
+    uploadImagePreview.src = url;
+    uploadImagePreview.style.display = 'block';
+    uploadPreview.style.display = 'block';
+  } else if (fileType === 'audio') {
+    uploadAudioPreview.src = url;
+    uploadAudioPreview.style.display = 'block';
+    uploadPreview.style.display = 'block';
+  } else if (fileType === 'video') {
+    uploadVideoPreview.src = url;
+    uploadVideoPreview.style.display = 'block';
+    uploadPreview.style.display = 'block';
+  }
+}
+
+async function convertFile() {
+  if (!currentFile || !selectedFormat) return;
+
+  // Validation check - warn if converting to same format
+  const originalExt = currentFile.name.split('.').pop().toLowerCase();
+  if (originalExt === selectedFormat.toLowerCase()) {
+    const proceed = confirm(`⚠️ Warning: You're converting ${originalExt.toUpperCase()} to ${selectedFormat.toUpperCase()}.\n\nThe file will be reprocessed at the selected quality level, which may result in quality loss.\n\nDo you want to continue?`);
+    if (!proceed) return;
+  }
+  
+  // Check if conversion might have issues
+  const conversionWarnings = {
+    'svg': 'SVG is a vector format. Converting from raster images (PNG, JPG, etc.) will not produce a true vector - it will embed the raster image. Best for vector-to-vector conversions.',
+    'raw': 'RAW format requires camera-specific metadata. This converter will create a generic RAW-like file that may not be recognized by professional photo software.',
+    'dng': 'DNG (Digital Negative) requires camera metadata. The output may not be compatible with all RAW processors.',
+    'psd': 'PSD conversion will create a flattened single-layer image without Photoshop layers, masks, or adjustments.',
+    'eps': 'EPS is a vector format best for print. Raster-to-EPS conversions will embed the raster image, not vectorize it.',
+    'cmyk': 'CMYK color space conversion is approximate and best done in professional software like Photoshop for print work.',
+    'lab': 'LAB color space is for advanced color correction. Most software won\'t display LAB images correctly.',
+    'heic': 'HEIC requires specific encoding. Output may not work on all devices. Best to convert FROM HEIC rather than TO it.',
+    'avif': 'AVIF is very new. Browser support is limited (Chrome 85+, Firefox 93+). Older devices won\'t display it.'
+  };
+  
+  if (conversionWarnings[selectedFormat.toLowerCase()]) {
+    const proceed = confirm(`⚠️ Important Note:\n\n${conversionWarnings[selectedFormat.toLowerCase()]}\n\nContinue anyway?`);
+    if (!proceed) {
+      return;
+    }
+  }
+  
+  // Check incompatible type conversions
+  if (fileType === 'document' && (selectedFormat === 'mp3' || selectedFormat === 'mp4')) {
+    alert('❌ Cannot convert documents to audio/video formats. Please select a document format.');
+    return;
+  }
+  
+  if (fileType === 'audio' && (selectedFormat === 'png' || selectedFormat === 'mp4')) {
+    alert('❌ Cannot convert audio to image/video formats. Please select an audio format.');
+    return;
+  }
+  
+  if (fileType === 'video' && (selectedFormat === 'mp3' || selectedFormat === 'png')) {
+    alert('❌ Video to audio/image conversion not supported. Use video editing software to extract audio or frames.');
+    return;
+  }
+
+  els.convertBtn.disabled = true;
+  showLoading({
+    message: 'Converting your file...',
+    subtext: `${currentFile.name} → ${selectedFormat.toUpperCase()}`,
+    showProgress: true,
+    progress: 0
+  });
+  
+  const quality = els.qualitySlider.value / 100;
+
+  let prog = 0;
+  const convInterval = setInterval(() => {
+    prog += 8;
+    if (prog <= 85) {
+      updateLoadingProgress(prog, 'Converting your file...');
+    }
+  }, 150);
+
+  try {
+    if (fileType === 'image') {
+      await convertImage(currentFile, selectedFormat, quality);
+    } else if (fileType === 'video') {
+      await convertVideo(currentFile, selectedFormat, quality);
+    } else if (fileType === 'audio') {
+      await convertAudio(currentFile, selectedFormat, quality);
+    } else if (fileType === 'document' || fileType === 'archive') {
+      // For now, just copy the file as-is for documents/archives
+      convertedBlob = currentFile;
+    }
+    
+    clearInterval(convInterval);
+    updateLoadingProgress(100, 'Complete!');
+    hideLoading();
+    showDownload();
+    triggerHaptic('success');
+  } catch (error) {
+    clearInterval(convInterval);
+    hideLoading();
+    alert('⚠️ Conversion failed: ' + error.message);
+    els.convertBtn.disabled = false;
+    triggerHaptic('error');
+  }
+}
+
+async function convertImage(file, format, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = doc.createElement('canvas');
+        
+        // Check for custom dimensions
+        const customWidth = getEl('customWidth');
+        const customHeight = getEl('customHeight');
+        const targetWidth = customWidth && customWidth.value ? parseInt(customWidth.value) : img.width;
+        const targetHeight = customHeight && customHeight.value ? parseInt(customHeight.value) : img.height;
+        
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw image with new dimensions
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+        const mimeType = format === 'jpg' ? 'image/jpeg' : `image/${format}`;
+        canvas.toBlob((blob) => {
+          if (blob) {
+            convertedBlob = blob;
+            resolve();
+          } else {
+            reject(new Error('Conversion failed'));
+          }
+        }, mimeType, quality);
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function convertVideo(file, format, quality) {
+  await sleep(1500);
+  convertedBlob = file;
+}
+
+async function convertAudio(file, format, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioBuffer = await audioContext.decodeAudioData(e.target.result);
+        
+        const offlineContext = new OfflineAudioContext(
+          audioBuffer.numberOfChannels,
+          audioBuffer.length,
+          audioBuffer.sampleRate
+        );
+        
+        const source = offlineContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(offlineContext.destination);
+        source.start();
+        
+        const renderedBuffer = await offlineContext.startRendering();
+        convertedBlob = audioBufferToWav(renderedBuffer);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read audio file'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function audioBufferToWav(buffer) {
+  const length = buffer.length * buffer.numberOfChannels * 2 + 44;
+  const arrayBuffer = new ArrayBuffer(length);
+  const view = new DataView(arrayBuffer);
+  const channels = [];
+  let offset = 0;
+  let pos = 0;
+
+  setUint32(0x46464952);
+  setUint32(length - 8);
+  setUint32(0x45564157);
+  setUint32(0x20746d66);
+  setUint32(16);
+  setUint16(1);
+  setUint16(buffer.numberOfChannels);
+  setUint32(buffer.sampleRate);
+  setUint32(buffer.sampleRate * 2 * buffer.numberOfChannels);
+  setUint16(buffer.numberOfChannels * 2);
+  setUint16(16);
+  setUint32(0x61746164);
+  setUint32(length - pos - 4);
+
+  for (let i = 0; i < buffer.numberOfChannels; i++) {
+    channels.push(buffer.getChannelData(i));
+  }
+
+  while (pos < length) {
+    for (let i = 0; i < buffer.numberOfChannels; i++) {
+      let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+      sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+      view.setInt16(pos, sample, true);
+      pos += 2;
+    }
+    offset++;
+  }
+
+  return new Blob([arrayBuffer], { type: 'audio/wav' });
+
+  function setUint16(data) {
+    view.setUint16(pos, data, true);
+    pos += 2;
+  }
+
+  function setUint32(data) {
+    view.setUint32(pos, data, true);
+    pos += 4;
+  }
+}
+
+function showDownload() {
+  els.formatOptions.style.display = 'none';
+  els.downloadSection.classList.add('active');
+  
+  // Validation check
+  const originalExt = currentFile.name.split('.').pop().toLowerCase();
+  const isSameFormat = originalExt === selectedFormat.toLowerCase();
+  
+  if (isSameFormat) {
+    getEl('conversionResult').innerHTML = '⚠️ Note: Converting to same format<br><span style="font-size:0.85rem;color:#999">File will be reprocessed at selected quality</span>';
+  } else {
+    getEl('conversionResult').textContent = `Successfully converted to ${selectedFormat.toUpperCase()}!`;
+  }
+  
+  // Show preview
+  showPreview();
+}
+
+function showPreview() {
+  const previewSection = getEl('previewSection');
+  const imagePreview = getEl('imagePreview');
+  const audioPreview = getEl('audioPreview');
+  const videoPreview = getEl('videoPreview');
+  const fileInfoPreview = getEl('fileInfoPreview');
+  const previewDetails = getEl('previewDetails');
+  
+  // Hide all previews first
+  imagePreview.style.display = 'none';
+  audioPreview.style.display = 'none';
+  videoPreview.style.display = 'none';
+  fileInfoPreview.style.display = 'none';
+  
+  if (!convertedBlob) return;
+  
+  const url = URL.createObjectURL(convertedBlob);
+  
+  // Show appropriate preview
+  if (fileType === 'image') {
+    imagePreview.src = url;
+    imagePreview.style.display = 'block';
+    previewSection.style.display = 'block';
+  } else if (fileType === 'audio') {
+    audioPreview.src = url;
+    audioPreview.style.display = 'block';
+    previewSection.style.display = 'block';
+  } else if (fileType === 'video') {
+    videoPreview.src = url;
+    videoPreview.style.display = 'block';
+    previewSection.style.display = 'block';
+  }
+  
+  // Show file details
+  const details = `
+    <div>Format: <strong>${selectedFormat.toUpperCase()}</strong></div>
+    <div>Size: <strong>${formatFileSize(convertedBlob.size)}</strong></div>
+    <div>Quality: <strong>${els.qualitySlider.value}%</strong></div>
+    <div>Original: <strong>${currentFile.name}</strong> (${formatFileSize(currentFile.size)})</div>
+    <div style="margin-top:0.5rem;color:#10b981">
+      ${convertedBlob.size < currentFile.size ? 
+        '✓ Compressed ' + Math.round((1 - convertedBlob.size/currentFile.size) * 100) + '% smaller' : 
+        '✓ Quality preserved'}
+    </div>
+  `;
+  previewDetails.innerHTML = details;
+  fileInfoPreview.style.display = 'block';
+}
+
+function downloadFile() {
+  if (!convertedBlob) {
+    alert('❌ No file ready. Please convert a file first.');
+    return;
+  }
+
+  const originalName = currentFile.name.split('.').slice(0, -1).join('.');
+  const filename = `${originalName}.${selectedFormat}`;
+
+  // Try Web Share API first (iOS native share sheet)
+  if (navigator.share && navigator.canShare) {
+    const file = new File([convertedBlob], filename, { type: convertedBlob.type });
+    
+    if (navigator.canShare({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: 'Converted File',
+        text: `Download your converted ${selectedFormat.toUpperCase()} file`
+      })
+      .then(() => {
+        triggerHaptic('success');
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          // User didn't cancel, try fallback
+          fallbackDownload(filename);
+        }
+      });
+      return;
+    }
+  }
+  
+  // Fallback for devices without share API
+  fallbackDownload(filename);
+}
+
+function fallbackDownload(filename) {
+  // For images, open in new window so user can long-press save
+  if (fileType === 'image') {
+    const url = URL.createObjectURL(convertedBlob);
+    const newWindow = window.open(url, '_blank');
+    if (newWindow) {
+      setTimeout(() => {
+        alert('📱 Long-press the image and select "Add to Photos" or "Save Image"');
+      }, 500);
+    } else {
+      alert('⚠️ Please allow pop-ups, then try again');
+    }
+  } else {
+    // For other files, try data URL approach
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const link = document.createElement('a');
+      link.href = e.target.result;
+      link.download = filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+    reader.readAsDataURL(convertedBlob);
+  }
+  
+  triggerHaptic('success');
+}
+
+function resetConverter() {
+  currentFile = null;
+  selectedFormat = null;
+  fileType = null;
+  convertedBlob = null;
+  
+  els.fileInfo.classList.remove('active');
+  els.formatOptions.style.display = 'none';
+  els.downloadSection.classList.remove('active');
+  
+  doc.querySelectorAll('.format-btn').forEach(b => b.classList.remove('selected'));
+  els.convertBtn.disabled = true;
+  els.convertBtn.textContent = 'Select a format to convert';
+  els.fileInput.value = '';
+  
+  triggerHaptic();
+}
+
+function updateTime() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+  els.weatherTime.textContent = `${displayHours}:${displayMinutes} ${ampm}`;
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+
+async function getCityName(lat, lon) {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+    );
+    const data = await response.json();
+    
+    if (data && data.address) {
+      const city = data.address.city || 
+                   data.address.town || 
+                   data.address.village || 
+                   data.address.county || 
+                   data.address.state;
+      const country = data.address.country;
+      
+      if (city && country) {
+        return `${city}, ${country}`;
+      } else if (city) {
+        return city;
+      } else if (country) {
+        return country;
+      }
+    }
+    return 'Your Location';
+  } catch (error) {
+    return 'Your Location';
+  }
+}
+
+async function getWeather() {
+  els.weatherWidget.classList.add('visible');
+  els.weatherWidget.classList.add('loading');
+  
+  if (!navigator.geolocation) {
+    els.weatherCondition.textContent = 'Location unavailable';
+    els.weatherLocation.textContent = 'Geolocation not supported';
+    els.weatherWidget.classList.remove('loading');
+    return;
+  }
+  
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const { latitude, longitude } = position.coords;
+    
+    try {
+      const [weatherResponse, cityName] = await Promise.all([
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`),
+        getCityName(latitude, longitude)
+      ]);
+      
+      const data = await weatherResponse.json();
+      
+      if (data.current_weather) {
+        displayWeatherOpenMeteo(data, latitude, longitude, cityName);
+      }
+    } catch (error) {
+      els.weatherCondition.textContent = 'Weather unavailable';
+      els.weatherIcon.textContent = '🌐';
+      els.weatherLocation.textContent = 'Service unavailable';
+      els.weatherWidget.classList.remove('loading');
+    }
+  }, (error) => {
+    els.weatherCondition.textContent = 'Location denied';
+    els.weatherIcon.textContent = '📍';
+    els.weatherLocation.textContent = 'Enable location';
+    els.weatherWidget.classList.remove('loading');
+  });
+}
+
+function displayWeatherOpenMeteo(data, lat, lon, cityName) {
+  const tempC = Math.round(data.current_weather.temperature);
+  const tempF = Math.round((tempC * 9/5) + 32);
+  
+  const isUS = (lat > 24 && lat < 50 && lon > -125 && lon < -66);
+  const temp = isUS ? tempF : tempC;
+  const unit = isUS ? '°F' : '°C';
+  
+  els.weatherTemp.textContent = `${temp}${unit}`;
+  els.weatherCondition.textContent = getRudeboyWeatherCondition(data.current_weather.weathercode);
+  els.weatherLocation.textContent = cityName;
+  els.weatherIcon.textContent = getWeatherIconFromCode(data.current_weather.weathercode);
+  els.weatherWidget.classList.remove('loading');
+}
+
+function getWeatherIconFromCode(code) {
+  if (code === 0) return '☀️';
+  if (code === 1 || code === 2) return '🌤️';
+  if (code === 3) return '☁️';
+  if (code === 45 || code === 48) return '🌫️';
+  if (code >= 51 && code <= 67) return '🌧️';
+  if (code >= 71 && code <= 77) return '❄️';
+  if (code >= 80 && code <= 82) return '🌦️';
+  if (code >= 85 && code <= 86) return '❄️';
+  if (code >= 95 && code <= 99) return '⛈️';
+  return '🌡️';
+}
+
+function getRudeboyWeatherCondition(code) {
+  if (code === 0) return 'SunnySide Up';
+  if (code === 1 || code === 2) return "It's Cloudy Bitch";
+  if (code === 3) return "It's Cloudy Bitch";
+  if (code === 45 || code === 48) return "Can't see shit";
+  if (code >= 51 && code <= 67) return 'Wet T-Shirt Weather';
+  if (code >= 71 && code <= 77) return 'Fucking Snow';
+  if (code >= 80 && code <= 82) return "She's a squirter";
+  if (code >= 85 && code <= 86) return 'Fucking Snow';
+  if (code >= 95 && code <= 99) return 'Zeus is Pissed';
+  return 'Unknown';
+}
+
+getWeather();
+
+els.logo.addEventListener('click', () => {
+  showLoading({
+    message: 'Reloading...',
+    subtext: 'Refreshing File Converter',
+    showProgress: true,
+    progress: 50
+  });
+  
+  let prog = 50;
+  const reloadInterval = setInterval(() => {
+    prog += 10;
+    updateLoadingProgress(Math.min(prog, 90), 'Reloading...');
+  }, 280);
+  
+  setTimeout(() => {
+    clearInterval(reloadInterval);
+    updateLoadingProgress(100, 'Complete!');
+    setTimeout(() => location.reload(), 200);
+  }, 2500);
+});
+
+function playRandomTrack() {
+  if (currentTrackIndex >= shuffledPlaylist.length) {
+    shuffleArray(shuffledPlaylist);
+    currentTrackIndex = 0;
+  }
+  
+  const track = shuffledPlaylist[currentTrackIndex];
+  currentTrackIndex++;
+  
+  els.audio.src = track.url;
+  els.audio.volume = 0;
+  els.audio.loop = false;
+  
+  els.audio.play().then(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist,
+        album: 'Secret Stash',
+        artwork: [
+          { src: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png', sizes: '512x512', type: 'image/png' }
+        ]
+      });
+    }
+    
+    let vol = 0;
+    const fadeIn = setInterval(() => {
+      if (vol < 0.5) {
+        vol += 0.05;
+        els.audio.volume = Math.min(vol, 0.5);
+      } else {
+        clearInterval(fadeIn);
+      }
+    }, 100);
+  }).catch(err => {
+    if (matrixActive) {
+      playRandomTrack();
+    }
+  });
+}
+
+els.audio.addEventListener('ended', () => {
+  if (matrixActive) {
+    playRandomTrack();
+  }
+});
+
+function stopMusic() {
+  if (!els.audio.paused) {
+    let vol = els.audio.volume;
+    const fadeOut = setInterval(() => {
+      if (vol > 0) {
+        vol -= 0.05;
+        els.audio.volume = Math.max(vol, 0);
+      } else {
+        clearInterval(fadeOut);
+        els.audio.pause();
+        els.audio.currentTime = 0;
+      }
+    }, 50);
+  }
+}
+
+function startMatrix(){
+const canvas=els.matrixCanvas,ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+const msg='CREATED BY RUDEBOY';
+const fontSize=Math.ceil(canvas.width/msg.length);
+const drops=[];
+const dropSpeeds=[];
+
+for(let i=0;i<msg.length;i++){
+drops[i]=Math.random()*-100;
+dropSpeeds[i]=0.5+Math.random()*1.5;
+}
+
+let messageMode=false;
+let activeWords=[];
+const words=['CREATED','BY','RUDEBOY'];
+const wordStartPositions=[0,8,11];
+const wordLengths=[7,2,7];
+let messageTimer=0;
+const MESSAGE_INTERVAL=30000;
+let currentSpeed=50;
+
+function draw(){
+if(messageMode){
+ctx.fillStyle='rgba(0,0,0,0.05)';
+}else{
+ctx.fillStyle='rgba(0,0,0,0.25)';
+}
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.font=fontSize+'px monospace';
+
+if(!messageMode){
+messageTimer+=currentSpeed;
+if(messageTimer>=MESSAGE_INTERVAL){
+messageMode=true;
+activeWords=[0];
+messageTimer=0;
+for(let i=0;i<msg.length;i++){
+drops[i]=-100;
+dropSpeeds[i]=1;
+}
+for(let i=0;i<7;i++){
+drops[i]=0;
+}
+clearInterval(matrixInterval);
+currentSpeed=75;
+matrixInterval=setInterval(draw,currentSpeed);
+}
+}
+
+for(let i=0;i<msg.length;i++){
+let char;
+if(messageMode){
+let shouldShow=false;
+for(let w of activeWords){
+const wordStart=wordStartPositions[w];
+const wordEnd=wordStart+wordLengths[w];
+if(i>=wordStart&&i<wordEnd){
+char=msg[i];
+shouldShow=true;
+break;
+}
+}
+if(!shouldShow){
+char=' ';
+}
+}else{
+char=msg[i];
+}
+
+ctx.fillStyle=i%2===0?'#10b981':'#764ba2';
+ctx.fillText(char,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height&&Math.random()>0.975){
+drops[i]=Math.random()*-100;
+if(!messageMode){
+dropSpeeds[i]=0.5+Math.random()*1.5;
+}
+}
+
+drops[i]+=dropSpeeds[i];
+}
+
+if(messageMode){
+if(activeWords.length===1&&activeWords[0]===0){
+const createdMaxDrop=Math.max(...drops.slice(0,7));
+if(createdMaxDrop*fontSize>canvas.height/2){
+activeWords.push(1);
+for(let j=8;j<10;j++){
+drops[j]=0;
+}
+}
+}
+if(activeWords.length===2&&activeWords[1]===1){
+const byMaxDrop=Math.max(...drops.slice(8,10));
+if(byMaxDrop*fontSize>canvas.height/2){
+activeWords.push(2);
+for(let j=11;j<18;j++){
+drops[j]=0;
+}
+}
+}
+if(activeWords.length===3){
+const rudeboyMaxDrop=Math.max(...drops.slice(11,18));
+if(rudeboyMaxDrop*fontSize>canvas.height+fontSize*5){
+messageMode=false;
+activeWords=[];
+for(let j=0;j<msg.length;j++){
+drops[j]=Math.random()*-100;
+dropSpeeds[j]=0.5+Math.random()*1.5;
+}
+clearInterval(matrixInterval);
+currentSpeed=50;
+matrixInterval=setInterval(draw,currentSpeed);
+}
+}
+}
+}
+matrixInterval=setInterval(draw,currentSpeed);
+}
+
+function stopMatrix() {
+  if (matrixInterval) {
+    clearInterval(matrixInterval);
+    matrixInterval = null;
+  }
+}
+
+els.easterEgg.addEventListener('click', () => {
+  if (matrixActive) return;
+  
+  matrixActive = true;
+  els.easterEggOverlay.classList.add('visible');
+  playRandomTrack();
+  
+  setTimeout(() => {
+    els.easterEggLogo.style.animation = 'none';
+    els.easterEggLogo.style.opacity = '0';
+    els.easterEggLogo.style.transition = 'opacity 0.5s';
+    
+    setTimeout(() => {
+      els.easterEggLogo.style.display = 'none';
+      els.matrixCanvas.classList.add('visible');
+      startMatrix();
+    }, 500);
+  }, 1000);
+});
+
+els.easterEggOverlay.addEventListener('click', () => {
+  if (!matrixActive) return;
+  
+  matrixActive = false;
+  els.matrixCanvas.classList.remove('visible');
+  stopMatrix();
+  stopMusic();
+  
+  setTimeout(() => {
+    els.easterEggLogo.style.display = 'block';
+    els.easterEggLogo.style.animation = 'spin-out 1s ease-in forwards';
+    
+    setTimeout(() => {
+      els.easterEggOverlay.classList.remove('visible');
+      els.easterEggLogo.style.animation = 'spin-in 1s ease-out forwards, egg-glow 2s ease-in-out infinite 1s';
+    }, 1000);
+  }, 500);
+});
+
+function checkStandaloneMode() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone || 
+                       document.referrer.includes('android-app://');
+  
+  if (isStandalone) {
+    document.body.classList.add('standalone-mode');
+  }
+  
+  return isStandalone;
+}
+
+checkStandaloneMode();
+</script>
+
+</body>
+</html>
