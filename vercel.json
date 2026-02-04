@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/converter/:path*",
-      "destination": "https://your-converter-project-name.vercel.app/:path*"
+      "destination": "https://fileconverterbyrudeboy.vercel.app/:path*"
     }
   ]
 }
