@@ -666,8 +666,8 @@ transition:all 0.3s;
 display:none;
 align-items:center;
 justify-content:center;
-gap:1rem;
-padding:0.75rem 1.5rem;
+gap:0.5rem;
+padding:0.65rem 0.75rem;
 margin-bottom:1rem;
 background:rgba(255,255,255,0.1);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
@@ -675,8 +675,10 @@ backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 border-radius:16px;
 border:1px solid rgba(255,255,255,0.2);
 box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-font-size:0.9rem;
+font-size:0.8rem;
 animation:weather-glow 4s ease-in-out infinite;
+overflow:hidden;
+max-width:100%;
 }
 
 @keyframes weather-glow{
@@ -687,21 +689,54 @@ animation:weather-glow 4s ease-in-out infinite;
 .weather-widget.visible{display:flex}
 .weather-widget.loading{opacity:0.6}
 
-.weather-icon{font-size:1.8rem;line-height:1}
+.weather-icon-temp{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:0.15rem;
+flex-shrink:0;
+}
+
+.weather-icon{
+font-size:1.1rem;
+line-height:1;
+flex-shrink:0;
+}
+
 .weather-temp{
-font-size:1.5rem;
+font-size:0.85rem;
 font-weight:700;
 background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 background-clip:text;
+flex-shrink:0;
+white-space:nowrap;
 }
-.weather-time{font-size:1rem;font-weight:600;color:#10b981}
-.weather-divider{color:rgba(255,255,255,0.3);font-weight:300}
+
+.weather-time{
+font-size:0.8rem;
+font-weight:600;
+color:#10b981;
+flex-shrink:0;
+white-space:nowrap;
+}
+
+.weather-divider{
+color:rgba(255,255,255,0.3);
+font-weight:300;
+flex-shrink:0;
+}
+
 .weather-condition{
-font-size:0.95rem;
+font-size:0.8rem;
 font-weight:600;
 animation:condition-glow 4s ease-in-out infinite;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+max-width:110px;
+flex-shrink:1;
 }
 
 @keyframes condition-glow{
@@ -710,9 +745,14 @@ animation:condition-glow 4s ease-in-out infinite;
 }
 
 .weather-location{
-font-size:0.9rem;
+font-size:0.8rem;
 font-weight:600;
 animation:location-glow 4s ease-in-out infinite;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+max-width:100px;
+flex-shrink:1;
 }
 
 @keyframes location-glow{
@@ -765,6 +805,7 @@ object-fit:contain;
 transition:all 0.3s;
 position:relative;
 z-index:1;
+pointer-events:none;
 }
 
 .icon-link-box svg{
@@ -1003,7 +1044,6 @@ margin:0.5rem 0;
         <div class="upload-hint">Images • Videos • Audio • Documents • Archives</div>
         <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.wma,.aiff,.ape,.pdf,.doc,.docx,.txt,.rtf,.odt,.html,.md,.epub,.zip,.7z,.rar,.tar,.gz">
       </div>
-
 
   <!-- Standard Instructions (Always visible until file uploaded) -->
   <div class="instructions-accordion" id="standardInstructions" style="margin-top:1.5rem">
@@ -1375,8 +1415,10 @@ margin:0.5rem 0;
   </div>
 
   <div class="weather-widget" id="weatherWidget">
-    <span class="weather-icon" id="weatherIcon">🌤️</span>
-    <span class="weather-temp" id="weatherTemp">--°</span>
+    <div class="weather-icon-temp">
+      <span class="weather-icon" id="weatherIcon">🌤️</span>
+      <span class="weather-temp" id="weatherTemp">--°</span>
+    </div>
     <span class="weather-divider">|</span>
     <span class="weather-time" id="weatherTime">--:--</span>
     <span class="weather-divider">|</span>
