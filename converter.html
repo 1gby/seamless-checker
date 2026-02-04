@@ -714,11 +714,17 @@ flex-shrink:0;
 white-space:nowrap;
 }
 
+.weather-time-wrapper{
+display:flex;
+align-items:center;
+justify-content:center;
+flex-shrink:0;
+}
+
 .weather-time{
 font-size:0.8rem;
 font-weight:600;
 color:#10b981;
-flex-shrink:0;
 white-space:nowrap;
 }
 
@@ -728,24 +734,21 @@ font-weight:300;
 flex-shrink:0;
 }
 
-.weather-condition-location{
+.weather-condition-wrapper{
 display:flex;
-flex-direction:column;
 align-items:center;
-gap:0.15rem;
+justify-content:center;
+text-align:center;
+max-width:70px;
 flex-shrink:1;
-overflow:hidden;
-max-width:150px;
 }
 
 .weather-condition{
-font-size:0.75rem;
+font-size:0.7rem;
 font-weight:600;
 animation:condition-glow 4s ease-in-out infinite;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
-max-width:100%;
+word-wrap:break-word;
+line-height:1.1;
 }
 
 @keyframes condition-glow{
@@ -753,14 +756,21 @@ max-width:100%;
 50%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
 }
 
+.weather-location-wrapper{
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+max-width:70px;
+flex-shrink:1;
+}
+
 .weather-location{
 font-size:0.7rem;
 font-weight:600;
 animation:location-glow 4s ease-in-out infinite;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
-max-width:100%;
+word-wrap:break-word;
+line-height:1.1;
 }
 
 @keyframes location-glow{
@@ -1428,10 +1438,15 @@ margin:0.5rem 0;
       <span class="weather-temp" id="weatherTemp">--°</span>
     </div>
     <span class="weather-divider">|</span>
-    <span class="weather-time" id="weatherTime">--:--</span>
+    <div class="weather-time-wrapper">
+      <span class="weather-time" id="weatherTime">--:--</span>
+    </div>
     <span class="weather-divider">|</span>
-    <div class="weather-condition-location">
+    <div class="weather-condition-wrapper">
       <span class="weather-condition" id="weatherCondition">Loading...</span>
+    </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-location-wrapper">
       <span class="weather-location" id="weatherLocation">--</span>
     </div>
   </div>
