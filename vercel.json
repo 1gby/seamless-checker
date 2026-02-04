@@ -1,8 +1,13 @@
 {
+  "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/converter",
+      "destination": "/converter.html"
+    },
+    {
       "source": "/converter/:path*",
-      "destination": "https://fileconverterbyrudeboy.vercel.app/:path*"
+      "destination": "/converter.html"
     }
   ]
 }
