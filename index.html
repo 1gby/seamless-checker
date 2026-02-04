@@ -1,4 +1,5 @@
 <!-- Rudeboy Pattern Checker - P.I.M.P PRODUCTION -->
+<!-- UPDATED: Better Loading States + Haptic Feedback + iOS Standalone Detection -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- ADD THESE LINES: -->
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
 <link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
 <link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png">
@@ -30,6 +30,22 @@ body{
   padding-bottom:env(safe-area-inset-bottom);
   touch-action:pan-x pan-y;
 }
+
+/* Standalone PWA Mode Enhancements */
+body.standalone-mode #header{
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(60px) saturate(200%);
+  -webkit-backdrop-filter:blur(60px) saturate(200%);
+  border-bottom:1px solid rgba(16,185,129,0.3);
+}
+
+body.standalone-mode .title::after{
+  content:' PWA';
+  font-size:0.6em;
+  opacity:0.5;
+  margin-left:0.3rem;
+}
+
 #container{display:flex;flex-direction:column;min-height:100vh}
 
 /* ==================== HEADER ==================== */
@@ -49,7 +65,6 @@ body{
 
 .logo-section{display:flex;align-items:center;gap:1.5rem}
 
-/* Logo Animation */
 #logo{
   height:42px;
   width:auto;
@@ -80,7 +95,6 @@ body{
   margin:0;
 }
 
-/* ==================== HEADER BUTTONS ==================== */
 .header-buttons{
   display:flex;
   align-items:center;
@@ -99,7 +113,6 @@ body{
   pointer-events:none;
 }
 
-/* Button Base Style with Liquid Glass */
 .upload-btn,.export-btn-header,.sample-btn{
   padding:0.85rem 1rem;
   min-height:52px;
@@ -142,7 +155,6 @@ body{
   opacity:1;
 }
 
-/* Upload Button - Purple Glow */
 .upload-btn{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -156,7 +168,6 @@ body{
   box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
-/* Sample Button - Green Glow */
 .sample-btn{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -170,7 +181,6 @@ body{
   box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
-/* Export Button - Purple Glow */
 .export-btn-header{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -190,7 +200,6 @@ body{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
-/* ==================== CANVAS AREA ==================== */
 #canvas-wrapper{
   flex:1;
   display:flex;
@@ -219,7 +228,6 @@ body{
 #canvas.has-image:active{cursor:grabbing}
 #canvas:hover{box-shadow:0 25px 70px rgba(0,0,0,0.6)}
 
-/* Empty State */
 .empty-state{
   position:absolute;
   top:50%;
@@ -234,47 +242,7 @@ body{
 .empty-state-icon{font-size:4rem;margin-bottom:1rem;opacity:0.6}
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
-</style>
-<title>Seamless Pattern Checker by Rudeboy™ </title>
-</head>
-<body>
 
-<div id="container">
-  <div id="header">
-    <div class="logo-section">
-      <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
-      <h1 class="title">Pattern Checker By Rudeboy™</h1>
-    </div>
-    <div class="header-buttons">
-      <div class="file-input-wrapper">
-        <input type="file" id="fileInput" accept="image/*">
-        <button class="upload-btn" id="uploadBtnHeader">📁 Upload</button>
-      </div>
-      <div class="file-input-wrapper">
-        <select class="sample-btn" id="sampleSelect">
-          <option value="">Sample</option>
-          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Seamless.png">Seamless</option>
-          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Mushrooms.png">Mushrooms</option>
-          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/JoltCola.png">Jolt Cola</option>
-          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Beaver.png">Beaver</option>
-          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/PinotNoir.png">Pinot Noir</option>
-          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Wu-Tang.png">Wu-Tang</option>
-        </select>
-      </div>
-      <button class="export-btn-header" id="exportBtnHeader" disabled>📤 Export</button>
-    </div>
-  </div>
-
-  <div id="canvas-wrapper">
-    <canvas id="canvas"></canvas>
-    <div class="empty-state visible" id="emptyState">
-      <div class="empty-state-icon">🎨</div>
-      <div class="empty-state-text">Click to upload your pattern</div>
-      <div class="empty-state-subtext">or drag & drop a square tile here</div>
-    </div>
-  </div>
-<style>
-/* ==================== EXPORT MODAL ==================== */
 .export-modal{
   position:fixed;
   top:0;
@@ -392,7 +360,6 @@ body{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(239,68,68,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
-/* ==================== LOADING OVERLAY ==================== */
 .loading-overlay{
   position:fixed;
   top:0;
@@ -405,6 +372,7 @@ body{
   display:none;
   align-items:center;
   justify-content:center;
+  flex-direction:column;
   z-index:10000;
   opacity:0;
   transition:opacity 0.3s;
@@ -435,7 +403,50 @@ body{
   }
 }
 
-/* ==================== CONTROLS SECTION ==================== */
+.loading-text{
+  font-size:1.2rem;
+  font-weight:600;
+  color:#eee;
+  margin-top:1.5rem;
+  text-align:center;
+  opacity:0.9;
+}
+
+.loading-subtext{
+  font-size:0.9rem;
+  color:#999;
+  margin-top:0.5rem;
+  text-align:center;
+  display:none;
+}
+
+.loading-subtext:not(:empty){
+  display:block;
+}
+
+.progress-bar-container{
+  width:280px;
+  height:6px;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  margin:1.5rem auto 0;
+  overflow:hidden;
+  display:none;
+  border:1px solid rgba(255,255,255,0.2);
+}
+
+.progress-bar-container.visible{
+  display:block;
+}
+
+.progress-bar-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#10b981 0%,#764ba2 100%);
+  border-radius:10px;
+  transition:width 0.3s ease;
+  box-shadow:0 0 10px rgba(16,185,129,0.6);
+}
 #controls{
   padding:2rem;
   background:rgba(0,0,0,0.6);
@@ -447,7 +458,6 @@ body{
 
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
 
-/* ==================== INSTRUCTIONS ACCORDION ==================== */
 .instructions-accordion{
   margin-bottom:1.5rem;
 }
@@ -536,7 +546,6 @@ body{
   margin-bottom:0.5rem;
 }
 
-/* ==================== SELECT & BUTTON BASE STYLES ==================== */
 select,button{
   padding:0.75rem 1rem;
   font-size:0.95rem;
@@ -563,7 +572,6 @@ select:focus,button:focus{
 }
 select:active,button:active{transform:translateY(0)}
 
-/* ==================== MASTER DROPDOWN ==================== */
 #masterDropdown{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -573,9 +581,7 @@ select:active,button:active{transform:translateY(0)}
 #masterDropdown:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
-</style>
-<style>
-/* ==================== PREVIEW OPTIONS - GROUPED SECTIONS ==================== */
+
 .preview-group{
   margin-bottom:1.5rem;
 }
@@ -597,7 +603,6 @@ select:active,button:active{transform:translateY(0)}
   gap:1rem;
 }
 
-/* ==================== DROPDOWNS ==================== */
 #canvasQuality,#gridSize{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -628,7 +633,6 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
-/* ==================== SLIDER DROPDOWNS ==================== */
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
@@ -676,7 +680,6 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
-/* ==================== CONTROLS SECTIONS ==================== */
 .controls-section{
   display:none;
   transition:all 0.3s;
@@ -702,7 +705,6 @@ select:active,button:active{transform:translateY(0)}
   letter-spacing:1px;
 }
 
-/* ==================== SLIDER COMPONENTS ==================== */
 .slider-dropdown{margin-bottom:0}
 
 .slider-dropdown-header{
@@ -760,7 +762,6 @@ select:active,button:active{transform:translateY(0)}
   z-index:1;
 }
 
-/* ==================== ZOOM SLIDER ==================== */
 .zoom-slider-wrapper{
   margin-bottom:1rem;
 }
@@ -797,7 +798,6 @@ select:active,button:active{transform:translateY(0)}
 }
 .zoom-slider-wrapper.open .zoom-slider-content{max-height:200px}
 
-/* ==================== RANGE SLIDERS ==================== */
 input[type="range"]{
   width:100%;
   height:6px;
@@ -890,9 +890,6 @@ input[type="range"]::-moz-range-thumb:active{
   min-width:45px;
   text-align:right;
 }
-</style>
-<style>
-/* ==================== ADDITIONAL STYLES ==================== */
 .weather-widget{
   display:none;
   align-items:center;
@@ -1528,6 +1525,70 @@ input[type="range"]::-moz-range-thumb:active{
 }
 .matrix-canvas.visible{opacity:1}
 
+.install-banner{
+  position:fixed;
+  top:calc(env(safe-area-inset-top) + 1rem);
+  left:50%;
+  transform:translateX(-50%) translateY(-120%);
+  background:rgba(16,185,129,0.15);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(16,185,129,0.4);
+  border-radius:16px;
+  padding:1rem 1.5rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  z-index:9998;
+  transition:transform 0.3s ease;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.4);
+  max-width:90%;
+}
+
+.install-banner.visible{
+  transform:translateX(-50%) translateY(0);
+}
+
+.install-banner span{
+  color:#eee;
+  font-size:0.9rem;
+  font-weight:600;
+}
+
+.install-btn-small{
+  padding:0.5rem 1rem;
+  background:rgba(16,185,129,0.3);
+  border:1px solid rgba(16,185,129,0.5);
+  border-radius:12px;
+  color:#10b981;
+  font-weight:600;
+  font-size:0.85rem;
+  cursor:pointer;
+  transition:all 0.3s;
+  white-space:nowrap;
+}
+
+.install-btn-small:hover{
+  background:rgba(16,185,129,0.4);
+  transform:translateY(-2px);
+}
+
+.install-close{
+  padding:0.3rem 0.6rem;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;
+  color:#999;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.install-close:hover{
+  background:rgba(255,255,255,0.15);
+  color:#fff;
+}
+
 @media(max-width:768px){
   #header{
     padding:1rem;
@@ -1548,8 +1609,57 @@ input[type="range"]::-moz-range-thumb:active{
   .export-modal-content{padding:1.5rem}
   .export-buttons{flex-direction:column}
   .calc-preset-buttons{grid-template-columns:1fr}
+  
+  .install-banner{
+    flex-direction:column;
+    gap:0.75rem;
+    padding:1rem;
+  }
+  
+  .install-banner span{
+    font-size:0.85rem;
+    text-align:center;
+  }
 }
 </style>
+<title>Seamless Pattern Checker by Rudeboy™ </title>
+</head>
+<body>
+
+<div id="container">
+  <div id="header">
+    <div class="logo-section">
+      <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
+      <h1 class="title">Pattern Checker By Rudeboy™</h1>
+    </div>
+    <div class="header-buttons">
+      <div class="file-input-wrapper">
+        <input type="file" id="fileInput" accept="image/*">
+        <button class="upload-btn" id="uploadBtnHeader">📁 Upload</button>
+      </div>
+      <div class="file-input-wrapper">
+        <select class="sample-btn" id="sampleSelect">
+          <option value="">Sample</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Seamless.png">Seamless</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Mushrooms.png">Mushrooms</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/JoltCola.png">Jolt Cola</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Beaver.png">Beaver</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/PinotNoir.png">Pinot Noir</option>
+          <option value="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/patterns/Wu-Tang.png">Wu-Tang</option>
+        </select>
+      </div>
+      <button class="export-btn-header" id="exportBtnHeader" disabled>📤 Export</button>
+    </div>
+  </div>
+
+  <div id="canvas-wrapper">
+    <canvas id="canvas"></canvas>
+    <div class="empty-state visible" id="emptyState">
+      <div class="empty-state-icon">🎨</div>
+      <div class="empty-state-text">Click to upload your pattern</div>
+      <div class="empty-state-subtext">or drag & drop a square tile here</div>
+    </div>
+  </div>
   <div id="controls">
     
     <div class="master-dropdown-wrapper">
@@ -1562,7 +1672,6 @@ input[type="range"]::-moz-range-thumb:active{
       </select>
     </div>
 
-    <!-- INSTRUCTIONS ACCORDION -->
     <div class="instructions-accordion" id="instructionsAccordion">
       <div class="instructions-accordion-header">
         <span>📚 Instructions</span>
@@ -1639,10 +1748,8 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
-    <!-- PREVIEW OPTIONS SECTION -->
     <div class="controls-section" id="displaySection">
       
-      <!-- Canvas & Quality Group -->
       <div class="preview-group">
         <div class="preview-group-title">Canvas & Quality</div>
         <div class="preview-group-content">
@@ -1655,7 +1762,6 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- Pattern Settings Group -->
       <div class="preview-group">
         <div class="preview-group-title">Pattern Settings</div>
         <div class="preview-group-content">
@@ -1673,7 +1779,6 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- View & Display Group -->
       <div class="preview-group">
         <div class="preview-group-title">View & Display</div>
         <div class="preview-group-content">
@@ -1687,7 +1792,6 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- Zoom Control Group -->
       <div class="preview-group">
         <div class="preview-group-title">Zoom Control</div>
         <div class="preview-group-content">
@@ -1709,7 +1813,6 @@ input[type="range"]::-moz-range-thumb:active{
 
     </div>
 
-    <!-- PATTERN TRANSFORM SECTION -->
     <div class="controls-section" id="controlsSection">
       <div class="sliders-container">
         
@@ -1757,10 +1860,9 @@ input[type="range"]::-moz-range-thumb:active{
 
       </div>
     </div>
-    <!-- TOOLS SECTION -->
+
     <div class="controls-section tools-section" id="toolsSection">
   
-      <!-- Color Palette Card with Hex Checker Toggle -->
       <div class="tool-card" id="colorPaletteCard">
         <div class="tool-title">
           <span>🎨 Color Palette</span>
@@ -1775,7 +1877,6 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- Dimension Calculator Card with Recommendations -->
       <div class="tool-card" id="dimensionCalcCard">
         <div class="tool-title">
           <span>📐 Dimension Calculator</span>
@@ -1798,7 +1899,6 @@ input[type="range"]::-moz-range-thumb:active{
           <input type="range" id="calcSlider" min="1" max="200" value="9">
         </div>
         
-        <!-- Recommendations Section -->
         <div class="calc-recommendations" id="calcRecommendations">
           <div class="calc-preset-group">
             <div class="calc-preset-label">Print Quality</div>
@@ -1836,7 +1936,6 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
-      <!-- Seamless Test -->
       <div class="seamless-test-dropdown">
         <select id="seamlessTest">
           <option value="off">Seamless Test: Off</option>
@@ -1844,7 +1943,6 @@ input[type="range"]::-moz-range-thumb:active{
         </select>
       </div>
 
-      <!-- Save Pattern Tool -->
       <div class="tool-card" id="savePatternCard">
         <div class="tool-title">
           <span>💾 Save Pattern</span>
@@ -1858,13 +1956,11 @@ input[type="range"]::-moz-range-thumb:active{
 
     </div>
 
-    <!-- STORES & MOCKUPS SECTION -->
     <div class="controls-section stores-section" id="storesSection">
       <div class="stores-intro">
         <div class="stores-intro-text">Preview your pattern on products!</div>
       </div>
       
-      <!-- View Mode for Mockups -->
       <div class="stores-dropdowns">
         <select id="viewMode">
           <option value="tile">View Mode: Infinite Tile</option>
@@ -1881,7 +1977,6 @@ input[type="range"]::-moz-range-thumb:active{
         </select>
       </div>
       
-      <!-- MOCKUP CONTROLS -->
       <div class="mockup-sliders">
         <div class="mockup-section-label">Mockup Controls</div>
         <div class="sliders-container">
@@ -1917,7 +2012,6 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
       
-      <!-- POD STORES AT BOTTOM -->
       <div class="stores-intro" style="margin-top:2rem">
         <div class="stores-intro-text">Turn your patterns into real products!</div>
       </div>
@@ -1943,7 +2037,6 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
-    <!-- Pattern Info Bar -->
     <div class="pattern-info" id="patternInfo">
       <div class="info-pill">
         <span class="info-label">Pattern:</span>
@@ -1969,7 +2062,6 @@ input[type="range"]::-moz-range-thumb:active{
 
   </div>
 
-  <!-- Footer -->
   <div id="footer">
     <div class="footer-content">
       <div class="weather-widget" id="weatherWidget">
@@ -1989,7 +2081,6 @@ input[type="range"]::-moz-range-thumb:active{
 
 </div>
 
-<!-- EXPORT MODAL -->
 <div class="export-modal" id="exportModal">
   <div class="export-modal-content">
     <div class="export-modal-title">📤 Custom Export</div>
@@ -2026,6 +2117,11 @@ input[type="range"]::-moz-range-thumb:active{
 
 <div class="loading-overlay" id="loadingOverlay">
   <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
+  <div class="loading-text" id="loadingText">Loading...</div>
+  <div class="loading-subtext" id="loadingSubtext"></div>
+  <div class="progress-bar-container" id="progressBarContainer">
+    <div class="progress-bar-fill" id="progressBarFill"></div>
+  </div>
 </div>
 
 <div class="easter-egg-overlay" id="easterEggOverlay">
@@ -2264,21 +2360,18 @@ function shuffleArray(array) {
 
 shuffleArray(shuffledPlaylist);
 
-// Instructions Accordion Toggle
 els.instructionsAccordion.querySelector('.instructions-accordion-header').addEventListener('click', () => {
   const isOpen = els.instructionsAccordion.classList.contains('open');
   els.instructionsAccordion.classList.toggle('open', !isOpen);
   els.instructionsAccordion.querySelector('.instructions-accordion-header span:last-child').textContent = isOpen ? '▼' : '▲';
 });
 
-// Calculator Recommendations Toggle
 els.calcRecommendationsToggle.addEventListener('click', () => {
   const isActive = els.calcRecommendations.classList.contains('active');
   els.calcRecommendations.classList.toggle('active', !isActive);
   els.calcRecommendationsToggle.textContent = isActive ? 'Recommendations' : 'Hide';
 });
 
-// Preset Buttons
 doc.querySelectorAll('.calc-preset-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const size = btn.dataset.size;
@@ -2434,6 +2527,7 @@ function getRudeboyWeatherCondition(code) {
 }
 
 getWeather();
+
 function rgbToHex(r, g, b) {
   return '#' + [r, g, b].map(x => {
     const hex = x.toString(16);
@@ -2472,18 +2566,27 @@ els.paletteToggle.addEventListener('click', () => {
 els.hexInput.addEventListener('input', (e) => {
   let hex = e.target.value.trim();
   
-  if (!hex.startsWith('')) {
-    hex = '#' + hex;
-    els.hexInput.value = hex;
-  }
-  
-  if (isValidHex(hex)) {
-    const rgb = hexToRgb(hex);
-    els.hexPreview.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+  // Only validate if there's actually content
+  if (hex.length > 0) {
+    // Add # if not present
+    if (!hex.startsWith('#')) {
+      hex = '#' + hex;
+    }
+    
+    // Only update preview if valid
+    if (isValidHex(hex)) {
+      const rgb = hexToRgb(hex);
+      els.hexPreview.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    }
+  } else {
+    // Clear preview when empty
+    els.hexPreview.style.backgroundColor = '#000000';
   }
 });
 
-els.hexInput.value = '#FF0000';
+// Set initial value without the # so users can easily clear it
+els.hexInput.value = '';
+els.hexInput.placeholder = 'FF0000 or #FF0000';
 els.hexPreview.style.backgroundColor = '#FF0000';
 
 function analyzePattern() {
@@ -2552,6 +2655,7 @@ function analyzePattern() {
     
     swatch.addEventListener('click', () => {
       navigator.clipboard.writeText(hex).then(() => {
+        triggerHaptic('light');
         swatch.classList.add('copied');
         setTimeout(() => swatch.classList.remove('copied'), 1000);
       });
@@ -2677,10 +2781,9 @@ els.calcSlider.addEventListener('input', (e) => {
 
 updateCalcDisplay();
 
-// Save Pattern Feature
 function savePattern() {
   if (!tileImage) {
-    alert('Uh oh! It’s not me, it’s you. Try loading a pattern first!');
+    alert('Uh oh! It\'s not me, it\'s you. Try loading a pattern first!');
     return;
   }
   
@@ -2709,6 +2812,7 @@ function savePattern() {
   els.patternNameInput.value = '';
   renderSavedPatterns();
   
+  triggerHaptic('success');
   alert(`✅ "${patternName}" saved!`);
 }
 
@@ -2716,10 +2820,27 @@ function loadPattern(id) {
   const pattern = savedPatterns.find(p => p.id === id);
   if (!pattern) return;
   
-  showLoading(false);
+  showLoading(false, {
+    message: 'Loading saved pattern...',
+    subtext: pattern.name,
+    showProgress: true,
+    progress: 30
+  });
+  
+  // Animate progress
+  let prog = 30;
+  const loadInterval = setInterval(() => {
+    prog += 15;
+    if (prog <= 85) {
+      updateLoadingProgress(prog, 'Loading saved pattern...');
+    }
+  }, 100);
   
   const img = new Image();
   img.onload = () => {
+    clearInterval(loadInterval);
+    updateLoadingProgress(100, 'Complete!');
+
     tileImage = img;
     
     scale = pattern.settings.scale;
@@ -2763,6 +2884,7 @@ function deletePattern(id) {
   
   savedPatterns = savedPatterns.filter(p => p.id !== id);
   localStorage.setItem('rudeboy-patterns', JSON.stringify(savedPatterns));
+  triggerHaptic('medium');
   renderSavedPatterns();
 }
 
@@ -2822,8 +2944,6 @@ renderSavedPatterns();
 
 getEl('savePatternBtn').addEventListener('click', savePattern);
 
-renderSavedPatterns();
-
 els.seamlessTest.addEventListener('change', (e) => {
   seamlessTestMode = e.target.value === 'on';
   draw();
@@ -2847,6 +2967,7 @@ els.exportRes.addEventListener('change', (e) => {
 
 els.exportBtn.addEventListener('click', () => {
   if (!tileImage) return;
+  triggerHaptic('light');
   els.exportRes.options[0].text = `Current Canvas (${maxCanvasSize}px)`;
   els.exportModal.classList.add('visible');
 });
@@ -2867,9 +2988,16 @@ els.exportConfirm.addEventListener('click', async () => {
   }
   
   els.exportModal.classList.remove('visible');
-  showLoading(false);
+  showLoading(false, {
+    message: `Exporting ${exportSize}×${exportSize}px...`,
+    subtext: `${els.exportFormat.value.toUpperCase()} format`,
+    showProgress: true,
+    progress: 0
+  });
   
   setTimeout(async () => {
+    updateLoadingProgress(20, 'Creating canvas...');
+    
     const exportCanvas = doc.createElement('canvas');
     exportCanvas.width = exportSize;
     exportCanvas.height = exportSize;
@@ -2877,6 +3005,8 @@ els.exportConfirm.addEventListener('click', async () => {
     
     exportCtx.imageSmoothingEnabled = true;
     exportCtx.imageSmoothingQuality = 'high';
+    
+    updateLoadingProgress(40, 'Rendering pattern...');
     
     const tileSize = tileImage.width * scale;
     
@@ -2906,10 +3036,14 @@ els.exportConfirm.addEventListener('click', async () => {
     
     exportCtx.restore();
     
+    updateLoadingProgress(70, 'Generating image file...');
+    
     const format = els.exportFormat.value === 'jpg' ? 'image/jpeg' : 'image/png';
     const quality = els.exportFormat.value === 'jpg' ? 0.95 : undefined;
     
     exportCanvas.toBlob(async (blob) => {
+      updateLoadingProgress(90, 'Preparing download...');
+      
       const ext = els.exportFormat.value === 'jpg' ? '.jpg' : '.png';
       const file = new File([blob], `rudeboy-pattern-${exportSize}px${ext}`, { type: format });
       
@@ -2937,6 +3071,8 @@ els.exportConfirm.addEventListener('click', async () => {
         }
       }
       
+      updateLoadingProgress(100, 'Complete!');
+      triggerHaptic('success');
       hideLoading();
     }, format, quality);
   }, 100);
@@ -2982,16 +3118,133 @@ els.zoomSliderWrapper.querySelector('.zoom-slider-header').addEventListener('cli
   els.zoomSliderWrapper.classList.toggle('open', !wasOpen);
 });
 
-function showLoading(reload = false) {
+function showLoading(reload = false, options = {}) {
+  const {
+    message = 'Loading...',
+    subtext = '',
+    showProgress = false,
+    progress = 0
+  } = options;
+  
   isReload = reload;
   loadStartTime = Date.now();
+  
+  const loadingText = getEl('loadingText');
+  if (loadingText) {
+    loadingText.textContent = message;
+  }
+  
+  const loadingSubtext = getEl('loadingSubtext');
+  if (loadingSubtext) {
+    loadingSubtext.textContent = subtext;
+  }
+  
+  const progressContainer = getEl('progressBarContainer');
+  const progressFill = getEl('progressBarFill');
+  
+  if (showProgress && progressContainer && progressFill) {
+    progressContainer.classList.add('visible');
+    progressFill.style.width = `${progress}%`;
+  } else if (progressContainer) {
+    progressContainer.classList.remove('visible');
+  }
+  
   els.loadingOverlay.classList.add('visible');
 }
 
 function hideLoading() {
   const elapsed = Date.now() - loadStartTime;
   const remaining = Math.max(0, (isReload ? RELOAD_MIN_TIME : MIN_LOAD_TIME) - elapsed);
-  setTimeout(() => els.loadingOverlay.classList.remove('visible'), remaining);
+  setTimeout(() => {
+    els.loadingOverlay.classList.remove('visible');
+    const progressContainer = getEl('progressBarContainer');
+    const progressFill = getEl('progressBarFill');
+    if (progressContainer) progressContainer.classList.remove('visible');
+    if (progressFill) progressFill.style.width = '0%';
+  }, remaining);
+}
+
+function updateLoadingProgress(percent, message) {
+  const progressFill = getEl('progressBarFill');
+  const loadingText = getEl('loadingText');
+  
+  if (progressFill) progressFill.style.width = `${percent}%`;
+  if (loadingText && message) loadingText.textContent = message;
+}
+
+function triggerHaptic(pattern = 'light') {
+  if (!navigator.vibrate) return;
+  
+  const patterns = {
+    light: 10,
+    medium: 20,
+    heavy: 30,
+    success: [20, 10, 20],
+    error: [50, 20, 50, 20, 50],
+    selection: 5
+  };
+  
+  navigator.vibrate(patterns[pattern] || 10);
+}
+
+function checkStandaloneMode() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone || 
+                       document.referrer.includes('android-app://');
+  
+  if (isStandalone) {
+    document.body.classList.add('standalone-mode');
+    console.log('🎨 Running in standalone mode');
+  }
+  
+  return isStandalone;
+}
+
+let deferredPrompt;
+const isInstalledPWA = checkStandaloneMode();
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  if (!isInstalledPWA) {
+    showInstallPrompt();
+  }
+});
+
+function showInstallPrompt() {
+  const installBanner = doc.createElement('div');
+  installBanner.className = 'install-banner';
+  installBanner.innerHTML = `
+    <span>📱 Install as app for better experience</span>
+    <button class="install-btn-small" id="installBtn">Install</button>
+    <button class="install-close" id="installClose">✕</button>
+  `;
+  
+  doc.body.appendChild(installBanner);
+  setTimeout(() => installBanner.classList.add('visible'), 1000);
+  
+  getEl('installBtn')?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Install prompt: ${outcome}`);
+      deferredPrompt = null;
+      installBanner.remove();
+    }
+  });
+  
+  getEl('installClose')?.addEventListener('click', () => {
+    installBanner.classList.remove('visible');
+    setTimeout(() => installBanner.remove(), 300);
+  });
+  
+  setTimeout(() => {
+    if (installBanner.parentElement) {
+      installBanner.classList.remove('visible');
+      setTimeout(() => installBanner.remove(), 300);
+    }
+  }, 10000);
 }
 
 function playRandomTrack() {
@@ -3008,7 +3261,6 @@ function playRandomTrack() {
   els.audio.loop = false;
   
   els.audio.play().then(() => {
-    // Update Media Session metadata for iOS Dynamic Island
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title,
@@ -3043,8 +3295,6 @@ els.audio.addEventListener('ended', () => {
   }
 });
 
-// ADD ALL OF THIS BELOW:
-// Media session action handlers for iOS Dynamic Island controls
 if ('mediaSession' in navigator) {
   navigator.mediaSession.setActionHandler('play', () => {
     if (matrixActive && els.audio.paused) {
@@ -3296,24 +3546,62 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 getEl('logo').addEventListener('click', () => {
-  showLoading(true);
-  setTimeout(() => location.reload(), 2800);
+  showLoading(true, {
+    message: 'Reloading...',
+    subtext: 'Refreshing Pattern Checker',
+    showProgress: true,
+    progress: 50
+  });
+  
+  // Animate progress
+  let prog = 50;
+  const reloadInterval = setInterval(() => {
+    prog += 10;
+    updateLoadingProgress(Math.min(prog, 90), 'Reloading...');
+  }, 280);
+  
+  setTimeout(() => {
+    clearInterval(reloadInterval);
+    updateLoadingProgress(100, 'Complete!');
+    setTimeout(() => location.reload(), 200);
+  }, 2500);
 });
 
 els.canvas.addEventListener('click', () => {
   if (!tileImage && !isDragging) els.fileInput.click();
 });
 
-els.uploadBtn.addEventListener('click', () => els.fileInput.click());
+els.uploadBtn.addEventListener('click', () => {
+  triggerHaptic('light');
+  els.fileInput.click();
+});
+
 els.sampleSelect.addEventListener('change', (e) => {
   const url = e.target.value;
   if (!url) return;
   
-  showLoading(false);
+  showLoading(false, {
+    message: 'Loading sample pattern...',
+    subtext: url.split('/').pop(),
+    showProgress: true,
+    progress: 20
+  });
+  
+  // Animate progress
+  let prog = 20;
+  const sampleInterval = setInterval(() => {
+    prog += 15;
+    if (prog <= 80) {
+      updateLoadingProgress(prog, 'Loading sample pattern...');
+    }
+  }, 150);
+  
   const img = new Image();
   img.crossOrigin = 'anonymous';
   
   img.onload = () => {
+    clearInterval(sampleInterval);
+    updateLoadingProgress(100, 'Complete!');
     tileImage = img;
     scale = Math.max(0.05, Math.min(5, 300 / tileImage.width));
     
@@ -3334,7 +3622,8 @@ els.sampleSelect.addEventListener('change', (e) => {
     e.target.value = '';
   };
   
-  img.onerror = () => {
+    img.onerror = () => {
+    clearInterval(sampleInterval);
     hideLoading();
     alert('Failed to load sample!');
     e.target.value = '';
@@ -3445,7 +3734,6 @@ function drawMockup(mockupImg) {
   
   const displaySize = Math.min(els.canvas.width, els.canvas.height) * 0.72 * mockupZoom;
   
-  // Create mockup canvas
   const mockupCanvas = doc.createElement('canvas');
   mockupCanvas.width = displaySize;
   mockupCanvas.height = displaySize;
@@ -3455,7 +3743,6 @@ function drawMockup(mockupImg) {
   const mockupData = mockupCtx.getImageData(0, 0, displaySize, displaySize);
   const pixels = mockupData.data;
   
-  // Create pattern canvas
   const patternCanvas = doc.createElement('canvas');
   patternCanvas.width = displaySize;
   patternCanvas.height = displaySize;
@@ -3471,14 +3758,12 @@ function drawMockup(mockupImg) {
   const patternData = patternCtx.getImageData(0, 0, displaySize, displaySize);
   const patternPixels = patternData.data;
   
-  // Replace green pixels with pattern
   for (let i = 0; i < pixels.length; i += 4) {
     const r = pixels[i];
     const g = pixels[i + 1];
     const b = pixels[i + 2];
     const a = pixels[i + 3];
     
-    // Detect bright green
     const isGreen = (g > 200) && (g > r + 50) && (g > b + 50) && (r < 50) && (b < 50) && (a > 0);
     
     if (isGreen) {
@@ -3491,7 +3776,6 @@ function drawMockup(mockupImg) {
   
   mockupCtx.putImageData(mockupData, 0, 0);
   
-  // Draw (ctx is already centered by draw() function)
   ctx.rotate(mockupRotate * Math.PI / 180);
   ctx.drawImage(mockupCanvas, -displaySize / 2, -displaySize / 2);
 }
@@ -3611,13 +3895,31 @@ function draw() {
 function loadImage(file) {
   if (!file) return;
   
-  showLoading(false);
+  showLoading(false, {
+    message: 'Loading your pattern...',
+    subtext: file ? `${file.name} (${Math.round(file.size / 1024)} KB)` : 'Processing image',
+    showProgress: true,
+    progress: 20
+  });
+  
+  // Animate progress
+  let prog = 20;
+  const uploadInterval = setInterval(() => {
+    prog += 12;
+    if (prog <= 80) {
+      updateLoadingProgress(prog, 'Loading your pattern...');
+    }
+  }, 120);
+  
   const reader = new FileReader();
   
   reader.onload = (e) => {
     const img = new Image();
     
-    img.onload = () => {
+        img.onload = () => {
+      clearInterval(uploadInterval);
+      updateLoadingProgress(100, 'Complete!');
+      
       tileImage = img;
       scale = Math.max(0.05, Math.min(5, 300 / tileImage.width));
       
@@ -3630,6 +3932,7 @@ function loadImage(file) {
       
       els.patternScale.value = sliderVal;
       els.scaleValue.textContent = scale.toFixed(2) + '×';
+      els.emptyState.classList.remove('visible');
       updateBackground();
       analyzePattern();
       els.patternInfo.classList.add('visible');
@@ -3637,7 +3940,8 @@ function loadImage(file) {
       hideLoading();
     };
     
-    img.onerror = () => {
+        img.onerror = () => {
+      clearInterval(uploadInterval);
       hideLoading();
       alert('Failed to load image!');
     };
@@ -3818,6 +4122,7 @@ els.patternScale.addEventListener('input', (e) => {
 });
 
 els.patternScale.addEventListener('change', (e) => {
+  triggerHaptic('selection');
   const sliderVal = parseInt(e.target.value);
   
   if (sliderVal <= 50) {
@@ -3826,7 +4131,8 @@ els.patternScale.addEventListener('change', (e) => {
     scale = 1.0 + ((sliderVal - 50) / 50) * 4.0;
   }
   
-  scale = snapScale(scale);
+  // Finer snapping: 0.01 for small scales, 0.05 for larger
+  scale = scale >= 0.5 ? snap(scale * 100, 5) / 100 : snap(scale * 100, 1) / 100;
   
   let newSliderVal;
   if (scale <= 1.0) {
@@ -3854,6 +4160,7 @@ els.zoomSlider.addEventListener('input', (e) => {
 });
 
 els.zoomSlider.addEventListener('change', (e) => {
+  triggerHaptic('selection');
   const sliderVal = parseInt(e.target.value);
   
   if (sliderVal <= 50) {
@@ -3863,7 +4170,8 @@ els.zoomSlider.addEventListener('change', (e) => {
   }
   
   const zoomPercent = Math.round(zoom * 100);
-  const snapped = snapZoom(zoomPercent);
+  // Finer snapping: 1% increments below 100%, 5% increments above
+  const snapped = zoomPercent <= 100 ? snap(zoomPercent, 1) : snap(zoomPercent, 5);
   zoom = snapped / 100;
   
   let newSliderVal;
@@ -3885,7 +4193,8 @@ els.offsetX.addEventListener('input', (e) => {
 });
 
 els.offsetX.addEventListener('change', (e) => {
-  const snapped = snap(parseInt(e.target.value), 10);
+  triggerHaptic('selection');
+  const snapped = snap(parseInt(e.target.value), 1);
   offsetPercentX = snapped / 100;
   els.offsetX.value = snapped;
   els.offsetXValue.textContent = snapped + '%';
@@ -3899,7 +4208,8 @@ els.offsetY.addEventListener('input', (e) => {
 });
 
 els.offsetY.addEventListener('change', (e) => {
-  const snapped = snap(parseInt(e.target.value), 10);
+  triggerHaptic('selection');
+  const snapped = snap(parseInt(e.target.value), 1);
   offsetPercentY = snapped / 100;
   els.offsetY.value = snapped;
   els.offsetYValue.textContent = snapped + '%';
