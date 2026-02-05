@@ -8,6 +8,14 @@
     {
       "source": "/converter/:path*",
       "destination": "/converter.html"
+    },
+    {
+      "source": "/seamless",
+      "destination": "/seamless.html"
+    },
+    {
+      "source": "/seamless/:path*",
+      "destination": "/seamless.html"
     }
   ]
 }
