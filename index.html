@@ -1,5 +1,5 @@
 <!-- Rudeboy Pattern Checker - P.I.M.P PRODUCTION -->
-<!-- UPDATED: Better Loading States + Haptic Feedback + iOS Standalone Detection -->
+<!-- UPDATED: Better Loading States + Added Links -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -890,26 +890,24 @@ input[type="range"]::-moz-range-thumb:active{
   min-width:45px;
   text-align:right;
 }
+
 .weather-widget{
   display:none;
   align-items:center;
   justify-content:center;
   gap:1rem;
-  padding:0.75rem 1.5rem;
-  margin-bottom:1rem;
-  background:rgba(255,255,255,0.1);
+  padding:1rem 1.5rem;
+  margin-bottom:1.5rem;
+  background:rgba(40,40,45,0.95);
   backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1);
   font-size:0.9rem;
-  animation:weather-glow 4s ease-in-out infinite;
-}
-
-@keyframes weather-glow{
-  0%,100%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
-  50%{box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 15px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2)}
+  max-width:900px;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 .weather-widget.visible{display:flex}
@@ -919,33 +917,79 @@ input[type="range"]::-moz-range-thumb:active{
 .weather-temp{
   font-size:1.5rem;
   font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+  color:#b794f6;
 }
 .weather-time{font-size:1rem;font-weight:600;color:#10b981}
 .weather-divider{color:rgba(255,255,255,0.3);font-weight:300}
 .weather-condition{
   font-size:0.95rem;
   font-weight:600;
-  animation:condition-glow 4s ease-in-out infinite;
-}
-
-@keyframes condition-glow{
-  0%,100%{color:#764ba2;text-shadow:0 0 10px rgba(118,75,162,0.6)}
-  50%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
+  color:#10b981;
 }
 
 .weather-location{
   font-size:0.9rem;
   font-weight:600;
-  animation:location-glow 4s ease-in-out infinite;
+  color:#b794f6;
 }
 
-@keyframes location-glow{
-  0%,100%{color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.6)}
-  50%{color:#764ba2;text-shadow:0 0 8px rgba(118,75,162,0.6)}
+.social-buttons{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+  margin-bottom:1.5rem;
+  flex-wrap:wrap;
+}
+
+.social-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.5rem;
+  padding:0.75rem 1.5rem;
+  border-radius:16px;
+  background:rgba(40,40,45,0.95);
+  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);
+  color:#eee;
+  font-size:0.95rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s;
+  text-decoration:none;
+  min-width:140px;
+}
+
+.social-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.15);
+  background:rgba(50,50,55,0.95);
+}
+
+.social-btn:active{
+  transform:translateY(0);
+  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.social-btn svg{
+  width:20px;
+  height:20px;
+  fill:currentColor;
+}
+
+.social-btn.kofi{
+  color:#FF5E5B;
+}
+
+.social-btn.instagram{
+  color:#E4405F;
+}
+
+.social-btn.conversion{
+  color:#10b981;
 }
 
 .tools-section{display:none;margin-top:1.5rem}
@@ -1389,7 +1433,6 @@ input[type="range"]::-moz-range-thumb:active{
   text-transform:uppercase;
   letter-spacing:1px;
 }
-
 #footer{
   padding:2rem;
   background:rgba(0,0,0,0.5);
@@ -1609,6 +1652,8 @@ input[type="range"]::-moz-range-thumb:active{
   .export-modal-content{padding:1.5rem}
   .export-buttons{flex-direction:column}
   .calc-preset-buttons{grid-template-columns:1fr}
+  .social-buttons{gap:0.5rem}
+  .social-btn{min-width:120px;padding:0.6rem 1.2rem;font-size:0.85rem}
   
   .install-banner{
     flex-direction:column;
@@ -2091,6 +2136,30 @@ input[type="range"]::-moz-range-thumb:active{
 
   <div id="footer">
     <div class="footer-content">
+      
+      <div class="social-buttons">
+        <a href="https://ko-fi.com/rud3boy" target="_blank" class="social-btn kofi">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>
+          </svg>
+          <span>Ko-fi</span>
+        </a>
+        
+        <a href="https://www.instagram.com/CreatedByRudeboy" target="_blank" class="social-btn instagram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+          <span>Instagram</span>
+        </a>
+        
+        <a href="https://rudeboy-seamless-checker.vercel.app/converter" target="_blank" class="social-btn conversion">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 7L9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59 21 7z"/>
+          </svg>
+          <span>Conversion Tool</span>
+        </a>
+      </div>
+      
       <div class="weather-widget" id="weatherWidget">
         <span class="weather-icon" id="weatherIcon">🌤️</span>
         <span class="weather-temp" id="weatherTemp">--°</span>
@@ -2593,25 +2662,20 @@ els.paletteToggle.addEventListener('click', () => {
 els.hexInput.addEventListener('input', (e) => {
   let hex = e.target.value.trim();
   
-  // Only validate if there's actually content
   if (hex.length > 0) {
-    // Add # if not present
     if (!hex.startsWith('#')) {
       hex = '#' + hex;
     }
     
-    // Only update preview if valid
     if (isValidHex(hex)) {
       const rgb = hexToRgb(hex);
       els.hexPreview.style.backgroundColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
     }
   } else {
-    // Clear preview when empty
     els.hexPreview.style.backgroundColor = '#000000';
   }
 });
 
-// Set initial value without the # so users can easily clear it
 els.hexInput.value = '';
 els.hexInput.placeholder = 'FF0000 or #FF0000';
 els.hexPreview.style.backgroundColor = '#FF0000';
@@ -2854,7 +2918,6 @@ function loadPattern(id) {
     progress: 30
   });
   
-  // Animate progress
   let prog = 30;
   const loadInterval = setInterval(() => {
     prog += 15;
@@ -3580,7 +3643,6 @@ getEl('logo').addEventListener('click', () => {
     progress: 50
   });
   
-  // Animate progress
   let prog = 50;
   const reloadInterval = setInterval(() => {
     prog += 10;
@@ -3614,7 +3676,6 @@ els.sampleSelect.addEventListener('change', (e) => {
     progress: 20
   });
   
-  // Animate progress
   let prog = 20;
   const sampleInterval = setInterval(() => {
     prog += 15;
@@ -3649,7 +3710,7 @@ els.sampleSelect.addEventListener('change', (e) => {
     e.target.value = '';
   };
   
-    img.onerror = () => {
+  img.onerror = () => {
     clearInterval(sampleInterval);
     hideLoading();
     alert('Failed to load sample!');
@@ -3929,7 +3990,6 @@ function loadImage(file) {
     progress: 20
   });
   
-  // Animate progress
   let prog = 20;
   const uploadInterval = setInterval(() => {
     prog += 12;
@@ -3943,7 +4003,7 @@ function loadImage(file) {
   reader.onload = (e) => {
     const img = new Image();
     
-        img.onload = () => {
+    img.onload = () => {
       clearInterval(uploadInterval);
       updateLoadingProgress(100, 'Complete!');
       
@@ -3967,7 +4027,7 @@ function loadImage(file) {
       hideLoading();
     };
     
-        img.onerror = () => {
+    img.onerror = () => {
       clearInterval(uploadInterval);
       hideLoading();
       alert('Failed to load image!');
@@ -4158,7 +4218,6 @@ els.patternScale.addEventListener('change', (e) => {
     scale = 1.0 + ((sliderVal - 50) / 50) * 4.0;
   }
   
-  // Finer snapping: 0.01 for small scales, 0.05 for larger
   scale = scale >= 0.5 ? snap(scale * 100, 5) / 100 : snap(scale * 100, 1) / 100;
   
   let newSliderVal;
@@ -4197,7 +4256,6 @@ els.zoomSlider.addEventListener('change', (e) => {
   }
   
   const zoomPercent = Math.round(zoom * 100);
-  // Finer snapping: 1% increments below 100%, 5% increments above
   const snapped = zoomPercent <= 100 ? snap(zoomPercent, 1) : snap(zoomPercent, 5);
   zoom = snapped / 100;
   
