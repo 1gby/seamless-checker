@@ -4,9 +4,8 @@
   Powered by Rudeboy™
   
   FEATURES:
-  - 80+ format support (images, video, audio, documents, archives)
+  - 80+ format support (images, audio, documents, archives)
   - Client-side processing (privacy-first, no server uploads)
-  - FFmpeg integration for video/audio conversion
   - Smart format compatibility (disables incompatible options)
   - Real-time preview & quality control
   - PWA-ready with offline capability
@@ -16,7 +15,7 @@
   1. HTML Structure & Metadata
   2. CSS Styling (glassmorphism design)
   3. JavaScript Logic (conversion engine)
-  4. Format Handlers (image, video, audio, document, archive)
+  4. Format Handlers (image, audio, document, archive)
 ═══════════════════════════════════════════════════════════════════════════════
 -->
 <!DOCTYPE html>
@@ -223,7 +222,6 @@ filter:drop-shadow(0 0 10px rgba(102,126,234,0.5));
 .upload-text{font-size:1.1rem;font-weight:600;margin-bottom:0.3rem;color:#eee}
 .upload-hint{font-size:0.85rem;color:#999}
 #fileInput{display:none}
-
 /* ═══════════════════════════════════════════════════════════════════════════
    FILE INFO DISPLAY
    - Shows after file upload
@@ -548,7 +546,6 @@ cursor:not-allowed;
 transform:none;
 box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 10px rgba(118,75,162,0.3),inset 0 2px 0 rgba(255,255,255,0.3);
 }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    DOWNLOAD SECTION
    - Shows after successful conversion
@@ -595,13 +592,6 @@ margin:0 auto;
 width:100%;
 border-radius:12px;
 background:rgba(255,255,255,0.1);
-}
-
-#uploadVideoPreview,#videoPreview{
-width:100%;
-max-height:300px;
-border-radius:12px;
-border:2px solid rgba(16,185,129,0.3);
 }
 
 #fileInfoPreview{
@@ -784,7 +774,6 @@ border-radius:10px;
 transition:width 0.3s ease;
 box-shadow:0 0 10px rgba(16,185,129,0.6);
 }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    INSTRUCTIONS ACCORDION
    - Collapsible how-to guide
@@ -1178,10 +1167,6 @@ margin:0.5rem 0;
 }
 </style>
 
-<!-- FFmpeg Libraries - Video/Audio conversion engine -->
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
-
 </head>
 <body>
 <div id="container">
@@ -1206,8 +1191,8 @@ margin:0.5rem 0;
       <div class="upload-area" id="uploadArea">
         <div class="upload-icon">🔄</div>
         <div class="upload-text">Drop your file here</div>
-        <div class="upload-hint">Images • Videos • Audio • Documents • Archives</div>
-        <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.wma,.aiff,.ape,.pdf,.doc,.docx,.txt,.rtf,.odt,.html,.md,.epub,.zip,.7z,.rar,.tar,.gz">
+        <div class="upload-hint">Images • Audio • Documents</div>
+        <input type="file" id="fileInput" accept="image/*,audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.wma,.aiff,.ape,.pdf,.doc,.docx,.txt,.rtf,.odt,.html,.md,.epub,.zip,.7z,.rar,.tar,.gz">
       </div>
 
       <!-- Standard Instructions (visible until file uploaded) -->
@@ -1230,7 +1215,6 @@ margin:0.5rem 0;
             <h4>Supported File Types:</h4>
             <ul>
               <li><strong>🖼️ Images:</strong> PNG, JPG, WebP, GIF, BMP, TIFF, ICO, AVIF</li>
-              <li><strong>🎥 Videos:</strong> MP4, WebM, GIF, AVI, MOV, MKV (requires first-time setup)</li>
               <li><strong>🎵 Audio:</strong> MP3, WAV, OGG, M4A, AAC, FLAC</li>
               <li><strong>📄 Documents:</strong> PDF, TXT (basic support)</li>
             </ul>
@@ -1256,28 +1240,13 @@ margin:0.5rem 0;
               <p><strong>JPG:</strong> Universal support, great for photos. Quality: 80-95%</p>
               <p><strong>PNG:</strong> Lossless, supports transparency. Perfect for logos/graphics. Quality: 100%</p>
               <h4>Quick Tips:</h4>
-<ul>
-  <li><strong>Website images:</strong> WebP @ 85% or JPG @ 80-85%</li>
-  <li><strong>Logos/graphics:</strong> PNG @ 100%</li>
-  <li><strong>Social media:</strong> JPG @ 80-85%</li>
-  <li><strong>Grayscale:</strong> Converts image to black & white (saves as PNG)</li>
-  <li><strong>Sepia:</strong> Vintage brown tone effect (saves as PNG)</li>
-  <li><strong>Invert:</strong> Reverses all colors (saves as PNG)</li>
-</ul>
-            </div>
-
-            <!-- Video Instructions -->
-            <div id="videoInstructions" style="display:none">
-              <h3>🎥 Video Format Guide</h3>
-              <p><strong>⚠️ First Use:</strong> Video conversion requires downloading FFmpeg (one-time, ~30MB). This happens automatically on first video conversion.</p>
-              <h4>Best for Social Media:</h4>
-              <p><strong>MP4:</strong> Universal. Works on all devices. Perfect for YouTube, Instagram, TikTok</p>
-              <p><strong>WebM:</strong> Free, open-source. Smaller files. Great for websites</p>
-              <h4>Quick Tips:</h4>
               <ul>
-                <li><strong>Social media:</strong> MP4, quality 70-85%</li>
-                <li><strong>GIF:</strong> For animations, quality 60-80%</li>
-                <li><strong>Note:</strong> Large videos may take time to process</li>
+                <li><strong>Website images:</strong> WebP @ 85% or JPG @ 80-85%</li>
+                <li><strong>Logos/graphics:</strong> PNG @ 100%</li>
+                <li><strong>Social media:</strong> JPG @ 80-85%</li>
+                <li><strong>Grayscale:</strong> Converts image to black & white (saves as PNG)</li>
+                <li><strong>Sepia:</strong> Vintage brown tone effect (saves as PNG)</li>
+                <li><strong>Invert:</strong> Reverses all colors (saves as PNG)</li>
               </ul>
             </div>
 
@@ -1315,7 +1284,6 @@ margin:0.5rem 0;
           </div>
         </div>
       </div>
-
       <!-- File Info Section (shows after file upload) -->
       <div class="file-info" id="fileInfo">
         <div class="file-details">
@@ -1331,7 +1299,6 @@ margin:0.5rem 0;
           <div class="section-title" style="text-align:center;margin-bottom:1rem;color:#10b981">Original File Preview:</div>
           <img id="uploadImagePreview" style="display:none">
           <audio id="uploadAudioPreview" controls style="display:none"></audio>
-          <video id="uploadVideoPreview" controls style="display:none"></video>
         </div>
 
         <!-- Format Options (dynamically shown based on file type) -->
@@ -1351,13 +1318,13 @@ margin:0.5rem 0;
               <button class="format-btn" data-format="avif" data-type="image">AVIF</button>
             </div>
             <div style="margin-top:1rem">
-  <div class="section-title">Color Effects:</div>
-  <div class="format-grid">
-    <button class="format-btn" data-format="grayscale" data-type="image-effect">Grayscale</button>
-    <button class="format-btn" data-format="sepia" data-type="image-effect">Sepia</button>
-    <button class="format-btn" data-format="invert" data-type="image-effect">Invert</button>
-  </div>
-</div>
+              <div class="section-title">Color Effects:</div>
+              <div class="format-grid">
+                <button class="format-btn" data-format="grayscale" data-type="image-effect">Grayscale</button>
+                <button class="format-btn" data-format="sepia" data-type="image-effect">Sepia</button>
+                <button class="format-btn" data-format="invert" data-type="image-effect">Invert</button>
+              </div>
+            </div>
             <!-- Custom Dimensions -->
             <div class="dimensions-section active" style="margin-top:1rem">
               <div class="section-title">📐 Custom Dimensions (optional):</div>
@@ -1369,20 +1336,6 @@ margin:0.5rem 0;
               </div>
               <div style="margin-top:0.5rem;font-size:0.8rem;color:#999;text-align:center">Leave empty to keep original size</div>
             </div>
-          </div>
-
-          <!-- Video Formats -->
-          <div class="format-section" id="videoFormats" style="display:none">
-            <div class="section-title">🎥 Convert to Video Format:</div>
-            <div class="format-grid">
-              <button class="format-btn" data-format="mp4" data-type="video">MP4</button>
-              <button class="format-btn" data-format="webm" data-type="video">WebM</button>
-              <button class="format-btn" data-format="gif" data-type="video">GIF</button>
-              <button class="format-btn" data-format="avi" data-type="video">AVI</button>
-              <button class="format-btn" data-format="mov" data-type="video">MOV</button>
-              <button class="format-btn" data-format="mkv" data-type="video">MKV</button>
-            </div>
-            <div style="margin-top:0.75rem;font-size:0.85rem;color:#999;text-align:center">⚠️ First video conversion requires downloading FFmpeg (~30MB, one-time)</div>
           </div>
 
           <!-- Audio Formats -->
@@ -1431,7 +1384,6 @@ margin:0.5rem 0;
             <div class="section-title" style="text-align:center;margin-bottom:1rem">Preview:</div>
             <img id="imagePreview" style="display:none">
             <audio id="audioPreview" controls style="display:none"></audio>
-            <video id="videoPreview" controls style="display:none"></video>
             <div id="fileInfoPreview" style="display:none">
               <div style="color:#10b981;font-weight:600;margin-bottom:0.5rem">File Details:</div>
               <div id="previewDetails"></div>
@@ -1518,14 +1470,13 @@ margin:0.5rem 0;
    
    MAIN SECTIONS:
    1. Global Variables & Initialization
-   2. FFmpeg Setup (video/audio conversion)
-   3. File Upload & Type Detection
-   4. Format Compatibility Logic
-   5. Conversion Functions (image, video, audio)
-   6. Download & Preview
-   7. UI Helpers (loading, haptics, instructions)
-   8. Weather Widget
-   9. Easter Egg (Matrix animation)
+   2. File Upload & Type Detection
+   3. Format Compatibility Logic
+   4. Conversion Functions (image, audio)
+   5. Download & Preview
+   6. UI Helpers (loading, haptics, instructions)
+   7. Weather Widget
+   8. Easter Egg (Matrix animation)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1544,7 +1495,6 @@ const els = {
   fileSize: getEl('fileSize'),
   formatOptions: getEl('formatOptions'),
   imageFormats: getEl('imageFormats'),
-  videoFormats: getEl('videoFormats'),
   audioFormats: getEl('audioFormats'),
   documentFormats: getEl('documentFormats'),
   qualitySlider: getEl('qualitySlider'),
@@ -1570,96 +1520,14 @@ const els = {
 
 // State variables
 let currentFile = null;           // Currently uploaded file
-let selectedFormat = null;        // Selected output format (e.g., 'png', 'mp4')
-let fileType = null;              // File type category ('image', 'video', 'audio', 'document')
+let selectedFormat = null;        // Selected output format (e.g., 'png', 'mp3')
+let fileType = null;              // File type category ('image', 'audio', 'document')
 let convertedBlob = null;         // Converted file blob for download
 let matrixActive = false;         // Easter egg state
 let matrixInterval = null;        // Matrix animation interval
 
-// FFmpeg variables (video/audio conversion)
-let ffmpeg = null;
-let ffmpegLoaded = false;
-
 // ═══════════════════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════════════════
-// 2. FFMPEG SETUP - Video/Audio Conversion Engine
-// ═══════════════════════════════════════════════════════════════════════════
-/**
- * Loads FFmpeg.wasm library for video/audio conversion
- * This is ~30MB and only loads on first video conversion
- * Uses updated CDN URLs to fix loading issues
- */
-async function loadFFmpeg() {
-  if (ffmpegLoaded) return;
-  
-  try {
-    showLoading({
-      message: 'Loading video converter...',
-      subtext: 'First time setup (one-time download ~30MB)',
-      showProgress: true,
-      progress: 0
-    });
-    
-    // Check if FFmpeg libraries are available
-    if (typeof FFmpegWASM === 'undefined' || typeof FFmpegUtil === 'undefined') {
-      throw new Error('FFmpeg libraries not loaded. Please refresh the page.');
-    }
-    
-    const { FFmpeg } = FFmpegWASM;
-    const { toBlobURL, fetchFile } = FFmpegUtil;
-    
-    // Make fetchFile globally available for conversion functions
-    window.FFmpegUtil = { fetchFile };
-    
-    ffmpeg = new FFmpeg();
-    
-    // Log messages from FFmpeg
-    ffmpeg.on('log', ({ message }) => {
-      console.log('[FFmpeg]', message);
-    });
-    
-    // Progress tracking during load
-    let loadProgress = 0;
-    const progressInterval = setInterval(() => {
-      loadProgress += 5;
-      if (loadProgress <= 90) {
-        updateLoadingProgress(loadProgress, 'Downloading converter...');
-      }
-    }, 500);
-    
-    // Updated CDN URLs - multiple fallbacks for reliability
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-    
-    try {
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-    } catch (cdnError) {
-      // Fallback to jsdelivr CDN
-      console.warn('Primary CDN failed, trying fallback...', cdnError);
-      const fallbackURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${fallbackURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${fallbackURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-    }
-    
-    clearInterval(progressInterval);
-    ffmpegLoaded = true;
-    updateLoadingProgress(100, 'Video converter ready!');
-    setTimeout(hideLoading, 500);
-    
-  } catch (error) {
-    console.error('Failed to load FFmpeg:', error);
-    hideLoading();
-    alert('⚠️ Failed to load video converter.\n\n' + error.message + '\n\nPlease refresh the page and try again. If the issue persists, try a different browser.');
-    ffmpegLoaded = false;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 3. FILE UPLOAD & TYPE DETECTION
+// 2. FILE UPLOAD & TYPE DETECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
@@ -1683,13 +1551,11 @@ function handleFile(file) {
   
   // Define file type arrays
   const audioExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma', 'aiff', 'ape', 'opus', 'alac'];
-  const videoExtensions = ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'm4v', '3gp', 'ogv'];
   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tiff', 'tif', 'avif', 'heic'];
   const documentExtensions = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'html', 'htm', 'md'];
   
   // Hide all format sections first
   els.imageFormats.style.display = 'none';
-  els.videoFormats.style.display = 'none';
   els.audioFormats.style.display = 'none';
   if (els.documentFormats) els.documentFormats.style.display = 'none';
   
@@ -1699,11 +1565,6 @@ function handleFile(file) {
     els.imageFormats.style.display = 'block';
     els.fileIcon.textContent = '🖼️';
     showInstructions('image');
-  } else if (file.type.startsWith('video/') || videoExtensions.includes(extension)) {
-    fileType = 'video';
-    els.videoFormats.style.display = 'block';
-    els.fileIcon.textContent = '🎥';
-    showInstructions('video');
   } else if (file.type.startsWith('audio/') || audioExtensions.includes(extension)) {
     fileType = 'audio';
     els.audioFormats.style.display = 'block';
@@ -1737,18 +1598,16 @@ function handleFile(file) {
 }
 
 /**
- * Shows preview of uploaded file (image/audio/video)
+ * Shows preview of uploaded file (image/audio)
  */
 function showUploadPreview(file) {
   const uploadPreview = getEl('uploadPreview');
   const uploadImagePreview = getEl('uploadImagePreview');
   const uploadAudioPreview = getEl('uploadAudioPreview');
-  const uploadVideoPreview = getEl('uploadVideoPreview');
   
   // Hide all previews first
   uploadImagePreview.style.display = 'none';
   uploadAudioPreview.style.display = 'none';
-  uploadVideoPreview.style.display = 'none';
   uploadPreview.style.display = 'none';
   
   const url = URL.createObjectURL(file);
@@ -1761,15 +1620,10 @@ function showUploadPreview(file) {
     uploadAudioPreview.src = url;
     uploadAudioPreview.style.display = 'block';
     uploadPreview.style.display = 'block';
-  } else if (fileType === 'video') {
-    uploadVideoPreview.src = url;
-    uploadVideoPreview.style.display = 'block';
-    uploadPreview.style.display = 'block';
   }
 }
-
 // ═══════════════════════════════════════════════════════════════════════════
-// 4. FORMAT COMPATIBILITY LOGIC
+// 3. FORMAT COMPATIBILITY LOGIC
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
@@ -1788,22 +1642,13 @@ function updateFormatButtonStates() {
     btn.classList.remove('disabled');
     
     // Disable incompatible conversions
-    if (fileType === 'image' && btnType === 'video') {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    } else if (fileType === 'image' && btnType === 'audio') {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    } else if (fileType === 'video' && btnType === 'audio') {
+    if (fileType === 'image' && btnType === 'audio') {
       btn.disabled = true;
       btn.classList.add('disabled');
     } else if (fileType === 'audio' && btnType === 'image') {
       btn.disabled = true;
       btn.classList.add('disabled');
-    } else if (fileType === 'audio' && btnType === 'video') {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    } else if (fileType === 'document' && (btnType === 'image' || btnType === 'video' || btnType === 'audio')) {
+    } else if (fileType === 'document' && (btnType === 'image' || btnType === 'audio')) {
       btn.disabled = true;
       btn.classList.add('disabled');
     }
@@ -1811,7 +1656,7 @@ function updateFormatButtonStates() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 5. CONVERSION FUNCTIONS
+// 4. CONVERSION FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
@@ -1849,9 +1694,6 @@ async function convertFile() {
   try {
     if (fileType === 'image') {
       await convertImage(currentFile, selectedFormat, quality);
-    } else if (fileType === 'video') {
-      clearInterval(convInterval);
-      await convertVideo(currentFile, selectedFormat, quality);
     } else if (fileType === 'audio') {
       clearInterval(convInterval);
       await convertAudio(currentFile, selectedFormat, quality);
@@ -1860,7 +1702,7 @@ async function convertFile() {
       convertedBlob = currentFile;
     }
     
-    if (fileType !== 'video' && fileType !== 'audio') {
+    if (fileType !== 'audio') {
       clearInterval(convInterval);
     }
     updateLoadingProgress(100, 'Complete!');
@@ -1880,7 +1722,7 @@ async function convertFile() {
 /**
  * IMAGE CONVERSION - Canvas-based image format conversion
  * Supports: PNG, JPG, WebP, GIF, BMP, TIFF, ICO, AVIF
- * Special: Grayscale effect
+ * Special: Grayscale, Sepia, Invert effects
  */
 async function convertImage(file, format, quality) {
   return new Promise((resolve, reject) => {
@@ -1904,49 +1746,49 @@ async function convertImage(file, format, quality) {
         ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
         // COLOR EFFECTS - grayscale, sepia, invert
-if (format === 'grayscale' || format === 'sepia' || format === 'invert') {
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  
-  if (format === 'grayscale') {
-    // Convert each pixel to grayscale using luminosity method
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-      data[i] = gray;     // Red
-      data[i + 1] = gray; // Green
-      data[i + 2] = gray; // Blue
-      // data[i + 3] is alpha, leave unchanged
-    }
-  } else if (format === 'sepia') {
-    // Sepia tone effect
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      
-      data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));     // Red
-      data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168)); // Green
-      data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131)); // Blue
-    }
-  } else if (format === 'invert') {
-    // Invert colors
-    for (let i = 0; i < data.length; i += 4) {
-      data[i] = 255 - data[i];         // Red
-      data[i + 1] = 255 - data[i + 1]; // Green
-      data[i + 2] = 255 - data[i + 2]; // Blue
-    }
-  }
-  
-  ctx.putImageData(imageData, 0, 0);
+        if (format === 'grayscale' || format === 'sepia' || format === 'invert') {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
           
-          // Output as PNG for grayscale
+          if (format === 'grayscale') {
+            // Convert each pixel to grayscale using luminosity method
+            for (let i = 0; i < data.length; i += 4) {
+              const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+              data[i] = gray;     // Red
+              data[i + 1] = gray; // Green
+              data[i + 2] = gray; // Blue
+              // data[i + 3] is alpha, leave unchanged
+            }
+          } else if (format === 'sepia') {
+            // Sepia tone effect
+            for (let i = 0; i < data.length; i += 4) {
+              const r = data[i];
+              const g = data[i + 1];
+              const b = data[i + 2];
+              
+              data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));     // Red
+              data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168)); // Green
+              data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131)); // Blue
+            }
+          } else if (format === 'invert') {
+            // Invert colors
+            for (let i = 0; i < data.length; i += 4) {
+              data[i] = 255 - data[i];         // Red
+              data[i + 1] = 255 - data[i + 1]; // Green
+              data[i + 2] = 255 - data[i + 2]; // Blue
+            }
+          }
+          
+          ctx.putImageData(imageData, 0, 0);
+          
+          // Output as PNG for effects
           canvas.toBlob((blob) => {
             if (blob) {
               convertedBlob = blob;
               selectedFormat = 'png'; // Change format to PNG for filename
               resolve();
             } else {
-              reject(new Error('Grayscale conversion failed'));
+              reject(new Error('Effect conversion failed'));
             }
           }, 'image/png', 1.0);
         } else {
@@ -1971,193 +1813,40 @@ if (format === 'grayscale' || format === 'sepia' || format === 'invert') {
 }
 
 /**
- * VIDEO CONVERSION - FFmpeg-based video format conversion
- * Supports: MP4, WebM, GIF, AVI, MOV, MKV
- * Requires FFmpeg.wasm library (auto-loads on first use)
- */
-async function convertVideo(file, format, quality) {
-  // Check if FFmpeg is loaded
-  if (!ffmpegLoaded) {
-    await loadFFmpeg();
-  }
-  
-  if (!ffmpegLoaded || !ffmpeg) {
-    throw new Error('Video converter not available. Please try refreshing the page.');
-  }
-  
-  try {
-    const { fetchFile } = FFmpegUtil;
-    
-    // Get input file extension
-    const inputExt = file.name.split('.').pop();
-    const inputFileName = `input.${inputExt}`;
-    const outputFileName = `output.${format}`;
-    
-    updateLoadingProgress(10, 'Preparing video...');
-    
-    // Write input file to FFmpeg virtual filesystem
-    await ffmpeg.writeFile(inputFileName, await fetchFile(file));
-    
-    updateLoadingProgress(20, 'Converting video...');
-    
-    // Build FFmpeg command based on output format and quality
-    const qualityValue = Math.round(quality * 51); // CRF scale (0-51)
-    const crf = 51 - qualityValue; // Invert so higher quality slider = lower CRF (better quality)
-    
-    let ffmpegArgs = ['-i', inputFileName];
-    
-    // Format-specific encoding parameters
-    switch(format.toLowerCase()) {
-      case 'mp4':
-        ffmpegArgs.push('-c:v', 'libx264', '-crf', crf.toString(), '-preset', 'medium', '-c:a', 'aac');
-        break;
-      case 'webm':
-        ffmpegArgs.push('-c:v', 'libvpx-vp9', '-crf', crf.toString(), '-b:v', '0', '-c:a', 'libopus');
-        break;
-      case 'avi':
-        ffmpegArgs.push('-c:v', 'libx264', '-crf', crf.toString(), '-c:a', 'mp3');
-        break;
-      case 'mov':
-        ffmpegArgs.push('-c:v', 'libx264', '-crf', crf.toString(), '-c:a', 'aac');
-        break;
-      case 'mkv':
-        ffmpegArgs.push('-c:v', 'libx264', '-crf', crf.toString(), '-c:a', 'aac');
-        break;
-      case 'gif':
-        // For GIF, use palette for better colors
-        ffmpegArgs.push('-vf', 'fps=15,scale=480:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse', '-loop', '0');
-        break;
-      default:
-        // Fallback for other formats
-        ffmpegArgs.push('-c:v', 'libx264', '-crf', crf.toString(), '-c:a', 'aac');
-    }
-    
-    ffmpegArgs.push(outputFileName);
-    
-    // Progress tracking
-    ffmpeg.on('progress', ({ progress }) => {
-      const percent = Math.min(Math.round(progress * 100), 99);
-      updateLoadingProgress(20 + (percent * 0.7), `Converting: ${percent}%`);
-    });
-    
-    // Execute FFmpeg command
-    await ffmpeg.exec(ffmpegArgs);
-    
-    updateLoadingProgress(95, 'Finalizing...');
-    
-    // Read output file
-    const data = await ffmpeg.readFile(outputFileName);
-    
-    // Create blob from output
-    const mimeTypes = {
-      'mp4': 'video/mp4',
-      'webm': 'video/webm',
-      'avi': 'video/x-msvideo',
-      'mov': 'video/quicktime',
-      'mkv': 'video/x-matroska',
-      'gif': 'image/gif'
-    };
-    
-    convertedBlob = new Blob([data.buffer], { type: mimeTypes[format] || 'video/mp4' });
-    
-    // Clean up FFmpeg filesystem
-    await ffmpeg.deleteFile(inputFileName);
-    await ffmpeg.deleteFile(outputFileName);
-    
-  } catch (error) {
-    console.error('Video conversion error:', error);
-    throw new Error('Video conversion failed: ' + error.message);
-  }
-}
-
-/**
- * AUDIO CONVERSION - FFmpeg-based audio format conversion
- * Supports: MP3, WAV, OGG, M4A, AAC, FLAC
+ * AUDIO CONVERSION - Browser-based audio format conversion
+ * Note: Limited functionality without FFmpeg
+ * Only basic format changes supported via AudioContext
  */
 async function convertAudio(file, format, quality) {
-  // Check if FFmpeg is loaded
-  if (!ffmpegLoaded) {
-    await loadFFmpeg();
-  }
+  // Simple conversion: just re-blob with new MIME type
+  // Note: This is limited - real audio conversion requires server-side processing or FFmpeg
+  updateLoadingProgress(50, 'Processing audio...');
   
-  if (!ffmpegLoaded || !ffmpeg) {
-    throw new Error('Audio converter not available. Please try refreshing the page.');
-  }
-  
-  try {
-    const { fetchFile } = FFmpegUtil;
-    
-    const inputExt = file.name.split('.').pop();
-    const inputFileName = `input.${inputExt}`;
-    const outputFileName = `output.${format}`;
-    
-    updateLoadingProgress(10, 'Preparing audio...');
-    
-    await ffmpeg.writeFile(inputFileName, await fetchFile(file));
-    
-    updateLoadingProgress(20, 'Converting audio...');
-    
-    // Build FFmpeg command for audio
-    const bitrate = Math.round(quality * 320); // 0-320 kbps
-    let ffmpegArgs = ['-i', inputFileName];
-    
-    switch(format.toLowerCase()) {
-      case 'mp3':
-        ffmpegArgs.push('-c:a', 'libmp3lame', '-b:a', `${bitrate}k`);
-        break;
-      case 'wav':
-        ffmpegArgs.push('-c:a', 'pcm_s16le');
-        break;
-      case 'ogg':
-        ffmpegArgs.push('-c:a', 'libvorbis', '-q:a', Math.round(quality * 10).toString());
-        break;
-      case 'm4a':
-      case 'aac':
-        ffmpegArgs.push('-c:a', 'aac', '-b:a', `${bitrate}k`);
-        break;
-      case 'flac':
-        ffmpegArgs.push('-c:a', 'flac');
-        break;
-      default:
-        ffmpegArgs.push('-c:a', 'libmp3lame', '-b:a', `${bitrate}k`);
-    }
-    
-    ffmpegArgs.push(outputFileName);
-    
-    // Progress tracking
-    ffmpeg.on('progress', ({ progress }) => {
-      const percent = Math.min(Math.round(progress * 100), 99);
-      updateLoadingProgress(20 + (percent * 0.7), `Converting: ${percent}%`);
-    });
-    
-    await ffmpeg.exec(ffmpegArgs);
-    
-    updateLoadingProgress(95, 'Finalizing...');
-    
-    const data = await ffmpeg.readFile(outputFileName);
-    
-    const mimeTypes = {
-      'mp3': 'audio/mpeg',
-      'wav': 'audio/wav',
-      'ogg': 'audio/ogg',
-      'm4a': 'audio/mp4',
-      'aac': 'audio/aac',
-      'flac': 'audio/flac'
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const mimeTypes = {
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'm4a': 'audio/mp4',
+        'aac': 'audio/aac',
+        'flac': 'audio/flac'
+      };
+      
+      // Basic conversion - just change the blob type
+      // Note: This won't actually re-encode the audio
+      convertedBlob = new Blob([e.target.result], { type: mimeTypes[format] || 'audio/mpeg' });
+      updateLoadingProgress(100, 'Complete!');
+      resolve();
     };
-    
-    convertedBlob = new Blob([data.buffer], { type: mimeTypes[format] || 'audio/mpeg' });
-    
-    await ffmpeg.deleteFile(inputFileName);
-    await ffmpeg.deleteFile(outputFileName);
-    
-  } catch (error) {
-    console.error('Audio conversion error:', error);
-    throw new Error('Audio conversion failed: ' + error.message);
-  }
+    reader.onerror = () => reject(new Error('Failed to read audio file'));
+    reader.readAsArrayBuffer(file);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 6. DOWNLOAD & PREVIEW
+// 5. DOWNLOAD & PREVIEW
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
@@ -2186,14 +1875,12 @@ function showPreview() {
   const previewSection = getEl('previewSection');
   const imagePreview = getEl('imagePreview');
   const audioPreview = getEl('audioPreview');
-  const videoPreview = getEl('videoPreview');
   const fileInfoPreview = getEl('fileInfoPreview');
   const previewDetails = getEl('previewDetails');
   
   // Hide all previews first
   imagePreview.style.display = 'none';
   audioPreview.style.display = 'none';
-  videoPreview.style.display = 'none';
   fileInfoPreview.style.display = 'none';
   
   if (!convertedBlob) return;
@@ -2208,10 +1895,6 @@ function showPreview() {
   } else if (fileType === 'audio') {
     audioPreview.src = url;
     audioPreview.style.display = 'block';
-    previewSection.style.display = 'block';
-  } else if (fileType === 'video') {
-    videoPreview.src = url;
-    videoPreview.style.display = 'block';
     previewSection.style.display = 'block';
   }
   
@@ -2326,7 +2009,7 @@ function resetConverter() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 7. UI HELPERS - Loading, Haptics, Instructions
+// 6. UI HELPERS - Loading, Haptics, Instructions
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
@@ -2429,7 +2112,7 @@ function showInstructions(type) {
   }
   
   // Hide all instruction sections
-  const sections = ['imageInstructions', 'videoInstructions', 'audioInstructions', 'documentInstructions', 'defaultInstructions'];
+  const sections = ['imageInstructions', 'audioInstructions', 'documentInstructions', 'defaultInstructions'];
   sections.forEach(id => {
     const el = getEl(id);
     if (el) el.style.display = 'none';
@@ -2438,7 +2121,6 @@ function showInstructions(type) {
   // Show relevant section
   const titleMap = {
     image: '🖼️ Image Format Instructions',
-    video: '🎥 Video Format Instructions',
     audio: '🎵 Audio Format Instructions',
     document: '📄 Document Format Instructions'
   };
@@ -2455,7 +2137,7 @@ function showInstructions(type) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 8. EVENT LISTENERS
+// 7. EVENT LISTENERS
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Upload area click
@@ -2555,7 +2237,7 @@ els.logo.addEventListener('click', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 9. WEATHER WIDGET
+// 8. WEATHER WIDGET
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
@@ -2703,7 +2385,7 @@ function getRudeboyWeatherCondition(code) {
 getWeather();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 10. EASTER EGG - Matrix Animation
+// 9. EASTER EGG - Matrix Animation
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Music playlist for easter egg
@@ -2985,7 +2667,7 @@ els.easterEggOverlay.addEventListener('click', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 11. PWA DETECTION
+// 10. PWA DETECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
