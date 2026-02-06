@@ -1,12 +1,12 @@
 # seamless-checker
 Seamless Canvas Checker for ProCreate
 
-main
+Main
 
 https://rudeboy-seamless-checker.vercel.app/
 
 
-tools
+Tools
 
 https://rudeboy-seamless-checker.vercel.app/seamless
 &
