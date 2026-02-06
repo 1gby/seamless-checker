@@ -1,5 +1,5 @@
 <!-- Rudeboy Pattern Checker - P.I.M.P PRODUCTION -->
-<!-- UPDATED: Better Loading States + Added Links -->
+<!-- UPDATED: Weather Widget 2x4 Grid + Social Buttons with Images -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,6 +73,7 @@ body.standalone-mode .title::after{
   filter:drop-shadow(0 0 0px rgba(16,185,129,0));
   animation:pulse 2s ease-in-out infinite;
 }
+/* Logo pulsing glow animation */
 @keyframes pulse{
   0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
   50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}
@@ -113,6 +114,7 @@ body.standalone-mode .title::after{
   pointer-events:none;
 }
 
+/* Header button styles with glassmorphism effect */
 .upload-btn,.export-btn-header,.sample-btn{
   padding:0.85rem 1rem;
   min-height:52px;
@@ -139,6 +141,7 @@ body.standalone-mode .title::after{
   overflow:hidden;
 }
 
+/* Button hover effect overlay */
 .upload-btn::before,.export-btn-header::before,.sample-btn::before{
   content:'';
   position:absolute;
@@ -155,6 +158,7 @@ body.standalone-mode .title::after{
   opacity:1;
 }
 
+/* Upload button with purple glow */
 .upload-btn{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -168,6 +172,7 @@ body.standalone-mode .title::after{
   box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Sample button with green glow */
 .sample-btn{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -181,6 +186,7 @@ body.standalone-mode .title::after{
   box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Export button with purple glow */
 .export-btn-header{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -200,6 +206,7 @@ body.standalone-mode .title::after{
   box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
+/* ==================== CANVAS AREA ==================== */
 #canvas-wrapper{
   flex:1;
   display:flex;
@@ -228,6 +235,7 @@ body.standalone-mode .title::after{
 #canvas.has-image:active{cursor:grabbing}
 #canvas:hover{box-shadow:0 25px 70px rgba(0,0,0,0.6)}
 
+/* Empty state when no image loaded */
 .empty-state{
   position:absolute;
   top:50%;
@@ -243,6 +251,7 @@ body.standalone-mode .title::after{
 .empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
 .empty-state-subtext{font-size:0.95rem;color:#666}
 
+/* ==================== EXPORT MODAL ==================== */
 .export-modal{
   position:fixed;
   top:0;
@@ -360,6 +369,7 @@ body.standalone-mode .title::after{
   box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(239,68,68,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
+/* ==================== LOADING OVERLAY ==================== */
 .loading-overlay{
   position:fixed;
   top:0;
@@ -385,6 +395,7 @@ body.standalone-mode .title::after{
   opacity:0.8;
   animation:spin-glow 3s linear infinite;
 }
+/* Loading logo spin animation with color change */
 @keyframes spin-glow{
   0%{
     transform:rotate(0deg);
@@ -424,6 +435,7 @@ body.standalone-mode .title::after{
   display:block;
 }
 
+/* Progress bar for loading states */
 .progress-bar-container{
   width:280px;
   height:6px;
@@ -447,6 +459,7 @@ body.standalone-mode .title::after{
   transition:width 0.3s ease;
   box-shadow:0 0 10px rgba(16,185,129,0.6);
 }
+/* ==================== CONTROLS SECTION ==================== */
 #controls{
   padding:2rem;
   background:rgba(0,0,0,0.6);
@@ -458,6 +471,7 @@ body.standalone-mode .title::after{
 
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
 
+/* Instructions accordion */
 .instructions-accordion{
   margin-bottom:1.5rem;
 }
@@ -546,6 +560,7 @@ body.standalone-mode .title::after{
   margin-bottom:0.5rem;
 }
 
+/* Base styles for selects and buttons */
 select,button{
   padding:0.75rem 1rem;
   font-size:0.95rem;
@@ -572,6 +587,7 @@ select:focus,button:focus{
 }
 select:active,button:active{transform:translateY(0)}
 
+/* Master dropdown with purple glow */
 #masterDropdown{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -603,6 +619,7 @@ select:active,button:active{transform:translateY(0)}
   gap:1rem;
 }
 
+/* Canvas quality and grid size with purple glow */
 #canvasQuality,#gridSize{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -613,6 +630,7 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Repeat type and background color with green glow */
 #repeatType,#bgColor{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -623,6 +641,7 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Country stores and view mode with purple glow */
 #countryStores,#viewMode{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -633,11 +652,13 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Slider dropdown specific glow colors - Purple for X offset and mockup zoom */
 .slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
+/* Green for Y offset and mockup rotate */
 .slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,
 .slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
@@ -668,6 +689,7 @@ select:active,button:active{transform:translateY(0)}
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Scale slider with purple glow */
 .slider-dropdown[data-slider="scale"] .slider-dropdown-header{
   box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -749,6 +771,7 @@ select:active,button:active{transform:translateY(0)}
 
 .slider-wrapper{position:relative}
 
+/* Center line indicator for sliders */
 .slider-wrapper.centered::before{
   content:'';
   position:absolute;
@@ -798,6 +821,7 @@ select:active,button:active{transform:translateY(0)}
 }
 .zoom-slider-wrapper.open .zoom-slider-content{max-height:200px}
 
+/* Range slider styles with gradient track */
 input[type="range"]{
   width:100%;
   height:6px;
@@ -810,6 +834,7 @@ input[type="range"]{
   box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);
 }
 
+/* Custom slider thumb with glassmorphism */
 input[type="range"]::-webkit-slider-thumb{
   -webkit-appearance:none;
   width:60px;
@@ -848,6 +873,7 @@ input[type="range"]::-webkit-slider-thumb:active{
     inset 0 -2px 6px rgba(0,0,0,0.2);
 }
 
+/* Firefox slider thumb styles */
 input[type="range"]::-moz-range-thumb{
   width:60px;
   height:28px;
@@ -891,107 +917,146 @@ input[type="range"]::-moz-range-thumb:active{
   text-align:right;
 }
 
+/* ==================== WEATHER WIDGET - 2x4 GRID LAYOUT ==================== */
 .weather-widget{
   display:none;
   align-items:center;
-  justify-content:center;
-  gap:1rem;
-  padding:1rem 1.5rem;
-  margin-bottom:1.5rem;
+  justify-content:space-between;
+  gap:0.3rem;
+  padding:1rem 1.1rem;
+  margin-bottom:1rem;
   background:rgba(40,40,45,0.95);
   backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   border-radius:20px;
   border:1px solid rgba(255,255,255,0.15);
   box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1);
-  font-size:0.9rem;
+  font-size:0.85rem;
   max-width:900px;
   margin-left:auto;
   margin-right:auto;
+  flex-wrap:nowrap;
 }
 
 .weather-widget.visible{display:flex}
 .weather-widget.loading{opacity:0.6}
 
-.weather-icon{font-size:1.8rem;line-height:1}
+.weather-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0.1rem;
+}
+
+.weather-col-time{
+  min-width:70px;
+}
+
+.weather-col-condition{
+  min-width:65px;
+  max-width:75px;
+}
+
+.weather-col-location{
+  min-width:65px;
+  max-width:75px;
+}
+
+.weather-icon{font-size:1.6rem;line-height:1}
 .weather-temp{
-  font-size:1.5rem;
+  font-size:1.2rem;
   font-weight:700;
   color:#b794f6;
 }
-.weather-time{font-size:1rem;font-weight:600;color:#10b981}
-.weather-divider{color:rgba(255,255,255,0.3);font-weight:300}
-.weather-condition{
-  font-size:0.95rem;
+.weather-time{
+  font-size:0.9rem;
   font-weight:600;
   color:#10b981;
 }
-
-.weather-location{
+.weather-divider{
+  color:rgba(255,255,255,0.3);
+  font-weight:300;
   font-size:0.9rem;
-  font-weight:600;
-  color:#b794f6;
+  margin:0 -0.1rem;
 }
 
+.weather-condition-line1,
+.weather-condition-line2{
+  font-size:0.70rem;
+  font-weight:600;
+  color:#10b981;
+  animation:condition-glow 4s ease-in-out infinite;
+  text-align:center;
+  line-height:1.05;
+}
+
+@keyframes condition-glow{
+  0%,100%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
+  50%{color:#b794f6;text-shadow:0 0 10px rgba(183,148,246,0.6)}
+}
+
+.weather-location-line1,
+.weather-location-line2{
+  font-size:0.70rem;
+  font-weight:600;
+  color:#b794f6;
+  animation:location-glow 4s ease-in-out infinite;
+  text-align:center;
+  line-height:1.05;
+}
+
+@keyframes location-glow{
+  0%,100%{color:#b794f6;text-shadow:0 0 8px rgba(183,148,246,0.6)}
+  50%{color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.6)}
+}
+
+/* ==================== SOCIAL BUTTONS - SQUARE ICON BOXES ==================== */
 .social-buttons{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:1rem;
+  gap:0.75rem;
   margin-bottom:1.5rem;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 
 .social-btn{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:0.5rem;
-  padding:0.75rem 1.5rem;
-  border-radius:16px;
+  width:72px;
+  height:72px;
+  border-radius:18px;
   background:rgba(40,40,45,0.95);
   backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
   border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);
-  color:#eee;
-  font-size:0.95rem;
-  font-weight:600;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1);
   cursor:pointer;
   transition:all 0.3s;
   text-decoration:none;
-  min-width:140px;
+  flex-shrink:0;
 }
 
 .social-btn:hover{
   transform:translateY(-2px);
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.15);
   background:rgba(50,50,55,0.95);
 }
 
 .social-btn:active{
   transform:translateY(0);
-  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-.social-btn svg{
-  width:20px;
-  height:20px;
-  fill:currentColor;
+.social-btn img{
+  width:42px;
+  height:42px;
+  border-radius:6px;
+  object-fit:contain;
 }
-
-.social-btn.kofi{
-  color:#FF5E5B;
-}
-
-.social-btn.instagram{
-  color:#E4405F;
-}
-
-.social-btn.conversion{
-  color:#10b981;
-}
-
+/* ==================== TOOLS SECTION ==================== */
 .tools-section{display:none;margin-top:1.5rem}
 .tools-section.active{display:block}
 
@@ -1022,6 +1087,7 @@ input[type="range"]::-moz-range-thumb:active{
   align-items:center;
 }
 
+/* Color palette toggle button */
 .palette-toggle{
   font-size:0.75rem;
   padding:0.3rem 0.6rem;
@@ -1034,6 +1100,7 @@ input[type="range"]::-moz-range-thumb:active{
 }
 .palette-toggle:hover{background:rgba(16,185,129,0.3)}
 
+/* Calculator recommendations toggle button */
 .calc-recommendations-toggle{
   font-size:0.75rem;
   padding:0.3rem 0.6rem;
@@ -1071,6 +1138,7 @@ input[type="range"]::-moz-range-thumb:active{
   gap:0.5rem;
 }
 
+/* Calculator preset buttons */
 .calc-preset-btn{
   padding:0.5rem 0.75rem;
   border-radius:8px;
@@ -1099,6 +1167,7 @@ input[type="range"]::-moz-range-thumb:active{
   box-shadow:0 1px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
+/* Color palette grid - 9 color swatches */
 .color-palette{
   display:grid;
   grid-template-columns:repeat(9,1fr);
@@ -1127,6 +1196,7 @@ input[type="range"]::-moz-range-thumb:active{
 
 .color-swatch:active{transform:scale(0.98)}
 
+/* Hex tooltip that appears on hover */
 .hex-tooltip{
   position:absolute;
   bottom:calc(100% + 8px);
@@ -1147,6 +1217,7 @@ input[type="range"]::-moz-range-thumb:active{
 
 .color-swatch:hover .hex-tooltip{opacity:1}
 
+/* Checkmark when color is copied */
 .color-swatch.copied::after{
   content:'✓';
   position:absolute;
@@ -1159,6 +1230,7 @@ input[type="range"]::-moz-range-thumb:active{
   text-shadow:0 0 4px rgba(0,0,0,0.8);
 }
 
+/* Hex checker tool */
 .hex-checker{display:none;margin-top:0.75rem}
 .hex-checker.active{display:block}
 
@@ -1179,6 +1251,7 @@ input[type="range"]::-moz-range-thumb:active{
   font-weight:600;
 }
 
+/* Live preview of hex color */
 .hex-preview{
   width:100%;
   height:80px;
@@ -1188,6 +1261,7 @@ input[type="range"]::-moz-range-thumb:active{
   transition:all 0.3s;
 }
 
+/* Seamless test dropdown */
 .seamless-test-dropdown{margin-bottom:1rem}
 
 .seamless-test-dropdown select{
@@ -1202,6 +1276,7 @@ input[type="range"]::-moz-range-thumb:active{
   box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
 }
 
+/* Save pattern input and button */
 .save-input-row{
   display:flex;
   gap:0.5rem;
@@ -1250,6 +1325,7 @@ input[type="range"]::-moz-range-thumb:active{
   transform:none;
 }
 
+/* Saved patterns list */
 .saved-patterns-list{
   display:flex;
   flex-direction:column;
@@ -1325,6 +1401,7 @@ input[type="range"]::-moz-range-thumb:active{
   transform:scale(1.1);
 }
 
+/* Dimension calculator slider */
 .calc-single-slider{margin-top:0.75rem}
 
 .calc-label-row{
@@ -1359,6 +1436,7 @@ input[type="range"]::-moz-range-thumb:active{
 
 .calc-label.active:hover{background:rgba(16,185,129,0.3)}
 
+/* Unit switcher buttons (inches/cm) */
 .calc-unit-buttons{display:flex;gap:0.5rem}
 
 .calc-unit-btn{
@@ -1386,6 +1464,7 @@ input[type="range"]::-moz-range-thumb:active{
 
 .calc-current-value{font-size:1.2rem;font-weight:700;color:#667eea}
 
+/* Calculator result display */
 .calc-result{
   margin-top:1rem;
   padding:0.75rem;
@@ -1397,6 +1476,7 @@ input[type="range"]::-moz-range-thumb:active{
 
 .calc-result-value{font-size:1.1rem;font-weight:700;color:#10b981}
 
+/* ==================== STORES SECTION ==================== */
 .stores-section{display:none;margin-top:1.5rem}
 .stores-section.active{display:block}
 
@@ -1433,6 +1513,8 @@ input[type="range"]::-moz-range-thumb:active{
   text-transform:uppercase;
   letter-spacing:1px;
 }
+
+/* ==================== FOOTER ==================== */
 #footer{
   padding:2rem;
   background:rgba(0,0,0,0.5);
@@ -1456,6 +1538,7 @@ input[type="range"]::-moz-range-thumb:active{
 }
 .footer-credit:hover{opacity:0.8;transform:scale(1.02)}
 
+/* Pattern info bar with quality metrics */
 .pattern-info{
   display:none;
   flex-wrap:wrap;
@@ -1481,6 +1564,7 @@ input[type="range"]::-moz-range-thumb:active{
   white-space:nowrap;
 }
 
+/* Info pill glow animation */
 @keyframes pill-glow{
   0%,100%{
     box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(118,75,162,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
@@ -1516,6 +1600,7 @@ input[type="range"]::-moz-range-thumb:active{
   background-clip:text;
 }
 
+/* ==================== EASTER EGG OVERLAY ==================== */
 .easter-egg-overlay{
   position:fixed;
   top:0;
@@ -1542,6 +1627,7 @@ input[type="range"]::-moz-range-thumb:active{
   animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
 }
 
+/* Easter egg logo animations */
 @keyframes spin-in{
   0%{transform:scale(0) rotate(0deg);opacity:0}
   100%{transform:scale(1) rotate(720deg);opacity:1}
@@ -1568,6 +1654,7 @@ input[type="range"]::-moz-range-thumb:active{
 }
 .matrix-canvas.visible{opacity:1}
 
+/* ==================== INSTALL BANNER ==================== */
 .install-banner{
   position:fixed;
   top:calc(env(safe-area-inset-top) + 1rem);
@@ -1632,6 +1719,7 @@ input[type="range"]::-moz-range-thumb:active{
   color:#fff;
 }
 
+/* ==================== RESPONSIVE STYLES ==================== */
 @media(max-width:768px){
   #header{
     padding:1rem;
@@ -1667,15 +1755,16 @@ input[type="range"]::-moz-range-thumb:active{
   }
 }
 </style>
-<title>Seamless Pattern Checker </title>
+<title>Seamless Pattern Checker by Rudeboy™ </title>
 </head>
 <body>
 
 <div id="container">
+  <!-- ==================== HEADER SECTION ==================== -->
   <div id="header">
     <div class="logo-section">
       <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rud3boy Logo">
-      <h1 class="title">Seamless Pattern Checker</h1>
+      <h1 class="title">Pattern Checker By Rudeboy™</h1>
     </div>
     <div class="header-buttons">
       <div class="file-input-wrapper">
@@ -1697,6 +1786,7 @@ input[type="range"]::-moz-range-thumb:active{
     </div>
   </div>
 
+  <!-- ==================== CANVAS AREA ==================== -->
   <div id="canvas-wrapper">
     <canvas id="canvas"></canvas>
     <div class="empty-state visible" id="emptyState">
@@ -1705,8 +1795,10 @@ input[type="range"]::-moz-range-thumb:active{
       <div class="empty-state-subtext">or drag & drop a square tile here</div>
     </div>
   </div>
+  <!-- ==================== CONTROLS SECTION ==================== -->
   <div id="controls">
     
+    <!-- Master dropdown for section navigation -->
     <div class="master-dropdown-wrapper">
       <select id="masterDropdown">
         <option value="">Settings</option>
@@ -1717,6 +1809,7 @@ input[type="range"]::-moz-range-thumb:active{
       </select>
     </div>
 
+    <!-- Instructions accordion -->
     <div class="instructions-accordion" id="instructionsAccordion">
       <div class="instructions-accordion-header">
         <span>📚 Instructions</span>
@@ -1820,6 +1913,7 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
+    <!-- Display section - Preview options -->
     <div class="controls-section" id="displaySection">
       
       <div class="preview-group">
@@ -1885,9 +1979,11 @@ input[type="range"]::-moz-range-thumb:active{
 
     </div>
 
+    <!-- Controls section - Pattern transform sliders -->
     <div class="controls-section" id="controlsSection">
       <div class="sliders-container">
         
+        <!-- Offset X slider -->
         <div class="slider-dropdown" data-slider="offsetX">
           <div class="slider-dropdown-header">
             <span>Offset X</span>
@@ -1902,6 +1998,7 @@ input[type="range"]::-moz-range-thumb:active{
           </div>
         </div>
 
+        <!-- Offset Y slider -->
         <div class="slider-dropdown" data-slider="offsetY">
           <div class="slider-dropdown-header">
             <span>Offset Y</span>
@@ -1916,6 +2013,7 @@ input[type="range"]::-moz-range-thumb:active{
           </div>
         </div>
 
+        <!-- Scale slider -->
         <div class="slider-dropdown" data-slider="scale">
           <div class="slider-dropdown-header">
             <span>Scale</span>
@@ -1933,8 +2031,10 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
+    <!-- Tools section - Color palette, calculator, seamless test, save patterns -->
     <div class="controls-section tools-section" id="toolsSection">
   
+      <!-- Color palette tool -->
       <div class="tool-card" id="colorPaletteCard">
         <div class="tool-title">
           <span>🎨 Color Palette</span>
@@ -1949,6 +2049,7 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
+      <!-- Dimension calculator -->
       <div class="tool-card" id="dimensionCalcCard">
         <div class="tool-title">
           <span>📐 Dimension Calculator</span>
@@ -1971,6 +2072,7 @@ input[type="range"]::-moz-range-thumb:active{
           <input type="range" id="calcSlider" min="1" max="200" value="9">
         </div>
         
+        <!-- Calculator presets -->
         <div class="calc-recommendations" id="calcRecommendations">
           <div class="calc-preset-group">
             <div class="calc-preset-label">Print Quality</div>
@@ -2008,6 +2110,7 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
 
+      <!-- Seamless test -->
       <div class="seamless-test-dropdown">
         <select id="seamlessTest">
           <option value="off">Seamless Test: Off</option>
@@ -2015,6 +2118,7 @@ input[type="range"]::-moz-range-thumb:active{
         </select>
       </div>
 
+      <!-- Save pattern -->
       <div class="tool-card" id="savePatternCard">
         <div class="tool-title">
           <span>💾 Save Pattern</span>
@@ -2028,6 +2132,7 @@ input[type="range"]::-moz-range-thumb:active{
 
     </div>
 
+    <!-- Stores section - Product mockups and store links -->
     <div class="controls-section stores-section" id="storesSection">
       <div class="stores-intro">
         <div class="stores-intro-text">Preview your pattern on products!</div>
@@ -2049,6 +2154,7 @@ input[type="range"]::-moz-range-thumb:active{
         </select>
       </div>
       
+      <!-- Mockup controls -->
       <div class="mockup-sliders">
         <div class="mockup-section-label">Mockup Controls</div>
         <div class="sliders-container">
@@ -2084,6 +2190,7 @@ input[type="range"]::-moz-range-thumb:active{
         </div>
       </div>
       
+      <!-- Store links -->
       <div class="stores-intro" style="margin-top:2rem">
         <div class="stores-intro-text">Turn your patterns into real products!</div>
       </div>
@@ -2109,6 +2216,7 @@ input[type="range"]::-moz-range-thumb:active{
       </div>
     </div>
 
+    <!-- Pattern info bar -->
     <div class="pattern-info" id="patternInfo">
       <div class="info-pill">
         <span class="info-label">Pattern:</span>
@@ -2134,42 +2242,46 @@ input[type="range"]::-moz-range-thumb:active{
 
   </div>
 
+  <!-- ==================== FOOTER SECTION ==================== -->
   <div id="footer">
     <div class="footer-content">
       
+      <!-- Social buttons - Square icon boxes -->
       <div class="social-buttons">
-        <a href="https://ko-fi.com/rud3boy" target="_blank" class="social-btn kofi">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>
-          </svg>
-          <span>Ko-fi</span>
-        </a>
-        
-        <a href="https://www.instagram.com/CreatedByRudeboy" target="_blank" class="social-btn instagram">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-          </svg>
-          <span>Instagram</span>
-        </a>
-        
         <a href="https://rudeboy-seamless-checker.vercel.app/converter" target="_blank" class="social-btn conversion">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 7L9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59 21 7z"/>
-          </svg>
-          <span>Conversion Tool</span>
+          <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png" alt="Converter" onerror="this.style.display='none'">
+        </a>
+        
+        <a href="https://ko-fi.com/rud3boy" target="_blank" class="social-btn kofi">
+          <img src="https://storage.ko-fi.com/cdn/kofi_stroke_cup.svg" alt="Ko-fi" onerror="this.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/rude.png'">
+        </a>
+        
+        <a href="https://www.instagram.com/createdbyrudeboy" target="_blank" class="social-btn instagram">
+          <img src="data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23E4405F' d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z'/%3E%3C/svg%3E" alt="Instagram">
         </a>
       </div>
       
+      <!-- Weather widget - 2x4 grid layout -->
       <div class="weather-widget" id="weatherWidget">
-        <span class="weather-icon" id="weatherIcon">🌤️</span>
-        <span class="weather-temp" id="weatherTemp">--°</span>
-        <span class="weather-divider">|</span>
-        <span class="weather-time" id="weatherTime">--:--</span>
-        <span class="weather-divider">|</span>
-        <span class="weather-condition" id="weatherCondition">Loading...</span>
-        <span class="weather-divider">|</span>
-        <span class="weather-location" id="weatherLocation">--</span>
-      </div>
+  <div class="weather-col">
+    <span class="weather-icon" id="weatherIcon">🌤️</span>
+    <span class="weather-temp" id="weatherTemp">--°</span>
+  </div>
+  <span class="weather-divider">|</span>
+  <div class="weather-col weather-col-time">
+    <span class="weather-time" id="weatherTime">--:--</span>
+  </div>
+  <span class="weather-divider">|</span>
+  <div class="weather-col weather-col-condition">
+  <span class="weather-condition-line1" id="weatherConditionLine1">It's Cloudy</span>
+  <span class="weather-condition-line2" id="weatherConditionLine2">Bitch</span>
+</div>
+<span class="weather-divider">|</span>
+<div class="weather-col weather-col-location">
+  <span class="weather-location-line1" id="weatherLocationLine1">Edmonton,</span>
+  <span class="weather-location-line2" id="weatherLocationLine2">Canada</span>
+</div>
+</div>
       
       <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
     </div>
@@ -2177,6 +2289,7 @@ input[type="range"]::-moz-range-thumb:active{
 
 </div>
 
+<!-- ==================== EXPORT MODAL ==================== -->
 <div class="export-modal" id="exportModal">
   <div class="export-modal-content">
     <div class="export-modal-title">📤 Custom Export</div>
@@ -2211,6 +2324,7 @@ input[type="range"]::-moz-range-thumb:active{
   </div>
 </div>
 
+<!-- ==================== LOADING OVERLAY ==================== -->
 <div class="loading-overlay" id="loadingOverlay">
   <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
   <div class="loading-text" id="loadingText">Loading...</div>
@@ -2220,6 +2334,7 @@ input[type="range"]::-moz-range-thumb:active{
   </div>
 </div>
 
+<!-- ==================== EASTER EGG OVERLAY ==================== -->
 <div class="easter-egg-overlay" id="easterEggOverlay">
   <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
   <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
@@ -2227,7 +2342,9 @@ input[type="range"]::-moz-range-thumb:active{
 
 <audio id="easterEggAudio" preload="none"></audio>
 <script>
-/* ==================== CORE JAVASCRIPT ==================== */
+/* ==================== CORE JAVASCRIPT - HELPER FUNCTIONS ==================== */
+
+// Helper function to draw rounded rectangles
 function roundedRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -2242,21 +2359,26 @@ function roundedRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+// Snap value to grid
 function snap(val, step) {
   return Math.round(val / step) * step;
 }
 
+// Snap scale value to appropriate increments
 function snapScale(val) {
   return val >= 0.25 ? snap(val, 0.25) : Math.max(0.05, snap(val, 0.01));
 }
 
+// Snap zoom value to appropriate increments
 function snapZoom(val) {
   return val >= 25 ? snap(val, 25) : Math.max(1, Math.round(val));
 }
 
+/* ==================== DOM ELEMENTS REFERENCE ==================== */
 const doc = document;
 const getEl = doc.getElementById.bind(doc);
 
+// Store all element references
 const els = {
   canvas: getEl('canvas'),
   fileInput: getEl('fileInput'),
@@ -2335,6 +2457,7 @@ const els = {
 
 const ctx = els.canvas.getContext('2d', { willReadFrequently: false });
 
+/* ==================== STATE VARIABLES ==================== */
 let tileImage = null;
 let repeatType = 'full';
 let backgroundColor = 'checker';
@@ -2360,6 +2483,7 @@ let hexCheckerMode = false;
 let useMetric = false;
 let savedPatterns = JSON.parse(localStorage.getItem('rudeboy-patterns') || '[]');
 
+// Mockup images storage
 const mockupImages = {
   phone: null,
   bottle: null,
@@ -2371,11 +2495,13 @@ const mockupImages = {
   sweatshirt: null
 };
 
+/* ==================== CONSTANTS ==================== */
 const MIN_ZOOM = 0.01;
 const MAX_ZOOM = 8;
 const MIN_LOAD_TIME = 1500;
 const RELOAD_MIN_TIME = 1500;
 
+/* ==================== MUSIC PLAYLIST FOR EASTER EGG ==================== */
 const playlist = [
   {
     title: 'Capone',
@@ -2447,6 +2573,7 @@ const playlist = [
 let shuffledPlaylist = [...playlist];
 let currentTrackIndex = 0;
 
+// Shuffle playlist
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -2456,18 +2583,23 @@ function shuffleArray(array) {
 
 shuffleArray(shuffledPlaylist);
 
+/* ==================== UI INTERACTIONS ==================== */
+
+// Instructions accordion toggle
 els.instructionsAccordion.querySelector('.instructions-accordion-header').addEventListener('click', () => {
   const isOpen = els.instructionsAccordion.classList.contains('open');
   els.instructionsAccordion.classList.toggle('open', !isOpen);
   els.instructionsAccordion.querySelector('.instructions-accordion-header span:last-child').textContent = isOpen ? '▼' : '▲';
 });
 
+// Calculator recommendations toggle
 els.calcRecommendationsToggle.addEventListener('click', () => {
   const isActive = els.calcRecommendations.classList.contains('active');
   els.calcRecommendations.classList.toggle('active', !isActive);
   els.calcRecommendationsToggle.textContent = isActive ? 'Recommendations' : 'Hide';
 });
 
+// Calculator preset buttons
 doc.querySelectorAll('.calc-preset-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const size = btn.dataset.size;
@@ -2476,12 +2608,14 @@ doc.querySelectorAll('.calc-preset-btn').forEach(btn => {
     const px = btn.dataset.px;
     
     if (px) {
+      // Pixel preset
       const pxVal = parseInt(px);
       const inches = pxVal / 72;
       calcValues.size = useMetric ? Math.round(inches * 2.54) : Math.round(inches);
       calcValues.dpi = 72;
       calcActiveField = 'size';
     } else {
+      // Size + DPI preset
       if (unit === 'in' && useMetric) {
         calcValues.size = Math.round(parseFloat(size) * 2.54);
       } else if (unit === 'cm' && !useMetric) {
@@ -2497,6 +2631,7 @@ doc.querySelectorAll('.calc-preset-btn').forEach(btn => {
   });
 });
 
+/* ==================== TIME UPDATE ==================== */
 function updateTime() {
   const now = new Date();
   const hours = now.getHours();
@@ -2510,6 +2645,9 @@ function updateTime() {
 setInterval(updateTime, 1000);
 updateTime();
 
+/* ==================== WEATHER FUNCTIONS ==================== */
+
+// Get city name from coordinates using reverse geocoding
 async function getCityName(lat, lon) {
   try {
     const response = await fetch(
@@ -2540,13 +2678,16 @@ async function getCityName(lat, lon) {
   }
 }
 
+// Fetch weather data
 async function getWeather() {
   els.weatherWidget.classList.add('visible');
   els.weatherWidget.classList.add('loading');
   
   if (!navigator.geolocation) {
-    els.weatherCondition.textContent = 'Location unavailable';
-    els.weatherLocation.textContent = 'Geolocation not supported';
+    document.querySelector('.weather-condition-line1').textContent = 'Location';
+    document.querySelector('.weather-condition-line2').textContent = 'unavailable';
+    document.querySelector('.weather-location-line1').textContent = 'Geolocation not';
+    document.querySelector('.weather-location-line2').textContent = 'supported';
     els.weatherWidget.classList.remove('loading');
     return;
   }
@@ -2567,20 +2708,25 @@ async function getWeather() {
       }
     } catch (error) {
       console.error('Weather fetch error:', error);
-      els.weatherCondition.textContent = 'Weather unavailable';
+      document.querySelector('.weather-condition-line1').textContent = 'Weather';
+      document.querySelector('.weather-condition-line2').textContent = 'unavailable';
       els.weatherIcon.textContent = '🌐';
-      els.weatherLocation.textContent = 'Service unavailable';
+      document.querySelector('.weather-location-line1').textContent = 'Service';
+      document.querySelector('.weather-location-line2').textContent = 'unavailable';
       els.weatherWidget.classList.remove('loading');
     }
   }, (error) => {
     console.error('Geolocation error:', error);
-    els.weatherCondition.textContent = 'Location denied';
+    document.querySelector('.weather-condition-line1').textContent = 'Location';
+    document.querySelector('.weather-condition-line2').textContent = 'denied';
     els.weatherIcon.textContent = '📍';
-    els.weatherLocation.textContent = 'Enable location';
+    document.querySelector('.weather-location-line1').textContent = 'Enable';
+    document.querySelector('.weather-location-line2').textContent = 'location';
     els.weatherWidget.classList.remove('loading');
   });
 }
 
+// Display weather data in 2x4 grid layout
 function displayWeatherOpenMeteo(data, lat, lon, cityName) {
   const tempC = Math.round(data.current_weather.temperature);
   const tempF = Math.round((tempC * 9/5) + 32);
@@ -2590,12 +2736,30 @@ function displayWeatherOpenMeteo(data, lat, lon, cityName) {
   const unit = isUS ? '°F' : '°C';
   
   els.weatherTemp.textContent = `${temp}${unit}`;
-  els.weatherCondition.textContent = getRudeboyWeatherCondition(data.current_weather.weathercode);
-  els.weatherLocation.textContent = cityName;
+  
+  const condition = getRudeboyWeatherCondition(data.current_weather.weathercode);
+  const conditionWords = condition.split(' ');
+  const conditionMid = Math.ceil(conditionWords.length / 2);
+  const conditionLine1 = conditionWords.slice(0, conditionMid).join(' ');
+  const conditionLine2 = conditionWords.slice(conditionMid).join(' ');
+  
+  document.getElementById('weatherConditionLine1').textContent = conditionLine1;
+  document.getElementById('weatherConditionLine2').textContent = conditionLine2;
+  
+  const locationParts = cityName.split(',');
+  if (locationParts.length >= 2) {
+    document.getElementById('weatherLocationLine1').textContent = locationParts[0].trim() + ',';
+    document.getElementById('weatherLocationLine2').textContent = locationParts[1].trim();
+  } else {
+    document.getElementById('weatherLocationLine1').textContent = cityName;
+    document.getElementById('weatherLocationLine2').textContent = '';
+  }
+  
   els.weatherIcon.textContent = getWeatherIconFromCode(data.current_weather.weathercode);
   els.weatherWidget.classList.remove('loading');
 }
 
+// Get weather icon from code
 function getWeatherIconFromCode(code) {
   if (code === 0) return '☀️';
   if (code === 1 || code === 2) return '🌤️';
@@ -2609,6 +2773,7 @@ function getWeatherIconFromCode(code) {
   return '🌡️';
 }
 
+// Get Rudeboy-style weather description
 function getRudeboyWeatherCondition(code) {
   if (code === 0) return 'SunnySide Up';
   if (code === 1 || code === 2) return "It's Cloudy Bitch";
@@ -2624,6 +2789,9 @@ function getRudeboyWeatherCondition(code) {
 
 getWeather();
 
+/* ==================== COLOR UTILITIES ==================== */
+
+// Convert RGB to hex
 function rgbToHex(r, g, b) {
   return '#' + [r, g, b].map(x => {
     const hex = x.toString(16);
@@ -2631,6 +2799,7 @@ function rgbToHex(r, g, b) {
   }).join('');
 }
 
+// Convert hex to RGB
 function hexToRgb(hex) {
   hex = hex.replace('#', '');
   if (hex.length === 3) {
@@ -2642,10 +2811,12 @@ function hexToRgb(hex) {
   return { r, g, b };
 }
 
+// Validate hex color
 function isValidHex(hex) {
   return /^#?([0-9A-F]{3}|[0-9A-F]{6})$/i.test(hex);
 }
 
+// Palette toggle
 els.paletteToggle.addEventListener('click', () => {
   hexCheckerMode = !hexCheckerMode;
   if (hexCheckerMode) {
@@ -2659,6 +2830,7 @@ els.paletteToggle.addEventListener('click', () => {
   }
 });
 
+// Hex input handler
 els.hexInput.addEventListener('input', (e) => {
   let hex = e.target.value.trim();
   
@@ -2680,6 +2852,9 @@ els.hexInput.value = '';
 els.hexInput.placeholder = 'FF0000 or #FF0000';
 els.hexPreview.style.backgroundColor = '#FF0000';
 
+/* ==================== PATTERN ANALYSIS ==================== */
+
+// Analyze pattern and extract color palette
 function analyzePattern() {
   if (!tileImage) return;
   
@@ -2688,6 +2863,7 @@ function analyzePattern() {
   
   els.infoPattern.textContent = `${width} × ${height}px`;
   
+  // Quality assessment
   let qualityText = '';
   let qualityClass = '';
   
@@ -2705,6 +2881,7 @@ function analyzePattern() {
   els.infoQuality.textContent = qualityText;
   els.infoQuality.className = 'info-value ' + qualityClass;
   
+  // Extract color palette
   const tempCanvas = doc.createElement('canvas');
   tempCanvas.width = Math.min(width, 500);
   tempCanvas.height = Math.min(height, 500);
@@ -2715,6 +2892,7 @@ function analyzePattern() {
   const data = imageData.data;
   const colorMap = new Map();
   
+  // Count colors (grouped by 10s to reduce variation)
   for (let i = 0; i < data.length; i += 4) {
     const r = Math.round(data[i] / 10) * 10;
     const g = Math.round(data[i + 1] / 10) * 10;
@@ -2726,10 +2904,12 @@ function analyzePattern() {
   const uniqueColors = colorMap.size;
   els.infoColors.textContent = `${uniqueColors}`;
   
+  // Get top 9 colors
   const sortedColors = Array.from(colorMap.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 9);
   
+  // Display color palette
   els.colorPalette.innerHTML = '';
   sortedColors.forEach(([color]) => {
     const [r, g, b] = color.split(',').map(Number);
@@ -2755,6 +2935,7 @@ function analyzePattern() {
     els.colorPalette.appendChild(swatch);
   });
   
+  // Calculate contrast ratio
   let minLum = 1;
   let maxLum = 0;
   
@@ -2779,6 +2960,8 @@ function analyzePattern() {
   }
 }
 
+/* ==================== DIMENSION CALCULATOR ==================== */
+
 let calcValues = {
   size: 9,
   dpi: 150
@@ -2786,6 +2969,7 @@ let calcValues = {
 
 let calcActiveField = 'size';
 
+// Update calculator display
 function updateCalcDisplay() {
   [els.labelSize, els.labelDPI].forEach(label => {
     label.classList.remove('active');
@@ -2825,6 +3009,7 @@ function updateCalcDisplay() {
   }
 }
 
+// Calculator field toggle
 els.labelSize.addEventListener('click', () => {
   calcActiveField = 'size';
   updateCalcDisplay();
@@ -2835,6 +3020,7 @@ els.labelDPI.addEventListener('click', () => {
   updateCalcDisplay();
 });
 
+// Unit toggle (inches/cm)
 els.btnInches.addEventListener('click', () => {
   if (useMetric) {
     useMetric = false;
@@ -2865,6 +3051,7 @@ els.btnCM.addEventListener('click', () => {
   }
 });
 
+// Calculator slider
 els.calcSlider.addEventListener('input', (e) => {
   calcValues[calcActiveField] = parseInt(e.target.value);
   updateCalcDisplay();
@@ -2872,6 +3059,9 @@ els.calcSlider.addEventListener('input', (e) => {
 
 updateCalcDisplay();
 
+/* ==================== SAVE/LOAD PATTERNS ==================== */
+
+// Save current pattern to localStorage
 function savePattern() {
   if (!tileImage) {
     alert('Uh oh! It\'s not me, it\'s you. Try loading a pattern first!');
@@ -2907,6 +3097,7 @@ function savePattern() {
   alert(`✅ "${patternName}" saved!`);
 }
 
+// Load saved pattern
 function loadPattern(id) {
   const pattern = savedPatterns.find(p => p.id === id);
   if (!pattern) return;
@@ -2969,6 +3160,7 @@ function loadPattern(id) {
   img.src = pattern.imageData;
 }
 
+// Delete saved pattern
 function deletePattern(id) {
   if (!confirm('Delete this pattern?')) return;
   
@@ -2978,6 +3170,7 @@ function deletePattern(id) {
   renderSavedPatterns();
 }
 
+// Render saved patterns list
 function renderSavedPatterns() {
   els.savedPatternsList.innerHTML = '';
   
@@ -3034,15 +3227,20 @@ renderSavedPatterns();
 
 getEl('savePatternBtn').addEventListener('click', savePattern);
 
+// Seamless test toggle
 els.seamlessTest.addEventListener('change', (e) => {
   seamlessTestMode = e.target.value === 'on';
   draw();
 });
 
+// Grid overlay toggle
 els.gridSize.addEventListener('change', (e) => {
   gridOverlaySize = e.target.value === 'off' ? 0 : parseInt(e.target.value);
   draw();
 });
+/* ==================== EXPORT FUNCTIONALITY ==================== */
+
+// Export modal handlers
 els.exportRes.addEventListener('change', (e) => {
   if (e.target.value === 'custom') {
     els.customSizeOption.style.display = 'block';
@@ -3168,6 +3366,9 @@ els.exportConfirm.addEventListener('click', async () => {
   }, 100);
 });
 
+/* ==================== NAVIGATION & UI ==================== */
+
+// Master dropdown navigation
 els.masterDropdown.addEventListener('change', (e) => {
   [els.displaySection, els.controlsSection, els.toolsSection, els.storesSection]
     .forEach(section => section.classList.remove('active'));
@@ -3187,6 +3388,7 @@ els.masterDropdown.addEventListener('change', (e) => {
   }
 });
 
+// Store links
 els.countryStores.addEventListener('change', (e) => {
   if (e.target.value) {
     window.open(e.target.value, '_blank');
@@ -3194,6 +3396,7 @@ els.countryStores.addEventListener('change', (e) => {
   }
 });
 
+// Slider dropdowns
 doc.querySelectorAll('.slider-dropdown-header').forEach(header => {
   header.addEventListener('click', () => {
     const parent = header.parentElement;
@@ -3207,6 +3410,8 @@ els.zoomSliderWrapper.querySelector('.zoom-slider-header').addEventListener('cli
   const wasOpen = els.zoomSliderWrapper.classList.contains('open');
   els.zoomSliderWrapper.classList.toggle('open', !wasOpen);
 });
+
+/* ==================== LOADING FUNCTIONS ==================== */
 
 function showLoading(reload = false, options = {}) {
   const {
@@ -3262,6 +3467,8 @@ function updateLoadingProgress(percent, message) {
   if (loadingText && message) loadingText.textContent = message;
 }
 
+/* ==================== HAPTIC FEEDBACK ==================== */
+
 function triggerHaptic(pattern = 'light') {
   if (!navigator.vibrate) return;
   
@@ -3276,6 +3483,8 @@ function triggerHaptic(pattern = 'light') {
   
   navigator.vibrate(patterns[pattern] || 10);
 }
+
+/* ==================== PWA FUNCTIONALITY ==================== */
 
 function checkStandaloneMode() {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
@@ -3336,6 +3545,8 @@ function showInstallPrompt() {
     }
   }, 10000);
 }
+
+/* ==================== EASTER EGG - MUSIC PLAYER ==================== */
 
 function playRandomTrack() {
   if (currentTrackIndex >= shuffledPlaylist.length) {
@@ -3427,6 +3638,8 @@ function stopMusic() {
     }, 50);
   }
 }
+
+/* ==================== EASTER EGG - MATRIX ANIMATION ==================== */
 
 function startMatrix(){
 const canvas=els.matrixCanvas,ctx=canvas.getContext('2d');
@@ -3595,6 +3808,8 @@ els.easterEggOverlay.addEventListener('click', () => {
   }, 500);
 });
 
+/* ==================== LOAD MOCKUP IMAGES ==================== */
+
 (function loadMockupImages() {
   const images = [
     { key: 'phone', url: 'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/Mockups/iphone.png' },
@@ -3619,6 +3834,8 @@ els.easterEggOverlay.addEventListener('click', () => {
   });
 })();
 
+/* ==================== CANVAS MANAGEMENT ==================== */
+
 function updateCanvasInfo() {
   els.infoCanvas.textContent = `${maxCanvasSize}px`;
 }
@@ -3635,6 +3852,7 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
+// Logo reload functionality
 getEl('logo').addEventListener('click', () => {
   showLoading(true, {
     message: 'Reloading...',
@@ -3656,6 +3874,8 @@ getEl('logo').addEventListener('click', () => {
   }, 2500);
 });
 
+/* ==================== CANVAS INTERACTIONS ==================== */
+
 els.canvas.addEventListener('click', () => {
   if (!tileImage && !isDragging) els.fileInput.click();
 });
@@ -3665,6 +3885,7 @@ els.uploadBtn.addEventListener('click', () => {
   els.fileInput.click();
 });
 
+// Sample pattern loader
 els.sampleSelect.addEventListener('change', (e) => {
   const url = e.target.value;
   if (!url) return;
@@ -3720,10 +3941,13 @@ els.sampleSelect.addEventListener('change', (e) => {
   img.src = url;
 });
 
+// Canvas quality change
 els.canvasQuality.addEventListener('change', (e) => {
   maxCanvasSize = parseInt(e.target.value);
   resizeCanvas();
 });
+
+/* ==================== BACKGROUND MANAGEMENT ==================== */
 
 function updateBackground() {
   if (tileImage) {
@@ -3736,6 +3960,9 @@ function updateBackground() {
   }
 }
 
+/* ==================== DRAWING FUNCTIONS ==================== */
+
+// Draw pattern to context
 function drawPatternToContext(ctx, startX, startY, width, height, tileSize) {
   const tilesX = Math.ceil(width / tileSize) + 4;
   const tilesY = Math.ceil(height / tileSize) + 4;
@@ -3756,6 +3983,7 @@ function drawPatternToContext(ctx, startX, startY, width, height, tileSize) {
   }
 }
 
+// Draw seamless test overlay
 function drawSeamlessTest(tileSize) {
   ctx.save();
   ctx.strokeStyle = 'rgba(255,0,0,0.8)';
@@ -3784,6 +4012,7 @@ function drawSeamlessTest(tileSize) {
   ctx.restore();
 }
 
+// Draw grid overlay
 function drawGridOverlay(tileSize) {
   if (gridOverlaySize === 0) return;
   
@@ -3817,6 +4046,7 @@ function drawGridOverlay(tileSize) {
   ctx.restore();
 }
 
+// Draw mockup with pattern
 function drawMockup(mockupImg) {
   if (!mockupImg || !mockupImg.complete || !mockupImg.naturalWidth) return;
   
@@ -3846,6 +4076,7 @@ function drawMockup(mockupImg) {
   const patternData = patternCtx.getImageData(0, 0, displaySize, displaySize);
   const patternPixels = patternData.data;
   
+  // Replace green pixels with pattern
   for (let i = 0; i < pixels.length; i += 4) {
     const r = pixels[i];
     const g = pixels[i + 1];
@@ -3868,6 +4099,7 @@ function drawMockup(mockupImg) {
   ctx.drawImage(mockupCanvas, -displaySize / 2, -displaySize / 2);
 }
 
+// Main draw function
 function draw() {
   ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
   
@@ -3980,6 +4212,8 @@ function draw() {
   ctx.restore();
 }
 
+/* ==================== FILE LOADING ==================== */
+
 function loadImage(file) {
   if (!file) return;
   
@@ -4041,6 +4275,7 @@ function loadImage(file) {
 
 els.fileInput.addEventListener('change', (e) => loadImage(e.target.files[0]));
 
+// Drag and drop
 els.canvas.addEventListener('dragover', (e) => {
   e.preventDefault();
   els.canvas.style.opacity = '0.7';
@@ -4055,6 +4290,8 @@ els.canvas.addEventListener('drop', (e) => {
   els.canvas.style.opacity = '1';
   loadImage(e.dataTransfer.files[0]);
 });
+
+/* ==================== CANVAS PAN & ZOOM ==================== */
 
 els.canvas.addEventListener('pointerdown', (e) => {
   if (!tileImage || (viewMode !== 'tile' && viewMode !== 'tile-grid')) return;
@@ -4074,6 +4311,7 @@ els.canvas.addEventListener('pointermove', (e) => {
 els.canvas.addEventListener('pointerup', () => isDragging = false);
 els.canvas.addEventListener('pointerleave', () => isDragging = false);
 
+// Mouse wheel zoom
 els.canvas.addEventListener('wheel', (e) => {
   if (!tileImage) return;
   
@@ -4115,6 +4353,7 @@ els.canvas.addEventListener('wheel', (e) => {
   draw();
 }, { passive: false });
 
+// Touch pinch zoom
 let lastTouchDistance = 0;
 
 els.canvas.addEventListener('touchstart', (e) => {
@@ -4178,6 +4417,8 @@ els.canvas.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 els.canvas.addEventListener('touchend', () => lastTouchDistance = 0);
+
+/* ==================== CONTROL HANDLERS ==================== */
 
 els.repeatType.addEventListener('change', (e) => {
   repeatType = e.target.value;
