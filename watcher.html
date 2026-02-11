@@ -14,20 +14,15 @@
 
   <style>
     /* ═══════════════════════════════════════════════════════════════════
-       CSS VARIABLES - Customize colors, spacing, and effects here
+       CSS VARIABLES - CUSTOMIZE YOUR THEME HERE
        ═══════════════════════════════════════════════════════════════════ */
     :root {
-      /* MAIN THEME COLORS */
       --accent-purple: #764ba2;
       --accent-green: #10b981;
       --accent-red: #ef4444;
       --glass-bg: rgba(30, 30, 50, 0.35);
-      
-      /* GLOW EFFECTS */
       --poster-glow: 0 0 20px rgba(118, 75, 162, 0.4);
       --hover-glow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(118,75,162,0.6);
-      
-      /* SPACING */
       --card-gap: 1.2rem;
       --section-padding: 0 1rem;
     }
@@ -97,7 +92,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       HEADER - Logo | Watcher | 18+ Icon layout
+       HEADER - Logo | Watcher | 18+ Icon
        ═══════════════════════════════════════════════════════════════════ */
     #header {
       padding: 1rem 1.5rem;
@@ -130,13 +125,11 @@
       transition: color 0.3s, text-shadow 0.3s;
     }
 
-    /* Adult mode turns title red */
     .title-text.adult-mode {
       color: var(--accent-red);
       text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
     }
 
-    /* 18+ Icon badge - ICON ONLY */
     #mode-indicator {
       font-size: 2rem;
       display: none;
@@ -157,7 +150,6 @@
       }
     }
 
-    /* Search bar - FIXED cursor position */
     #search-container {
       width: 100%;
       position: relative;
@@ -173,7 +165,7 @@
       color: white;
       backdrop-filter: blur(20px);
       transition: all 0.3s;
-      line-height: 1.2; /* FIXED: Prevents cursor jump */
+      line-height: 1.2;
     }
 
     #search-input:focus {
@@ -236,13 +228,13 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       CARDS - FIXED: Rounded corners on TOP and BOTTOM
+       CARDS - Fully rounded with proper overflow
        ═══════════════════════════════════════════════════════════════════ */
     .card {
       background: var(--glass-bg);
       border: 1px solid rgba(118,75,162,0.35);
-      border-radius: 16px; /* Rounds entire card including top */
-      overflow: hidden; /* CRITICAL: Makes image respect border-radius */
+      border-radius: 16px;
+      overflow: hidden;
       backdrop-filter: blur(16px);
       transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
@@ -255,7 +247,6 @@
       border-color: var(--accent-green);
     }
 
-    /* Poster images - will now inherit rounded corners from card */
     .poster { 
       width: 100%; 
       aspect-ratio: 2/3; 
@@ -264,7 +255,7 @@
       display: block;
       filter: drop-shadow(var(--poster-glow));
       transition: filter 0.35s;
-      border-radius: 0; /* Let parent card handle rounding */
+      border-radius: 0;
     }
 
     .card:hover .poster {
@@ -279,7 +270,6 @@
       filter: drop-shadow(var(--poster-glow));
     }
 
-    /* Card info - ONLY YEAR visible */
     .info {
       padding: 0.4rem 0.9rem 0.5rem;
       text-align: center;
@@ -287,7 +277,7 @@
     }
 
     .card-title {
-      display: none; /* Hidden on home cards */
+      display: none;
     }
 
     .year {
@@ -407,6 +397,7 @@
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      background: #000;
     }
 
     .trailer-container iframe,
@@ -417,7 +408,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       CAST - HORIZONTAL STRIP (single row, left to right)
+       CAST - HORIZONTAL STRIP
        ═══════════════════════════════════════════════════════════════════ */
     #cast-strip {
       display: flex;
@@ -467,7 +458,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       SEASONS - ACCORDION (1 button per season, expands to show episodes)
+       SEASONS - ACCORDION
        ═══════════════════════════════════════════════════════════════════ */
     .seasons-accordion {
       display: flex;
@@ -575,7 +566,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       IMAGE GALLERY - At bottom
+       IMAGE GALLERY
        ═══════════════════════════════════════════════════════════════════ */
     .image-gallery {
       margin: 3rem 0 1rem;
@@ -611,9 +602,6 @@
       object-fit: cover;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       RECOMMENDATIONS
-       ═══════════════════════════════════════════════════════════════════ */
     .recommendations-scroll {
       display: flex;
       gap: 1rem;
@@ -649,15 +637,6 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(118,75,162,0.4);
     }
-
-    .btn-secondary {
-      background: rgba(118,75,162,0.3);
-      color: #fff;
-    }
-
-    .btn-secondary:hover {
-      background: var(--accent-purple);
-    }
     /* ═══════════════════════════════════════════════════════════════════
        WEATHER WIDGET
        ═══════════════════════════════════════════════════════════════════ */
@@ -691,13 +670,8 @@
       }
     }
 
-    .weather-widget.visible { 
-      display: flex; 
-    }
-
-    .weather-widget.loading { 
-      opacity: 0.6; 
-    }
+    .weather-widget.visible { display: flex; }
+    .weather-widget.loading { opacity: 0.6; }
 
     .weather-icon-temp { 
       display: flex; 
@@ -894,8 +868,6 @@
         <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
         <h1 class="title-text" id="app-title">Watcher</h1>
       </div>
-
-      <!-- 18+ Icon (only shows when adult mode active) -->
       <div id="mode-indicator">🔞</div>
     </div>
 
@@ -910,7 +882,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       MAIN CONTENT SECTIONS
+       NORMAL MODE SECTIONS
        ═══════════════════════════════════════════════════════════════════ -->
   
   <section id="section-digital">
@@ -938,10 +910,33 @@
     <div class="horizontal-scroll" id="top-tv-grid"></div>
   </section>
 
-  <!-- Adult Section -->
-  <section id="section-adult" style="display:none;">
-    <h2>🔞 Adult Content</h2>
-    <div class="horizontal-scroll" id="adult-grid"></div>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       ADULT MODE SECTIONS (Hidden by default)
+       ═══════════════════════════════════════════════════════════════════ -->
+  
+  <section id="section-adult-new" style="display:none;">
+    <h2>🔞 New Releases</h2>
+    <div class="horizontal-scroll" id="adult-new-grid"></div>
+  </section>
+
+  <section id="section-adult-stepmom" style="display:none;">
+    <h2>🔞 Stepmom</h2>
+    <div class="horizontal-scroll" id="adult-stepmom-grid"></div>
+  </section>
+
+  <section id="section-adult-teen" style="display:none;">
+    <h2>🔞 18 Year Old</h2>
+    <div class="horizontal-scroll" id="adult-teen-grid"></div>
+  </section>
+
+  <section id="section-adult-lesbian" style="display:none;">
+    <h2>🔞 Lesbian</h2>
+    <div class="horizontal-scroll" id="adult-lesbian-grid"></div>
+  </section>
+
+  <section id="section-adult-milf" style="display:none;">
+    <h2>🔞 MILF</h2>
+    <div class="horizontal-scroll" id="adult-milf-grid"></div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
@@ -987,16 +982,17 @@
   <audio id="easterAudio" preload="none"></audio>
   <script>
     /* ═══════════════════════════════════════════════════════════════════
-       API CONFIGURATION
+       API CONFIGURATION - ALL SOURCES
        ═══════════════════════════════════════════════════════════════════ */
     const TMDB_KEY = "e39f22e3483a5eac3cc41faf13d05194";
     const FANART_KEY = "9cd6959542f3be1a6abf078871f18d2e";
-    const PORNDB_KEY = "I9OhUe8ZHZ8VhWemwrJkNATlUbrF4rK0EGb9HER7f6540536";
     
     const TMDB_BASE = "https://api.themoviedb.org/3";
     const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
-    const PORNDB_BASE = "https://api.theporndb.net";
     const YT_EMBED = "https://www.youtube.com/embed/";
+
+    // RedTube API - No key needed, completely free
+    const REDTUBE_API = "https://api.redtube.com/";
 
     /* ═══════════════════════════════════════════════════════════════════
        GLOBAL STATE
@@ -1017,6 +1013,7 @@
       document.getElementById('loading-overlay').classList.add('hidden');
     }
 
+    // TMDB API
     async function tmdb(endpoint, params = {}) {
       const url = new URL(`${TMDB_BASE}${endpoint}`);
       url.searchParams.set('api_key', TMDB_KEY);
@@ -1034,27 +1031,124 @@
       return res.json();
     }
 
-    async function porndb(endpoint, params = {}) {
-      const url = new URL(`${PORNDB_BASE}${endpoint}`);
-      
-      Object.entries(params).forEach(([k, v]) => {
-        url.searchParams.set(k, v);
-      });
+    /* ═══════════════════════════════════════════════════════════════════
+       REDTUBE API INTEGRATION - Free, no key needed
+       ═══════════════════════════════════════════════════════════════════ */
 
-      const res = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${PORNDB_KEY}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+    async function fetchRedTube(searchTerm = '', page = 1) {
+      try {
+        const url = new URL(REDTUBE_API);
+        url.searchParams.set('data', 'redtube.Videos.searchVideos');
+        url.searchParams.set('output', 'json');
+        url.searchParams.set('page', page);
+        
+        if (searchTerm) {
+          url.searchParams.set('search', searchTerm);
         }
-      });
-      
-      if (!res.ok) {
-        console.error('PornDB Error:', res.status, await res.text());
-        throw new Error(`PornDB ${res.status}`);
+
+        console.log('RedTube API call:', url.toString());
+        
+        const response = await fetch(url);
+        const data = await response.json();
+
+        console.log('RedTube response:', data);
+
+        if (data && data.videos) {
+          return data.videos.map(video => ({
+            id: `redtube_${video.video.video_id}`,
+            title: video.video.title,
+            thumbnail: video.video.thumb,
+            duration: video.video.duration,
+            views: video.video.views,
+            rating: video.video.rating,
+            url: video.video.url,
+            embed_url: video.video.embed_url,
+            publish_date: video.video.publish_date,
+            source: 'redtube'
+          }));
+        }
+        
+        return [];
+      } catch (err) {
+        console.error('RedTube API error:', err);
+        return [];
       }
-      return res.json();
     }
+
+    // Fetch by category
+    async function fetchRedTubeByCategory(category, page = 1) {
+      try {
+        const url = new URL(REDTUBE_API);
+        url.searchParams.set('data', 'redtube.Videos.searchVideos');
+        url.searchParams.set('output', 'json');
+        url.searchParams.set('category', category);
+        url.searchParams.set('page', page);
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data && data.videos) {
+          return data.videos.map(video => ({
+            id: `redtube_${video.video.video_id}`,
+            title: video.video.title,
+            thumbnail: video.video.thumb,
+            duration: video.video.duration,
+            views: video.video.views,
+            rating: video.video.rating,
+            url: video.video.url,
+            embed_url: video.video.embed_url,
+            publish_date: video.video.publish_date,
+            source: 'redtube'
+          }));
+        }
+        
+        return [];
+      } catch (err) {
+        console.error('RedTube category error:', err);
+        return [];
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ADULT CONTENT LOADER - Loads all categories
+       ═══════════════════════════════════════════════════════════════════ */
+
+    async function loadAdultSections() {
+      try {
+        console.log('Loading adult content sections...');
+
+        // Load all categories in parallel
+        const [newReleases, stepmom, teen, lesbian, milf] = await Promise.all([
+          fetchRedTube('', 1), // New releases (no search = latest)
+          fetchRedTubeByCategory('stepmom', 1),
+          fetchRedTubeByCategory('teen', 1),
+          fetchRedTubeByCategory('lesbian', 1),
+          fetchRedTubeByCategory('milf', 1)
+        ]);
+
+        console.log('Adult content loaded:', {
+          newReleases: newReleases.length,
+          stepmom: stepmom.length,
+          teen: teen.length,
+          lesbian: lesbian.length,
+          milf: milf.length
+        });
+
+        // Render each category
+        renderAdultContent('adult-new-grid', newReleases);
+        renderAdultContent('adult-stepmom-grid', stepmom);
+        renderAdultContent('adult-teen-grid', teen);
+        renderAdultContent('adult-lesbian-grid', lesbian);
+        renderAdultContent('adult-milf-grid', milf);
+
+      } catch (err) {
+        console.error('Failed to load adult content:', err);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       IMAGE HELPERS
+       ═══════════════════════════════════════════════════════════════════ */
 
     async function getImageUrl(item, type = 'poster') {
       if (type === 'poster' && item.poster_path) {
@@ -1093,17 +1187,9 @@
       return null;
     }
 
-    function getPornDBImageUrl(item) {
+    function getAdultImageUrl(item) {
       if (!item) return null;
-
-      if (item.poster) return item.poster;
-      
-      if (item.posters && item.posters.length > 0) {
-        return item.posters[0];
-      }
-
-      if (item.background) return item.background;
-
+      if (item.thumbnail) return item.thumbnail;
       return null;
     }
 
@@ -1148,46 +1234,44 @@
       }
     }
 
-    // FIXED: Make cards fully clickable
     function renderAdultContent(gridId, items) {
       const grid = document.getElementById(gridId);
       if (!grid) return;
       
       grid.innerHTML = '';
 
+      if (items.length === 0) {
+        grid.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem; font-size: 0.9rem;">Loading content...</p>';
+        return;
+      }
+
       items.forEach(item => {
         const title = item.title || 'Unknown';
-        const year = item.date ? new Date(item.date).getFullYear() : '';
-        const imageUrl = getPornDBImageUrl(item);
+        const imageUrl = getAdultImageUrl(item);
 
         const card = document.createElement('div');
         card.className = 'card';
-        
-        // Store item data directly on card
-        card.dataset.itemId = item.id;
-        card.dataset.itemData = JSON.stringify(item);
 
         if (imageUrl) {
           card.innerHTML = `
-            <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
+            <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}" crossorigin="anonymous">
             <div class="info">
-              ${year ? `<div class="year">${year}</div>` : ''}
+              <div class="year">${item.duration || ''}</div>
             </div>
           `;
         } else {
           card.innerHTML = `
             <div class="poster-placeholder">
-              <span>No Image</span>
+              <span>Loading</span>
             </div>
             <div class="info">
-              ${year ? `<div class="year">${year}</div>` : ''}
+              <div class="year">${item.duration || ''}</div>
             </div>
           `;
         }
 
-        // FIXED: Direct click handler
         card.addEventListener('click', () => {
-          console.log('Card clicked:', item);
+          console.log('Opening adult content:', item);
           openAdultDetail(item);
         });
 
@@ -1215,31 +1299,8 @@
       await renderHorizontal(gridId, allResults);
     }
 
-    async function loadAdultSection() {
-      try {
-        const data = await porndb('/scenes', {
-          page: 1,
-          per_page: 50
-        });
-
-        console.log('Adult content loaded:', data);
-
-        if (data && data.data) {
-          renderAdultContent('adult-grid', data.data);
-        } else {
-          throw new Error('No data returned');
-        }
-      } catch (err) {
-        console.error('Failed to load adult content:', err);
-        const grid = document.getElementById('adult-grid');
-        if (grid) {
-          grid.innerHTML = '<p style="color: #ff6666; text-align: center; padding: 2rem;">Failed to load content</p>';
-        }
-      }
-    }
-
     /* ═══════════════════════════════════════════════════════════════════
-       HOME PAGE LOADING - FIXED: Hide normal content in adult mode
+       HOME PAGE LOADING
        ═══════════════════════════════════════════════════════════════════ */
 
     async function loadHome() {
@@ -1250,18 +1311,28 @@
 
       try {
         if (isAdultMode) {
-          // ONLY load adult content
+          // Show ONLY adult sections
           document.getElementById('section-digital').style.display = 'none';
           document.getElementById('section-airing').style.display = 'none';
           document.getElementById('section-best-month').style.display = 'none';
           document.getElementById('section-trending').style.display = 'none';
           document.getElementById('section-top-tv').style.display = 'none';
-          document.getElementById('section-adult').style.display = 'block';
           
-          await loadAdultSection();
+          document.getElementById('section-adult-new').style.display = 'block';
+          document.getElementById('section-adult-stepmom').style.display = 'block';
+          document.getElementById('section-adult-teen').style.display = 'block';
+          document.getElementById('section-adult-lesbian').style.display = 'block';
+          document.getElementById('section-adult-milf').style.display = 'block';
+          
+          await loadAdultSections();
         } else {
-          // ONLY load normal content
-          document.getElementById('section-adult').style.display = 'none';
+          // Show ONLY normal sections
+          document.getElementById('section-adult-new').style.display = 'none';
+          document.getElementById('section-adult-stepmom').style.display = 'none';
+          document.getElementById('section-adult-teen').style.display = 'none';
+          document.getElementById('section-adult-lesbian').style.display = 'none';
+          document.getElementById('section-adult-milf').style.display = 'none';
+          
           document.getElementById('section-digital').style.display = 'block';
           document.getElementById('section-airing').style.display = 'block';
           document.getElementById('section-best-month').style.display = 'block';
@@ -1309,98 +1380,39 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       ADULT CONTENT DETAIL VIEW - WITH STREAMING PLAYER
+       ADULT CONTENT DETAIL VIEW - WITH REDTUBE EMBED
        ═══════════════════════════════════════════════════════════════════ */
 
     async function openAdultDetail(item) {
-      console.log('Opening adult detail for:', item);
+      console.log('Opening adult detail:', item);
       showLoader();
 
       try {
-        // Get full scene details
-        const data = await porndb(`/scenes/${item.id}`);
-        const scene = data.data;
-
-        console.log('Full scene details:', scene);
-
-        const title = scene.title || 'Unknown';
-        const description = scene.description || 'No description available.';
-        const date = scene.date ? new Date(scene.date).toLocaleDateString() : 'Unknown';
-        const site = scene.site?.name || 'Unknown';
-        const studio = scene.site?.network?.name || scene.site?.name || 'Unknown';
-        const performers = scene.performers || [];
-        const posters = scene.posters || [];
-        const backgrounds = scene.background ? [scene.background] : [];
-
+        const title = item.title || 'Unknown';
+        
         let html = `
           <h2>${title}</h2>
-          <p style="color: var(--accent-green); font-weight: 600; margin: 0.5rem 0;">
-            ${site} • ${studio} • ${date}
+          <p style="color: rgba(255,255,255,0.7); margin: 0.5rem 0;">
+            Duration: ${item.duration || 'Unknown'} • Views: ${item.views || 'N/A'} • Rating: ${item.rating || 'N/A'}
           </p>
-          <p class="overview">${description}</p>
         `;
 
-        // VIDEO PLAYER - Check for multiple sources
-        if (scene.url) {
-          // Direct video URL
+        // RedTube embed
+        if (item.embed_url) {
           html += `
             <div class="trailer-container">
-              <video id="scene-player" controls style="width: 100%; height: 100%; background: #000;">
-                <source src="${scene.url}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          `;
-        } else if (scene.trailer) {
-          // Trailer URL
-          html += `
-            <div class="trailer-container">
-              <video id="scene-player" controls style="width: 100%; height: 100%; background: #000;">
-                <source src="${scene.trailer}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          `;
-        } else if (scene.external_id) {
-          // Try to construct streaming URL from external ID
-          html += `
-            <div class="trailer-container">
-              <p style="text-align: center; color: #10b981; padding: 2rem;">
-                Video source not directly available from API.<br>
-                <small style="color: #666; display: block; margin-top: 0.5rem;">External ID: ${scene.external_id}</small>
-              </p>
+              <iframe 
+                src="${item.embed_url}" 
+                frameborder="0" 
+                width="100%" 
+                height="100%" 
+                scrolling="no" 
+                allowfullscreen>
+              </iframe>
             </div>
           `;
         } else {
-          html += '<p style="color: rgba(255,255,255,0.6); font-style: italic;">No video available</p>';
-        }
-
-        // Performers - HORIZONTAL
-        if (performers.length > 0) {
-          html += '<h3>Performers</h3><div id="cast-strip"></div>';
-        }
-
-        // Image Gallery at bottom
-        if (posters.length > 0 || backgrounds.length > 0) {
-          html += '<div class="image-gallery"><h3>Images</h3><div class="gallery-scroll">';
-          
-          posters.forEach(img => {
-            html += `
-              <div class="gallery-image">
-                <img src="${img}" alt="Poster">
-              </div>
-            `;
-          });
-
-          backgrounds.forEach(img => {
-            html += `
-              <div class="gallery-image">
-                <img src="${img}" alt="Background">
-              </div>
-            `;
-          });
-
-          html += '</div></div>';
+          html += '<p style="color: rgba(255,255,255,0.6); font-style: italic;">Video player not available</p>';
         }
 
         html += '<button class="btn" id="back-btn">Back to Browse</button>';
@@ -1408,94 +1420,14 @@
         document.getElementById('detail-body').innerHTML = html;
         document.getElementById('detail-view').classList.add('active');
 
-        // Render performers
-        if (performers.length > 0) {
-          const castStrip = document.getElementById('cast-strip');
-          performers.forEach(performer => {
-            const card = document.createElement('div');
-            card.className = 'actor-card';
-            const performerImg = performer.image || '';
-            card.innerHTML = `
-              <img class="actor-img" src="${performerImg}" alt="${performer.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23222%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23666%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2212%22%3ENo Photo%3C/text%3E%3C/svg%3E'">
-              <div class="actor-name">${performer.name}</div>
-            `;
-            card.onclick = () => openPerformerDetail(performer.id);
-            castStrip.appendChild(card);
-          });
-        }
-
         document.getElementById('detail-close').onclick = closeDetail;
         document.getElementById('back-btn').onclick = closeDetail;
 
       } catch (err) {
         document.getElementById('detail-body').innerHTML = `
-          <p style="color:#ff6666;">Error loading scene details</p>
-          <pre style="color: #999; font-size: 0.8rem; margin-top: 1rem;">${err.message}</pre>
+          <p style="color:#ff6666;">Error loading content</p>
         `;
-        console.error('Scene detail error:', err);
-      }
-
-      hideLoader();
-    }
-
-    async function openPerformerDetail(performerId) {
-      showLoader();
-
-      try {
-        const data = await porndb(`/performers/${performerId}`);
-        const performer = data.data;
-
-        const name = performer.name || 'Unknown';
-        const bio = performer.bio ? performer.bio.substring(0, 400) + (performer.bio.length > 400 ? '...' : '') : 'No biography available.';
-        const profileImg = performer.image || null;
-        const scenes = performer.scenes || [];
-
-        let html = `
-          <h2>${name}</h2>
-          ${profileImg ? `<img src="${profileImg}" style="max-width:240px; border-radius:12px; margin:1rem auto; display:block; border: 2px solid rgba(118,75,162,0.5);">` : ''}
-          <p class="overview">${bio}</p>
-          <h3>Scenes</h3>
-          <div class="horizontal-scroll" id="performer-scenes"></div>
-          <button class="btn" id="back-btn">Back</button>
-        `;
-
-        document.getElementById('detail-body').innerHTML = html;
-        document.getElementById('detail-view').classList.add('active');
-
-        // Render scenes
-        const scenesGrid = document.getElementById('performer-scenes');
-        scenes.slice(0, 20).forEach(scene => {
-          const imageUrl = getPornDBImageUrl(scene);
-          const year = scene.date ? new Date(scene.date).getFullYear() : '';
-          const card = document.createElement('div');
-          card.className = 'card';
-          
-          if (imageUrl) {
-            card.innerHTML = `
-              <img class="poster" src="${imageUrl}" loading="lazy" alt="${scene.title}">
-              <div class="info">
-                ${year ? `<div class="year">${year}</div>` : ''}
-              </div>
-            `;
-          } else {
-            card.innerHTML = `
-              <div class="poster-placeholder"><span>No Image</span></div>
-              <div class="info">
-                ${year ? `<div class="year">${year}</div>` : ''}
-              </div>
-            `;
-          }
-
-          card.onclick = () => openAdultDetail(scene);
-          scenesGrid.appendChild(card);
-        });
-
-        document.getElementById('detail-close').onclick = closeDetail;
-        document.getElementById('back-btn').onclick = closeDetail;
-
-      } catch (err) {
-        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading performer details</p>';
-        console.error(err);
+        console.error('Adult detail error:', err);
       }
 
       hideLoader();
@@ -1872,9 +1804,8 @@
     function closeDetail() {
       document.getElementById('detail-view').classList.remove('active');
     }
-
     /* ═══════════════════════════════════════════════════════════════════
-       SEARCH - FIXED: Only show adult content when in adult mode
+       SEARCH & MODE TOGGLE
        ═══════════════════════════════════════════════════════════════════ */
 
     function toggleAdultMode(force) {
@@ -1923,20 +1854,9 @@
         let displayQuery = query;
 
         if (isAdultMode) {
-          // Adult search
-          try {
-            const data = await porndb('/scenes', {
-              q: query,
-              page: 1,
-              per_page: 50
-            });
-            
-            if (data && data.data) {
-              results = data.data;
-            }
-          } catch (err) {
-            console.error('Adult search failed:', err);
-          }
+          // Adult search via RedTube
+          results = await fetchRedTube(query, 1);
+          displayQuery = `"${query}"`;
         } else {
           // Normal search
           const yearMatch = query.match(/^\d{4}$/);
@@ -2131,13 +2051,13 @@
       if (code >= 51 && code <= 67) return 'Wet T-Shirt Weather';
       if (code >= 71 && code <= 77) return 'Fucking Snow';
       if (code >= 80 && code <= 82) return "She's a squirter";
-      if (code >= 85 && code >= 86) return 'Fucking Snow';
+      if (code >= 85 && code <= 86) return 'Fucking Snow';
       if (code >= 95 && code <= 99) return 'Zeus is Pissed';
       return 'Unknown';
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       EASTER EGG - Matrix effect with audio
+       EASTER EGG - Matrix Animation
        ═══════════════════════════════════════════════════════════════════ */
 
     const playlist = [
