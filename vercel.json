@@ -16,6 +16,14 @@
     {
       "source": "/seamless/:path*",
       "destination": "/seamless.html"
+    },
+    {
+      "source": "/watcher",
+      "destination": "/watcher.html"
+    },
+    {
+      "source": "/watcher/:path*",
+      "destination": "/watcher.html"
     }
   ]
 }
