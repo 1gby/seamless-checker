@@ -13,6 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* ═══════════════════════════════════════════════════════════════════
+       THEME COLORS - CUSTOMIZE HERE
+       ═══════════════════════════════════════════════════════════════════ */
     :root {
       --accent-purple: #764ba2;
       --accent-green: #10b981;
@@ -25,6 +28,9 @@
       --section-padding: 0 1rem;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       BASE STYLES
+       ═══════════════════════════════════════════════════════════════════ */
     * { 
       box-sizing: border-box; 
       margin: 0; 
@@ -44,45 +50,105 @@
       letter-spacing: 1.8px; 
     }
 
-    #loading-overlay {
+    /* ═══════════════════════════════════════════════════════════════════
+       LOADING OVERLAY (From your original HTML)
+       ═══════════════════════════════════════════════════════════════════ */
+    .loading-overlay {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.94);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      display: flex;
-      flex-direction: column;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      display: none;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s;
-    }
-    #loading-overlay.hidden { 
-      opacity: 0; 
-      pointer-events: none; 
+      flex-direction: column;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    .loader-logo { 
-      width: 110px; 
-      animation: spin-glow 4s linear infinite; 
+    .loading-overlay.visible {
+      display: flex;
+      opacity: 1;
     }
+
+    .loading-logo {
+      width: 120px;
+      height: 120px;
+      opacity: 0.8;
+      animation: spin-glow 3s linear infinite;
+    }
+
     @keyframes spin-glow {
-      0%, 100% { 
-        filter: drop-shadow(0 0 14px var(--accent-green)); 
+      0% {
         transform: rotate(0deg);
+        filter: drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
       }
-      50% { 
-        filter: drop-shadow(0 0 32px var(--accent-purple)); 
-        transform: rotate(180deg);
+      50% {
+        transform: rotate(360deg);
+        filter: drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+      }
+      51% {
+        filter: drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+      }
+      100% {
+        transform: rotate(720deg);
+        filter: drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
       }
     }
 
-    .loader-text { 
-      margin-top: 1.8rem; 
-      font-size: 1.5rem; 
-      font-weight: 600; 
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #eee;
+      margin-top: 1.5rem;
+      text-align: center;
+      opacity: 0.9;
     }
 
+    .loading-subtext {
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 0.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    .loading-subtext:not(:empty) {
+      display: block;
+    }
+
+    .progress-bar-container {
+      width: 280px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      margin: 1.5rem auto 0;
+      overflow: hidden;
+      display: none;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .progress-bar-container.visible {
+      display: block;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10b981 0%, #764ba2 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(16,185,129,0.6);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       HEADER with LOGO ANIMATION
+       ═══════════════════════════════════════════════════════════════════ */
     #header {
       padding: 1rem 1.5rem;
       background: rgba(0,0,0,0.8);
@@ -91,35 +157,66 @@
     }
 
     .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  position: relative;  /* ADD THIS LINE */
+}
+
+.header-left {
+  /* DELETE THIS ENTIRE BLOCK - no longer needed */
+}
+
+.title-text { 
+  font-size: 2rem; 
+  margin: 0;
+  transition: all 0.3s;
+  text-shadow: var(--title-glow);
+  position: absolute;        /* ADD THIS LINE */
+  left: 50%;                 /* ADD THIS LINE */
+  transform: translateX(-50%); /* ADD THIS LINE */
+}
+    
+    /* Logo with green pulse (from your HTML) */
+    #logo {
+      height: 44px;
+      width: auto;
+      cursor: pointer;
+      transition: transform 0.3s, filter 0.3s;
+      filter: drop-shadow(0 0 0px rgba(16,185,129,0));
+      animation: pulse 2s ease-in-out infinite;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    /* Logo with glow */
-    #logo { 
-      height: 44px;
-      filter: drop-shadow(0 0 12px rgba(118, 75, 162, 0.6));
-      transition: filter 0.3s;
-      cursor: pointer;
+    @keyframes pulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 0px rgba(16,185,129,0));
+      }
+      50% {
+        filter: drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1));
+      }
     }
 
     #logo:hover {
-      filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.8));
-      animation: pulse-logo 0.5s ease-in-out;
+      transform: scale(1.05);
     }
 
-    @keyframes pulse-logo {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+    #logo:active {
+      animation: glow-pulse 0.4s ease-out;
+      transform: scale(0.98);
+    }
+
+    @keyframes glow-pulse {
+      0% {
+        filter: drop-shadow(0 0 0px rgba(16,185,129,0));
+      }
+      50% {
+        filter: drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8));
+      }
+      100% {
+        filter: drop-shadow(0 0 0px rgba(16,185,129,0));
+      }
     }
 
     .title-text { 
@@ -137,7 +234,7 @@
     #mode-indicator {
       font-size: 2rem;
       display: none;
-      animation: pulse-glow 2s infinite;
+      animation: pulse-glow-red 2s infinite;
       cursor: default;
     }
 
@@ -145,7 +242,7 @@
       display: block;
     }
 
-    @keyframes pulse-glow {
+    @keyframes pulse-glow-red {
       0%, 100% { 
         filter: drop-shadow(0 0 10px rgba(239,68,68,0.6)); 
       }
@@ -182,12 +279,14 @@
       color: rgba(255,255,255,0.5);
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTIONS
+       ═══════════════════════════════════════════════════════════════════ */
     section { 
       padding: var(--section-padding); 
       margin-bottom: 2rem;
     }
 
-    /* Section titles with glow */
     h2 {
       font-size: 2.2rem;
       margin: 0.5rem 0 1rem;
@@ -228,6 +327,16 @@
       scroll-snap-align: start; 
     }
 
+    .vertical-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: var(--card-gap);
+      padding: 0.5rem 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       CARDS
+       ═══════════════════════════════════════════════════════════════════ */
     .card {
       background: var(--glass-bg);
       border: 1px solid rgba(118,75,162,0.35);
@@ -253,19 +362,10 @@
       display: block;
       filter: drop-shadow(var(--poster-glow));
       transition: filter 0.35s;
-      border-radius: 0;
     }
 
     .card:hover .poster {
       filter: drop-shadow(0 0 30px rgba(118,75,162,0.7));
-    }
-
-    .backdrop {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      background: #111;
-      filter: drop-shadow(var(--poster-glow));
     }
 
     .info {
@@ -304,6 +404,18 @@
       box-shadow: 0 0 20px rgba(16,185,129,0.6);
     }
 
+    .actor-name-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 0.25rem;
+      text-align: center;
+      line-height: 1.2;
+      padding: 0 0.5rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       DETAIL VIEW
+       ═══════════════════════════════════════════════════════════════════ */
     #detail-view {
       position: fixed;
       inset: 0;
@@ -356,10 +468,54 @@
       transform: rotate(90deg) scale(1.2);
     }
 
-    #detail-content h2 {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
+    .detail-hero {
+      position: relative;
+      margin: -2rem -1.5rem 2rem;
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+    }
+
+    .detail-backdrop {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      opacity: 0.4;
+    }
+
+    .detail-hero-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem 1.5rem 1rem;
+      background: linear-gradient(to top, rgba(20,20,40,0.95), transparent);
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-end;
+    }
+
+    .detail-poster {
+      width: 120px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      border: 2px solid rgba(118,75,162,0.5);
+    }
+
+    .detail-title-block h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
       text-shadow: var(--title-glow);
+      filter: none;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #fff;
+    }
+
+    .release-date {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 0.5rem;
     }
 
     #detail-content h3 {
@@ -379,7 +535,6 @@
       padding: 0.4rem 0.8rem;
       border-radius: 8px;
       font-weight: 700;
-      margin-left: 1rem;
       font-size: 0.9rem;
     }
 
@@ -387,11 +542,24 @@
       line-height: 1.4;
       margin: 1rem 0;
       color: rgba(255,255,255,0.9);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
     }
 
-    .trailer-container {
-      margin: 2rem 0;
+    /* ═══════════════════════════════════════════════════════════════════
+       TRAILERS
+       ═══════════════════════════════════════════════════════════════════ */
+    .trailers-scroll {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding: 1rem 0;
+      scroll-snap-type: x mandatory;
+    }
+
+    .trailers-scroll .trailer-container {
+      flex: 0 0 400px;
+      scroll-snap-align: start;
+      margin: 0;
       aspect-ratio: 16/9;
       border-radius: 16px;
       overflow: hidden;
@@ -406,19 +574,31 @@
       border: none;
     }
 
-    /* ACTOR CREDITS - VERTICAL GRID (not horizontal scroll) */
-    .credits-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    @media (max-width: 768px) {
+      .trailers-scroll .trailer-container {
+        flex: 0 0 300px;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       CAST
+       ═══════════════════════════════════════════════════════════════════ */
+    .cast-scroll {
+      display: flex;
+      overflow-x: auto;
       gap: 1rem;
       padding: 1rem 0;
+      scroll-snap-type: x mandatory;
     }
 
-    .credits-grid .card {
-      flex: none;
+    .cast-scroll .card {
+      flex: 0 0 100px;
+      scroll-snap-align: start;
     }
 
-    /* Filter buttons for actor credits */
+        /* ═══════════════════════════════════════════════════════════════════
+       FILTER BUTTONS
+       ═══════════════════════════════════════════════════════════════════ */
     .filter-buttons {
       display: flex;
       gap: 0.5rem;
@@ -426,7 +606,8 @@
       flex-wrap: wrap;
     }
 
-    .filter-btn {
+    .filter-btn,
+    .search-filter-btn {
       padding: 0.5rem 1rem;
       background: rgba(118,75,162,0.2);
       color: var(--accent-purple);
@@ -436,19 +617,29 @@
       transition: all 0.3s;
       font-size: 0.85rem;
       font-weight: 600;
+      box-shadow: 0 0 10px rgba(118,75,162,0.3);
     }
 
-    .filter-btn:hover {
+    .filter-btn:hover,
+    .search-filter-btn:hover {
       background: rgba(118,75,162,0.3);
       border-color: var(--accent-purple);
+      box-shadow: 0 0 15px rgba(118,75,162,0.5);
+      transform: translateY(-2px);
     }
 
-    .filter-btn.active {
-      background: var(--accent-green);
-      color: #000;
+    .filter-btn.active,
+    .search-filter-btn.active {
+      background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-purple) 100%);
+      color: #fff;
       border-color: var(--accent-green);
+      box-shadow: 0 0 20px rgba(16,185,129,0.6), 0 0 40px rgba(118,75,162,0.4);
+      font-weight: 700;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       ACTOR PROFILE
+       ═══════════════════════════════════════════════════════════════════ */
     .actor-profile {
       text-align: center;
       margin-bottom: 2rem;
@@ -463,6 +654,9 @@
       box-shadow: 0 0 30px rgba(118, 75, 162, 0.4);
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       SEASONS ACCORDION - ONE accordion holding all seasons
+       ═══════════════════════════════════════════════════════════════════ */
     .seasons-accordion {
       display: flex;
       flex-direction: column;
@@ -541,6 +735,21 @@
       padding: 1rem;
       border-radius: 10px;
       border-left: 3px solid var(--accent-purple);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .episode-still {
+      width: 150px;
+      height: 84px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      background: #111;
+    }
+
+    .episode-details {
+      flex: 1;
     }
 
     .episode-number {
@@ -567,7 +776,46 @@
       color: rgba(255,255,255,0.5);
       margin-top: 0.5rem;
     }
+    /* ═══════════════════════════════════════════════════════════════════
+       SEASON DROPDOWN SELECTOR
+       ═══════════════════════════════════════════════════════════════════ */
+    .season-selector-container {
+      margin: 1rem 0;
+    }
 
+    .season-dropdown {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      background: rgba(30,30,50,0.8);
+      color: var(--accent-green);
+      border: 2px solid rgba(118,75,162,0.5);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .season-dropdown:focus {
+      outline: none;
+      border-color: var(--accent-green);
+      box-shadow: 0 0 20px rgba(16,185,129,0.3);
+    }
+
+    .season-dropdown option {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 1rem;
+    }
+
+    #episodes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    /* ═══════════════════════════════════════════════════════════════════
+       IMAGE GALLERIES with LIGHTBOX
+       ═══════════════════════════════════════════════════════════════════ */
     .image-gallery {
       margin: 3rem 0 1rem;
     }
@@ -602,6 +850,30 @@
       object-fit: cover;
     }
 
+    #image-lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2001;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #image-lightbox.active {
+      display: flex;
+    }
+
+    #image-lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RECOMMENDATIONS
+       ═══════════════════════════════════════════════════════════════════ */
     .recommendations-scroll {
       display: flex;
       gap: 1rem;
@@ -614,6 +886,9 @@
       cursor: pointer;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       BUTTONS
+       ═══════════════════════════════════════════════════════════════════ */
     .btn {
       display: inline-block;
       padding: 0.8rem 1.5rem;
@@ -634,6 +909,10 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(118,75,162,0.4);
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       WEATHER WIDGET
+       ═══════════════════════════════════════════════════════════════════ */
     .weather-widget {
       display: none;
       align-items: center;
@@ -768,27 +1047,9 @@
       }
     }
 
-    /* Trailers horizontal scroll - LIMITED TO 5 */
-    .trailers-scroll {
-      display: flex;
-      gap: 1rem;
-      overflow-x: auto;
-      padding: 1rem 0;
-      scroll-snap-type: x mandatory;
-    }
-
-    .trailers-scroll .trailer-container {
-      flex: 0 0 400px;
-      scroll-snap-align: start;
-      margin: 0;
-    }
-
-    @media (max-width: 768px) {
-      .trailers-scroll .trailer-container {
-        flex: 0 0 300px;
-      }
-    }
-
+    /* ═══════════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════════ */
     #footer {
       padding: 2rem;
       text-align: center;
@@ -836,6 +1097,9 @@
       inset: 0; 
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
       .header-top {
         flex-wrap: wrap;
@@ -853,25 +1117,48 @@
         padding: 1.5rem 1rem;
       }
 
-      .credits-grid {
+      .detail-hero {
+        margin: -1.5rem -1rem 1.5rem;
+      }
+
+      .detail-hero-content {
+        padding: 1.5rem 1rem 0.75rem;
+      }
+
+      .detail-poster {
+        width: 100px;
+      }
+
+      .vertical-grid {
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
+
+      .episode-item {
+        flex-direction: column;
+      }
+
+      .episode-still {
+        width: 100%;
+        height: auto;
       }
     }
   </style>
 </head>
 <body>
 
-  <div id="loading-overlay">
-    <img class="loader-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
-    <div class="loader-text">Loading Watcher...</div>
+  <div class="loading-overlay" id="loadingOverlay">
+    <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
+    <div class="loading-text" id="loadingText">Loading...</div>
+    <div class="loading-subtext" id="loadingSubtext"></div>
+    <div class="progress-bar-container" id="progressBarContainer">
+      <div class="progress-bar-fill" id="progressBarFill"></div>
+    </div>
   </div>
 
-  <div id="header">
+    <div id="header">
     <div class="header-top">
-      <div class="header-left">
-        <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy" title="Click to refresh">
-        <h1 class="title-text" id="app-title">Watcher</h1>
-      </div>
+      <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy" title="Click to refresh">
+      <h1 class="title-text" id="app-title">Watcher</h1>
       <div id="mode-indicator">🔞</div>
     </div>
 
@@ -885,53 +1172,80 @@
     </div>
   </div>
 
-  <!-- NORMAL MODE SECTIONS -->
-  
-  <section id="section-digital">
-    <h2>Latest Digital Releases</h2>
-    <div class="horizontal-scroll" id="digital-grid"></div>
-  </section>
-
   <section id="section-airing">
     <h2>Airing Today</h2>
     <div class="horizontal-scroll" id="airing-grid"></div>
   </section>
 
-  <section id="section-best-month">
-    <h2>Best of the Month</h2>
-    <div class="horizontal-scroll" id="best-month-grid"></div>
+  <section id="section-new-releases">
+    <h2>New Releases</h2>
+    <div class="horizontal-scroll" id="new-releases-grid"></div>
   </section>
 
-  <section id="section-trending">
-    <h2>Trending This Week</h2>
-    <div class="horizontal-scroll" id="trending-grid"></div>
+  <section id="section-trending-tv">
+    <h2>Trending TV</h2>
+    <div class="horizontal-scroll" id="trending-tv-grid"></div>
   </section>
 
-  <section id="section-top-tv">
-    <h2>Top TV This Week</h2>
-    <div class="horizontal-scroll" id="top-tv-grid"></div>
+  <section id="section-trending-movies">
+    <h2>Trending Movies</h2>
+    <div class="horizontal-scroll" id="trending-movies-grid"></div>
   </section>
 
-  <!-- ADULT MODE SECTIONS -->
-  
-  <section id="section-adult-new" style="display:none;">
-    <h2>🔞 New XXX Releases</h2>
-    <div class="horizontal-scroll" id="adult-new-grid"></div>
+  <section id="section-tv-week">
+    <h2>TV This Week</h2>
+    <div class="horizontal-scroll" id="tv-week-grid"></div>
   </section>
 
-  <section id="section-adult-popular" style="display:none;">
-    <h2>🔞 Popular XXX</h2>
-    <div class="horizontal-scroll" id="adult-popular-grid"></div>
+  <section id="section-movies-week">
+    <h2>Movies This Week</h2>
+    <div class="horizontal-scroll" id="movies-week-grid"></div>
   </section>
 
-  <section id="section-adult-toprated" style="display:none;">
-    <h2>🔞 Top Rated XXX</h2>
-    <div class="horizontal-scroll" id="adult-toprated-grid"></div>
+  <section id="section-anticipated-tv">
+    <h2>Most Anticipated TV Shows</h2>
+    <div class="horizontal-scroll" id="anticipated-tv-grid"></div>
   </section>
 
-  <section id="section-adult-trending" style="display:none;">
-    <h2>🔞 Trending XXX</h2>
-    <div class="horizontal-scroll" id="adult-trending-grid"></div>
+  <section id="section-anticipated-movies">
+    <h2>Most Anticipated Movies</h2>
+    <div class="horizontal-scroll" id="anticipated-movies-grid"></div>
+  </section>
+
+  <!-- XXX SECTIONS (7 total) -->
+  <section id="section-adult-stepmom" style="display:none;">
+    <h2>🔞 Stepmom</h2>
+    <div class="horizontal-scroll" id="adult-stepmom-grid"></div>
+  </section>
+
+  <section id="section-adult-18" style="display:none;">
+    <h2>🔞 18 Year Old</h2>
+    <div class="horizontal-scroll" id="adult-18-grid"></div>
+  </section>
+
+  <section id="section-adult-anal" style="display:none;">
+    <h2>🔞 Anal Sluts</h2>
+    <div class="horizontal-scroll" id="adult-anal-grid"></div>
+  </section>
+
+  <section id="section-adult-lesbians" style="display:none;">
+    <h2>🔞 Lesbians</h2>
+    <div class="horizontal-scroll" id="adult-lesbians-grid"></div>
+  </section>
+
+  <section id="section-adult-milfs" style="display:none;">
+    <h2>🔞 MILFs</h2>
+    <div class="horizontal-scroll" id="adult-milfs-grid"></div>
+  </section>
+
+  <section id="section-adult-teen" style="display:none;">
+    <h2>🔞 Teens</h2>
+    <div class="horizontal-scroll" id="adult-teen-grid"></div>
+  </section>
+
+  <section id="section-adult-moms" style="display:none;">
+    <h2>🔞 Horny Moms</h2>
+    <div class="horizontal-scroll" id="adult-moms-grid"></div>
   </section>
 
   <div id="detail-view">
@@ -939,6 +1253,10 @@
       <span id="detail-close">×</span>
       <div id="detail-body"></div>
     </div>
+  </div>
+
+  <div id="image-lightbox">
+    <img id="lightbox-img" src="" alt="Full size">
   </div>
 
   <div id="footer">
@@ -969,7 +1287,11 @@
   </div>
 
   <audio id="easterAudio" preload="none"></audio>
+
   <script>
+    /* ═══════════════════════════════════════════════════════════════════
+       API CONFIGURATION
+       ═══════════════════════════════════════════════════════════════════ */
     const TMDB_KEY = "e39f22e3483a5eac3cc41faf13d05194";
     const FANART_KEY = "9cd6959542f3be1a6abf078871f18d2e";
     
@@ -977,22 +1299,95 @@
     const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
     const YT_EMBED = "https://www.youtube.com/embed/";
 
+    /* ═══════════════════════════════════════════════════════════════════
+       GLOBAL STATE
+       ═══════════════════════════════════════════════════════════════════ */
     let isAdultMode = localStorage.getItem('adultMode') === 'true';
     let currentMovieId = null;
     let searchTimeout = null;
 
-    function showLoader() {
-      document.getElementById('loading-overlay').classList.remove('hidden');
+    /* ═══════════════════════════════════════════════════════════════════
+       LOADING FUNCTIONS (From your original HTML)
+       ═══════════════════════════════════════════════════════════════════ */
+    
+    function showLoading(options = {}) {
+      const {
+        message = 'Loading...',
+        subtext = '',
+        showProgress = false,
+        progress = 0
+      } = options;
+      
+      const loadingText = document.getElementById('loadingText');
+      if (loadingText) loadingText.textContent = message;
+      
+      const loadingSubtext = document.getElementById('loadingSubtext');
+      if (loadingSubtext) loadingSubtext.textContent = subtext;
+      
+      const progressContainer = document.getElementById('progressBarContainer');
+      const progressFill = document.getElementById('progressBarFill');
+      
+      if (showProgress && progressContainer && progressFill) {
+        progressContainer.classList.add('visible');
+        progressFill.style.width = `${progress}%`;
+      } else if (progressContainer) {
+        progressContainer.classList.remove('visible');
+      }
+      
+      document.getElementById('loadingOverlay').classList.add('visible');
     }
 
-    function hideLoader() {
-      document.getElementById('loading-overlay').classList.add('hidden');
+    function hideLoading() {
+      setTimeout(() => {
+        document.getElementById('loadingOverlay').classList.remove('visible');
+        const progressContainer = document.getElementById('progressBarContainer');
+        const progressFill = document.getElementById('progressBarFill');
+        if (progressContainer) progressContainer.classList.remove('visible');
+        if (progressFill) progressFill.style.width = '0%';
+      }, 500);
     }
 
-    // Logo click to refresh
-    document.getElementById('logo').onclick = () => {
-      location.reload();
+    function updateLoadingProgress(percent, message) {
+      const progressFill = document.getElementById('progressBarFill');
+      const loadingText = document.getElementById('loadingText');
+      
+      if (progressFill) progressFill.style.width = `${percent}%`;
+      if (loadingText && message) loadingText.textContent = message;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       LOGO CLICK - RELOAD WITH ANIMATION (2 full rotations = 3s)
+       ═══════════════════════════════════════════════════════════════════ */
+    document.getElementById('logo').addEventListener('click', () => {
+      showLoading({
+        message: 'Reloading...',
+        subtext: 'Refreshing Watcher',
+        showProgress: true,
+        progress: 50
+      });
+      
+      let prog = 50;
+      const reloadInterval = setInterval(() => {
+        prog += 10;
+        updateLoadingProgress(Math.min(prog, 90), 'Reloading...');
+      }, 280);
+      
+      // 3 seconds = 2 full rotations (see CSS animation)
+      setTimeout(() => {
+        clearInterval(reloadInterval);
+        updateLoadingProgress(100, 'Complete!');
+        setTimeout(() => location.reload(), 200);
+      }, 3000);
+    });
+
+    // Image lightbox
+    document.getElementById('image-lightbox').onclick = () => {
+      document.getElementById('image-lightbox').classList.remove('active');
     };
+
+    /* ═══════════════════════════════════════════════════════════════════
+       TMDB API CALLS
+       ═══════════════════════════════════════════════════════════════════ */
 
     async function tmdb(endpoint, params = {}) {
       const url = new URL(`${TMDB_BASE}${endpoint}`);
@@ -1027,6 +1422,10 @@
       if (!res.ok) throw new Error(`TMDB ${res.status}`);
       return res.json();
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       IMAGE HELPERS
+       ═══════════════════════════════════════════════════════════════════ */
 
     async function getImageUrl(item, type = 'poster') {
       if (type === 'poster' && item.poster_path) {
@@ -1065,6 +1464,10 @@
       return null;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       CARD RENDERING
+       ═══════════════════════════════════════════════════════════════════ */
+
     async function renderHorizontal(gridId, items) {
       const grid = document.getElementById(gridId);
       if (!grid) return;
@@ -1072,35 +1475,86 @@
       grid.innerHTML = '';
 
       for (const item of items) {
+        if (!item.poster_path && !item.backdrop_path && !item.profile_path) {
+          continue;
+        }
+
         const title = item.title || item.name || 'Unknown';
         const year = (item.release_date || item.first_air_date || '').slice(0, 4);
-        const imageUrl = await getImageUrl(item);
+        
+        let imageUrl;
+        if (item.media_type === 'person' || item.known_for_department) {
+          imageUrl = item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null;
+        } else {
+          imageUrl = await getImageUrl(item);
+        }
+
+        if (!imageUrl) continue;
 
         const card = document.createElement('div');
         card.className = 'card';
 
-        if (imageUrl) {
-          card.innerHTML = `
-            <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
-            <div class="info">
-              ${year ? `<div class="year">${year}</div>` : ''}
-            </div>
-          `;
-        } else {
-          card.innerHTML = `
-            <div class="poster-placeholder">
-              <span>No Image</span>
-            </div>
-            <div class="info">
-              ${year ? `<div class="year">${year}</div>` : ''}
-            </div>
-          `;
-        }
+        card.innerHTML = `
+          <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
+          <div class="info">
+            ${year ? `<div class="year">${year}</div>` : ''}
+          </div>
+        `;
 
         card.onclick = () => openDetail(item);
         grid.appendChild(card);
       }
     }
+
+    async function renderVerticalGrid(gridId, items, showActorNames = false) {
+      const grid = document.getElementById(gridId);
+      if (!grid) return;
+      
+      grid.innerHTML = '';
+      grid.className = 'vertical-grid';
+
+      for (const item of items) {
+        if (!item.poster_path && !item.backdrop_path && !item.profile_path) {
+          continue;
+        }
+
+        const title = item.title || item.name || 'Unknown';
+        const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+        
+        let imageUrl;
+        if (item.media_type === 'person' || item.known_for_department) {
+          imageUrl = item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null;
+        } else {
+          imageUrl = await getImageUrl(item);
+        }
+
+        if (!imageUrl) continue;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        let infoHtml = '';
+        if (showActorNames && (item.media_type === 'person' || item.known_for_department)) {
+          infoHtml = `<div class="actor-name-label">${title}</div>`;
+        } else {
+          infoHtml = year ? `<div class="year">${year}</div>` : '';
+        }
+
+        card.innerHTML = `
+          <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
+          <div class="info">
+            ${infoHtml}
+          </div>
+        `;
+
+        card.onclick = () => openDetail(item);
+        grid.appendChild(card);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION LOADING
+       ═══════════════════════════════════════════════════════════════════ */
 
     async function loadSection(endpoint, params, gridId, maxPages = 3, useAdultAPI = false) {
       let allResults = [];
@@ -1119,83 +1573,185 @@
       await renderHorizontal(gridId, allResults);
     }
 
-    async function loadAdultSections() {
-      console.log('Loading TMDB adult content...');
-      
-      const today = new Date().toISOString().split('T')[0];
-      const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    /* ═══════════════════════════════════════════════════════════════════
+       ADULT SECTIONS - RANDOMIZED on each load (7 total)
+       ═══════════════════════════════════════════════════════════════════ */
 
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    async function loadAdultSections() {
+      console.log('Loading adult content with randomization...');
+      
       try {
         await Promise.all([
-          loadSection('/discover/movie', {
-            'sort_by': 'release_date.desc',
-            'primary_release_date.lte': today,
-            'primary_release_date.gte': monthAgo
-          }, 'adult-new-grid', 3, true),
+          // Stepmom
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: 'stepmom', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-stepmom-grid', results);
+          })(),
 
-          loadSection('/movie/popular', {}, 'adult-popular-grid', 3, true),
+          // 18 year old
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: '18 year old', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-18-grid', results);
+          })(),
 
-          loadSection('/movie/top_rated', {}, 'adult-toprated-grid', 3, true),
+          // Anal
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: 'anal sluts', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-anal-grid', results);
+          })(),
 
-          loadSection('/trending/movie/week', {}, 'adult-trending-grid', 3, true)
+          // Lesbians
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: 'lesbians', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-lesbians-grid', results);
+          })(),
+
+          // MILFs (NEW)
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: 'milfs', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-milfs-grid', results);
+          })(),
+
+          // Teens (NEW)
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: 'teens', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-teen-grid', results);
+          })(),
+
+          // Horny Moms (NEW)
+          (async () => {
+            const data = await tmdbAdult('/search/movie', { query: 'horny moms', page: 1 });
+            const results = shuffleArray(data.results || []).slice(0, 20);
+            await renderHorizontal('adult-moms-grid', results);
+          })()
         ]);
       } catch (err) {
         console.error('Failed to load adult sections:', err);
       }
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       HOME PAGE LOADING
+       ═══════════════════════════════════════════════════════════════════ */
+
     async function loadHome() {
-      showLoader();
+      showLoading({
+        message: 'Loading Watcher...',
+        showProgress: false
+      });
 
       const today = new Date().toISOString().split('T')[0];
-      const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const monthFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       try {
         if (isAdultMode) {
-          document.getElementById('section-digital').style.display = 'none';
-          document.getElementById('section-airing').style.display = 'none';
-          document.getElementById('section-best-month').style.display = 'none';
-          document.getElementById('section-trending').style.display = 'none';
-          document.getElementById('section-top-tv').style.display = 'none';
+          console.log('🔞 ADULT MODE');
           
-          document.getElementById('section-adult-new').style.display = 'block';
-          document.getElementById('section-adult-popular').style.display = 'block';
-          document.getElementById('section-adult-toprated').style.display = 'block';
-          document.getElementById('section-adult-trending').style.display = 'block';
+          // Hide normal sections
+          document.getElementById('section-airing').style.display = 'none';
+          document.getElementById('section-new-releases').style.display = 'none';
+          document.getElementById('section-trending-tv').style.display = 'none';
+          document.getElementById('section-trending-movies').style.display = 'none';
+          document.getElementById('section-tv-week').style.display = 'none';
+          document.getElementById('section-movies-week').style.display = 'none';
+          document.getElementById('section-anticipated-tv').style.display = 'none';
+          document.getElementById('section-anticipated-movies').style.display = 'none';
+          
+          // Show adult sections (7 total)
+          document.getElementById('section-adult-stepmom').style.display = 'block';
+          document.getElementById('section-adult-18').style.display = 'block';
+          document.getElementById('section-adult-anal').style.display = 'block';
+          document.getElementById('section-adult-lesbians').style.display = 'block';
+          document.getElementById('section-adult-milfs').style.display = 'block';
+          document.getElementById('section-adult-teen').style.display = 'block';
+          document.getElementById('section-adult-moms').style.display = 'block';
           
           await loadAdultSections();
         } else {
-          document.getElementById('section-adult-new').style.display = 'none';
-          document.getElementById('section-adult-popular').style.display = 'none';
-          document.getElementById('section-adult-toprated').style.display = 'none';
-          document.getElementById('section-adult-trending').style.display = 'none';
+          console.log('🎬 NORMAL MODE');
           
-          document.getElementById('section-digital').style.display = 'block';
+          // Hide adult sections
+          document.getElementById('section-adult-stepmom').style.display = 'none';
+          document.getElementById('section-adult-18').style.display = 'none';
+          document.getElementById('section-adult-anal').style.display = 'none';
+          document.getElementById('section-adult-lesbians').style.display = 'none';
+          document.getElementById('section-adult-milfs').style.display = 'none';
+          document.getElementById('section-adult-teen').style.display = 'none';
+          document.getElementById('section-adult-moms').style.display = 'none';
+          
+          // Show normal sections
           document.getElementById('section-airing').style.display = 'block';
-          document.getElementById('section-best-month').style.display = 'block';
-          document.getElementById('section-trending').style.display = 'block';
-          document.getElementById('section-top-tv').style.display = 'block';
+          document.getElementById('section-new-releases').style.display = 'block';
+          document.getElementById('section-trending-tv').style.display = 'block';
+          document.getElementById('section-trending-movies').style.display = 'block';
+          document.getElementById('section-tv-week').style.display = 'block';
+          document.getElementById('section-movies-week').style.display = 'block';
+          document.getElementById('section-anticipated-tv').style.display = 'block';
+          document.getElementById('section-anticipated-movies').style.display = 'block';
 
           await Promise.all([
-            loadSection('/discover/movie', {
-              'sort_by': 'release_date.desc',
-              'with_release_type': '4',
-              'primary_release_date.lte': today,
-              'primary_release_date.gte': monthAgo
-            }, 'digital-grid'),
-
+            // 1. Airing Today
             loadSection('/tv/airing_today', {}, 'airing-grid'),
 
+            // 2. New Releases (North America - theatrical)
             loadSection('/discover/movie', {
-              'sort_by': 'vote_average.desc',
-              'vote_count.gte': '50',
-              'primary_release_date.gte': monthAgo,
+              'sort_by': 'release_date.desc',
+              'with_release_type': '3',
+              'region': 'US',
+              'primary_release_date.lte': today,
+              'primary_release_date.gte': twoWeeksAgo
+            }, 'new-releases-grid'),
+
+            // 3. Trending TV
+            loadSection('/trending/tv/week', {}, 'trending-tv-grid'),
+
+            // 4. Trending Movies
+            loadSection('/trending/movie/week', {}, 'trending-movies-grid'),
+
+            // 5. TV This Week
+            loadSection('/discover/tv', {
+              'sort_by': 'popularity.desc',
+              'first_air_date.gte': weekAgo,
+              'first_air_date.lte': today
+            }, 'tv-week-grid'),
+
+            // 6. Movies This Week
+            loadSection('/discover/movie', {
+              'sort_by': 'popularity.desc',
+              'primary_release_date.gte': weekAgo,
               'primary_release_date.lte': today
-            }, 'best-month-grid'),
+            }, 'movies-week-grid'),
 
-            loadSection('/trending/all/week', {}, 'trending-grid'),
+            // 7. Most Anticipated TV Shows
+            loadSection('/discover/tv', {
+              'sort_by': 'popularity.desc',
+              'first_air_date.gte': today,
+              'first_air_date.lte': monthFromNow
+            }, 'anticipated-tv-grid'),
 
-            loadSection('/trending/tv/week', {}, 'top-tv-grid')
+            // 8. Most Anticipated Movies
+            loadSection('/discover/movie', {
+              'sort_by': 'popularity.desc',
+              'primary_release_date.gte': today,
+              'primary_release_date.lte': monthFromNow
+            }, 'anticipated-movies-grid')
           ]);
         }
 
@@ -1203,7 +1759,7 @@
         console.error('Error loading home:', err);
       }
 
-      hideLoader();
+      hideLoading();
     }
 
     function openDetail(item) {
@@ -1215,588 +1771,99 @@
         openMovieDetail(item.id);
       }
     }
-        /* ═══════════════════════════════════════════════════════════════════
-       MOVIE DETAIL VIEW - ALL backdrops with correct orientation
+    /* ═══════════════════════════════════════════════════════════════════
+       MOVIE DETAIL VIEW
+       - Random hero image (poster OR backdrop)
+       - Better recommendations (similar movies)
+       - Release date displayed
+       - Max 5 trailers, horizontal cast
        ═══════════════════════════════════════════════════════════════════ */
 
     async function openMovieDetail(movieId) {
       currentMovieId = movieId;
-      showLoader();
+      showLoading({
+        message: 'Loading movie details...',
+        showProgress: false
+      });
 
       try {
         const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        
         const data = await apiFunc(`/movie/${movieId}`, {
-          append_to_response: 'credits,videos,images,recommendations'
+          append_to_response: 'credits,videos,images,recommendations,similar',
+          include_image_language: 'en,null'
         });
 
         const title = data.title || 'Unknown';
         const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
         const overview = data.overview || 'No overview available.';
+        const releaseDate = data.release_date || null;
         const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
         const trailers = allTrailers.slice(0, 5);
         const cast = data.credits?.cast || [];
-        const posters = data.images?.posters || []; // ALL posters
-        const backdrops = data.images?.backdrops || []; // ALL backdrops
-        const recommendations = data.recommendations?.results?.slice(0, 10) || [];
-
-        let html = `
-          <h2>${title} <span class="rating">${rating}★</span></h2>
-          <p class="overview">${overview}</p>
-        `;
-
-        // TRAILERS
-        if (trailers.length > 0) {
-          html += '<h3>Trailers</h3>';
-          html += '<div class="trailers-scroll">';
-          trailers.forEach((trailer) => {
-            html += `
-              <div class="trailer-container">
-                <iframe
-                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen>
-                </iframe>
-              </div>
-            `;
-          });
-          html += '</div>';
-        }
-
-        // CAST
-        if (cast.length > 0) {
-          html += '<h3>Cast</h3>';
-          html += '<div class="credits-grid" id="cast-grid"></div>';
-        }
-
-        // RECOMMENDATIONS
-        if (recommendations.length > 0) {
-          html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
-        }
-
-        // ALL POSTERS & BACKDROPS - WITH CORRECT ORIENTATION
-        if (posters.length > 0 || backdrops.length > 0) {
-          html += '<div class="image-gallery">';
-          
-          // POSTERS - Vertical (portrait)
-          if (posters.length > 0) {
-            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
-            posters.forEach(img => {
-              const isPortrait = img.aspect_ratio < 1; // aspect_ratio < 1 = portrait
-              const height = isPortrait ? '300px' : 'auto';
-              const width = isPortrait ? 'auto' : '300px';
-              
-              html += `
-                <div class="gallery-image" style="width: ${width}; height: ${height};">
-                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster" style="object-fit: contain;">
-                </div>
-              `;
-            });
-            html += '</div>';
-          }
-
-          // BACKDROPS - Horizontal (landscape) or Vertical based on aspect ratio
-          if (backdrops.length > 0) {
-            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
-            backdrops.forEach(img => {
-              const isLandscape = img.aspect_ratio > 1; // aspect_ratio > 1 = landscape
-              const height = isLandscape ? '200px' : '300px';
-              const width = isLandscape ? 'auto' : '200px';
-              
-              html += `
-                <div class="gallery-image" style="width: ${width}; height: ${height};">
-                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop" style="object-fit: contain;">
-                </div>
-              `;
-            });
-            html += '</div>';
-          }
-
-          html += '</div>';
-        }
-
-        html += '<button class="btn" id="back-btn">Back to Browse</button>';
-
-        document.getElementById('detail-body').innerHTML = html;
-        document.getElementById('detail-view').classList.add('active');
-
-        // Render cast
-        if (cast.length > 0) {
-          const castGrid = document.getElementById('cast-grid');
-          for (const actor of cast) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
-            
-            if (actorImg) {
-              card.innerHTML = `
-                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
-                <div class="info">
-                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
-                </div>
-              `;
-            } else {
-              card.innerHTML = `
-                <div class="poster-placeholder">
-                  <span style="font-size: 0.6rem;">${actor.name}</span>
-                </div>
-              `;
-            }
-            
-            card.onclick = () => openActorDetail(actor.id);
-            castGrid.appendChild(card);
-          }
-        }
-
-        // Render recommendations
-        if (recommendations.length > 0) {
-          const recScroll = document.getElementById('recommendations-scroll');
-          for (const rec of recommendations) {
-            const recCard = document.createElement('div');
-            recCard.className = 'recommendation-card';
-            const recImg = await getImageUrl(rec);
-            recCard.innerHTML = `
-              <img class="poster" src="${recImg || ''}" alt="${rec.title || rec.name}" onerror="this.parentElement.style.display='none'">
-            `;
-            recCard.onclick = () => openMovieDetail(rec.id);
-            recScroll.appendChild(recCard);
-          }
-        }
-
-        document.getElementById('detail-close').onclick = closeDetail;
-        document.getElementById('back-btn').onclick = closeDetail;
-
-      } catch (err) {
-        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading movie details</p>';
-        console.error(err);
-      }
-
-      hideLoader();
-    }
-
-        /* ═══════════════════════════════════════════════════════════════════
-       MOVIE DETAIL VIEW - FETCH ALL IMAGES (include_image_language)
-       ═══════════════════════════════════════════════════════════════════ */
-
-    async function openMovieDetail(movieId) {
-      currentMovieId = movieId;
-      showLoader();
-
-      try {
-        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
-        
-        // CRITICAL: Add include_image_language=null to get ALL images
-        const data = await apiFunc(`/movie/${movieId}`, {
-          append_to_response: 'credits,videos,images,recommendations',
-          include_image_language: 'en,null' // Gets English AND images without language tag
-        });
-
-        const title = data.title || 'Unknown';
-        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
-        const overview = data.overview || 'No overview available.';
-        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
-        const trailers = allTrailers.slice(0, 5);
-        const cast = data.credits?.cast || [];
-        const posters = data.images?.posters || []; // NOW GETS ALL
-        const backdrops = data.images?.backdrops || []; // NOW GETS ALL
-        const recommendations = data.recommendations?.results?.slice(0, 10) || [];
-
-        console.log(`Found ${posters.length} posters, ${backdrops.length} backdrops for "${title}"`);
-
-        let html = `
-          <h2>${title} <span class="rating">${rating}★</span></h2>
-          <p class="overview">${overview}</p>
-        `;
-
-        // TRAILERS
-        if (trailers.length > 0) {
-          html += '<h3>Trailers</h3>';
-          html += '<div class="trailers-scroll">';
-          trailers.forEach((trailer) => {
-            html += `
-              <div class="trailer-container">
-                <iframe
-                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen>
-                </iframe>
-              </div>
-            `;
-          });
-          html += '</div>';
-        }
-
-        // CAST
-        if (cast.length > 0) {
-          html += '<h3>Cast</h3>';
-          html += '<div class="credits-grid" id="cast-grid"></div>';
-        }
-
-        // RECOMMENDATIONS
-        if (recommendations.length > 0) {
-          html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
-        }
-
-        // ALL POSTERS & BACKDROPS
-        if (posters.length > 0 || backdrops.length > 0) {
-          html += '<div class="image-gallery">';
-          
-          // POSTERS
-          if (posters.length > 0) {
-            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
-            posters.forEach(img => {
-              const isPortrait = img.aspect_ratio < 1;
-              const height = isPortrait ? '300px' : 'auto';
-              const width = isPortrait ? 'auto' : '300px';
-              
-              html += `
-                <div class="gallery-image" style="width: ${width}; height: ${height};">
-                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster" style="object-fit: contain;">
-                </div>
-              `;
-            });
-            html += '</div>';
-          }
-
-          // BACKDROPS
-          if (backdrops.length > 0) {
-            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
-            backdrops.forEach(img => {
-              const isLandscape = img.aspect_ratio > 1;
-              const height = isLandscape ? '200px' : '300px';
-              const width = isLandscape ? 'auto' : '200px';
-              
-              html += `
-                <div class="gallery-image" style="width: ${width}; height: ${height};">
-                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop" style="object-fit: contain;">
-                </div>
-              `;
-            });
-            html += '</div>';
-          }
-
-          html += '</div>';
-        }
-
-        html += '<button class="btn" id="back-btn">Back to Browse</button>';
-
-        document.getElementById('detail-body').innerHTML = html;
-        document.getElementById('detail-view').classList.add('active');
-
-        // Render cast
-        if (cast.length > 0) {
-          const castGrid = document.getElementById('cast-grid');
-          for (const actor of cast) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
-            
-            if (actorImg) {
-              card.innerHTML = `
-                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
-                <div class="info">
-                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
-                </div>
-              `;
-            } else {
-              card.innerHTML = `
-                <div class="poster-placeholder">
-                  <span style="font-size: 0.6rem;">${actor.name}</span>
-                </div>
-              `;
-            }
-            
-            card.onclick = () => openActorDetail(actor.id);
-            castGrid.appendChild(card);
-          }
-        }
-
-        // Render recommendations
-        if (recommendations.length > 0) {
-          const recScroll = document.getElementById('recommendations-scroll');
-          for (const rec of recommendations) {
-            const recCard = document.createElement('div');
-            recCard.className = 'recommendation-card';
-            const recImg = await getImageUrl(rec);
-            recCard.innerHTML = `
-              <img class="poster" src="${recImg || ''}" alt="${rec.title || rec.name}" onerror="this.parentElement.style.display='none'">
-            `;
-            recCard.onclick = () => openMovieDetail(rec.id);
-            recScroll.appendChild(recCard);
-          }
-        }
-
-        document.getElementById('detail-close').onclick = closeDetail;
-        document.getElementById('back-btn').onclick = closeDetail;
-
-      } catch (err) {
-        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading movie details</p>';
-        console.error(err);
-      }
-
-      hideLoader();
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       TV SHOW DETAIL VIEW - FETCH ALL IMAGES
-       ═══════════════════════════════════════════════════════════════════ */
-
-    async function openTVDetail(tvId) {
-      currentMovieId = tvId;
-      showLoader();
-
-      try {
-        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
-        
-        // CRITICAL: Add include_image_language=null to get ALL images
-        const data = await apiFunc(`/tv/${tvId}`, {
-          append_to_response: 'credits,videos,images,recommendations',
-          include_image_language: 'en,null' // Gets English AND images without language tag
-        });
-
-        const title = data.name || 'Unknown';
-        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
-        const overview = data.overview || 'No overview available.';
-        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
-        const trailers = allTrailers.slice(0, 5);
-        const cast = data.credits?.cast || [];
-        const seasons = data.seasons || [];
-        const posters = data.images?.posters || []; // NOW GETS ALL
-        const backdrops = data.images?.backdrops || []; // NOW GETS ALL
-        const recommendations = data.recommendations?.results?.slice(0, 10) || [];
-
-        console.log(`Found ${posters.length} posters, ${backdrops.length} backdrops for "${title}"`);
-
-        let html = `
-          <h2>${title} <span class="rating">${rating}★</span></h2>
-          <p class="overview">${overview}</p>
-        `;
-
-        // TRAILERS
-        if (trailers.length > 0) {
-          html += '<h3>Trailers</h3>';
-          html += '<div class="trailers-scroll">';
-          trailers.forEach((trailer) => {
-            html += `
-              <div class="trailer-container">
-                <iframe
-                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen>
-                </iframe>
-              </div>
-            `;
-          });
-          html += '</div>';
-        }
-
-        // CAST
-        if (cast.length > 0) {
-          html += '<h3>Cast</h3>';
-          html += '<div class="credits-grid" id="cast-grid"></div>';
-        }
-
-        // SEASONS
-        if (seasons.length > 0) {
-          html += '<h3>Seasons</h3><div class="seasons-accordion" id="seasons-accordion"></div>';
-        }
-
-        // RECOMMENDATIONS
-        if (recommendations.length > 0) {
-          html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
-        }
-
-        // ALL POSTERS & BACKDROPS
-        if (posters.length > 0 || backdrops.length > 0) {
-          html += '<div class="image-gallery">';
-          
-          // POSTERS
-          if (posters.length > 0) {
-            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
-            posters.forEach(img => {
-              const isPortrait = img.aspect_ratio < 1;
-              const height = isPortrait ? '300px' : 'auto';
-              const width = isPortrait ? 'auto' : '300px';
-              
-              html += `
-                <div class="gallery-image" style="width: ${width}; height: ${height};">
-                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster" style="object-fit: contain;">
-                </div>
-              `;
-            });
-            html += '</div>';
-          }
-
-          // BACKDROPS
-          if (backdrops.length > 0) {
-            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
-            backdrops.forEach(img => {
-              const isLandscape = img.aspect_ratio > 1;
-              const height = isLandscape ? '200px' : '300px';
-              const width = isLandscape ? 'auto' : '200px';
-              
-              html += `
-                <div class="gallery-image" style="width: ${width}; height: ${height};">
-                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop" style="object-fit: contain;">
-                </div>
-              `;
-            });
-            html += '</div>';
-          }
-
-          html += '</div>';
-        }
-
-        html += '<button class="btn" id="back-btn">Back to Browse</button>';
-
-        document.getElementById('detail-body').innerHTML = html;
-        document.getElementById('detail-view').classList.add('active');
-
-        // Render cast (same as before)
-        if (cast.length > 0) {
-          const castGrid = document.getElementById('cast-grid');
-          for (const actor of cast) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
-            
-            if (actorImg) {
-              card.innerHTML = `
-                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
-                <div class="info">
-                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
-                </div>
-              `;
-            } else {
-              card.innerHTML = `
-                <div class="poster-placeholder">
-                  <span style="font-size: 0.6rem;">${actor.name}</span>
-                </div>
-              `;
-            }
-            
-            card.onclick = () => openActorDetail(actor.id);
-            castGrid.appendChild(card);
-          }
-        }
-
-        // Render seasons (same as before - keeping full code)
-        const seasonsAccordion = document.getElementById('seasons-accordion');
-        if (seasonsAccordion) {
-          seasons.forEach(season => {
-            const seasonDiv = document.createElement('div');
-            seasonDiv.className = 'season-item';
-            seasonDiv.innerHTML = `
-              <div class="season-header">
-                <div>
-                  <div class="season-title">${season.name}</div>
-                  <div class="season-info">${season.episode_count} episodes ${season.air_date ? '• Aired: ' + season.air_date : ''}</div>
-                </div>
-                <div class="season-arrow">▼</div>
-              </div>
-              <div class="episodes-list">
-                <div class="episodes-content" id="episodes-${season.season_number}"></div>
-              </div>
-            `;
-
-            const header = seasonDiv.querySelector('.season-header');
-            header.onclick = async () => {
-              const isActive = seasonDiv.classList.contains('active');
-              
-              document.querySelectorAll('.season-item').forEach(el => el.classList.remove('active'));
-              
-              if (!isActive) {
-                seasonDiv.classList.add('active');
-                
-                const episodesDiv = document.getElementById(`episodes-${season.season_number}`);
-                if (episodesDiv.children.length === 0) {
-                  episodesDiv.innerHTML = '<p style="text-align:center; color: #666;">Loading episodes...</p>';
-                  try {
-                    const apiFunc = isAdultMode ? tmdbAdult : tmdb;
-                    const seasonData = await apiFunc(`/tv/${tvId}/season/${season.season_number}`);
-                    episodesDiv.innerHTML = '';
-                    
-                    seasonData.episodes.forEach(ep => {
-                      const epDiv = document.createElement('div');
-                      epDiv.className = 'episode-item';
-                      epDiv.innerHTML = `
-                        <div class="episode-number">Episode ${ep.episode_number}</div>
-                        <div class="episode-title">${ep.name || 'Untitled'}</div>
-                        <div class="episode-overview">${ep.overview || 'No description available.'}</div>
-                        <div class="episode-air-date">Aired: ${ep.air_date || 'Unknown'}</div>
-                      `;
-                      episodesDiv.appendChild(epDiv);
-                    });
-                  } catch (err) {
-                    episodesDiv.innerHTML = '<p style="color: #ff6666;">Failed to load episodes</p>';
-                  }
-                }
-              }
-            };
-
-            seasonsAccordion.appendChild(seasonDiv);
-          });
-        }
-
-        // Render recommendations
-        if (recommendations.length > 0) {
-          const recScroll = document.getElementById('recommendations-scroll');
-          for (const rec of recommendations) {
-            const recCard = document.createElement('div');
-            recCard.className = 'recommendation-card';
-            const recImg = await getImageUrl(rec);
-            recCard.innerHTML = `
-              <img class="poster" src="${recImg || ''}" alt="${rec.title || rec.name}" onerror="this.parentElement.style.display='none'">
-            `;
-            recCard.onclick = () => openTVDetail(rec.id);
-            recScroll.appendChild(recCard);
-          }
-        }
-
-        document.getElementById('detail-close').onclick = closeDetail;
-        document.getElementById('back-btn').onclick = closeDetail;
-
-      } catch (err) {
-        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading TV show details</p>';
-        console.error(err);
-      }
-
-      hideLoader();
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       TV SHOW DETAIL VIEW - Max 5 trailers, horizontal scroll
-       ═══════════════════════════════════════════════════════════════════ */
-
-    async function openTVDetail(tvId) {
-      currentMovieId = tvId;
-      showLoader();
-
-      try {
-        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
-        const data = await apiFunc(`/tv/${tvId}`, {
-          append_to_response: 'credits,videos,images,recommendations'
-        });
-
-        const title = data.name || 'Unknown';
-        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
-        const overview = data.overview || 'No overview available.';
-        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
-        const trailers = allTrailers.slice(0, 5); // LIMIT TO 5
-        const cast = data.credits?.cast || []; // NO LIMIT
-        const seasons = data.seasons || [];
         const posters = data.images?.posters || [];
         const backdrops = data.images?.backdrops || [];
-        const recommendations = data.recommendations?.results?.slice(0, 10) || [];
+        
+        // Better recommendations: combine recommendations + similar
+        let recommendations = [...(data.recommendations?.results || []), ...(data.similar?.results || [])];
+        recommendations = recommendations.filter((item, index, self) => 
+          index === self.findIndex(t => t.id === item.id)
+        );
+        recommendations = recommendations.sort((a, b) => (b.popularity || 0) - (a.popularity || 0)).slice(0, 10);
 
-        let html = `
-          <h2>${title} <span class="rating">${rating}★</span></h2>
-          <p class="overview">${overview}</p>
-        `;
+        // RANDOM HERO: Pick random poster OR backdrop
+        let heroImage = null;
+        let heroType = null;
+        const allHeroImages = [];
+        
+        if (posters.length > 0) {
+          posters.forEach(p => allHeroImages.push({ path: p.file_path, type: 'poster' }));
+        }
+        if (backdrops.length > 0) {
+          backdrops.forEach(b => allHeroImages.push({ path: b.file_path, type: 'backdrop' }));
+        }
+        
+        if (allHeroImages.length > 0) {
+          const randomHero = allHeroImages[Math.floor(Math.random() * allHeroImages.length)];
+          heroImage = randomHero.path;
+          heroType = randomHero.type;
+        }
 
-        // TRAILERS - Horizontal scroll, max 5
+        const heroPoster = posters[0]?.file_path || data.poster_path;
+
+        console.log(`${title}: ${posters.length} posters, ${backdrops.length} backdrops`);
+
+        let html = '';
+
+        // HERO SECTION with random image
+        if (heroImage) {
+          html += '<div class="detail-hero">';
+          if (heroType === 'backdrop') {
+            html += `<img class="detail-backdrop" src="${TMDB_IMG}${heroImage}" alt="Backdrop">`;
+          } else {
+            html += `<img class="detail-backdrop" src="${TMDB_IMG}${heroImage}" alt="Hero" style="opacity: 0.5;">`;
+          }
+          html += '<div class="detail-hero-content">';
+          if (heroPoster) {
+            html += `<img class="detail-poster" src="${TMDB_IMG}${heroPoster}" alt="Poster">`;
+          }
+          html += `
+            <div class="detail-title-block">
+              <h2>${title} <span class="rating">${rating}★</span></h2>
+              ${releaseDate ? `<div class="release-date">Released: ${new Date(releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>` : ''}
+            </div>
+          `;
+          html += '</div></div>';
+        } else {
+          html += `<h2>${title} <span class="rating">${rating}★</span></h2>`;
+          if (releaseDate) {
+            html += `<div class="release-date">Released: ${new Date(releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>`;
+          }
+        }
+
+        html += `<p class="overview">${overview}</p>`;
+
+        // TRAILERS
         if (trailers.length > 0) {
           html += '<h3>Trailers</h3>';
           html += '<div class="trailers-scroll">';
@@ -1815,31 +1882,26 @@
           html += '</div>';
         }
 
-        // Cast - show ALL
+        // CAST
         if (cast.length > 0) {
           html += '<h3>Cast</h3>';
-          html += '<div class="credits-grid" id="cast-grid"></div>';
+          html += '<div class="cast-scroll" id="cast-scroll"></div>';
         }
 
-        // Seasons accordion
-        if (seasons.length > 0) {
-          html += '<h3>Seasons</h3><div class="seasons-accordion" id="seasons-accordion"></div>';
-        }
-
-        // Recommendations
+        // RECOMMENDATIONS (Better matching)
         if (recommendations.length > 0) {
           html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
         }
 
-        // ALL POSTERS & BACKDROPS
+        // ALL POSTERS & BACKDROPS with lightbox
         if (posters.length > 0 || backdrops.length > 0) {
           html += '<div class="image-gallery">';
           
           if (posters.length > 0) {
-            html += '<h3>Posters</h3><div class="gallery-scroll">';
+            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
             posters.forEach(img => {
               html += `
-                <div class="gallery-image">
+                <div class="gallery-image" onclick="openLightbox('${TMDB_IMG}${img.file_path}')">
                   <img src="${TMDB_IMG}${img.file_path}" alt="Poster">
                 </div>
               `;
@@ -1848,10 +1910,10 @@
           }
 
           if (backdrops.length > 0) {
-            html += '<h3>Backdrops</h3><div class="gallery-scroll">';
+            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
             backdrops.forEach(img => {
               html += `
-                <div class="gallery-image">
+                <div class="gallery-image" onclick="openLightbox('${TMDB_IMG}${img.file_path}')">
                   <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop">
                 </div>
               `;
@@ -1867,13 +1929,13 @@
         document.getElementById('detail-body').innerHTML = html;
         document.getElementById('detail-view').classList.add('active');
 
-        // Render ALL cast in grid
+        // Render cast
         if (cast.length > 0) {
-          const castGrid = document.getElementById('cast-grid');
+          const castScroll = document.getElementById('cast-scroll');
           for (const actor of cast) {
             const card = document.createElement('div');
             card.className = 'card';
-            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
+            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : null;
             
             if (actorImg) {
               card.innerHTML = `
@@ -1882,74 +1944,274 @@
                   <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
                 </div>
               `;
-            } else {
-              card.innerHTML = `
-                <div class="poster-placeholder">
-                  <span style="font-size: 0.6rem;">${actor.name}</span>
-                </div>
-              `;
+              card.onclick = () => openActorDetail(actor.id);
+              castScroll.appendChild(card);
             }
-            
-            card.onclick = () => openActorDetail(actor.id);
-            castGrid.appendChild(card);
           }
         }
 
-        // Render seasons accordion
-        const seasonsAccordion = document.getElementById('seasons-accordion');
-        if (seasonsAccordion) {
-          seasons.forEach(season => {
-            const seasonDiv = document.createElement('div');
-            seasonDiv.className = 'season-item';
-            seasonDiv.innerHTML = `
-              <div class="season-header">
-                <div>
-                  <div class="season-title">${season.name}</div>
-                  <div class="season-info">${season.episode_count} episodes ${season.air_date ? '• Aired: ' + season.air_date : ''}</div>
-                </div>
-                <div class="season-arrow">▼</div>
-              </div>
-              <div class="episodes-list">
-                <div class="episodes-content" id="episodes-${season.season_number}"></div>
+        // Render recommendations
+        if (recommendations.length > 0) {
+          const recScroll = document.getElementById('recommendations-scroll');
+          for (const rec of recommendations) {
+            const recCard = document.createElement('div');
+            recCard.className = 'recommendation-card';
+            const recImg = await getImageUrl(rec);
+            if (recImg) {
+              recCard.innerHTML = `<img class="poster" src="${recImg}" alt="${rec.title || rec.name}">`;
+              recCard.onclick = () => openMovieDetail(rec.id);
+              recScroll.appendChild(recCard);
+            }
+          }
+        }
+
+        document.getElementById('detail-close').onclick = closeDetail;
+        document.getElementById('back-btn').onclick = closeDetail;
+
+      } catch (err) {
+        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading movie details</p>';
+        console.error(err);
+      }
+
+      hideLoading();
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       TV SHOW DETAIL VIEW
+       - Random hero image (poster OR backdrop)
+       - Better recommendations (similar shows)
+       - ONE accordion with season dropdown selector
+       - All episodes scrollable below
+       ═══════════════════════════════════════════════════════════════════ */
+
+    async function openTVDetail(tvId) {
+      currentMovieId = tvId;
+      showLoading({
+        message: 'Loading TV show details...',
+        showProgress: false
+      });
+
+      try {
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        
+        const data = await apiFunc(`/tv/${tvId}`, {
+          append_to_response: 'credits,videos,images,recommendations,similar',
+          include_image_language: 'en,null'
+        });
+
+        const title = data.name || 'Unknown';
+        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
+        const overview = data.overview || 'No overview available.';
+        const firstAirDate = data.first_air_date || null;
+        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
+        const trailers = allTrailers.slice(0, 5);
+        const cast = data.credits?.cast || [];
+        const seasons = data.seasons || [];
+        const posters = data.images?.posters || [];
+        const backdrops = data.images?.backdrops || [];
+        
+        // Better recommendations
+        let recommendations = [...(data.recommendations?.results || []), ...(data.similar?.results || [])];
+        recommendations = recommendations.filter((item, index, self) => 
+          index === self.findIndex(t => t.id === item.id)
+        );
+        recommendations = recommendations.sort((a, b) => (b.popularity || 0) - (a.popularity || 0)).slice(0, 10);
+
+        // RANDOM HERO
+        let heroImage = null;
+        let heroType = null;
+        const allHeroImages = [];
+        
+        if (posters.length > 0) {
+          posters.forEach(p => allHeroImages.push({ path: p.file_path, type: 'poster' }));
+        }
+        if (backdrops.length > 0) {
+          backdrops.forEach(b => allHeroImages.push({ path: b.file_path, type: 'backdrop' }));
+        }
+        
+        if (allHeroImages.length > 0) {
+          const randomHero = allHeroImages[Math.floor(Math.random() * allHeroImages.length)];
+          heroImage = randomHero.path;
+          heroType = randomHero.type;
+        }
+
+        const heroPoster = posters[0]?.file_path || data.poster_path;
+
+        console.log(`${title}: ${posters.length} posters, ${backdrops.length} backdrops`);
+
+        let html = '';
+
+        // HERO SECTION
+        if (heroImage) {
+          html += '<div class="detail-hero">';
+          if (heroType === 'backdrop') {
+            html += `<img class="detail-backdrop" src="${TMDB_IMG}${heroImage}" alt="Backdrop">`;
+          } else {
+            html += `<img class="detail-backdrop" src="${TMDB_IMG}${heroImage}" alt="Hero" style="opacity: 0.5;">`;
+          }
+          html += '<div class="detail-hero-content">';
+          if (heroPoster) {
+            html += `<img class="detail-poster" src="${TMDB_IMG}${heroPoster}" alt="Poster">`;
+          }
+          html += `
+            <div class="detail-title-block">
+              <h2>${title} <span class="rating">${rating}★</span></h2>
+              ${firstAirDate ? `<div class="release-date">First Aired: ${new Date(firstAirDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>` : ''}
+            </div>
+          `;
+          html += '</div></div>';
+        } else {
+          html += `<h2>${title} <span class="rating">${rating}★</span></h2>`;
+          if (firstAirDate) {
+            html += `<div class="release-date">First Aired: ${new Date(firstAirDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>`;
+          }
+        }
+
+        html += `<p class="overview">${overview}</p>`;
+
+        // TRAILERS
+        if (trailers.length > 0) {
+          html += '<h3>Trailers</h3>';
+          html += '<div class="trailers-scroll">';
+          trailers.forEach((trailer) => {
+            html += `
+              <div class="trailer-container">
+                <iframe
+                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
               </div>
             `;
+          });
+          html += '</div>';
+        }
 
-            const header = seasonDiv.querySelector('.season-header');
-            header.onclick = async () => {
-              const isActive = seasonDiv.classList.contains('active');
+        // CAST
+        if (cast.length > 0) {
+          html += '<h3>Cast</h3>';
+          html += '<div class="cast-scroll" id="cast-scroll"></div>';
+        }
+
+        // SEASONS - ONE ACCORDION with dropdown selector
+        if (seasons.length > 0) {
+          html += '<h3>Seasons</h3>';
+          html += '<div class="season-selector-container">';
+          html += '<select id="season-selector" class="season-dropdown">';
+          html += '<option value="">Select a season...</option>';
+          seasons.forEach(season => {
+            html += `<option value="${season.season_number}">${season.name} (${season.episode_count} episodes)</option>`;
+          });
+          html += '</select>';
+          html += '</div>';
+          html += '<div id="episodes-container" style="margin-top: 1rem; max-height: none; overflow-y: visible;"></div>';
+        }
+
+        // RECOMMENDATIONS
+        if (recommendations.length > 0) {
+          html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
+        }
+
+        // ALL POSTERS & BACKDROPS
+        if (posters.length > 0 || backdrops.length > 0) {
+          html += '<div class="image-gallery">';
+          
+          if (posters.length > 0) {
+            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
+            posters.forEach(img => {
+              html += `
+                <div class="gallery-image" onclick="openLightbox('${TMDB_IMG}${img.file_path}')">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
+
+          if (backdrops.length > 0) {
+            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
+            backdrops.forEach(img => {
+              html += `
+                <div class="gallery-image" onclick="openLightbox('${TMDB_IMG}${img.file_path}')">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
+
+          html += '</div>';
+        }
+
+        html += '<button class="btn" id="back-btn">Back to Browse</button>';
+
+        document.getElementById('detail-body').innerHTML = html;
+        document.getElementById('detail-view').classList.add('active');
+
+        // Render cast
+        if (cast.length > 0) {
+          const castScroll = document.getElementById('cast-scroll');
+          for (const actor of cast) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : null;
+            
+            if (actorImg) {
+              card.innerHTML = `
+                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+                <div class="info">
+                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
+                </div>
+              `;
+              card.onclick = () => openActorDetail(actor.id);
+              castScroll.appendChild(card);
+            }
+          }
+        }
+
+        // Season selector handler
+        const seasonSelector = document.getElementById('season-selector');
+        if (seasonSelector) {
+          seasonSelector.addEventListener('change', async (e) => {
+            const seasonNumber = e.target.value;
+            const episodesContainer = document.getElementById('episodes-container');
+            
+            if (!seasonNumber) {
+              episodesContainer.innerHTML = '';
+              return;
+            }
+
+            episodesContainer.innerHTML = '<p style="text-align:center; color: #666; padding: 1rem;">Loading episodes...</p>';
+            
+            try {
+              const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+              const seasonData = await apiFunc(`/tv/${tvId}/season/${seasonNumber}`);
+              episodesContainer.innerHTML = '';
               
-              document.querySelectorAll('.season-item').forEach(el => el.classList.remove('active'));
-              
-              if (!isActive) {
-                seasonDiv.classList.add('active');
+              // Render ALL episodes (no max-height limit, fully scrollable)
+              seasonData.episodes.forEach(ep => {
+                const epDiv = document.createElement('div');
+                epDiv.className = 'episode-item';
                 
-                const episodesDiv = document.getElementById(`episodes-${season.season_number}`);
-                if (episodesDiv.children.length === 0) {
-                  episodesDiv.innerHTML = '<p style="text-align:center; color: #666;">Loading episodes...</p>';
-                  try {
-                    const apiFunc = isAdultMode ? tmdbAdult : tmdb;
-                    const seasonData = await apiFunc(`/tv/${tvId}/season/${season.season_number}`);
-                    episodesDiv.innerHTML = '';
-                    
-                    seasonData.episodes.forEach(ep => {
-                      const epDiv = document.createElement('div');
-                      epDiv.className = 'episode-item';
-                      epDiv.innerHTML = `
-                        <div class="episode-number">Episode ${ep.episode_number}</div>
-                        <div class="episode-title">${ep.name || 'Untitled'}</div>
-                        <div class="episode-overview">${ep.overview || 'No description available.'}</div>
-                        <div class="episode-air-date">Aired: ${ep.air_date || 'Unknown'}</div>
-                      `;
-                      episodesDiv.appendChild(epDiv);
-                    });
-                  } catch (err) {
-                    episodesDiv.innerHTML = '<p style="color: #ff6666;">Failed to load episodes</p>';
-                  }
-                }
-              }
-            };
-
-            seasonsAccordion.appendChild(seasonDiv);
+                const stillImage = ep.still_path ? `${TMDB_IMG}${ep.still_path}` : '';
+                const airDate = ep.air_date ? new Date(ep.air_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown';
+                
+                epDiv.innerHTML = `
+                  ${stillImage ? `<img class="episode-still" src="${stillImage}" alt="Episode ${ep.episode_number}">` : ''}
+                  <div class="episode-details">
+                    <div class="episode-number">Episode ${ep.episode_number}</div>
+                    <div class="episode-title">${ep.name || 'Untitled'}</div>
+                    <div class="episode-overview">${ep.overview || 'No description available.'}</div>
+                    <div class="episode-air-date">Aired: ${airDate}</div>
+                  </div>
+                `;
+                episodesContainer.appendChild(epDiv);
+              });
+            } catch (err) {
+              episodesContainer.innerHTML = '<p style="color: #ff6666; padding: 1rem;">Failed to load episodes</p>';
+              console.error('Failed to load season:', err);
+            }
           });
         }
 
@@ -1960,11 +2222,11 @@
             const recCard = document.createElement('div');
             recCard.className = 'recommendation-card';
             const recImg = await getImageUrl(rec);
-            recCard.innerHTML = `
-              <img class="poster" src="${recImg || ''}" alt="${rec.title || rec.name}" onerror="this.parentElement.style.display='none'">
-            `;
-            recCard.onclick = () => openTVDetail(rec.id);
-            recScroll.appendChild(recCard);
+            if (recImg) {
+              recCard.innerHTML = `<img class="poster" src="${recImg}" alt="${rec.title || rec.name}">`;
+              recCard.onclick = () => openTVDetail(rec.id);
+              recScroll.appendChild(recCard);
+            }
           }
         }
 
@@ -1972,19 +2234,29 @@
         document.getElementById('back-btn').onclick = closeDetail;
 
       } catch (err) {
-        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading TV show details</p>';
+        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading TV details</p>';
         console.error(err);
       }
 
-      hideLoader();
+      hideLoading();
     }
 
+    function openLightbox(imageUrl) {
+      document.getElementById('lightbox-img').src = imageUrl;
+      document.getElementById('image-lightbox').classList.add('active');
+    }
     /* ═══════════════════════════════════════════════════════════════════
-       ACTOR DETAIL VIEW - No limits, vertical grid, All/TV/Movies filters
+       ACTOR DETAIL VIEW
+       - Shows actor name on search results
+       - Unlimited credits in vertical grid
+       - Filter buttons: All / Movies / TV
        ═══════════════════════════════════════════════════════════════════ */
 
     async function openActorDetail(actorId) {
-      showLoader();
+      showLoading({
+        message: 'Loading actor details...',
+        showProgress: false
+      });
 
       try {
         const apiFunc = isAdultMode ? tmdbAdult : tmdb;
@@ -2000,11 +2272,9 @@
         const profileImages = data.images?.profiles || [];
         let allCredits = data.combined_credits?.cast || [];
 
-        // Separate movies and TV
         const movieCredits = allCredits.filter(c => c.media_type === 'movie');
         const tvCredits = allCredits.filter(c => c.media_type === 'tv');
 
-        // Sort by popularity
         allCredits.sort((a, b) => {
           if (a.id === currentMovieId) return -1;
           if (b.id === currentMovieId) return 1;
@@ -2022,7 +2292,6 @@
           </div>
         `;
 
-        // Filter buttons - ONLY if they have both movies and TV
         if (movieCredits.length > 0 && tvCredits.length > 0) {
           html += `
             <div class="filter-buttons">
@@ -2034,14 +2303,13 @@
         }
 
         html += '<h3>Credits</h3>';
-        html += '<div class="credits-grid" id="actor-credits"></div>';
+        html += '<div class="vertical-grid" id="actor-credits"></div>';
 
-        // Profile images
         if (profileImages.length > 0) {
           html += '<h3>Photos</h3><div class="gallery-scroll">';
           profileImages.forEach(img => {
             html += `
-              <div class="gallery-image">
+              <div class="gallery-image" onclick="openLightbox('${TMDB_IMG}${img.file_path}')">
                 <img src="${TMDB_IMG}${img.file_path}" alt="Photo">
               </div>
             `;
@@ -2054,15 +2322,18 @@
         document.getElementById('detail-body').innerHTML = html;
         document.getElementById('detail-view').classList.add('active');
 
-        // Render credits function
         async function renderCredits(credits) {
           const creditsGrid = document.getElementById('actor-credits');
           creditsGrid.innerHTML = '';
 
           for (const item of credits) {
+            if (!item.poster_path && !item.backdrop_path) continue;
+
             const title = item.title || item.name || 'Unknown';
             const year = (item.release_date || item.first_air_date || '').slice(0, 4);
             const imageUrl = await getImageUrl(item);
+
+            if (!imageUrl) continue;
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -2071,33 +2342,20 @@
               card.classList.add('highlight');
             }
 
-            if (imageUrl) {
-              card.innerHTML = `
-                <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
-                <div class="info">
-                  ${year ? `<div class="year">${year}</div>` : ''}
-                </div>
-              `;
-            } else {
-              card.innerHTML = `
-                <div class="poster-placeholder">
-                  <span>No Image</span>
-                </div>
-                <div class="info">
-                  ${year ? `<div class="year">${year}</div>` : ''}
-                </div>
-              `;
-            }
+            card.innerHTML = `
+              <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
+              <div class="info">
+                ${year ? `<div class="year">${year}</div>` : ''}
+              </div>
+            `;
 
             card.onclick = () => openDetail(item);
             creditsGrid.appendChild(card);
           }
         }
 
-        // Initial render - ALL credits
         await renderCredits(allCredits);
 
-        // Filter button handlers
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => {
           btn.onclick = async () => {
@@ -2105,7 +2363,10 @@
             btn.classList.add('active');
 
             const filter = btn.dataset.filter;
-            showLoader();
+            showLoading({
+              message: 'Loading credits...',
+              showProgress: false
+            });
             
             if (filter === 'all') {
               await renderCredits(allCredits);
@@ -2115,7 +2376,7 @@
               await renderCredits(tvCredits);
             }
             
-            hideLoader();
+            hideLoading();
           };
         });
 
@@ -2123,18 +2384,19 @@
         document.getElementById('back-to-movie').onclick = closeDetail;
 
       } catch (err) {
-        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading actor details</p>';
+        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading actor</p>';
         console.error(err);
       }
 
-      hideLoader();
+      hideLoading();
     }
 
     function closeDetail() {
       document.getElementById('detail-view').classList.remove('active');
     }
+
     /* ═══════════════════════════════════════════════════════════════════
-       SEARCH & MODE TOGGLE
+       MODE TOGGLE
        ═══════════════════════════════════════════════════════════════════ */
 
     function toggleAdultMode(force) {
@@ -2167,6 +2429,10 @@
       loadHome();
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       SEARCH - Vertical grid with actor names shown, unlimited results
+       ═══════════════════════════════════════════════════════════════════ */
+
     async function performSearch(query) {
       if (!query) {
         const searchSection = document.getElementById('search-results');
@@ -2176,10 +2442,13 @@
         return;
       }
 
-      showLoader();
+      showLoading({
+        message: 'Searching...',
+        showProgress: false
+      });
 
       try {
-        let results = [];
+        let allResults = [];
         let displayQuery = query;
 
         const yearMatch = query.match(/^\d{4}$/);
@@ -2191,16 +2460,24 @@
             primary_release_year: year,
             sort_by: 'popularity.desc'
           });
-          results = data.results || [];
+          allResults = data.results || [];
           displayQuery = `Movies from ${year}`;
         } else {
-          const data = await apiFunc('/search/multi', {
-            query: query,
-            page: 1
-          });
-          results = data.results || [];
+          // Get unlimited results for actors (up to 10 pages)
+          for (let page = 1; page <= 10; page++) {
+            const data = await apiFunc('/search/multi', {
+              query: query,
+              page: page
+            });
+            if (!data.results || data.results.length === 0) break;
+            allResults = allResults.concat(data.results);
+          }
           displayQuery = `"${query}"`;
         }
+
+        const movieResults = allResults.filter(r => r.media_type === 'movie');
+        const tvResults = allResults.filter(r => r.media_type === 'tv');
+        const personResults = allResults.filter(r => r.media_type === 'person');
 
         document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
 
@@ -2208,22 +2485,61 @@
         if (!searchSection) {
           searchSection = document.createElement('section');
           searchSection.id = 'search-results';
-          document.querySelector('#section-digital').before(searchSection);
+          document.querySelector('#section-airing').before(searchSection);
         }
 
-        searchSection.innerHTML = `
-          <h2>Search Results for ${displayQuery}</h2>
-          <div class="horizontal-scroll" id="search-grid"></div>
-        `;
+        let html = `<h2>Search Results for ${displayQuery}</h2>`;
+
+        if (movieResults.length > 0 && tvResults.length > 0) {
+          html += `
+            <div class="filter-buttons">
+              <button class="search-filter-btn active" data-filter="all">All (${allResults.length})</button>
+              <button class="search-filter-btn" data-filter="movies">Movies (${movieResults.length})</button>
+              <button class="search-filter-btn" data-filter="tv">TV (${tvResults.length})</button>
+            </div>
+          `;
+        }
+
+        html += '<div class="vertical-grid" id="search-grid"></div>';
+        
+        searchSection.innerHTML = html;
         searchSection.style.display = 'block';
 
-        await renderHorizontal('search-grid', results);
+        async function renderSearchResults(items) {
+          await renderVerticalGrid('search-grid', items, true); // true = show actor names
+        }
+
+        await renderSearchResults(allResults);
+
+        const filterBtns = document.querySelectorAll('.search-filter-btn');
+        filterBtns.forEach(btn => {
+          btn.onclick = async () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+            showLoading({
+              message: 'Filtering...',
+              showProgress: false
+            });
+            
+            if (filter === 'all') {
+              await renderSearchResults(allResults);
+            } else if (filter === 'movies') {
+              await renderSearchResults(movieResults);
+            } else if (filter === 'tv') {
+              await renderSearchResults(tvResults);
+            }
+            
+            hideLoading();
+          };
+        });
 
       } catch (err) {
         console.error('Search failed:', err);
       }
 
-      hideLoader();
+      hideLoading();
     }
 
     const searchInput = document.getElementById('search-input');
@@ -2374,7 +2690,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       EASTER EGG - Matrix Animation
+       EASTER EGG - Matrix Animation with Music
        ═══════════════════════════════════════════════════════════════════ */
 
     const playlist = [
@@ -2396,18 +2712,18 @@
     let shuffledPlaylist = [...playlist];
     let currentTrackIndex = 0;
 
-    function shuffleArray(array) {
+    function shufflePlaylist(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
       }
     }
 
-    shuffleArray(shuffledPlaylist);
+    shufflePlaylist(shuffledPlaylist);
 
     function playRandomTrack() {
       if (currentTrackIndex >= shuffledPlaylist.length) {
-        shuffleArray(shuffledPlaylist);
+        shufflePlaylist(shuffledPlaylist);
         currentTrackIndex = 0;
       }
 
@@ -2586,16 +2902,17 @@
         }, 50);
       };
     };
-
     /* ═══════════════════════════════════════════════════════════════════
        INITIALIZATION
        ═══════════════════════════════════════════════════════════════════ */
 
+    // Set mode on load
     if (isAdultMode) {
       document.getElementById('mode-indicator').classList.add('active');
       document.getElementById('app-title').classList.add('adult-mode');
     }
 
+    // Start the app
     loadHome();
     getWeather();
   </script>
