@@ -13,9 +13,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ═══════════════════════════════════════════════════════════════════
-       CSS VARIABLES - CUSTOMIZE YOUR THEME HERE
-       ═══════════════════════════════════════════════════════════════════ */
     :root {
       --accent-purple: #764ba2;
       --accent-green: #10b981;
@@ -23,13 +20,11 @@
       --glass-bg: rgba(30, 30, 50, 0.35);
       --poster-glow: 0 0 20px rgba(118, 75, 162, 0.4);
       --hover-glow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(118,75,162,0.6);
+      --title-glow: 0 0 15px rgba(118, 75, 162, 0.3), 0 0 30px rgba(16, 185, 129, 0.2);
       --card-gap: 1.2rem;
       --section-padding: 0 1rem;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       BASE STYLES
-       ═══════════════════════════════════════════════════════════════════ */
     * { 
       box-sizing: border-box; 
       margin: 0; 
@@ -49,9 +44,6 @@
       letter-spacing: 1.8px; 
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       LOADING OVERLAY
-       ═══════════════════════════════════════════════════════════════════ */
     #loading-overlay {
       position: fixed;
       inset: 0;
@@ -91,9 +83,6 @@
       font-weight: 600; 
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       HEADER - Logo | Watcher | 18+ Icon
-       ═══════════════════════════════════════════════════════════════════ */
     #header {
       padding: 1rem 1.5rem;
       background: rgba(0,0,0,0.8);
@@ -115,19 +104,34 @@
       gap: 1rem;
     }
     
+    /* Logo with glow */
     #logo { 
-      height: 44px; 
+      height: 44px;
+      filter: drop-shadow(0 0 12px rgba(118, 75, 162, 0.6));
+      transition: filter 0.3s;
+      cursor: pointer;
+    }
+
+    #logo:hover {
+      filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.8));
+      animation: pulse-logo 0.5s ease-in-out;
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
     .title-text { 
       font-size: 2rem; 
       margin: 0;
-      transition: color 0.3s, text-shadow 0.3s;
+      transition: all 0.3s;
+      text-shadow: var(--title-glow);
     }
 
     .title-text.adult-mode {
       color: var(--accent-red);
-      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3);
     }
 
     #mode-indicator {
@@ -178,14 +182,12 @@
       color: rgba(255,255,255,0.5);
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTIONS
-       ═══════════════════════════════════════════════════════════════════ */
     section { 
       padding: var(--section-padding); 
       margin-bottom: 2rem;
     }
 
+    /* Section titles with glow */
     h2 {
       font-size: 2.2rem;
       margin: 0.5rem 0 1rem;
@@ -194,11 +196,10 @@
       background-clip: text;
       color: transparent;
       text-transform: none;
+      text-shadow: var(--title-glow);
+      filter: drop-shadow(0 0 12px rgba(118, 75, 162, 0.4)) drop-shadow(0 0 20px rgba(16, 185, 129, 0.3));
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       HORIZONTAL SCROLL
-       ═══════════════════════════════════════════════════════════════════ */
     .horizontal-scroll {
       display: flex;
       overflow-x: auto;
@@ -227,9 +228,6 @@
       scroll-snap-align: start; 
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       CARDS - Fully rounded with proper overflow
-       ═══════════════════════════════════════════════════════════════════ */
     .card {
       background: var(--glass-bg);
       border: 1px solid rgba(118,75,162,0.35);
@@ -306,9 +304,6 @@
       box-shadow: 0 0 20px rgba(16,185,129,0.6);
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       DETAIL VIEW
-       ═══════════════════════════════════════════════════════════════════ */
     #detail-view {
       position: fixed;
       inset: 0;
@@ -362,8 +357,9 @@
     }
 
     #detail-content h2 {
-      font-size: 2.5rem;
+      font-size: 1.25rem;
       margin-bottom: 1rem;
+      text-shadow: var(--title-glow);
     }
 
     #detail-content h3 {
@@ -373,6 +369,7 @@
       color: var(--accent-green);
       font-family: 'Bebas Neue', cursive;
       letter-spacing: 1.5px;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
     }
 
     .rating {
@@ -383,12 +380,14 @@
       border-radius: 8px;
       font-weight: 700;
       margin-left: 1rem;
+      font-size: 0.9rem;
     }
 
     .overview {
-      line-height: 1.6;
-      margin: 1.5rem 0;
+      line-height: 1.4;
+      margin: 1rem 0;
       color: rgba(255,255,255,0.9);
+      font-size: 0.8rem;
     }
 
     .trailer-container {
@@ -407,59 +406,63 @@
       border: none;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       CAST - HORIZONTAL STRIP
-       ═══════════════════════════════════════════════════════════════════ */
-    #cast-strip {
-      display: flex;
-      overflow-x: auto;
+    /* ACTOR CREDITS - VERTICAL GRID (not horizontal scroll) */
+    .credits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 1rem;
       padding: 1rem 0;
-      scroll-snap-type: x mandatory;
     }
 
-    .actor-card { 
-      flex: 0 0 100px;
-      text-align: center; 
+    .credits-grid .card {
+      flex: none;
+    }
+
+    /* Filter buttons for actor credits */
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(118,75,162,0.2);
+      color: var(--accent-purple);
+      border: 1px solid rgba(118,75,162,0.5);
+      border-radius: 999px;
       cursor: pointer;
-      transition: transform 0.3s;
-      scroll-snap-align: start;
+      transition: all 0.3s;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
 
-    .actor-card:hover {
-      transform: translateY(-5px);
+    .filter-btn:hover {
+      background: rgba(118,75,162,0.3);
+      border-color: var(--accent-purple);
     }
 
-    .actor-img { 
-      width: 100px;
-      height: 100px;
-      object-fit: cover; 
-      border-radius: 12px; 
-      background: #111;
-      border: 2px solid rgba(118,75,162,0.3);
-      transition: border-color 0.3s;
-    }
-
-    .actor-card:hover .actor-img {
+    .filter-btn.active {
+      background: var(--accent-green);
+      color: #000;
       border-color: var(--accent-green);
     }
 
-    .actor-name {
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-top: 0.5rem;
-      line-height: 1.2;
+    .actor-profile {
+      text-align: center;
+      margin-bottom: 2rem;
     }
 
-    .actor-character {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.6);
-      margin-top: 0.25rem;
+    .actor-profile img {
+      max-width: 240px;
+      border-radius: 12px;
+      margin: 1rem auto;
+      display: block;
+      border: 2px solid rgba(118,75,162,0.5);
+      box-shadow: 0 0 30px rgba(118, 75, 162, 0.4);
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       SEASONS - ACCORDION
-       ═══════════════════════════════════════════════════════════════════ */
     .seasons-accordion {
       display: flex;
       flex-direction: column;
@@ -565,9 +568,6 @@
       margin-top: 0.5rem;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       IMAGE GALLERY
-       ═══════════════════════════════════════════════════════════════════ */
     .image-gallery {
       margin: 3rem 0 1rem;
     }
@@ -614,9 +614,6 @@
       cursor: pointer;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       BUTTONS
-       ═══════════════════════════════════════════════════════════════════ */
     .btn {
       display: inline-block;
       padding: 0.8rem 1.5rem;
@@ -637,9 +634,6 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 20px rgba(118,75,162,0.4);
     }
-    /* ═══════════════════════════════════════════════════════════════════
-       WEATHER WIDGET
-       ═══════════════════════════════════════════════════════════════════ */
     .weather-widget {
       display: none;
       align-items: center;
@@ -774,9 +768,27 @@
       }
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       FOOTER
-       ═══════════════════════════════════════════════════════════════════ */
+    /* Trailers horizontal scroll - LIMITED TO 5 */
+    .trailers-scroll {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding: 1rem 0;
+      scroll-snap-type: x mandatory;
+    }
+
+    .trailers-scroll .trailer-container {
+      flex: 0 0 400px;
+      scroll-snap-align: start;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .trailers-scroll .trailer-container {
+        flex: 0 0 300px;
+      }
+    }
+
     #footer {
       padding: 2rem;
       text-align: center;
@@ -802,9 +814,6 @@
       transform: scale(1.1);
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       EASTER EGG OVERLAY
-       ═══════════════════════════════════════════════════════════════════ */
     #easter-egg-overlay {
       position: fixed;
       inset: 0;
@@ -827,9 +836,6 @@
       inset: 0; 
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       RESPONSIVE
-       ═══════════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
       .header-top {
         flex-wrap: wrap;
@@ -846,26 +852,24 @@
       #detail-content {
         padding: 1.5rem 1rem;
       }
+
+      .credits-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       LOADING OVERLAY
-       ═══════════════════════════════════════════════════════════════════ -->
   <div id="loading-overlay">
     <img class="loader-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
     <div class="loader-text">Loading Watcher...</div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       HEADER - Logo | Watcher | 18+ Icon
-       ═══════════════════════════════════════════════════════════════════ -->
   <div id="header">
     <div class="header-top">
       <div class="header-left">
-        <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
+        <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy" title="Click to refresh">
         <h1 class="title-text" id="app-title">Watcher</h1>
       </div>
       <div id="mode-indicator">🔞</div>
@@ -881,9 +885,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       NORMAL MODE SECTIONS
-       ═══════════════════════════════════════════════════════════════════ -->
+  <!-- NORMAL MODE SECTIONS -->
   
   <section id="section-digital">
     <h2>Latest Digital Releases</h2>
@@ -910,38 +912,28 @@
     <div class="horizontal-scroll" id="top-tv-grid"></div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       ADULT MODE SECTIONS (Hidden by default)
-       ═══════════════════════════════════════════════════════════════════ -->
+  <!-- ADULT MODE SECTIONS -->
   
   <section id="section-adult-new" style="display:none;">
-    <h2>🔞 New Releases</h2>
+    <h2>🔞 New XXX Releases</h2>
     <div class="horizontal-scroll" id="adult-new-grid"></div>
   </section>
 
-  <section id="section-adult-stepmom" style="display:none;">
-    <h2>🔞 Stepmom</h2>
-    <div class="horizontal-scroll" id="adult-stepmom-grid"></div>
+  <section id="section-adult-popular" style="display:none;">
+    <h2>🔞 Popular XXX</h2>
+    <div class="horizontal-scroll" id="adult-popular-grid"></div>
   </section>
 
-  <section id="section-adult-teen" style="display:none;">
-    <h2>🔞 18 Year Old</h2>
-    <div class="horizontal-scroll" id="adult-teen-grid"></div>
+  <section id="section-adult-toprated" style="display:none;">
+    <h2>🔞 Top Rated XXX</h2>
+    <div class="horizontal-scroll" id="adult-toprated-grid"></div>
   </section>
 
-  <section id="section-adult-lesbian" style="display:none;">
-    <h2>🔞 Lesbian</h2>
-    <div class="horizontal-scroll" id="adult-lesbian-grid"></div>
+  <section id="section-adult-trending" style="display:none;">
+    <h2>🔞 Trending XXX</h2>
+    <div class="horizontal-scroll" id="adult-trending-grid"></div>
   </section>
 
-  <section id="section-adult-milf" style="display:none;">
-    <h2>🔞 MILF</h2>
-    <div class="horizontal-scroll" id="adult-milf-grid"></div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════════
-       DETAIL VIEW MODAL
-       ═══════════════════════════════════════════════════════════════════ -->
   <div id="detail-view">
     <div id="detail-content">
       <span id="detail-close">×</span>
@@ -949,9 +941,6 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       FOOTER
-       ═══════════════════════════════════════════════════════════════════ -->
   <div id="footer">
     <div class="weather-widget" id="weatherWidget">
       <div class="weather-icon-temp">
@@ -981,9 +970,6 @@
 
   <audio id="easterAudio" preload="none"></audio>
   <script>
-    /* ═══════════════════════════════════════════════════════════════════
-       API CONFIGURATION - ALL SOURCES
-       ═══════════════════════════════════════════════════════════════════ */
     const TMDB_KEY = "e39f22e3483a5eac3cc41faf13d05194";
     const FANART_KEY = "9cd6959542f3be1a6abf078871f18d2e";
     
@@ -991,19 +977,9 @@
     const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
     const YT_EMBED = "https://www.youtube.com/embed/";
 
-    // RedTube API - No key needed, completely free
-    const REDTUBE_API = "https://api.redtube.com/";
-
-    /* ═══════════════════════════════════════════════════════════════════
-       GLOBAL STATE
-       ═══════════════════════════════════════════════════════════════════ */
     let isAdultMode = localStorage.getItem('adultMode') === 'true';
     let currentMovieId = null;
     let searchTimeout = null;
-
-    /* ═══════════════════════════════════════════════════════════════════
-       UTILITY FUNCTIONS
-       ═══════════════════════════════════════════════════════════════════ */
 
     function showLoader() {
       document.getElementById('loading-overlay').classList.remove('hidden');
@@ -1013,7 +989,11 @@
       document.getElementById('loading-overlay').classList.add('hidden');
     }
 
-    // TMDB API
+    // Logo click to refresh
+    document.getElementById('logo').onclick = () => {
+      location.reload();
+    };
+
     async function tmdb(endpoint, params = {}) {
       const url = new URL(`${TMDB_BASE}${endpoint}`);
       url.searchParams.set('api_key', TMDB_KEY);
@@ -1031,124 +1011,22 @@
       return res.json();
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       REDTUBE API INTEGRATION - Free, no key needed
-       ═══════════════════════════════════════════════════════════════════ */
+    async function tmdbAdult(endpoint, params = {}) {
+      const url = new URL(`${TMDB_BASE}${endpoint}`);
+      url.searchParams.set('api_key', TMDB_KEY);
+      url.searchParams.set('language', 'en-US');
+      url.searchParams.set('include_adult', 'true');
 
-    async function fetchRedTube(searchTerm = '', page = 1) {
-      try {
-        const url = new URL(REDTUBE_API);
-        url.searchParams.set('data', 'redtube.Videos.searchVideos');
-        url.searchParams.set('output', 'json');
-        url.searchParams.set('page', page);
-        
-        if (searchTerm) {
-          url.searchParams.set('search', searchTerm);
+      Object.entries(params).forEach(([k, v]) => {
+        if (!url.searchParams.has(k)) {
+          url.searchParams.set(k, v);
         }
+      });
 
-        console.log('RedTube API call:', url.toString());
-        
-        const response = await fetch(url);
-        const data = await response.json();
-
-        console.log('RedTube response:', data);
-
-        if (data && data.videos) {
-          return data.videos.map(video => ({
-            id: `redtube_${video.video.video_id}`,
-            title: video.video.title,
-            thumbnail: video.video.thumb,
-            duration: video.video.duration,
-            views: video.video.views,
-            rating: video.video.rating,
-            url: video.video.url,
-            embed_url: video.video.embed_url,
-            publish_date: video.video.publish_date,
-            source: 'redtube'
-          }));
-        }
-        
-        return [];
-      } catch (err) {
-        console.error('RedTube API error:', err);
-        return [];
-      }
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`TMDB ${res.status}`);
+      return res.json();
     }
-
-    // Fetch by category
-    async function fetchRedTubeByCategory(category, page = 1) {
-      try {
-        const url = new URL(REDTUBE_API);
-        url.searchParams.set('data', 'redtube.Videos.searchVideos');
-        url.searchParams.set('output', 'json');
-        url.searchParams.set('category', category);
-        url.searchParams.set('page', page);
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data && data.videos) {
-          return data.videos.map(video => ({
-            id: `redtube_${video.video.video_id}`,
-            title: video.video.title,
-            thumbnail: video.video.thumb,
-            duration: video.video.duration,
-            views: video.video.views,
-            rating: video.video.rating,
-            url: video.video.url,
-            embed_url: video.video.embed_url,
-            publish_date: video.video.publish_date,
-            source: 'redtube'
-          }));
-        }
-        
-        return [];
-      } catch (err) {
-        console.error('RedTube category error:', err);
-        return [];
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       ADULT CONTENT LOADER - Loads all categories
-       ═══════════════════════════════════════════════════════════════════ */
-
-    async function loadAdultSections() {
-      try {
-        console.log('Loading adult content sections...');
-
-        // Load all categories in parallel
-        const [newReleases, stepmom, teen, lesbian, milf] = await Promise.all([
-          fetchRedTube('', 1), // New releases (no search = latest)
-          fetchRedTubeByCategory('stepmom', 1),
-          fetchRedTubeByCategory('teen', 1),
-          fetchRedTubeByCategory('lesbian', 1),
-          fetchRedTubeByCategory('milf', 1)
-        ]);
-
-        console.log('Adult content loaded:', {
-          newReleases: newReleases.length,
-          stepmom: stepmom.length,
-          teen: teen.length,
-          lesbian: lesbian.length,
-          milf: milf.length
-        });
-
-        // Render each category
-        renderAdultContent('adult-new-grid', newReleases);
-        renderAdultContent('adult-stepmom-grid', stepmom);
-        renderAdultContent('adult-teen-grid', teen);
-        renderAdultContent('adult-lesbian-grid', lesbian);
-        renderAdultContent('adult-milf-grid', milf);
-
-      } catch (err) {
-        console.error('Failed to load adult content:', err);
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       IMAGE HELPERS
-       ═══════════════════════════════════════════════════════════════════ */
 
     async function getImageUrl(item, type = 'poster') {
       if (type === 'poster' && item.poster_path) {
@@ -1187,16 +1065,6 @@
       return null;
     }
 
-    function getAdultImageUrl(item) {
-      if (!item) return null;
-      if (item.thumbnail) return item.thumbnail;
-      return null;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       CARD RENDERING
-       ═══════════════════════════════════════════════════════════════════ */
-
     async function renderHorizontal(gridId, items) {
       const grid = document.getElementById(gridId);
       if (!grid) return;
@@ -1234,61 +1102,13 @@
       }
     }
 
-    function renderAdultContent(gridId, items) {
-      const grid = document.getElementById(gridId);
-      if (!grid) return;
-      
-      grid.innerHTML = '';
-
-      if (items.length === 0) {
-        grid.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem; font-size: 0.9rem;">Loading content...</p>';
-        return;
-      }
-
-      items.forEach(item => {
-        const title = item.title || 'Unknown';
-        const imageUrl = getAdultImageUrl(item);
-
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        if (imageUrl) {
-          card.innerHTML = `
-            <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}" crossorigin="anonymous">
-            <div class="info">
-              <div class="year">${item.duration || ''}</div>
-            </div>
-          `;
-        } else {
-          card.innerHTML = `
-            <div class="poster-placeholder">
-              <span>Loading</span>
-            </div>
-            <div class="info">
-              <div class="year">${item.duration || ''}</div>
-            </div>
-          `;
-        }
-
-        card.addEventListener('click', () => {
-          console.log('Opening adult content:', item);
-          openAdultDetail(item);
-        });
-
-        grid.appendChild(card);
-      });
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTION LOADING
-       ═══════════════════════════════════════════════════════════════════ */
-
-    async function loadSection(endpoint, params, gridId, maxPages = 3) {
+    async function loadSection(endpoint, params, gridId, maxPages = 3, useAdultAPI = false) {
       let allResults = [];
       
       for (let page = 1; page <= maxPages; page++) {
         try {
-          const { results } = await tmdb(endpoint, { ...params, page });
+          const apiFunc = useAdultAPI ? tmdbAdult : tmdb;
+          const { results } = await apiFunc(endpoint, { ...params, page });
           allResults = allResults.concat(results || []);
         } catch (err) {
           console.error(`Failed to load page ${page}:`, err);
@@ -1299,9 +1119,30 @@
       await renderHorizontal(gridId, allResults);
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       HOME PAGE LOADING
-       ═══════════════════════════════════════════════════════════════════ */
+    async function loadAdultSections() {
+      console.log('Loading TMDB adult content...');
+      
+      const today = new Date().toISOString().split('T')[0];
+      const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      try {
+        await Promise.all([
+          loadSection('/discover/movie', {
+            'sort_by': 'release_date.desc',
+            'primary_release_date.lte': today,
+            'primary_release_date.gte': monthAgo
+          }, 'adult-new-grid', 3, true),
+
+          loadSection('/movie/popular', {}, 'adult-popular-grid', 3, true),
+
+          loadSection('/movie/top_rated', {}, 'adult-toprated-grid', 3, true),
+
+          loadSection('/trending/movie/week', {}, 'adult-trending-grid', 3, true)
+        ]);
+      } catch (err) {
+        console.error('Failed to load adult sections:', err);
+      }
+    }
 
     async function loadHome() {
       showLoader();
@@ -1311,7 +1152,6 @@
 
       try {
         if (isAdultMode) {
-          // Show ONLY adult sections
           document.getElementById('section-digital').style.display = 'none';
           document.getElementById('section-airing').style.display = 'none';
           document.getElementById('section-best-month').style.display = 'none';
@@ -1319,19 +1159,16 @@
           document.getElementById('section-top-tv').style.display = 'none';
           
           document.getElementById('section-adult-new').style.display = 'block';
-          document.getElementById('section-adult-stepmom').style.display = 'block';
-          document.getElementById('section-adult-teen').style.display = 'block';
-          document.getElementById('section-adult-lesbian').style.display = 'block';
-          document.getElementById('section-adult-milf').style.display = 'block';
+          document.getElementById('section-adult-popular').style.display = 'block';
+          document.getElementById('section-adult-toprated').style.display = 'block';
+          document.getElementById('section-adult-trending').style.display = 'block';
           
           await loadAdultSections();
         } else {
-          // Show ONLY normal sections
           document.getElementById('section-adult-new').style.display = 'none';
-          document.getElementById('section-adult-stepmom').style.display = 'none';
-          document.getElementById('section-adult-teen').style.display = 'none';
-          document.getElementById('section-adult-lesbian').style.display = 'none';
-          document.getElementById('section-adult-milf').style.display = 'none';
+          document.getElementById('section-adult-popular').style.display = 'none';
+          document.getElementById('section-adult-toprated').style.display = 'none';
+          document.getElementById('section-adult-trending').style.display = 'none';
           
           document.getElementById('section-digital').style.display = 'block';
           document.getElementById('section-airing').style.display = 'block';
@@ -1378,62 +1215,8 @@
         openMovieDetail(item.id);
       }
     }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       ADULT CONTENT DETAIL VIEW - WITH REDTUBE EMBED
-       ═══════════════════════════════════════════════════════════════════ */
-
-    async function openAdultDetail(item) {
-      console.log('Opening adult detail:', item);
-      showLoader();
-
-      try {
-        const title = item.title || 'Unknown';
-        
-        let html = `
-          <h2>${title}</h2>
-          <p style="color: rgba(255,255,255,0.7); margin: 0.5rem 0;">
-            Duration: ${item.duration || 'Unknown'} • Views: ${item.views || 'N/A'} • Rating: ${item.rating || 'N/A'}
-          </p>
-        `;
-
-        // RedTube embed
-        if (item.embed_url) {
-          html += `
-            <div class="trailer-container">
-              <iframe 
-                src="${item.embed_url}" 
-                frameborder="0" 
-                width="100%" 
-                height="100%" 
-                scrolling="no" 
-                allowfullscreen>
-              </iframe>
-            </div>
-          `;
-        } else {
-          html += '<p style="color: rgba(255,255,255,0.6); font-style: italic;">Video player not available</p>';
-        }
-
-        html += '<button class="btn" id="back-btn">Back to Browse</button>';
-
-        document.getElementById('detail-body').innerHTML = html;
-        document.getElementById('detail-view').classList.add('active');
-
-        document.getElementById('detail-close').onclick = closeDetail;
-        document.getElementById('back-btn').onclick = closeDetail;
-
-      } catch (err) {
-        document.getElementById('detail-body').innerHTML = `
-          <p style="color:#ff6666;">Error loading content</p>
-        `;
-        console.error('Adult detail error:', err);
-      }
-
-      hideLoader();
-    }
-    /* ═══════════════════════════════════════════════════════════════════
-       MOVIE DETAIL VIEW
+        /* ═══════════════════════════════════════════════════════════════════
+       MOVIE DETAIL VIEW - ALL backdrops with correct orientation
        ═══════════════════════════════════════════════════════════════════ */
 
     async function openMovieDetail(movieId) {
@@ -1441,17 +1224,19 @@
       showLoader();
 
       try {
-        const data = await tmdb(`/movie/${movieId}`, {
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        const data = await apiFunc(`/movie/${movieId}`, {
           append_to_response: 'credits,videos,images,recommendations'
         });
 
         const title = data.title || 'Unknown';
         const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
         const overview = data.overview || 'No overview available.';
-        const trailer = data.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube')?.key;
-        const cast = data.credits?.cast?.slice(0, 20) || [];
-        const images = data.images?.posters?.slice(0, 10) || [];
-        const backdrops = data.images?.backdrops?.slice(0, 10) || [];
+        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
+        const trailers = allTrailers.slice(0, 5);
+        const cast = data.credits?.cast || [];
+        const posters = data.images?.posters || []; // ALL posters
+        const backdrops = data.images?.backdrops || []; // ALL backdrops
         const recommendations = data.recommendations?.results?.slice(0, 10) || [];
 
         let html = `
@@ -1459,47 +1244,75 @@
           <p class="overview">${overview}</p>
         `;
 
-        if (trailer) {
-          html += `
-            <div class="trailer-container">
-              <iframe
-                src="${YT_EMBED}${trailer}?rel=0&playsinline=1"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-              </iframe>
-            </div>
-          `;
-        } else {
-          html += '<p style="color: rgba(255,255,255,0.6); font-style: italic;">No trailer available</p>';
+        // TRAILERS
+        if (trailers.length > 0) {
+          html += '<h3>Trailers</h3>';
+          html += '<div class="trailers-scroll">';
+          trailers.forEach((trailer) => {
+            html += `
+              <div class="trailer-container">
+                <iframe
+                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            `;
+          });
+          html += '</div>';
         }
 
-        html += '<h3>Cast</h3><div id="cast-strip"></div>';
+        // CAST
+        if (cast.length > 0) {
+          html += '<h3>Cast</h3>';
+          html += '<div class="credits-grid" id="cast-grid"></div>';
+        }
 
+        // RECOMMENDATIONS
         if (recommendations.length > 0) {
           html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
         }
 
-        if (images.length > 0 || backdrops.length > 0) {
-          html += '<div class="image-gallery"><h3>Images</h3><div class="gallery-scroll">';
+        // ALL POSTERS & BACKDROPS - WITH CORRECT ORIENTATION
+        if (posters.length > 0 || backdrops.length > 0) {
+          html += '<div class="image-gallery">';
           
-          images.forEach(img => {
-            html += `
-              <div class="gallery-image">
-                <img src="${TMDB_IMG}${img.file_path}" alt="Poster">
-              </div>
-            `;
-          });
+          // POSTERS - Vertical (portrait)
+          if (posters.length > 0) {
+            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
+            posters.forEach(img => {
+              const isPortrait = img.aspect_ratio < 1; // aspect_ratio < 1 = portrait
+              const height = isPortrait ? '300px' : 'auto';
+              const width = isPortrait ? 'auto' : '300px';
+              
+              html += `
+                <div class="gallery-image" style="width: ${width}; height: ${height};">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster" style="object-fit: contain;">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
 
-          backdrops.forEach(img => {
-            html += `
-              <div class="gallery-image">
-                <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop">
-              </div>
-            `;
-          });
+          // BACKDROPS - Horizontal (landscape) or Vertical based on aspect ratio
+          if (backdrops.length > 0) {
+            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
+            backdrops.forEach(img => {
+              const isLandscape = img.aspect_ratio > 1; // aspect_ratio > 1 = landscape
+              const height = isLandscape ? '200px' : '300px';
+              const width = isLandscape ? 'auto' : '200px';
+              
+              html += `
+                <div class="gallery-image" style="width: ${width}; height: ${height};">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop" style="object-fit: contain;">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
 
-          html += '</div></div>';
+          html += '</div>';
         }
 
         html += '<button class="btn" id="back-btn">Back to Browse</button>';
@@ -1507,19 +1320,199 @@
         document.getElementById('detail-body').innerHTML = html;
         document.getElementById('detail-view').classList.add('active');
 
-        const castStrip = document.getElementById('cast-strip');
-        cast.forEach(actor => {
-          const card = document.createElement('div');
-          card.className = 'actor-card';
-          card.innerHTML = `
-            <img class="actor-img" src="${actor.profile_path ? TMDB_IMG + actor.profile_path : ''}" alt="${actor.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23222%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23666%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2212%22%3ENo Photo%3C/text%3E%3C/svg%3E'">
-            <div class="actor-name">${actor.name}</div>
-            <div class="actor-character">${actor.character}</div>
-          `;
-          card.onclick = () => openActorDetail(actor.id);
-          castStrip.appendChild(card);
+        // Render cast
+        if (cast.length > 0) {
+          const castGrid = document.getElementById('cast-grid');
+          for (const actor of cast) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
+            
+            if (actorImg) {
+              card.innerHTML = `
+                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+                <div class="info">
+                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
+                </div>
+              `;
+            } else {
+              card.innerHTML = `
+                <div class="poster-placeholder">
+                  <span style="font-size: 0.6rem;">${actor.name}</span>
+                </div>
+              `;
+            }
+            
+            card.onclick = () => openActorDetail(actor.id);
+            castGrid.appendChild(card);
+          }
+        }
+
+        // Render recommendations
+        if (recommendations.length > 0) {
+          const recScroll = document.getElementById('recommendations-scroll');
+          for (const rec of recommendations) {
+            const recCard = document.createElement('div');
+            recCard.className = 'recommendation-card';
+            const recImg = await getImageUrl(rec);
+            recCard.innerHTML = `
+              <img class="poster" src="${recImg || ''}" alt="${rec.title || rec.name}" onerror="this.parentElement.style.display='none'">
+            `;
+            recCard.onclick = () => openMovieDetail(rec.id);
+            recScroll.appendChild(recCard);
+          }
+        }
+
+        document.getElementById('detail-close').onclick = closeDetail;
+        document.getElementById('back-btn').onclick = closeDetail;
+
+      } catch (err) {
+        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading movie details</p>';
+        console.error(err);
+      }
+
+      hideLoader();
+    }
+
+        /* ═══════════════════════════════════════════════════════════════════
+       MOVIE DETAIL VIEW - FETCH ALL IMAGES (include_image_language)
+       ═══════════════════════════════════════════════════════════════════ */
+
+    async function openMovieDetail(movieId) {
+      currentMovieId = movieId;
+      showLoader();
+
+      try {
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        
+        // CRITICAL: Add include_image_language=null to get ALL images
+        const data = await apiFunc(`/movie/${movieId}`, {
+          append_to_response: 'credits,videos,images,recommendations',
+          include_image_language: 'en,null' // Gets English AND images without language tag
         });
 
+        const title = data.title || 'Unknown';
+        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
+        const overview = data.overview || 'No overview available.';
+        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
+        const trailers = allTrailers.slice(0, 5);
+        const cast = data.credits?.cast || [];
+        const posters = data.images?.posters || []; // NOW GETS ALL
+        const backdrops = data.images?.backdrops || []; // NOW GETS ALL
+        const recommendations = data.recommendations?.results?.slice(0, 10) || [];
+
+        console.log(`Found ${posters.length} posters, ${backdrops.length} backdrops for "${title}"`);
+
+        let html = `
+          <h2>${title} <span class="rating">${rating}★</span></h2>
+          <p class="overview">${overview}</p>
+        `;
+
+        // TRAILERS
+        if (trailers.length > 0) {
+          html += '<h3>Trailers</h3>';
+          html += '<div class="trailers-scroll">';
+          trailers.forEach((trailer) => {
+            html += `
+              <div class="trailer-container">
+                <iframe
+                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+
+        // CAST
+        if (cast.length > 0) {
+          html += '<h3>Cast</h3>';
+          html += '<div class="credits-grid" id="cast-grid"></div>';
+        }
+
+        // RECOMMENDATIONS
+        if (recommendations.length > 0) {
+          html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
+        }
+
+        // ALL POSTERS & BACKDROPS
+        if (posters.length > 0 || backdrops.length > 0) {
+          html += '<div class="image-gallery">';
+          
+          // POSTERS
+          if (posters.length > 0) {
+            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
+            posters.forEach(img => {
+              const isPortrait = img.aspect_ratio < 1;
+              const height = isPortrait ? '300px' : 'auto';
+              const width = isPortrait ? 'auto' : '300px';
+              
+              html += `
+                <div class="gallery-image" style="width: ${width}; height: ${height};">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster" style="object-fit: contain;">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
+
+          // BACKDROPS
+          if (backdrops.length > 0) {
+            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
+            backdrops.forEach(img => {
+              const isLandscape = img.aspect_ratio > 1;
+              const height = isLandscape ? '200px' : '300px';
+              const width = isLandscape ? 'auto' : '200px';
+              
+              html += `
+                <div class="gallery-image" style="width: ${width}; height: ${height};">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop" style="object-fit: contain;">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
+
+          html += '</div>';
+        }
+
+        html += '<button class="btn" id="back-btn">Back to Browse</button>';
+
+        document.getElementById('detail-body').innerHTML = html;
+        document.getElementById('detail-view').classList.add('active');
+
+        // Render cast
+        if (cast.length > 0) {
+          const castGrid = document.getElementById('cast-grid');
+          for (const actor of cast) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
+            
+            if (actorImg) {
+              card.innerHTML = `
+                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+                <div class="info">
+                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
+                </div>
+              `;
+            } else {
+              card.innerHTML = `
+                <div class="poster-placeholder">
+                  <span style="font-size: 0.6rem;">${actor.name}</span>
+                </div>
+              `;
+            }
+            
+            card.onclick = () => openActorDetail(actor.id);
+            castGrid.appendChild(card);
+          }
+        }
+
+        // Render recommendations
         if (recommendations.length > 0) {
           const recScroll = document.getElementById('recommendations-scroll');
           for (const rec of recommendations) {
@@ -1546,7 +1539,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       TV SHOW DETAIL VIEW
+       TV SHOW DETAIL VIEW - FETCH ALL IMAGES
        ═══════════════════════════════════════════════════════════════════ */
 
     async function openTVDetail(tvId) {
@@ -1554,68 +1547,106 @@
       showLoader();
 
       try {
-        const data = await tmdb(`/tv/${tvId}`, {
-          append_to_response: 'credits,videos,images,recommendations'
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        
+        // CRITICAL: Add include_image_language=null to get ALL images
+        const data = await apiFunc(`/tv/${tvId}`, {
+          append_to_response: 'credits,videos,images,recommendations',
+          include_image_language: 'en,null' // Gets English AND images without language tag
         });
 
         const title = data.name || 'Unknown';
         const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
         const overview = data.overview || 'No overview available.';
-        const trailer = data.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube')?.key;
-        const cast = data.credits?.cast?.slice(0, 20) || [];
+        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
+        const trailers = allTrailers.slice(0, 5);
+        const cast = data.credits?.cast || [];
         const seasons = data.seasons || [];
-        const images = data.images?.posters?.slice(0, 10) || [];
-        const backdrops = data.images?.backdrops?.slice(0, 10) || [];
+        const posters = data.images?.posters || []; // NOW GETS ALL
+        const backdrops = data.images?.backdrops || []; // NOW GETS ALL
         const recommendations = data.recommendations?.results?.slice(0, 10) || [];
+
+        console.log(`Found ${posters.length} posters, ${backdrops.length} backdrops for "${title}"`);
 
         let html = `
           <h2>${title} <span class="rating">${rating}★</span></h2>
           <p class="overview">${overview}</p>
         `;
 
-        if (trailer) {
-          html += `
-            <div class="trailer-container">
-              <iframe
-                src="${YT_EMBED}${trailer}?rel=0&playsinline=1"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-              </iframe>
-            </div>
-          `;
+        // TRAILERS
+        if (trailers.length > 0) {
+          html += '<h3>Trailers</h3>';
+          html += '<div class="trailers-scroll">';
+          trailers.forEach((trailer) => {
+            html += `
+              <div class="trailer-container">
+                <iframe
+                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            `;
+          });
+          html += '</div>';
         }
 
-        html += '<h3>Cast</h3><div id="cast-strip"></div>';
+        // CAST
+        if (cast.length > 0) {
+          html += '<h3>Cast</h3>';
+          html += '<div class="credits-grid" id="cast-grid"></div>';
+        }
 
+        // SEASONS
         if (seasons.length > 0) {
           html += '<h3>Seasons</h3><div class="seasons-accordion" id="seasons-accordion"></div>';
         }
 
+        // RECOMMENDATIONS
         if (recommendations.length > 0) {
           html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
         }
 
-        if (images.length > 0 || backdrops.length > 0) {
-          html += '<div class="image-gallery"><h3>Images</h3><div class="gallery-scroll">';
+        // ALL POSTERS & BACKDROPS
+        if (posters.length > 0 || backdrops.length > 0) {
+          html += '<div class="image-gallery">';
           
-          images.forEach(img => {
-            html += `
-              <div class="gallery-image">
-                <img src="${TMDB_IMG}${img.file_path}" alt="Poster">
-              </div>
-            `;
-          });
+          // POSTERS
+          if (posters.length > 0) {
+            html += `<h3>Posters (${posters.length})</h3><div class="gallery-scroll">`;
+            posters.forEach(img => {
+              const isPortrait = img.aspect_ratio < 1;
+              const height = isPortrait ? '300px' : 'auto';
+              const width = isPortrait ? 'auto' : '300px';
+              
+              html += `
+                <div class="gallery-image" style="width: ${width}; height: ${height};">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster" style="object-fit: contain;">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
 
-          backdrops.forEach(img => {
-            html += `
-              <div class="gallery-image">
-                <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop">
-              </div>
-            `;
-          });
+          // BACKDROPS
+          if (backdrops.length > 0) {
+            html += `<h3>Backdrops (${backdrops.length})</h3><div class="gallery-scroll">`;
+            backdrops.forEach(img => {
+              const isLandscape = img.aspect_ratio > 1;
+              const height = isLandscape ? '200px' : '300px';
+              const width = isLandscape ? 'auto' : '200px';
+              
+              html += `
+                <div class="gallery-image" style="width: ${width}; height: ${height};">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop" style="object-fit: contain;">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
 
-          html += '</div></div>';
+          html += '</div>';
         }
 
         html += '<button class="btn" id="back-btn">Back to Browse</button>';
@@ -1623,19 +1654,35 @@
         document.getElementById('detail-body').innerHTML = html;
         document.getElementById('detail-view').classList.add('active');
 
-        const castStrip = document.getElementById('cast-strip');
-        cast.forEach(actor => {
-          const card = document.createElement('div');
-          card.className = 'actor-card';
-          card.innerHTML = `
-            <img class="actor-img" src="${actor.profile_path ? TMDB_IMG + actor.profile_path : ''}" alt="${actor.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23222%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23666%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2212%22%3ENo Photo%3C/text%3E%3C/svg%3E'">
-            <div class="actor-name">${actor.name}</div>
-            <div class="actor-character">${actor.character}</div>
-          `;
-          card.onclick = () => openActorDetail(actor.id);
-          castStrip.appendChild(card);
-        });
+        // Render cast (same as before)
+        if (cast.length > 0) {
+          const castGrid = document.getElementById('cast-grid');
+          for (const actor of cast) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
+            
+            if (actorImg) {
+              card.innerHTML = `
+                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+                <div class="info">
+                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
+                </div>
+              `;
+            } else {
+              card.innerHTML = `
+                <div class="poster-placeholder">
+                  <span style="font-size: 0.6rem;">${actor.name}</span>
+                </div>
+              `;
+            }
+            
+            card.onclick = () => openActorDetail(actor.id);
+            castGrid.appendChild(card);
+          }
+        }
 
+        // Render seasons (same as before - keeping full code)
         const seasonsAccordion = document.getElementById('seasons-accordion');
         if (seasonsAccordion) {
           seasons.forEach(season => {
@@ -1667,7 +1714,8 @@
                 if (episodesDiv.children.length === 0) {
                   episodesDiv.innerHTML = '<p style="text-align:center; color: #666;">Loading episodes...</p>';
                   try {
-                    const seasonData = await tmdb(`/tv/${tvId}/season/${season.season_number}`);
+                    const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+                    const seasonData = await apiFunc(`/tv/${tvId}/season/${season.season_number}`);
                     episodesDiv.innerHTML = '';
                     
                     seasonData.episodes.forEach(ep => {
@@ -1692,6 +1740,7 @@
           });
         }
 
+        // Render recommendations
         if (recommendations.length > 0) {
           const recScroll = document.getElementById('recommendations-scroll');
           for (const rec of recommendations) {
@@ -1718,15 +1767,229 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       ACTOR DETAIL VIEW
+       TV SHOW DETAIL VIEW - Max 5 trailers, horizontal scroll
+       ═══════════════════════════════════════════════════════════════════ */
+
+    async function openTVDetail(tvId) {
+      currentMovieId = tvId;
+      showLoader();
+
+      try {
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        const data = await apiFunc(`/tv/${tvId}`, {
+          append_to_response: 'credits,videos,images,recommendations'
+        });
+
+        const title = data.name || 'Unknown';
+        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
+        const overview = data.overview || 'No overview available.';
+        const allTrailers = data.videos?.results?.filter(v => v.site === 'YouTube') || [];
+        const trailers = allTrailers.slice(0, 5); // LIMIT TO 5
+        const cast = data.credits?.cast || []; // NO LIMIT
+        const seasons = data.seasons || [];
+        const posters = data.images?.posters || [];
+        const backdrops = data.images?.backdrops || [];
+        const recommendations = data.recommendations?.results?.slice(0, 10) || [];
+
+        let html = `
+          <h2>${title} <span class="rating">${rating}★</span></h2>
+          <p class="overview">${overview}</p>
+        `;
+
+        // TRAILERS - Horizontal scroll, max 5
+        if (trailers.length > 0) {
+          html += '<h3>Trailers</h3>';
+          html += '<div class="trailers-scroll">';
+          trailers.forEach((trailer) => {
+            html += `
+              <div class="trailer-container">
+                <iframe
+                  src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+
+        // Cast - show ALL
+        if (cast.length > 0) {
+          html += '<h3>Cast</h3>';
+          html += '<div class="credits-grid" id="cast-grid"></div>';
+        }
+
+        // Seasons accordion
+        if (seasons.length > 0) {
+          html += '<h3>Seasons</h3><div class="seasons-accordion" id="seasons-accordion"></div>';
+        }
+
+        // Recommendations
+        if (recommendations.length > 0) {
+          html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
+        }
+
+        // ALL POSTERS & BACKDROPS
+        if (posters.length > 0 || backdrops.length > 0) {
+          html += '<div class="image-gallery">';
+          
+          if (posters.length > 0) {
+            html += '<h3>Posters</h3><div class="gallery-scroll">';
+            posters.forEach(img => {
+              html += `
+                <div class="gallery-image">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Poster">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
+
+          if (backdrops.length > 0) {
+            html += '<h3>Backdrops</h3><div class="gallery-scroll">';
+            backdrops.forEach(img => {
+              html += `
+                <div class="gallery-image">
+                  <img src="${TMDB_IMG}${img.file_path}" alt="Backdrop">
+                </div>
+              `;
+            });
+            html += '</div>';
+          }
+
+          html += '</div>';
+        }
+
+        html += '<button class="btn" id="back-btn">Back to Browse</button>';
+
+        document.getElementById('detail-body').innerHTML = html;
+        document.getElementById('detail-view').classList.add('active');
+
+        // Render ALL cast in grid
+        if (cast.length > 0) {
+          const castGrid = document.getElementById('cast-grid');
+          for (const actor of cast) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : '';
+            
+            if (actorImg) {
+              card.innerHTML = `
+                <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+                <div class="info">
+                  <div class="year" style="font-size: 0.65rem;">${actor.name}</div>
+                </div>
+              `;
+            } else {
+              card.innerHTML = `
+                <div class="poster-placeholder">
+                  <span style="font-size: 0.6rem;">${actor.name}</span>
+                </div>
+              `;
+            }
+            
+            card.onclick = () => openActorDetail(actor.id);
+            castGrid.appendChild(card);
+          }
+        }
+
+        // Render seasons accordion
+        const seasonsAccordion = document.getElementById('seasons-accordion');
+        if (seasonsAccordion) {
+          seasons.forEach(season => {
+            const seasonDiv = document.createElement('div');
+            seasonDiv.className = 'season-item';
+            seasonDiv.innerHTML = `
+              <div class="season-header">
+                <div>
+                  <div class="season-title">${season.name}</div>
+                  <div class="season-info">${season.episode_count} episodes ${season.air_date ? '• Aired: ' + season.air_date : ''}</div>
+                </div>
+                <div class="season-arrow">▼</div>
+              </div>
+              <div class="episodes-list">
+                <div class="episodes-content" id="episodes-${season.season_number}"></div>
+              </div>
+            `;
+
+            const header = seasonDiv.querySelector('.season-header');
+            header.onclick = async () => {
+              const isActive = seasonDiv.classList.contains('active');
+              
+              document.querySelectorAll('.season-item').forEach(el => el.classList.remove('active'));
+              
+              if (!isActive) {
+                seasonDiv.classList.add('active');
+                
+                const episodesDiv = document.getElementById(`episodes-${season.season_number}`);
+                if (episodesDiv.children.length === 0) {
+                  episodesDiv.innerHTML = '<p style="text-align:center; color: #666;">Loading episodes...</p>';
+                  try {
+                    const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+                    const seasonData = await apiFunc(`/tv/${tvId}/season/${season.season_number}`);
+                    episodesDiv.innerHTML = '';
+                    
+                    seasonData.episodes.forEach(ep => {
+                      const epDiv = document.createElement('div');
+                      epDiv.className = 'episode-item';
+                      epDiv.innerHTML = `
+                        <div class="episode-number">Episode ${ep.episode_number}</div>
+                        <div class="episode-title">${ep.name || 'Untitled'}</div>
+                        <div class="episode-overview">${ep.overview || 'No description available.'}</div>
+                        <div class="episode-air-date">Aired: ${ep.air_date || 'Unknown'}</div>
+                      `;
+                      episodesDiv.appendChild(epDiv);
+                    });
+                  } catch (err) {
+                    episodesDiv.innerHTML = '<p style="color: #ff6666;">Failed to load episodes</p>';
+                  }
+                }
+              }
+            };
+
+            seasonsAccordion.appendChild(seasonDiv);
+          });
+        }
+
+        // Render recommendations
+        if (recommendations.length > 0) {
+          const recScroll = document.getElementById('recommendations-scroll');
+          for (const rec of recommendations) {
+            const recCard = document.createElement('div');
+            recCard.className = 'recommendation-card';
+            const recImg = await getImageUrl(rec);
+            recCard.innerHTML = `
+              <img class="poster" src="${recImg || ''}" alt="${rec.title || rec.name}" onerror="this.parentElement.style.display='none'">
+            `;
+            recCard.onclick = () => openTVDetail(rec.id);
+            recScroll.appendChild(recCard);
+          }
+        }
+
+        document.getElementById('detail-close').onclick = closeDetail;
+        document.getElementById('back-btn').onclick = closeDetail;
+
+      } catch (err) {
+        document.getElementById('detail-body').innerHTML = '<p style="color:#ff6666;">Error loading TV show details</p>';
+        console.error(err);
+      }
+
+      hideLoader();
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACTOR DETAIL VIEW - No limits, vertical grid, All/TV/Movies filters
        ═══════════════════════════════════════════════════════════════════ */
 
     async function openActorDetail(actorId) {
       showLoader();
 
       try {
-        const data = await tmdb(`/person/${actorId}`, {
-          append_to_response: 'combined_credits'
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+        const data = await apiFunc(`/person/${actorId}`, {
+          append_to_response: 'combined_credits,images'
         });
 
         const name = data.name || 'Unknown';
@@ -1734,61 +1997,127 @@
           ? data.biography.substring(0, 400) + (data.biography.length > 400 ? '...' : '') 
           : 'No biography available.';
         const profileImg = data.profile_path ? `${TMDB_IMG}${data.profile_path}` : null;
-        let credits = data.combined_credits?.cast || [];
+        const profileImages = data.images?.profiles || [];
+        let allCredits = data.combined_credits?.cast || [];
 
-        credits.sort((a, b) => {
+        // Separate movies and TV
+        const movieCredits = allCredits.filter(c => c.media_type === 'movie');
+        const tvCredits = allCredits.filter(c => c.media_type === 'tv');
+
+        // Sort by popularity
+        allCredits.sort((a, b) => {
           if (a.id === currentMovieId) return -1;
           if (b.id === currentMovieId) return 1;
           return (b.popularity || 0) - (a.popularity || 0);
         });
+        movieCredits.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+        tvCredits.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
 
         let html = `
-          <h2>${name}</h2>
-          ${profileImg ? `<img src="${profileImg}" style="max-width:240px; border-radius:12px; margin:1rem auto; display:block; border: 2px solid rgba(118,75,162,0.5);">` : ''}
-          <p><em>Known for: ${data.known_for_department || 'Acting'}</em></p>
-          <p class="overview">${bio}</p>
-          <h3>Credits</h3>
-          <div class="horizontal-scroll" id="actor-credits"></div>
-          <button class="btn" id="back-to-movie">Back</button>
+          <div class="actor-profile">
+            <h2>${name}</h2>
+            ${profileImg ? `<img src="${profileImg}" alt="${name}">` : ''}
+            <p><em>Known for: ${data.known_for_department || 'Acting'}</em></p>
+            <p class="overview">${bio}</p>
+          </div>
         `;
+
+        // Filter buttons - ONLY if they have both movies and TV
+        if (movieCredits.length > 0 && tvCredits.length > 0) {
+          html += `
+            <div class="filter-buttons">
+              <button class="filter-btn active" data-filter="all">All (${allCredits.length})</button>
+              <button class="filter-btn" data-filter="movies">Movies (${movieCredits.length})</button>
+              <button class="filter-btn" data-filter="tv">TV (${tvCredits.length})</button>
+            </div>
+          `;
+        }
+
+        html += '<h3>Credits</h3>';
+        html += '<div class="credits-grid" id="actor-credits"></div>';
+
+        // Profile images
+        if (profileImages.length > 0) {
+          html += '<h3>Photos</h3><div class="gallery-scroll">';
+          profileImages.forEach(img => {
+            html += `
+              <div class="gallery-image">
+                <img src="${TMDB_IMG}${img.file_path}" alt="Photo">
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+
+        html += '<button class="btn" id="back-to-movie">Back</button>';
 
         document.getElementById('detail-body').innerHTML = html;
         document.getElementById('detail-view').classList.add('active');
 
-        const creditsGrid = document.getElementById('actor-credits');
-        for (const item of credits.slice(0, 30)) {
-          const title = item.title || item.name || 'Unknown';
-          const year = (item.release_date || item.first_air_date || '').slice(0, 4);
-          const imageUrl = await getImageUrl(item);
+        // Render credits function
+        async function renderCredits(credits) {
+          const creditsGrid = document.getElementById('actor-credits');
+          creditsGrid.innerHTML = '';
 
-          const card = document.createElement('div');
-          card.className = 'card';
-          
-          if (item.id === currentMovieId) {
-            card.classList.add('highlight');
+          for (const item of credits) {
+            const title = item.title || item.name || 'Unknown';
+            const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+            const imageUrl = await getImageUrl(item);
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            if (item.id === currentMovieId) {
+              card.classList.add('highlight');
+            }
+
+            if (imageUrl) {
+              card.innerHTML = `
+                <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
+                <div class="info">
+                  ${year ? `<div class="year">${year}</div>` : ''}
+                </div>
+              `;
+            } else {
+              card.innerHTML = `
+                <div class="poster-placeholder">
+                  <span>No Image</span>
+                </div>
+                <div class="info">
+                  ${year ? `<div class="year">${year}</div>` : ''}
+                </div>
+              `;
+            }
+
+            card.onclick = () => openDetail(item);
+            creditsGrid.appendChild(card);
           }
-
-          if (imageUrl) {
-            card.innerHTML = `
-              <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
-              <div class="info">
-                ${year ? `<div class="year">${year}</div>` : ''}
-              </div>
-            `;
-          } else {
-            card.innerHTML = `
-              <div class="poster-placeholder">
-                <span>No Image</span>
-              </div>
-              <div class="info">
-                ${year ? `<div class="year">${year}</div>` : ''}
-              </div>
-            `;
-          }
-
-          card.onclick = () => openDetail(item);
-          creditsGrid.appendChild(card);
         }
+
+        // Initial render - ALL credits
+        await renderCredits(allCredits);
+
+        // Filter button handlers
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+          btn.onclick = async () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+            showLoader();
+            
+            if (filter === 'all') {
+              await renderCredits(allCredits);
+            } else if (filter === 'movies') {
+              await renderCredits(movieCredits);
+            } else if (filter === 'tv') {
+              await renderCredits(tvCredits);
+            }
+            
+            hideLoader();
+          };
+        });
 
         document.getElementById('detail-close').onclick = closeDetail;
         document.getElementById('back-to-movie').onclick = closeDetail;
@@ -1853,36 +2182,28 @@
         let results = [];
         let displayQuery = query;
 
-        if (isAdultMode) {
-          // Adult search via RedTube
-          results = await fetchRedTube(query, 1);
-          displayQuery = `"${query}"`;
-        } else {
-          // Normal search
-          const yearMatch = query.match(/^\d{4}$/);
+        const yearMatch = query.match(/^\d{4}$/);
+        const apiFunc = isAdultMode ? tmdbAdult : tmdb;
 
-          if (yearMatch) {
-            const year = yearMatch[0];
-            const data = await tmdb('/discover/movie', {
-              primary_release_year: year,
-              sort_by: 'popularity.desc'
-            });
-            results = data.results || [];
-            displayQuery = `Movies from ${year}`;
-          } else {
-            const data = await tmdb('/search/multi', {
-              query: query,
-              page: 1
-            });
-            results = data.results || [];
-            displayQuery = `"${query}"`;
-          }
+        if (yearMatch) {
+          const year = yearMatch[0];
+          const data = await apiFunc('/discover/movie', {
+            primary_release_year: year,
+            sort_by: 'popularity.desc'
+          });
+          results = data.results || [];
+          displayQuery = `Movies from ${year}`;
+        } else {
+          const data = await apiFunc('/search/multi', {
+            query: query,
+            page: 1
+          });
+          results = data.results || [];
+          displayQuery = `"${query}"`;
         }
 
-        // Hide all sections
         document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
 
-        // Show search results
         let searchSection = document.getElementById('search-results');
         if (!searchSection) {
           searchSection = document.createElement('section');
@@ -1896,11 +2217,7 @@
         `;
         searchSection.style.display = 'block';
 
-        if (isAdultMode) {
-          renderAdultContent('search-grid', results);
-        } else {
-          await renderHorizontal('search-grid', results);
-        }
+        await renderHorizontal('search-grid', results);
 
       } catch (err) {
         console.error('Search failed:', err);
