@@ -6,8 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Watcher by Rudeboy™</title>
 
+  <!-- iOS/Android App Icons -->
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Watcher">
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
+  <meta name="mobile-web-app-capable" content="yes">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -324,6 +330,65 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
+       GENRE BUTTONS - NEW
+       ═══════════════════════════════════════════════════════════════════ */
+    .genre-buttons-container {
+      margin: 2rem 0;
+      padding: 0 1rem;
+    }
+
+    .genre-buttons-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.8rem;
+      padding: 1rem 0;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .genre-buttons-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .genre-buttons-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+
+    .genre-buttons-scroll::-webkit-scrollbar-thumb {
+      background: var(--accent-purple);
+      border-radius: 10px;
+    }
+
+    .genre-btn {
+      flex: 0 0 auto;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      scroll-snap-align: start;
+      white-space: nowrap;
+    }
+
+    .genre-btn.green-bg {
+      background: var(--accent-green);
+      color: var(--accent-purple);
+    }
+
+    .genre-btn.purple-bg {
+      background: var(--accent-purple);
+      color: var(--accent-green);
+    }
+
+    .genre-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(118,75,162,0.5);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
        CARDS
        ═══════════════════════════════════════════════════════════════════ */
     .card {
@@ -341,6 +406,38 @@
       transform: translateY(-10px) scale(1.05);
       box-shadow: var(--hover-glow);
       border-color: var(--accent-green);
+    }
+
+    /* Favorite star button on cards */
+    .favorite-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(0,0,0,0.7);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+
+    .favorite-btn:hover {
+      transform: scale(1.2);
+      background: rgba(0,0,0,0.9);
+    }
+
+    .favorite-btn.favorited {
+      color: #ffd700;
+    }
+
+    .favorite-btn:not(.favorited) {
+      color: rgba(255,255,255,0.5);
     }
 
     .poster { 
@@ -401,6 +498,7 @@
       line-height: 1.2;
       padding: 0 0.5rem;
     }
+
 /* ═══════════════════════════════════════════════════════════════════
    DETAIL VIEW
    ═══════════════════════════════════════════════════════════════════ */
@@ -500,7 +598,7 @@
    - Height adjusts automatically to maintain aspect ratio
    ════════════════════════════════════════════════════════════════════ */
 .detail-poster {
-  width: 100px;  /* ⬅️ CHANGE THIS to adjust poster width */
+  width: 120px;  /* ⬅️ CHANGE THIS to adjust poster width */
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   border: 2px solid rgba(118,75,162,0.5);
@@ -548,6 +646,37 @@
   margin: 1rem 0;
   color: rgba(255,255,255,0.9);
   font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WHERE TO WATCH BUTTON - NEW (Sleek & Small)
+   ═══════════════════════════════════════════════════════════════════ */
+.where-to-watch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: var(--accent-purple);
+  color: var(--accent-green);
+  border: none;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 1rem 0;
+  text-decoration: none;
+}
+
+.where-to-watch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(118,75,162,0.5);
+}
+
+.where-to-watch-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -842,7 +971,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   COLLECTIONS BUTTON - NEW
+   COLLECTIONS BUTTON
    ═══════════════════════════════════════════════════════════════════ */
 .collections-btn {
   display: inline-block;
@@ -862,6 +991,26 @@
   background: linear-gradient(135deg, #8e44ad, #732d91);
   transform: translateY(-2px);
   box-shadow: 0 5px 20px rgba(155, 89, 182, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TMDB ATTRIBUTION - NEW
+   ═══════════════════════════════════════════════════════════════════ */
+.tmdb-attribution {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  margin-top: 2rem;
+}
+
+.tmdb-attribution img {
+  max-width: 200px;
+  height: auto;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.tmdb-attribution img:hover {
+  opacity: 1;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -938,9 +1087,11 @@
   .episode-still { width: 100%; height: auto; }
 }
 
+
   </style>
 </head>
 <body>
+
   <div class="loading-overlay" id="loadingOverlay">
     <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
     <div class="loading-text" id="loadingText">Loading...</div>
@@ -961,7 +1112,7 @@
   <input 
     type="text" 
     id="search-input" 
-    placeholder="Search movies, TV, actors, or year..." 
+    placeholder="Movies, TV, Actors, Genres, or Year" 
     autocomplete="off"
   />
 </div>
@@ -1010,9 +1161,20 @@
     <div class="horizontal-scroll" id="anticipated-movies-grid"></div>
   </section>
 
-  <!-- XXX SECTIONS (19 total) -->
+  <!-- FAVORITES SECTION - NORMAL MODE -->
 
-  <!-- NEW: XXX New Releases at top -->
+  <section id="section-favorites" style="display:none;">
+    <h2>⭐ My Favorites</h2>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all-fav">All</button>
+      <button class="filter-btn" data-filter="movies-fav">Movies</button>
+      <button class="filter-btn" data-filter="tv-fav">TV Shows</button>
+      <button class="filter-btn" data-filter="actors-fav">Actors</button>
+    </div>
+    <div class="vertical-grid" id="favorites-grid"></div>
+  </section>
+
+  <!-- XXX SECTIONS (19 total) -->
 
   <section id="section-xxx-new-releases" style="display:none;">
     <h2>🔞 New Releases</h2>
@@ -1114,6 +1276,33 @@
     <div class="horizontal-scroll" id="adult-moms-grid"></div>
   </section>
 
+  <!-- FAVORITES SECTION - XXX MODE -->
+
+  <section id="section-xxx-favorites" style="display:none;">
+    <h2>🔞⭐ XXX Favorites</h2>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all-xxx-fav">All</button>
+      <button class="filter-btn" data-filter="movies-xxx-fav">Movies</button>
+      <button class="filter-btn" data-filter="actors-xxx-fav">Actors</button>
+    </div>
+    <div class="vertical-grid" id="xxx-favorites-grid"></div>
+  </section>
+
+  <!-- GENRE BUTTONS - NEW -->
+
+  <div class="genre-buttons-container" id="genre-buttons-container">
+    <h2>Browse by Genre</h2>
+    <div class="genre-buttons-scroll" id="genre-buttons"></div>
+  </div>
+
+  <!-- TMDB ATTRIBUTION - NEW -->
+
+  <div class="tmdb-attribution">
+    <a href="https://www.themoviedb.org" target="_blank" rel="noopener">
+      <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_2-9665a76b1ae401a510ec1e0ca40ddcb3b0cfe45f1d51b77a308fea0845885648.svg" alt="Powered by TMDB">
+    </a>
+  </div>
+
   <div id="detail-view">
     <div id="detail-content">
       <span id="detail-close">×</span>
@@ -1172,6 +1361,85 @@
     let isAdultMode = localStorage.getItem('adultMode') === 'true';
     let currentMovieId = null;
     let searchTimeout = null;
+
+    // Favorites storage (localStorage)
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || { movies: [], tv: [], actors: [] };
+    let xxxFavorites = JSON.parse(localStorage.getItem('xxxFavorites')) || { movies: [], actors: [] };
+
+    // Genre list with IDs from TMDB
+    const GENRES = [
+      { id: 28, name: 'Action' },
+      { id: 12, name: 'Adventure' },
+      { id: 16, name: 'Animation' },
+      { id: 35, name: 'Comedy' },
+      { id: 80, name: 'Crime' },
+      { id: 99, name: 'Documentary' },
+      { id: 18, name: 'Drama' },
+      { id: 10751, name: 'Family' },
+      { id: 14, name: 'Fantasy' },
+      { id: 36, name: 'History' },
+      { id: 27, name: 'Horror' },
+      { id: 10402, name: 'Music' },
+      { id: 9648, name: 'Mystery' },
+      { id: 10749, name: 'Romance' },
+      { id: 878, name: 'Sci-Fi' },
+      { id: 10770, name: 'TV Movie' },
+      { id: 53, name: 'Thriller' },
+      { id: 10752, name: 'War' },
+      { id: 37, name: 'Western' }
+    ];
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAVORITES SYSTEM
+   ═══════════════════════════════════════════════════════════════════ */
+
+function saveFavorites() {
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+  localStorage.setItem('xxxFavorites', JSON.stringify(xxxFavorites));
+}
+
+function isFavorited(id, type) {
+  const favList = isAdultMode ? xxxFavorites : favorites;
+  if (type === 'person' || type === 'actor') {
+    return favList.actors.some(f => f.id === id);
+  } else if (type === 'tv') {
+    return isAdultMode ? false : favList.tv.some(f => f.id === id);
+  } else {
+    return favList.movies.some(f => f.id === id);
+  }
+}
+
+function toggleFavorite(item, type) {
+  const favList = isAdultMode ? xxxFavorites : favorites;
+  const id = item.id;
+  
+  if (type === 'person' || type === 'actor') {
+    const index = favList.actors.findIndex(f => f.id === id);
+    if (index > -1) {
+      favList.actors.splice(index, 1);
+    } else {
+      favList.actors.push({ ...item, media_type: 'person' });
+    }
+  } else if (type === 'tv') {
+    if (isAdultMode) return; // No TV in XXX mode
+    const index = favList.tv.findIndex(f => f.id === id);
+    if (index > -1) {
+      favList.tv.splice(index, 1);
+    } else {
+      favList.tv.push({ ...item, media_type: 'tv' });
+    }
+  } else {
+    const index = favList.movies.findIndex(f => f.id === id);
+    if (index > -1) {
+      favList.movies.splice(index, 1);
+    } else {
+      favList.movies.push({ ...item, media_type: 'movie' });
+    }
+  }
+  
+  saveFavorites();
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    LOADING FUNCTIONS
    ═══════════════════════════════════════════════════════════════════ */
@@ -1290,7 +1558,7 @@ async function getImageUrl(item, type = 'poster') {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   CARD RENDERING
+   CARD RENDERING WITH FAVORITES
    ═══════════════════════════════════════════════════════════════════ */
 
 async function renderHorizontal(gridId, items) {
@@ -1308,9 +1576,18 @@ async function renderHorizontal(gridId, items) {
       imageUrl = await getImageUrl(item);
     }
     if (!imageUrl) continue;
+    
     const card = document.createElement('div');
     card.className = 'card';
+    
+    // Determine type for favorites
+    const type = item.media_type || (item.known_for_department ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
+    const favorited = isFavorited(item.id, type);
+    
     card.innerHTML = `
+      <button class="favorite-btn ${favorited ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard(${item.id}, '${type}', this, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
+        ${favorited ? '⭐' : '☆'}
+      </button>
       <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
       <div class="info">
         ${year ? `<div class="year">${year}</div>` : ''}
@@ -1337,21 +1614,38 @@ async function renderVerticalGrid(gridId, items, showActorNames = false) {
       imageUrl = await getImageUrl(item);
     }
     if (!imageUrl) continue;
+    
     const card = document.createElement('div');
     card.className = 'card';
+    
+    const type = item.media_type || (item.known_for_department ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
+    const favorited = isFavorited(item.id, type);
+    
     let infoHtml = '';
     if (showActorNames && (item.media_type === 'person' || item.known_for_department)) {
       infoHtml = `<div class="actor-name-label">${title}</div>`;
     } else {
       infoHtml = year ? `<div class="year">${year}</div>` : '';
     }
+    
     card.innerHTML = `
+      <button class="favorite-btn ${favorited ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard(${item.id}, '${type}', this, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
+        ${favorited ? '⭐' : '☆'}
+      </button>
       <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
       <div class="info">${infoHtml}</div>
     `;
     card.onclick = () => openDetail(item);
     grid.appendChild(card);
   }
+}
+
+// Helper function to toggle favorite from card button
+function toggleFavoriteFromCard(id, type, btn, itemData) {
+  toggleFavorite(itemData, type);
+  const favorited = isFavorited(id, type);
+  btn.classList.toggle('favorited', favorited);
+  btn.textContent = favorited ? '⭐' : '☆';
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1374,7 +1668,75 @@ async function loadSection(endpoint, params, gridId, maxPages = 3, useAdultAPI =
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ADULT SECTIONS - RANDOMIZED (15 NEW + 4 EXISTING = 19 TOTAL)
+   GENRE BUTTONS RENDERING
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderGenreButtons() {
+  const genreButtons = document.getElementById('genre-buttons');
+  if (!genreButtons) return;
+  
+  genreButtons.innerHTML = '';
+  GENRES.forEach((genre, index) => {
+    const btn = document.createElement('button');
+    btn.className = `genre-btn ${index % 2 === 0 ? 'green-bg' : 'purple-bg'}`;
+    btn.textContent = genre.name;
+    btn.onclick = () => searchByGenre(genre.id, genre.name);
+    genreButtons.appendChild(btn);
+  });
+}
+
+async function searchByGenre(genreId, genreName) {
+  showLoading({ message: `Loading ${genreName}...`, showProgress: false });
+  
+  // Hide all normal sections
+  document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('genre-buttons-container').style.display = 'none';
+  
+  let searchSection = document.getElementById('search-results');
+  if (!searchSection) {
+    searchSection = document.createElement('section');
+    searchSection.id = 'search-results';
+    document.querySelector('#section-airing').before(searchSection);
+  }
+  
+  const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+  let allResults = [];
+  
+  // Load multiple pages for endless scroll effect
+  for (let page = 1; page <= 5; page++) {
+    try {
+      const data = await apiFunc('/discover/movie', {
+        with_genres: genreId,
+        sort_by: 'popularity.desc',
+        page: page
+      });
+      allResults = allResults.concat(data.results || []);
+    } catch (err) {
+      console.error(`Failed to load page ${page}:`, err);
+      break;
+    }
+  }
+  
+  searchSection.innerHTML = `
+    <h2>${genreName} Movies</h2>
+    <div class="vertical-grid" id="search-grid"></div>
+    <button class="btn" onclick="backToHome()">Back to Browse</button>
+  `;
+  searchSection.style.display = 'block';
+  
+  await renderVerticalGrid('search-grid', allResults);
+  hideLoading();
+}
+
+function backToHome() {
+  const searchSection = document.getElementById('search-results');
+  if (searchSection) searchSection.remove();
+  document.getElementById('genre-buttons-container').style.display = 'block';
+  loadHome();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADULT SECTIONS - RANDOMIZED
    ═══════════════════════════════════════════════════════════════════ */
 
 function shuffleArray(array) {
@@ -1391,7 +1753,6 @@ async function loadAdultSections() {
   const today = new Date().toISOString().split('T')[0];
   try {
     await Promise.all([
-      // NEW: XXX New Releases (digital, no min votes, adult cert, descending)
       (async () => {
         const data = await tmdbAdult('/discover/movie', {
           'sort_by': 'release_date.desc',
@@ -1403,7 +1764,6 @@ async function loadAdultSections() {
         const results = (data.results || []).filter(m => m.adult === true).slice(0, 20);
         await renderHorizontal('xxx-new-releases-grid', results);
       })(),
-      // 15 NEW SECTIONS
       (async () => {
         const data = await tmdbAdult('/search/movie', { query: 'my first sex teacher', page: 1 });
         const results = shuffleArray(data.results || []).slice(0, 20);
@@ -1479,7 +1839,6 @@ async function loadAdultSections() {
         const results = shuffleArray(data.results || []).slice(0, 20);
         await renderHorizontal('adult-hookup-hotshot-grid', results);
       })(),
-      // 4 EXISTING SECTIONS
       (async () => {
         const data = await tmdbAdult('/search/movie', { query: 'anal sluts', page: 1 });
         const results = shuffleArray(data.results || []).slice(0, 20);
@@ -1505,8 +1864,61 @@ async function loadAdultSections() {
     console.error('Failed to load adult sections:', err);
   }
 }
+
 /* ═══════════════════════════════════════════════════════════════════
-   HOME PAGE LOADING - UPDATED NEW RELEASES FILTERS
+   LOAD FAVORITES
+   ═══════════════════════════════════════════════════════════════════ */
+
+async function loadFavorites() {
+  const favList = isAdultMode ? xxxFavorites : favorites;
+  const section = isAdultMode ? 
+    document.getElementById('section-xxx-favorites') : 
+    document.getElementById('section-favorites');
+  
+  if (!section) return;
+  
+  const allFavorites = [
+    ...favList.movies,
+    ...(isAdultMode ? [] : favList.tv),
+    ...favList.actors
+  ];
+  
+  if (allFavorites.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  const gridId = isAdultMode ? 'xxx-favorites-grid' : 'favorites-grid';
+  await renderVerticalGrid(gridId, allFavorites, true);
+  
+  // Setup filter buttons
+  const filterPrefix = isAdultMode ? 'xxx-fav' : 'fav';
+  document.querySelectorAll(`[data-filter$="${filterPrefix}"]`).forEach(btn => {
+    btn.onclick = async () => {
+      document.querySelectorAll(`[data-filter$="${filterPrefix}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const filter = btn.dataset.filter;
+      let filtered = [];
+      
+      if (filter === `all-${filterPrefix}`) {
+        filtered = allFavorites;
+      } else if (filter === `movies-${filterPrefix}`) {
+        filtered = favList.movies;
+      } else if (filter === `tv-${filterPrefix}`) {
+        filtered = favList.tv || [];
+      } else if (filter === `actors-${filterPrefix}`) {
+        filtered = favList.actors;
+      }
+      
+      await renderVerticalGrid(gridId, filtered, filter.includes('actors'));
+    };
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HOME PAGE LOADING
    ═══════════════════════════════════════════════════════════════════ */
 
 async function loadHome() {
@@ -1518,7 +1930,6 @@ async function loadHome() {
   try {
     if (isAdultMode) {
       console.log('🔞 ADULT MODE');
-      // Hide normal sections
       document.getElementById('section-airing').style.display = 'none';
       document.getElementById('section-new-releases').style.display = 'none';
       document.getElementById('section-trending-tv').style.display = 'none';
@@ -1527,8 +1938,8 @@ async function loadHome() {
       document.getElementById('section-movies-week').style.display = 'none';
       document.getElementById('section-anticipated-tv').style.display = 'none';
       document.getElementById('section-anticipated-movies').style.display = 'none';
+      document.getElementById('section-favorites').style.display = 'none';
       
-      // Show ALL 19 adult sections
       document.getElementById('section-xxx-new-releases').style.display = 'block';
       document.getElementById('section-adult-my-first-sex-teacher').style.display = 'block';
       document.getElementById('section-adult-moms-teach-sex').style.display = 'block';
@@ -1551,9 +1962,9 @@ async function loadHome() {
       document.getElementById('section-adult-moms').style.display = 'block';
       
       await loadAdultSections();
+      await loadFavorites();
     } else {
       console.log('🎬 NORMAL MODE');
-      // Hide ALL 19 adult sections
       document.getElementById('section-xxx-new-releases').style.display = 'none';
       document.getElementById('section-adult-my-first-sex-teacher').style.display = 'none';
       document.getElementById('section-adult-moms-teach-sex').style.display = 'none';
@@ -1574,8 +1985,8 @@ async function loadHome() {
       document.getElementById('section-adult-milfs').style.display = 'none';
       document.getElementById('section-adult-teen').style.display = 'none';
       document.getElementById('section-adult-moms').style.display = 'none';
+      document.getElementById('section-xxx-favorites').style.display = 'none';
       
-      // Show normal sections
       document.getElementById('section-airing').style.display = 'block';
       document.getElementById('section-new-releases').style.display = 'block';
       document.getElementById('section-trending-tv').style.display = 'block';
@@ -1587,12 +1998,10 @@ async function loadHome() {
 
       await Promise.all([
         loadSection('/tv/airing_today', {}, 'airing-grid'),
-        // NEW RELEASES - UPDATED FILTERS
-        // Release date descending, digital releases only, minimum 50 votes
         loadSection('/discover/movie', {
           'sort_by': 'release_date.desc',
-          'with_release_type': '4',      // Digital release
-          'vote_count.gte': '50',         // Min 50 user votes
+          'with_release_type': '4',
+          'vote_count.gte': '50',
           'release_date.lte': today
         }, 'new-releases-grid'),
         loadSection('/trending/tv/week', {}, 'trending-tv-grid'),
@@ -1618,7 +2027,11 @@ async function loadHome() {
           'primary_release_date.lte': monthFromNow
         }, 'anticipated-movies-grid')
       ]);
+      
+      await loadFavorites();
     }
+    
+    renderGenreButtons();
   } catch (err) {
     console.error('Error loading home:', err);
   }
@@ -1636,7 +2049,7 @@ function openDetail(item) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   MOVIE DETAIL VIEW - WITH COLLECTIONS BUTTON
+   MOVIE DETAIL VIEW - WITH WHERE TO WATCH & COLLECTIONS
    ═══════════════════════════════════════════════════════════════════ */
 
 async function openMovieDetail(movieId) {
@@ -1710,9 +2123,24 @@ async function openMovieDetail(movieId) {
 
     html += `<p class="overview">${overview}</p>`;
 
-    // COLLECTIONS BUTTON - NEW
     if (data.belongs_to_collection) {
       html += `<button class="collections-btn" onclick="showCollection(${data.belongs_to_collection.id})">View Collection: ${data.belongs_to_collection.name}</button>`;
+    }
+
+    if (isAdultMode) {
+  html += `
+    <a href="https://www.xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn">
+      <span>Watch on xvideos</span>
+      <span style="font-size: 1.2rem;">🔞</span>
+    </a>
+  `;
+    } else {
+      html += `
+        <a href="https://discord.gg/ZwGK9RnCrh" target="_blank" rel="noopener" class="where-to-watch-btn">
+          <span>Where to Watch</span>
+          <img class="where-to-watch-icon" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/couch.png" alt="Watch">
+        </a>
+      `;
     }
 
     if (trailers.length > 0) {
@@ -1799,10 +2227,6 @@ async function openMovieDetail(movieId) {
   hideLoading();
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   COLLECTIONS VIEW - NEW FUNCTION
-   ═══════════════════════════════════════════════════════════════════ */
-
 async function showCollection(collectionId) {
   showLoading({ message: 'Loading collection...', showProgress: false });
   try {
@@ -1847,8 +2271,9 @@ function openLightbox(imageUrl) {
   document.getElementById('lightbox-img').src = imageUrl;
   document.getElementById('image-lightbox').classList.add('active');
 }
+
 /* ═══════════════════════════════════════════════════════════════════
-   TV SHOW DETAIL VIEW
+   TV SHOW DETAIL VIEW - WITH WHERE TO WATCH
    ═══════════════════════════════════════════════════════════════════ */
 
 async function openTVDetail(tvId) {
@@ -1913,6 +2338,23 @@ async function openTVDetail(tvId) {
     }
 
     html += `<p class="overview">${overview}</p>`;
+
+    if (isAdultMode) {
+  html += `
+    <a href="https://xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn">
+      <span>Watch on xvideos</span>
+      <span style="font-size: 1.2rem;">▶️</span>
+    </a>
+  `;
+
+    } else {
+      html += `
+        <a href="https://discord.gg/ZwGK9RnCrh" target="_blank" rel="noopener" class="where-to-watch-btn">
+          <span>Where to Watch</span>
+          <img class="where-to-watch-icon" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/couch.png" alt="Watch">
+        </a>
+      `;
+    }
 
     if (trailers.length > 0) {
       html += '<h3>Trailers</h3><div class="trailers-scroll">';
@@ -2174,13 +2616,14 @@ function toggleAdultMode(force) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   SEARCH
+   ENHANCED SEARCH - WITH YEAR FILTERS & GENRE SEARCH
    ═══════════════════════════════════════════════════════════════════ */
 
 async function performSearch(query) {
   if (!query) {
     const searchSection = document.getElementById('search-results');
     if (searchSection) searchSection.remove();
+    document.getElementById('genre-buttons-container').style.display = 'block';
     loadHome();
     return;
   }
@@ -2193,27 +2636,112 @@ async function performSearch(query) {
     const yearMatch = query.match(/^\d{4}$/);
     const apiFunc = isAdultMode ? tmdbAdult : tmdb;
 
-    if (yearMatch) {
-      const year = yearMatch[0];
-      const data = await apiFunc('/discover/movie', {
-        primary_release_year: year,
-        sort_by: 'popularity.desc'
-      });
-      allResults = data.results || [];
-      displayQuery = `Movies from ${year}`;
-    } else {
-      for (let page = 1; page <= 10; page++) {
-        const data = await apiFunc('/search/multi', { query: query, page: page });
-        if (!data.results || data.results.length === 0) break;
-        allResults = allResults.concat(data.results);
-      }
-      displayQuery = `"${query}"`;
+    // Check if query is a genre name
+    const genreMatch = GENRES.find(g => g.name.toLowerCase() === query.toLowerCase());
+    
+    if (genreMatch) {
+      // Search by genre
+      await searchByGenre(genreMatch.id, genreMatch.name);
+      return;
     }
+
+    if (yearMatch) {
+      // Year search with filters
+      const year = yearMatch[0];
+      
+      // Hide normal sections
+      document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
+      document.getElementById('genre-buttons-container').style.display = 'none';
+      
+      let searchSection = document.getElementById('search-results');
+      if (!searchSection) {
+        searchSection = document.createElement('section');
+        searchSection.id = 'search-results';
+        document.querySelector('#section-airing').before(searchSection);
+      }
+      
+      // Fetch movies and TV from that year
+      let movieResults = [];
+      let tvResults = [];
+      
+      for (let page = 1; page <= 5; page++) {
+        try {
+          const movieData = await apiFunc('/discover/movie', {
+            primary_release_year: year,
+            sort_by: 'popularity.desc',
+            page: page
+          });
+          movieResults = movieResults.concat(movieData.results || []);
+        } catch (err) {
+          break;
+        }
+      }
+      
+      for (let page = 1; page <= 5; page++) {
+        try {
+          const tvData = await apiFunc('/discover/tv', {
+            first_air_date_year: year,
+            sort_by: 'popularity.desc',
+            page: page
+          });
+          tvResults = tvResults.concat(tvData.results || []);
+        } catch (err) {
+          break;
+        }
+      }
+      
+      allResults = [...movieResults, ...tvResults];
+      
+      searchSection.innerHTML = `
+        <h2>Results from ${year}</h2>
+        <div class="filter-buttons">
+          <button class="search-filter-btn active" data-filter="all-year">All (${allResults.length})</button>
+          <button class="search-filter-btn" data-filter="movies-year">Movies (${movieResults.length})</button>
+          <button class="search-filter-btn" data-filter="tv-year">TV (${tvResults.length})</button>
+        </div>
+        <div class="vertical-grid" id="search-grid"></div>
+        <button class="btn" onclick="backToHome()">Back to Browse</button>
+      `;
+      searchSection.style.display = 'block';
+
+      async function renderSearchResults(items) {
+        await renderVerticalGrid('search-grid', items, true);
+      }
+
+      await renderSearchResults(allResults);
+
+      const filterBtns = document.querySelectorAll('.search-filter-btn');
+      filterBtns.forEach(btn => {
+        btn.onclick = async () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const filter = btn.dataset.filter;
+          showLoading({ message: 'Filtering...', showProgress: false });
+          if (filter === 'all-year') await renderSearchResults(allResults);
+          else if (filter === 'movies-year') await renderSearchResults(movieResults);
+          else if (filter === 'tv-year') await renderSearchResults(tvResults);
+          else if (filter === 'year-only') await renderSearchResults(allResults);
+          hideLoading();
+        };
+      });
+
+      hideLoading();
+      return;
+    }
+
+    // Normal text search
+    for (let page = 1; page <= 10; page++) {
+      const data = await apiFunc('/search/multi', { query: query, page: page });
+      if (!data.results || data.results.length === 0) break;
+      allResults = allResults.concat(data.results);
+    }
+    displayQuery = `"${query}"`;
 
     const movieResults = allResults.filter(r => r.media_type === 'movie');
     const tvResults = allResults.filter(r => r.media_type === 'tv');
 
     document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
+    document.getElementById('genre-buttons-container').style.display = 'none';
 
     let searchSection = document.getElementById('search-results');
     if (!searchSection) {
@@ -2235,6 +2763,7 @@ async function performSearch(query) {
     }
 
     html += '<div class="vertical-grid" id="search-grid"></div>';
+    html += '<button class="btn" onclick="backToHome()">Back to Browse</button>';
     searchSection.innerHTML = html;
     searchSection.style.display = 'block';
 
@@ -2287,6 +2816,7 @@ searchInput.addEventListener('keypress', (e) => {
     performSearch(searchInput.value.trim());
   }
 });
+
 /* ═══════════════════════════════════════════════════════════════════
    WEATHER WIDGET
    ═══════════════════════════════════════════════════════════════════ */
