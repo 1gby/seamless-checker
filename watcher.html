@@ -389,7 +389,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       CARDS
+       CARDS - UPDATED FAVORITE BUTTON POSITION
        ═══════════════════════════════════════════════════════════════════ */
     .card {
       background: var(--glass-bg);
@@ -408,23 +408,24 @@
       border-color: var(--accent-green);
     }
 
-    /* Favorite star button on cards */
+    /* Favorite star button on cards - UPDATED POSITION */
     .favorite-btn {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: rgba(0,0,0,0.7);
+      top: 0.2rem;
+      right: 0.2rem;
+      background: rgba(0,0,0,0.50);
       border: none;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       z-index: 10;
       transition: all 0.3s ease;
-      font-size: 1.2rem;
+      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
 
     .favorite-btn:hover {
@@ -434,11 +435,12 @@
 
     .favorite-btn.favorited {
       color: #ffd700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
     }
 
     .favorite-btn:not(.favorited) {
-      color: rgba(255,255,255,0.5);
-    }
+  color: rgba(16, 185, 129, 0.7); /* Green star outline */
+}
 
     .poster { 
       width: 100%; 
@@ -498,6 +500,32 @@
       line-height: 1.2;
       padding: 0 0.5rem;
     }
+
+.actor-info-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0 0.5rem;
+}
+
+.actor-name {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.actor-role {
+  font-size: 0.6rem;
+  color: var(--accent-green);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.1;
+  font-style: italic;
+  opacity: 0.85;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    DETAIL VIEW
@@ -561,17 +589,9 @@
   overflow: hidden;
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   ⚙️ ADJUSTABLE BACKDROP SIZE - CHANGE HERE
-   ════════════════════════════════════════════════════════════════════
-   To change backdrop image height in detail view:
-   - Change the 'height' value below (default: 300px)
-   - Recommended range: 200px - 500px
-   - Example: height: 400px; (makes it taller)
-   ════════════════════════════════════════════════════════════════════ */
 .detail-backdrop {
   width: 100%;
-  height: 300px;  /* ⬅️ CHANGE THIS to adjust backdrop height */
+  height: 300px;
   object-fit: cover;
   opacity: 0.4;
 }
@@ -588,17 +608,8 @@
   align-items: flex-end;
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   ⚙️ ADJUSTABLE POSTER SIZE - CHANGE HERE
-   ════════════════════════════════════════════════════════════════════
-   To change poster image width in detail view:
-   - Change the 'width' value below (default: 120px)
-   - Recommended range: 100px - 200px
-   - Example: width: 150px; (makes it wider)
-   - Height adjusts automatically to maintain aspect ratio
-   ════════════════════════════════════════════════════════════════════ */
 .detail-poster {
-  width: 120px;  /* ⬅️ CHANGE THIS to adjust poster width */
+  width: 120px;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   border: 2px solid rgba(118,75,162,0.5);
@@ -649,23 +660,34 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   WHERE TO WATCH BUTTON - NEW (Sleek & Small)
+   DETAIL ACTION BUTTONS CONTAINER - NEW
+   ═══════════════════════════════════════════════════════════════════ */
+.detail-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  align-items: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WHERE TO WATCH BUTTON
    ═══════════════════════════════════════════════════════════════════ */
 .where-to-watch-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
   background: var(--accent-purple);
   color: var(--accent-green);
   border: none;
-  border-radius: 20px;
+  border-radius: 16px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin: 1rem 0;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .where-to-watch-btn:hover {
@@ -674,9 +696,47 @@
 }
 
 .where-to-watch-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DETAIL FAVORITE BUTTON - NEW
+   ═══════════════════════════════════════════════════════════════════ */
+.detail-favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.detail-favorite-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 215, 0, 0.25);
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+}
+
+.detail-favorite-btn.favorited {
+  background: rgba(255, 215, 0, 0.25);
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.detail-favorite-btn .star-icon {
+  font-size: 1rem;
+  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -998,8 +1058,8 @@
    ═══════════════════════════════════════════════════════════════════ */
 .tmdb-attribution {
   text-align: center;
-  padding: 2rem 1rem 1rem;
-  margin-top: 2rem;
+  padding: 0.05rem 0.05rem 0.05rem;
+  margin-top: 0.05rem;
 }
 
 .tmdb-attribution img {
@@ -1091,7 +1151,6 @@
   </style>
 </head>
 <body>
-
   <div class="loading-overlay" id="loadingOverlay">
     <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
     <div class="loading-text" id="loadingText">Loading...</div>
@@ -1360,13 +1419,14 @@
        ═══════════════════════════════════════════════════════════════════ */
     let isAdultMode = localStorage.getItem('adultMode') === 'true';
     let currentMovieId = null;
+    let currentDetailItem = null; // Store current detail item for favorite toggle
     let searchTimeout = null;
 
     // Favorites storage (localStorage)
     let favorites = JSON.parse(localStorage.getItem('favorites')) || { movies: [], tv: [], actors: [] };
     let xxxFavorites = JSON.parse(localStorage.getItem('xxxFavorites')) || { movies: [], actors: [] };
 
-    // Genre list with IDs from TMDB
+    // Genre list with IDs from TMDB (NORMAL MODE)
     const GENRES = [
       { id: 28, name: 'Action' },
       { id: 12, name: 'Adventure' },
@@ -1387,6 +1447,18 @@
       { id: 53, name: 'Thriller' },
       { id: 10752, name: 'War' },
       { id: 37, name: 'Western' }
+    ];
+
+    // Adult genre list (XXX MODE) - Top 8 adult search terms
+    const ADULT_GENRES = [
+      { query: 'milfs', name: 'MILFs' },
+      { query: 'anal', name: 'Anal' },
+      { query: 'creampie', name: 'Creampie' },
+      { query: 'threesome lesbian', name: 'Threesome' },
+      { query: 'big tits', name: 'Big Tits' },
+      { query: 'teen', name: 'Teen' },
+      { query: 'stepmom', name: 'Stepmom' },
+      { query: 'squirting', name: 'Squirting' }
     ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1500,8 +1572,82 @@ document.getElementById('image-lightbox').onclick = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════════
-   TMDB API CALLS
+   TMDB API CALLS WITH FILTERING
    ═══════════════════════════════════════════════════════════════════ */
+
+// Helper function to check if content should be filtered (gay/trans content)
+function shouldFilterContent(item) {
+  if (!isAdultMode) return false; // Only filter in adult mode
+  
+  const title = (item.title || item.name || '').toLowerCase();
+  const overview = (item.overview || '').toLowerCase();
+  const combined = title + ' ' + overview;
+  
+  // Keywords that specifically indicate gay male content (must be whole words or clear context)
+  const gayKeywords = [
+    'gay ', ' gay', 'gay,', 'gay.', 'gay:', 'gay;',
+    'homosexual', 'twink', 'gay men', 'gay sex', 
+    'men loving men', 'male on male', 'gay porn',
+    'gay couple', 'gay relationship', 'gay love'
+  ];
+  
+  // Keywords for trans content
+  const transKeywords = [
+    'trans ', ' trans', 'transgender', 'shemale', 'ladyboy',
+    'trans woman', 'trans man', 'transsexual'
+  ];
+  
+  // Suspicious keywords that often appear in gay content titles
+  const suspiciousKeywords = [
+    'doctor', 'doctors', 'cavity', 'exam', 'medical',
+    'police', 'officer', 'prisoner', 'jail', 'inmate',
+    'coach', 'locker', 'teammate', 'jock', 'athlete',
+    'military', 'soldier', 'barracks', 'army', 'marine',
+    'frat', 'fraternity', 'brother', 'hazing',
+    'mechanic', 'garage', 'construction', 'worker'
+  ];
+  
+  // Check for gay male keywords
+  for (const keyword of gayKeywords) {
+    if (combined.includes(keyword)) {
+      return true; // Filter this content
+    }
+  }
+  
+  // Check for trans keywords
+  for (const keyword of transKeywords) {
+    if (combined.includes(keyword)) {
+      return true; // Filter this content
+    }
+  }
+  
+  // Check for suspicious keywords combined with numbers (common pattern: "Doctors Tapes 9")
+  for (const keyword of suspiciousKeywords) {
+    if (title.includes(keyword)) {
+      // If title has suspicious keyword + number, likely gay content
+      if (/\d+/.test(title)) {
+        return true; // Filter numbered series with suspicious keywords
+      }
+      
+      // If title ONLY has suspicious keywords without female indicators, filter it
+      const hasFemaleIndicators = 
+        combined.includes('girl') || combined.includes('woman') || 
+        combined.includes('milf') || combined.includes('mom') ||
+        combined.includes('teen girl') || combined.includes('she ') ||
+        combined.includes('her ') || combined.includes('lesbian') ||
+        combined.includes('cougar') || combined.includes('wife') ||
+        combined.includes('step mom') || combined.includes('stepmom') ||
+        combined.includes('step sister') || combined.includes('stepsister');
+      
+      if (!hasFemaleIndicators && title.split(' ').length <= 4) {
+        // Short title with suspicious keyword and no female indicators = likely gay
+        return true;
+      }
+    }
+  }
+  
+  return false; // Don't filter
+}
 
 async function tmdb(endpoint, params = {}) {
   const url = new URL(`${TMDB_BASE}${endpoint}`);
@@ -1526,7 +1672,14 @@ async function tmdbAdult(endpoint, params = {}) {
   });
   const res = await fetch(url);
   if (!res.ok) throw new Error(`TMDB ${res.status}`);
-  return res.json();
+  const data = await res.json();
+  
+  // Filter results if in adult mode
+  if (data.results && isAdultMode) {
+    data.results = data.results.filter(item => !shouldFilterContent(item));
+  }
+  
+  return data;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1556,7 +1709,6 @@ async function getImageUrl(item, type = 'poster') {
   }
   return null;
 }
-
 /* ═══════════════════════════════════════════════════════════════════
    CARD RENDERING WITH FAVORITES
    ═══════════════════════════════════════════════════════════════════ */
@@ -1646,6 +1798,25 @@ function toggleFavoriteFromCard(id, type, btn, itemData) {
   const favorited = isFavorited(id, type);
   btn.classList.toggle('favorited', favorited);
   btn.textContent = favorited ? '⭐' : '☆';
+  
+  // Update detail view favorite button if open
+  updateDetailFavoriteButton();
+  
+  // Reload favorites section
+  loadFavorites();
+}
+
+// Helper to update detail favorite button
+function updateDetailFavoriteButton() {
+  const detailFavBtn = document.getElementById('detail-favorite-btn');
+  if (detailFavBtn && currentDetailItem) {
+    const type = currentDetailItem.media_type || 
+                 (currentDetailItem.known_for_department ? 'person' : 
+                 (currentDetailItem.first_air_date ? 'tv' : 'movie'));
+    const favorited = isFavorited(currentDetailItem.id, type);
+    detailFavBtn.classList.toggle('favorited', favorited);
+    detailFavBtn.innerHTML = `<span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}`;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1665,6 +1836,9 @@ async function loadSection(endpoint, params, gridId, maxPages = 3, useAdultAPI =
     }
   }
   await renderHorizontal(gridId, allResults);
+  
+  // Enable infinite scroll for this section
+  enableInfiniteScroll(endpoint, params, gridId);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1676,11 +1850,19 @@ function renderGenreButtons() {
   if (!genreButtons) return;
   
   genreButtons.innerHTML = '';
-  GENRES.forEach((genre, index) => {
+  const genreList = isAdultMode ? ADULT_GENRES : GENRES;
+  
+  genreList.forEach((genre, index) => {
     const btn = document.createElement('button');
     btn.className = `genre-btn ${index % 2 === 0 ? 'green-bg' : 'purple-bg'}`;
     btn.textContent = genre.name;
-    btn.onclick = () => searchByGenre(genre.id, genre.name);
+    
+    if (isAdultMode) {
+      btn.onclick = () => searchByAdultGenre(genre.query, genre.name);
+    } else {
+      btn.onclick = () => searchByGenre(genre.id, genre.name);
+    }
+    
     genreButtons.appendChild(btn);
   });
 }
@@ -1728,13 +1910,51 @@ async function searchByGenre(genreId, genreName) {
   hideLoading();
 }
 
+async function searchByAdultGenre(query, genreName) {
+  showLoading({ message: `Loading ${genreName}...`, showProgress: false });
+  
+  // Hide all sections
+  document.querySelectorAll('section[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('genre-buttons-container').style.display = 'none';
+  
+  let searchSection = document.getElementById('search-results');
+  if (!searchSection) {
+    searchSection = document.createElement('section');
+    searchSection.id = 'search-results';
+    document.querySelector('#section-xxx-new-releases').before(searchSection);
+  }
+  
+  let allResults = [];
+  
+  // Load multiple pages
+  for (let page = 1; page <= 5; page++) {
+    try {
+      const data = await tmdbAdult('/search/movie', { query: query, page: page });
+      allResults = allResults.concat(data.results || []);
+    } catch (err) {
+      console.error(`Failed to load page ${page}:`, err);
+      break;
+    }
+  }
+  
+  searchSection.innerHTML = `
+    <h2>🔞 ${genreName}</h2>
+    <div class="vertical-grid" id="search-grid"></div>
+    <button class="btn" onclick="backToHome()">Back to Browse</button>
+  `;
+  searchSection.style.display = 'block';
+  
+  await renderVerticalGrid('search-grid', allResults);
+  hideLoading();
+}
+
 function backToHome() {
   const searchSection = document.getElementById('search-results');
   if (searchSection) searchSection.remove();
   document.getElementById('genre-buttons-container').style.display = 'block';
+  disableInfiniteScroll();
   loadHome();
 }
-
 /* ═══════════════════════════════════════════════════════════════════
    ADULT SECTIONS - RANDOMIZED
    ═══════════════════════════════════════════════════════════════════ */
@@ -1749,7 +1969,7 @@ function shuffleArray(array) {
 }
 
 async function loadAdultSections() {
-  console.log('Loading adult content with randomization...');
+  console.log('Loading adult content with randomization and filtering...');
   const today = new Date().toISOString().split('T')[0];
   try {
     await Promise.all([
@@ -1916,7 +2136,6 @@ async function loadFavorites() {
     };
   });
 }
-
 /* ═══════════════════════════════════════════════════════════════════
    HOME PAGE LOADING
    ═══════════════════════════════════════════════════════════════════ */
@@ -2039,6 +2258,7 @@ async function loadHome() {
 }
 
 function openDetail(item) {
+  currentDetailItem = item; // Store for favorite toggle
   if (item.media_type === 'person' || item.known_for_department) {
     openActorDetail(item.id);
   } else if (item.media_type === 'tv' || item.first_air_date) {
@@ -2049,7 +2269,36 @@ function openDetail(item) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   MOVIE DETAIL VIEW - WITH WHERE TO WATCH & COLLECTIONS
+   MODE TOGGLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+function toggleAdultMode(force) {
+  if (typeof force === 'boolean') {
+    isAdultMode = force;
+  } else {
+    isAdultMode = !isAdultMode;
+  }
+  localStorage.setItem('adultMode', isAdultMode);
+  
+  // Show loading and reload page
+  showLoading({ message: 'Switching modes...', subtext: 'Reloading content', showProgress: true, progress: 50 });
+  
+  let prog = 50;
+  const reloadInterval = setInterval(() => {
+    prog += 10;
+    updateLoadingProgress(Math.min(prog, 90), 'Switching modes...');
+  }, 100);
+  
+  setTimeout(() => {
+    clearInterval(reloadInterval);
+    updateLoadingProgress(100, 'Complete!');
+    setTimeout(() => {
+      location.reload();
+    }, 200);
+  }, 1000);
+}
+/* ═══════════════════════════════════════════════════════════════════
+   MOVIE DETAIL VIEW - WITH WHERE TO WATCH & COLLECTIONS & FAVORITES
    ═══════════════════════════════════════════════════════════════════ */
 
 async function openMovieDetail(movieId) {
@@ -2062,6 +2311,8 @@ async function openMovieDetail(movieId) {
       append_to_response: 'credits,videos,images,recommendations,similar',
       include_image_language: 'en,null'
     });
+
+    currentDetailItem = { ...data, media_type: 'movie' };
 
     const title = data.title || 'Unknown';
     const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
@@ -2123,17 +2374,20 @@ async function openMovieDetail(movieId) {
 
     html += `<p class="overview">${overview}</p>`;
 
+    // Action buttons container
+    html += '<div class="detail-actions">';
+
     if (data.belongs_to_collection) {
       html += `<button class="collections-btn" onclick="showCollection(${data.belongs_to_collection.id})">View Collection: ${data.belongs_to_collection.name}</button>`;
     }
 
     if (isAdultMode) {
-  html += `
-    <a href="https://www.xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn">
-      <span>Watch on xvideos</span>
-      <span style="font-size: 1.2rem;">🔞</span>
-    </a>
-  `;
+      html += `
+        <a href="https://www.xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn">
+          <span>Watch on xvideos</span>
+          <span style="font-size: 1.2rem;">🔞</span>
+        </a>
+      `;
     } else {
       html += `
         <a href="https://discord.gg/ZwGK9RnCrh" target="_blank" rel="noopener" class="where-to-watch-btn">
@@ -2142,6 +2396,16 @@ async function openMovieDetail(movieId) {
         </a>
       `;
     }
+
+    // Add favorite button
+const favorited = isFavorited(movieId, 'movie');
+html += `
+  <button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()">
+    <span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}
+  </button>
+`;
+
+    html += '</div>'; // Close detail-actions
 
     if (trailers.length > 0) {
       html += '<h3>Trailers</h3><div class="trailers-scroll">';
@@ -2187,21 +2451,27 @@ async function openMovieDetail(movieId) {
     document.getElementById('detail-view').classList.add('active');
 
     if (cast.length > 0) {
-      const castScroll = document.getElementById('cast-scroll');
-      for (const actor of cast) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : null;
-        if (actorImg) {
-          card.innerHTML = `
-            <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
-            <div class="info"><div class="year" style="font-size: 0.65rem;">${actor.name}</div></div>
-          `;
-          card.onclick = () => openActorDetail(actor.id);
-          castScroll.appendChild(card);
-        }
-      }
+  const castScroll = document.getElementById('cast-scroll');
+  for (const actor of cast) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : null;
+    if (actorImg) {
+      const roleName = actor.character || actor.roles?.[0]?.character || 'Unknown Role';
+      card.innerHTML = `
+        <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+        <div class="info">
+          <div class="actor-info-stacked">
+            <div class="actor-name">${actor.name}</div>
+            <div class="actor-role">${roleName}</div>
+          </div>
+        </div>
+      `;
+      card.onclick = () => openActorDetail(actor.id);
+      castScroll.appendChild(card);
     }
+  }
+}
 
     if (recommendations.length > 0) {
       const recScroll = document.getElementById('recommendations-scroll');
@@ -2272,8 +2542,20 @@ function openLightbox(imageUrl) {
   document.getElementById('image-lightbox').classList.add('active');
 }
 
+// Toggle favorite from detail view
+function toggleDetailFavorite() {
+  if (!currentDetailItem) return;
+  
+  const type = currentDetailItem.media_type || 
+               (currentDetailItem.known_for_department ? 'person' : 
+               (currentDetailItem.first_air_date ? 'tv' : 'movie'));
+  
+  toggleFavorite(currentDetailItem, type);
+  updateDetailFavoriteButton();
+  loadFavorites();
+}
 /* ═══════════════════════════════════════════════════════════════════
-   TV SHOW DETAIL VIEW - WITH WHERE TO WATCH
+   TV SHOW DETAIL VIEW - WITH WHERE TO WATCH & FAVORITES
    ═══════════════════════════════════════════════════════════════════ */
 
 async function openTVDetail(tvId) {
@@ -2285,6 +2567,8 @@ async function openTVDetail(tvId) {
       append_to_response: 'credits,videos,images,recommendations,similar',
       include_image_language: 'en,null'
     });
+
+    currentDetailItem = { ...data, media_type: 'tv' };
 
     const title = data.name || 'Unknown';
     const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
@@ -2339,14 +2623,16 @@ async function openTVDetail(tvId) {
 
     html += `<p class="overview">${overview}</p>`;
 
-    if (isAdultMode) {
-  html += `
-    <a href="https://xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn">
-      <span>Watch on xvideos</span>
-      <span style="font-size: 1.2rem;">▶️</span>
-    </a>
-  `;
+    // Action buttons container
+    html += '<div class="detail-actions">';
 
+    if (isAdultMode) {
+      html += `
+        <a href="https://www.xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn">
+          <span>Watch on xvideos</span>
+          <span style="font-size: 1.2rem;">🔞</span>
+        </a>
+      `;
     } else {
       html += `
         <a href="https://discord.gg/ZwGK9RnCrh" target="_blank" rel="noopener" class="where-to-watch-btn">
@@ -2355,6 +2641,16 @@ async function openTVDetail(tvId) {
         </a>
       `;
     }
+
+    // Add favorite button
+const favorited = isFavorited(tvId, 'tv');
+html += `
+  <button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()">
+    <span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}
+  </button>
+`;
+
+    html += '</div>'; // Close detail-actions
 
     if (trailers.length > 0) {
       html += '<h3>Trailers</h3><div class="trailers-scroll">';
@@ -2402,18 +2698,27 @@ async function openTVDetail(tvId) {
     document.getElementById('detail-view').classList.add('active');
 
     if (cast.length > 0) {
-      const castScroll = document.getElementById('cast-scroll');
-      for (const actor of cast) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : null;
-        if (actorImg) {
-          card.innerHTML = `<img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}"><div class="info"><div class="year" style="font-size: 0.65rem;">${actor.name}</div></div>`;
-          card.onclick = () => openActorDetail(actor.id);
-          castScroll.appendChild(card);
-        }
-      }
+  const castScroll = document.getElementById('cast-scroll');
+  for (const actor of cast) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const actorImg = actor.profile_path ? TMDB_IMG + actor.profile_path : null;
+    if (actorImg) {
+      const roleName = actor.character || actor.roles?.[0]?.character || 'Unknown Role';
+      card.innerHTML = `
+        <img class="poster" src="${actorImg}" loading="lazy" alt="${actor.name}">
+        <div class="info">
+          <div class="actor-info-stacked">
+            <div class="actor-name">${actor.name}</div>
+            <div class="actor-role">${roleName}</div>
+          </div>
+        </div>
+      `;
+      card.onclick = () => openActorDetail(actor.id);
+      castScroll.appendChild(card);
     }
+  }
+}
 
     const seasonSelector = document.getElementById('season-selector');
     if (seasonSelector) {
@@ -2475,9 +2780,8 @@ async function openTVDetail(tvId) {
   }
   hideLoading();
 }
-
 /* ═══════════════════════════════════════════════════════════════════
-   ACTOR DETAIL VIEW
+   ACTOR DETAIL VIEW - WITH FAVORITES
    ═══════════════════════════════════════════════════════════════════ */
 
 async function openActorDetail(actorId) {
@@ -2487,6 +2791,8 @@ async function openActorDetail(actorId) {
     const data = await apiFunc(`/person/${actorId}`, {
       append_to_response: 'combined_credits,images'
     });
+
+    currentDetailItem = { ...data, media_type: 'person' };
 
     const name = data.name || 'Unknown';
     const bio = data.biography 
@@ -2514,6 +2820,16 @@ async function openActorDetail(actorId) {
         <p class="overview">${bio}</p>
       </div>
     `;
+
+    // Add favorite button for actor
+html += '<div class="detail-actions">';
+const favorited = isFavorited(actorId, 'person');
+html += `
+  <button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()">
+    <span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}
+  </button>
+`;
+    html += '</div>';
 
     if (movieCredits.length > 0 && tvCredits.length > 0) {
       html += `
@@ -2585,36 +2901,8 @@ async function openActorDetail(actorId) {
 
 function closeDetail() {
   document.getElementById('detail-view').classList.remove('active');
+  currentDetailItem = null;
 }
-
-/* ═══════════════════════════════════════════════════════════════════
-   MODE TOGGLE
-   ═══════════════════════════════════════════════════════════════════ */
-
-function toggleAdultMode(force) {
-  if (typeof force === 'boolean') {
-    isAdultMode = force;
-  } else {
-    isAdultMode = !isAdultMode;
-  }
-  localStorage.setItem('adultMode', isAdultMode);
-  const modeIndicator = document.getElementById('mode-indicator');
-  const appTitle = document.getElementById('app-title');
-  if (isAdultMode) {
-    modeIndicator.classList.add('active');
-    appTitle.classList.add('adult-mode');
-    alert('🔞 Adult Mode Enabled');
-  } else {
-    modeIndicator.classList.remove('active');
-    appTitle.classList.remove('adult-mode');
-    alert('🧼 Safe Mode Enabled');
-  }
-  document.getElementById('search-input').value = '';
-  const searchSection = document.getElementById('search-results');
-  if (searchSection) searchSection.remove();
-  loadHome();
-}
-
 /* ═══════════════════════════════════════════════════════════════════
    ENHANCED SEARCH - WITH YEAR FILTERS & GENRE SEARCH
    ═══════════════════════════════════════════════════════════════════ */
@@ -2637,11 +2925,16 @@ async function performSearch(query) {
     const apiFunc = isAdultMode ? tmdbAdult : tmdb;
 
     // Check if query is a genre name
-    const genreMatch = GENRES.find(g => g.name.toLowerCase() === query.toLowerCase());
+    const genreList = isAdultMode ? ADULT_GENRES : GENRES;
+    const genreMatch = genreList.find(g => g.name.toLowerCase() === query.toLowerCase());
     
     if (genreMatch) {
       // Search by genre
-      await searchByGenre(genreMatch.id, genreMatch.name);
+      if (isAdultMode) {
+        await searchByAdultGenre(genreMatch.query, genreMatch.name);
+      } else {
+        await searchByGenre(genreMatch.id, genreMatch.name);
+      }
       return;
     }
 
@@ -2677,16 +2970,18 @@ async function performSearch(query) {
         }
       }
       
-      for (let page = 1; page <= 5; page++) {
-        try {
-          const tvData = await apiFunc('/discover/tv', {
-            first_air_date_year: year,
-            sort_by: 'popularity.desc',
-            page: page
-          });
-          tvResults = tvResults.concat(tvData.results || []);
-        } catch (err) {
-          break;
+      if (!isAdultMode) {
+        for (let page = 1; page <= 5; page++) {
+          try {
+            const tvData = await apiFunc('/discover/tv', {
+              first_air_date_year: year,
+              sort_by: 'popularity.desc',
+              page: page
+            });
+            tvResults = tvResults.concat(tvData.results || []);
+          } catch (err) {
+            break;
+          }
         }
       }
       
@@ -2697,7 +2992,7 @@ async function performSearch(query) {
         <div class="filter-buttons">
           <button class="search-filter-btn active" data-filter="all-year">All (${allResults.length})</button>
           <button class="search-filter-btn" data-filter="movies-year">Movies (${movieResults.length})</button>
-          <button class="search-filter-btn" data-filter="tv-year">TV (${tvResults.length})</button>
+          ${!isAdultMode ? `<button class="search-filter-btn" data-filter="tv-year">TV (${tvResults.length})</button>` : ''}
         </div>
         <div class="vertical-grid" id="search-grid"></div>
         <button class="btn" onclick="backToHome()">Back to Browse</button>
@@ -2720,7 +3015,6 @@ async function performSearch(query) {
           if (filter === 'all-year') await renderSearchResults(allResults);
           else if (filter === 'movies-year') await renderSearchResults(movieResults);
           else if (filter === 'tv-year') await renderSearchResults(tvResults);
-          else if (filter === 'year-only') await renderSearchResults(allResults);
           hideLoading();
         };
       });
@@ -2752,7 +3046,7 @@ async function performSearch(query) {
 
     let html = `<h2>Search Results for ${displayQuery}</h2>`;
 
-    if (movieResults.length > 0 && tvResults.length > 0) {
+    if (movieResults.length > 0 && tvResults.length > 0 && !isAdultMode) {
       html += `
         <div class="filter-buttons">
           <button class="search-filter-btn active" data-filter="all">All (${allResults.length})</button>
@@ -2816,7 +3110,6 @@ searchInput.addEventListener('keypress', (e) => {
     performSearch(searchInput.value.trim());
   }
 });
-
 /* ═══════════════════════════════════════════════════════════════════
    WEATHER WIDGET
    ═══════════════════════════════════════════════════════════════════ */
@@ -2984,7 +3277,6 @@ document.getElementById('easterAudio').addEventListener('ended', () => {
     playRandomTrack();
   }
 });
-
 document.getElementById('easterEgg').onclick = () => {
   const overlay = document.getElementById('easter-egg-overlay');
   overlay.classList.add('active');
@@ -3130,6 +3422,112 @@ document.getElementById('easterEgg').onclick = () => {
     }, 50);
   };
 };
+/* ═══════════════════════════════════════════════════════════════════
+   INFINITE SCROLL
+   ═══════════════════════════════════════════════════════════════════ */
+
+let isLoadingMore = false;
+let currentScrollPage = 1;
+let currentScrollEndpoint = null;
+let currentScrollParams = null;
+let currentScrollGridId = null;
+
+// Detect scroll position
+window.addEventListener('scroll', () => {
+  if (isLoadingMore) return; // Don't load if already loading
+  
+  const scrollHeight = document.documentElement.scrollHeight;
+  const scrollTop = document.documentElement.scrollTop;
+  const clientHeight = document.documentElement.clientHeight;
+  
+  // Check if scrolled to 80%
+  const scrollPercent = (scrollTop + clientHeight) / scrollHeight;
+  
+  if (scrollPercent >= 0.8 && currentScrollEndpoint) {
+    loadMoreContent();
+  }
+});
+
+async function loadMoreContent() {
+  if (!currentScrollEndpoint || !currentScrollGridId) return;
+  
+  isLoadingMore = true;
+  currentScrollPage++;
+  
+  console.log(`Loading page ${currentScrollPage}...`);
+  
+  try {
+    const apiFunc = isAdultMode ? tmdbAdult : tmdb;
+    const { results } = await apiFunc(currentScrollEndpoint, { 
+      ...currentScrollParams, 
+      page: currentScrollPage 
+    });
+    
+    if (results && results.length > 0) {
+      await appendToHorizontal(currentScrollGridId, results);
+    } else {
+      // No more results, stop infinite scroll for this section
+      currentScrollEndpoint = null;
+    }
+  } catch (err) {
+    console.error('Failed to load more:', err);
+  }
+  
+  isLoadingMore = false;
+}
+
+// Append items to existing horizontal grid
+async function appendToHorizontal(gridId, items) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  
+  for (const item of items) {
+    if (!item.poster_path && !item.backdrop_path && !item.profile_path) continue;
+    const title = item.title || item.name || 'Unknown';
+    const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+    let imageUrl;
+    if (item.media_type === 'person' || item.known_for_department) {
+      imageUrl = item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null;
+    } else {
+      imageUrl = await getImageUrl(item);
+    }
+    if (!imageUrl) continue;
+    
+    const card = document.createElement('div');
+    card.className = 'card';
+    
+    const type = item.media_type || (item.known_for_department ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
+    const favorited = isFavorited(item.id, type);
+    
+    card.innerHTML = `
+      <button class="favorite-btn ${favorited ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavoriteFromCard(${item.id}, '${type}', this, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
+        ${favorited ? '⭐' : '☆'}
+      </button>
+      <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
+      <div class="info">
+        ${year ? `<div class="year">${year}</div>` : ''}
+      </div>
+    `;
+    card.onclick = () => openDetail(item);
+    grid.appendChild(card);
+  }
+}
+
+// Enable infinite scroll for a section
+function enableInfiniteScroll(endpoint, params, gridId) {
+  currentScrollEndpoint = endpoint;
+  currentScrollParams = params;
+  currentScrollGridId = gridId;
+  currentScrollPage = 1;
+}
+
+// Disable infinite scroll (called when changing pages/modes)
+function disableInfiniteScroll() {
+  currentScrollEndpoint = null;
+  currentScrollParams = null;
+  currentScrollGridId = null;
+  currentScrollPage = 1;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    INITIALIZATION
