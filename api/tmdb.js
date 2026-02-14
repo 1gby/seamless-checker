@@ -8,17 +8,28 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const { endpoint, ...params } = req.query;
+  const { endpoint, api, ...params } = req.query;
   
-  if (!endpoint) {
-    return res.status(400).json({ error: 'Missing endpoint parameter' });
+  if (!endpoint || !api) {
+    return res.status(400).json({ error: 'Missing endpoint or api parameter' });
   }
 
-  const TMDB_KEY = process.env.TMDB_API_KEY; // Secret API key from Vercel env
+  // Get the appropriate API key based on which API is being called
+  let apiKey, baseUrl;
   
-  // Build TMDB URL
-  const url = new URL(`https://api.themoviedb.org/3${endpoint}`);
-  url.searchParams.set('api_key', TMDB_KEY);
+  if (api === 'tmdb') {
+    apiKey = process.env.TMDB_API_KEY;
+    baseUrl = 'https://api.themoviedb.org/3';
+  } else if (api === 'fanart') {
+    apiKey = process.env.FANART_API_KEY;
+    baseUrl = 'https://webservice.fanart.tv/v3';
+  } else {
+    return res.status(400).json({ error: 'Invalid api parameter' });
+  }
+
+  // Build URL
+  const url = new URL(`${baseUrl}${endpoint}`);
+  url.searchParams.set('api_key', apiKey);
   
   // Add all other query params
   Object.entries(params).forEach(([key, value]) => {
@@ -30,6 +41,6 @@ export default async function handler(req, res) {
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    return res.status(500).json({ error: 'TMDB API request failed' });
+    return res.status(500).json({ error: 'API request failed' });
   }
 }
