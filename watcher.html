@@ -1495,9 +1495,7 @@
     /* ═══════════════════════════════════════════════════════════════════
        API CONFIGURATION
        ═══════════════════════════════════════════════════════════════════ */
-    const FANART_KEY = "9cd6959542f3be1a6abf078871f18d2e";
-
-const TMDB_BASE = "/api/tmdb"; // Use Vercel serverless function
+    const API_PROXY = "/api/tmdb"; // Use Vercel serverless function for both APIs
 const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
 const YT_EMBED = "https://www.youtube.com/embed/";
 
@@ -1737,7 +1735,8 @@ function shouldFilterContent(item) {
 }
 
 async function tmdb(endpoint, params = {}) {
-  const url = new URL(`${TMDB_BASE}`, window.location.origin);
+  const url = new URL(API_PROXY, window.location.origin);
+  url.searchParams.set('api', 'tmdb');
   url.searchParams.set('endpoint', endpoint);
   url.searchParams.set('language', 'en-US');
   url.searchParams.set('include_adult', 'false');
@@ -1750,7 +1749,8 @@ async function tmdb(endpoint, params = {}) {
 }
 
 async function tmdbAdult(endpoint, params = {}) {
-  const url = new URL(`${TMDB_BASE}`, window.location.origin);
+  const url = new URL(API_PROXY, window.location.origin);
+  url.searchParams.set('api', 'tmdb');
   url.searchParams.set('endpoint', endpoint);
   url.searchParams.set('language', 'en-US');
   url.searchParams.set('include_adult', 'true');
@@ -1780,19 +1780,22 @@ async function getImageUrl(item, type = 'poster') {
     return `${TMDB_IMG}${item.backdrop_path}`;
   }
   try {
-    const mediaType = item.media_type === 'tv' ? 'tv' : 'movies';
-    const fanartUrl = `https://webservice.fanart.tv/v3/${mediaType}/${item.id}?api_key=${FANART_KEY}`;
-    const response = await fetch(fanartUrl);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.movieposter && data.movieposter[0]) return data.movieposter[0].url;
-      if (data.tvposter && data.tvposter[0]) return data.tvposter[0].url;
-      if (data.moviebackground && data.moviebackground[0]) return data.moviebackground[0].url;
-      if (data.showbackground && data.showbackground[0]) return data.showbackground[0].url;
-    }
-  } catch (err) {
-    console.log('Fanart.tv fallback failed:', err);
+  const mediaType = item.media_type === 'tv' ? 'tv' : 'movies';
+  const url = new URL(API_PROXY, window.location.origin);
+  url.searchParams.set('api', 'fanart');
+  url.searchParams.set('endpoint', `/${mediaType}/${item.id}`);
+  
+  const response = await fetch(url);
+  if (response.ok) {
+    const data = await response.json();
+    if (data.movieposter && data.movieposter[0]) return data.movieposter[0].url;
+    if (data.tvposter && data.tvposter[0]) return data.tvposter[0].url;
+    if (data.moviebackground && data.moviebackground[0]) return data.moviebackground[0].url;
+    if (data.showbackground && data.showbackground[0]) return data.showbackground[0].url;
   }
+} catch (err) {
+  console.log('Fanart.tv fallback failed:', err);
+}
   return null;
 }
 /* ═══════════════════════════════════════════════════════════════════
