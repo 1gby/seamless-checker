@@ -1495,12 +1495,11 @@
     /* ═══════════════════════════════════════════════════════════════════
        API CONFIGURATION
        ═══════════════════════════════════════════════════════════════════ */
-    const TMDB_KEY = "e39f22e3483a5eac3cc41faf13d05194";
     const FANART_KEY = "9cd6959542f3be1a6abf078871f18d2e";
-    
-    const TMDB_BASE = "https://api.themoviedb.org/3";
-    const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
-    const YT_EMBED = "https://www.youtube.com/embed/";
+
+const TMDB_BASE = "/api/tmdb"; // Use Vercel serverless function
+const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+const YT_EMBED = "https://www.youtube.com/embed/";
 
     /* ═══════════════════════════════════════════════════════════════════
        GLOBAL STATE
@@ -1738,12 +1737,12 @@ function shouldFilterContent(item) {
 }
 
 async function tmdb(endpoint, params = {}) {
-  const url = new URL(`${TMDB_BASE}${endpoint}`);
-  url.searchParams.set('api_key', TMDB_KEY);
+  const url = new URL(`${TMDB_BASE}`, window.location.origin);
+  url.searchParams.set('endpoint', endpoint);
   url.searchParams.set('language', 'en-US');
   url.searchParams.set('include_adult', 'false');
   Object.entries(params).forEach(([k, v]) => {
-    if (!url.searchParams.has(k)) { url.searchParams.set(k, v); }
+    url.searchParams.set(k, v);
   });
   const res = await fetch(url);
   if (!res.ok) throw new Error(`TMDB ${res.status}`);
@@ -1751,18 +1750,17 @@ async function tmdb(endpoint, params = {}) {
 }
 
 async function tmdbAdult(endpoint, params = {}) {
-  const url = new URL(`${TMDB_BASE}${endpoint}`);
-  url.searchParams.set('api_key', TMDB_KEY);
+  const url = new URL(`${TMDB_BASE}`, window.location.origin);
+  url.searchParams.set('endpoint', endpoint);
   url.searchParams.set('language', 'en-US');
   url.searchParams.set('include_adult', 'true');
   Object.entries(params).forEach(([k, v]) => {
-    if (!url.searchParams.has(k)) { url.searchParams.set(k, v); }
+    url.searchParams.set(k, v);
   });
   const res = await fetch(url);
   if (!res.ok) throw new Error(`TMDB ${res.status}`);
   const data = await res.json();
   
-  // Filter results if in adult mode
   if (data.results && isAdultMode) {
     data.results = data.results.filter(item => !shouldFilterContent(item));
   }
