@@ -2546,16 +2546,26 @@ html += `
     html += '</div>'; // Close detail-actions
 
     if (trailers.length > 0) {
-      html += '<h3>Trailers</h3><div class="trailers-scroll">';
-      trailers.forEach((trailer) => {
-        html += `
-          <div class="trailer-container">
-            <iframe src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          </div>
-        `;
-      });
-      html += '</div>';
-    }
+  html += '<h3>Trailers</h3><div class="trailers-scroll">';
+  trailers.forEach((trailer) => {
+    html += `
+      <div class="trailer-container">
+        <iframe src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    `;
+  });
+  html += '</div>';
+} else if (isAdultMode) {
+  // Fallback: No YouTube trailers in adult mode
+  const searchTitle = encodeURIComponent(title);
+  html += '<h3>Trailers</h3>';
+  html += `
+    <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1rem;">YouTube trailers not available</p>
+    <a href="https://us.dvderotik.com/search.php?keywords=${searchTitle}" target="_blank" rel="noopener noreferrer" class="btn">
+      Find Trailers (18+)
+    </a>
+  `;
+}
 
     if (directors.length > 0) {
   html += '<h3>Director</h3><div class="cast-scroll" id="director-scroll"></div>';
@@ -2851,12 +2861,26 @@ html += `
     html += '</div>'; // Close detail-actions
 
     if (trailers.length > 0) {
-      html += '<h3>Trailers</h3><div class="trailers-scroll">';
-      trailers.forEach((trailer) => {
-        html += `<div class="trailer-container"><iframe src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-      });
-      html += '</div>';
-    }
+  html += '<h3>Trailers</h3><div class="trailers-scroll">';
+  trailers.forEach((trailer) => {
+    html += `
+      <div class="trailer-container">
+        <iframe src="${YT_EMBED}${trailer.key}?rel=0&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    `;
+  });
+  html += '</div>';
+} else if (isAdultMode) {
+  // Fallback: No YouTube trailers in adult mode
+  const searchTitle = encodeURIComponent(title);
+  html += '<h3>Trailers</h3>';
+  html += `
+    <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1rem;">YouTube trailers not available</p>
+    <a href="https://us.dvderotik.com/search.php?keywords=${searchTitle}" target="_blank" rel="noopener noreferrer" class="btn">
+      Find Trailers (18+)
+    </a>
+  `;
+}
 
     if (cast.length > 0) html += '<h3>Cast</h3><div class="cast-scroll" id="cast-scroll"></div>';
 
