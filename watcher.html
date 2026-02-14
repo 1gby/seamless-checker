@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Watcher by Rudeboy™</title>
 
+  <!-- Open Graph / Link Preview Meta Tags -->
+  <meta property="og:title" content="Watcher by Rudeboy™">
+  <meta property="og:description" content="Stream and discover movies, TV shows, and more">
+  <meta property="og:image" content="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
+  <meta property="og:url" content="https://rud3boy.vercel.app/watcher">
+  <meta property="og:type" content="website">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Watcher by Rudeboy™">
+  <meta name="twitter:description" content="Stream and discover movies, TV shows, and more">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
+
   <!-- iOS/Android App Icons -->
 
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -541,9 +553,72 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   CREW INFO (DIRECTOR/PRODUCTION)
+   ═══════════════════════════════════════════════════════════════════ */
+.crew-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: rgba(118, 75, 162, 0.1);
+  border-left: 3px solid var(--accent-purple);
+  border-radius: 8px;
+}
+
+.crew-item {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.crew-label {
+  font-weight: 700;
+  color: var(--accent-green);
+  min-width: 80px;
+}
+
+.crew-value {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.director-card {
+  flex: 0 0 100px;
+  scroll-snap-align: start;
+}
+
+.director-info-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0 0.5rem;
+}
+
+.director-name {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.director-role {
+  font-size: 0.6rem;
+  color: var(--accent-purple);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.1;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    DETAIL VIEW
    ═══════════════════════════════════════════════════════════════════ */
 #detail-view {
+
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.96);
@@ -604,7 +679,7 @@
 
 .detail-backdrop {
   width: 100%;
-  height: 300px;
+  height: 225px;
   object-fit: cover;
   opacity: 0.4;
 }
@@ -1815,6 +1890,20 @@ function toggleFavoriteFromCard(id, type, btn, itemData) {
   // Update detail view favorite button if open
   updateDetailFavoriteButton();
   
+  // Update ALL other star buttons on the page for this same item
+  document.querySelectorAll('.favorite-btn').forEach(otherBtn => {
+    if (otherBtn === btn) return; // Skip the button we just clicked
+    
+    const onclickAttr = otherBtn.getAttribute('onclick');
+    const idMatch = onclickAttr.match(/toggleFavoriteFromCard\((\d+),\s*'([^']+)'/);
+    
+    if (idMatch && parseInt(idMatch[1]) === id && idMatch[2] === type) {
+      // This is the same item, update it
+      otherBtn.classList.toggle('favorited', favorited);
+      otherBtn.textContent = favorited ? '⭐' : '☆';
+    }
+  });
+  
   // Reload favorites section
   loadFavorites();
 }
@@ -2387,8 +2476,44 @@ async function openMovieDetail(movieId) {
 
     html += `<p class="overview">${overview}</p>`;
 
-    // Action buttons container
-    html += '<div class="detail-actions">';
+// ADD DIRECTOR AND PRODUCTION INFO
+const crew = data.credits?.crew || [];
+const directors = crew.filter(c => c.job === 'Director');
+const producers = crew.filter(c => c.job === 'Producer').slice(0, 3);
+const writers = crew.filter(c => c.job === 'Screenplay' || c.job === 'Writer').slice(0, 3);
+const productionCompanies = data.production_companies?.slice(0, 3).map(c => c.name).join(', ') || '';
+
+if (directors.length > 0 || producers.length > 0 || writers.length > 0 || productionCompanies) {
+  html += '<div class="crew-info">';
+  
+  if (directors.length > 0) {
+    html += `<div class="crew-item"><span class="crew-label">Director:</span><span class="crew-value">${directors.map(d => d.name).join(', ')}</span></div>`;
+  }
+  
+  if (writers.length > 0) {
+    html += `<div class="crew-item"><span class="crew-label">Writer:</span><span class="crew-value">${writers.map(w => w.name).join(', ')}</span></div>`;
+  }
+  
+  if (producers.length > 0) {
+    html += `<div class="crew-item"><span class="crew-label">Producer:</span><span class="crew-value">${producers.map(p => p.name).join(', ')}</span></div>`;
+  }
+  
+  if (productionCompanies) {
+    html += `<div class="crew-item"><span class="crew-label">Studio:</span><span class="crew-value">${productionCompanies}</span></div>`;
+  }
+  
+  if (data.runtime) {
+    const hours = Math.floor(data.runtime / 60);
+    const minutes = data.runtime % 60;
+    const runtime = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    html += `<div class="crew-item"><span class="crew-label">Runtime:</span><span class="crew-value">${runtime}</span></div>`;
+  }
+  
+  html += '</div>';
+}
+
+// Action buttons container
+html += '<div class="detail-actions">';
 
     if (data.belongs_to_collection) {
       html += `<button class="collections-btn" onclick="showCollection(${data.belongs_to_collection.id})">View Collection: ${data.belongs_to_collection.name}</button>`;
@@ -2432,9 +2557,13 @@ html += `
       html += '</div>';
     }
 
-    if (cast.length > 0) {
-      html += '<h3>Cast</h3><div class="cast-scroll" id="cast-scroll"></div>';
-    }
+    if (directors.length > 0) {
+  html += '<h3>Director</h3><div class="cast-scroll" id="director-scroll"></div>';
+}
+
+if (cast.length > 0) {
+  html += '<h3>Cast</h3><div class="cast-scroll" id="cast-scroll"></div>';
+}
 
     if (recommendations.length > 0) {
       html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
@@ -2461,9 +2590,32 @@ html += `
 
     html += '<button class="btn" id="back-btn">Back to Browse</button>';
     document.getElementById('detail-body').innerHTML = html;
-    document.getElementById('detail-view').classList.add('active');
+document.getElementById('detail-view').classList.add('active');
 
-    if (cast.length > 0) {
+// Render Directors FIRST
+if (directors.length > 0) {
+  const directorScroll = document.getElementById('director-scroll');
+  for (const director of directors) {
+    const card = document.createElement('div');
+    card.className = 'card director-card';
+    const directorImg = director.profile_path ? TMDB_IMG + director.profile_path : null;
+    if (directorImg) {
+      card.innerHTML = `
+        <img class="poster" src="${directorImg}" loading="lazy" alt="${director.name}">
+        <div class="info">
+          <div class="director-info-stacked">
+            <div class="director-name">${director.name}</div>
+            <div class="director-role">Director</div>
+          </div>
+        </div>
+      `;
+      card.onclick = () => openActorDetail(director.id);
+      directorScroll.appendChild(card);
+    }
+  }
+}
+
+if (cast.length > 0) {
   const castScroll = document.getElementById('cast-scroll');
   for (const actor of cast) {
     const card = document.createElement('div');
@@ -2636,8 +2788,41 @@ async function openTVDetail(tvId) {
 
     html += `<p class="overview">${overview}</p>`;
 
-    // Action buttons container
-    html += '<div class="detail-actions">';
+// ADD TV SHOW CREW INFO
+const crew = data.credits?.crew || [];
+const creators = data.created_by || [];
+const producers = crew.filter(c => c.job === 'Executive Producer').slice(0, 3);
+const productionCompanies = data.production_companies?.slice(0, 3).map(c => c.name).join(', ') || '';
+const networks = data.networks?.slice(0, 2).map(n => n.name).join(', ') || '';
+
+if (creators.length > 0 || producers.length > 0 || productionCompanies || networks) {
+  html += '<div class="crew-info">';
+  
+  if (creators.length > 0) {
+    html += `<div class="crew-item"><span class="crew-label">Creator:</span><span class="crew-value">${creators.map(c => c.name).join(', ')}</span></div>`;
+  }
+  
+  if (producers.length > 0) {
+    html += `<div class="crew-item"><span class="crew-label">Producer:</span><span class="crew-value">${producers.map(p => p.name).join(', ')}</span></div>`;
+  }
+  
+  if (networks) {
+    html += `<div class="crew-item"><span class="crew-label">Network:</span><span class="crew-value">${networks}</span></div>`;
+  }
+  
+  if (productionCompanies) {
+    html += `<div class="crew-item"><span class="crew-label">Studio:</span><span class="crew-value">${productionCompanies}</span></div>`;
+  }
+  
+  if (data.number_of_seasons) {
+    html += `<div class="crew-item"><span class="crew-label">Seasons:</span><span class="crew-value">${data.number_of_seasons} (${data.number_of_episodes} episodes)</span></div>`;
+  }
+  
+  html += '</div>';
+}
+
+// Action buttons container
+html += '<div class="detail-actions">';
 
     if (isAdultMode) {
       html += `
@@ -2802,37 +2987,81 @@ async function openActorDetail(actorId) {
   try {
     const apiFunc = isAdultMode ? tmdbAdult : tmdb;
     const data = await apiFunc(`/person/${actorId}`, {
-      append_to_response: 'combined_credits,images'
-    });
+  append_to_response: 'combined_credits,images'
+});
 
-    currentDetailItem = { ...data, media_type: 'person' };
+currentDetailItem = { ...data, media_type: 'person' };
 
-    const name = data.name || 'Unknown';
-    const bio = data.biography 
-      ? data.biography.substring(0, 400) + (data.biography.length > 400 ? '...' : '') 
-      : 'No biography available.';
-    const profileImg = data.profile_path ? `${TMDB_IMG}${data.profile_path}` : null;
-    const profileImages = data.images?.profiles || [];
-    let allCredits = data.combined_credits?.cast || [];
-    const movieCredits = allCredits.filter(c => c.media_type === 'movie');
-    const tvCredits = allCredits.filter(c => c.media_type === 'tv');
+const name = data.name || 'Unknown';
+const bio = data.biography 
+  ? data.biography.substring(0, 400) + (data.biography.length > 400 ? '...' : '') 
+  : 'No biography available.';
+const profileImg = data.profile_path ? `${TMDB_IMG}${data.profile_path}` : null;
+const profileImages = data.images?.profiles || [];
+
+// Check if they're primarily a director
+const knownFor = data.known_for_department || 'Acting';
+const isDirector = knownFor === 'Directing';
+
+// If director, use CREW credits (what they directed), otherwise use CAST credits (what they acted in)
+let allCredits = [];
+if (isDirector) {
+  // Get their directing credits from crew
+  const crewCredits = data.combined_credits?.crew || [];
+  allCredits = crewCredits.filter(c => c.job === 'Director');
+} else {
+  // Get their acting credits from cast
+  allCredits = data.combined_credits?.cast || [];
+}
+
+const movieCredits = allCredits.filter(c => c.media_type === 'movie');
+const tvCredits = allCredits.filter(c => c.media_type === 'tv');
 
     allCredits.sort((a, b) => {
-      if (a.id === currentMovieId) return -1;
-      if (b.id === currentMovieId) return 1;
-      return (b.popularity || 0) - (a.popularity || 0);
-    });
-    movieCredits.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-    tvCredits.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+  if (a.id === currentMovieId) return -1;
+  if (b.id === currentMovieId) return 1;
+  return (b.popularity || 0) - (a.popularity || 0);
+});
+movieCredits.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+tvCredits.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
 
-    let html = `
-      <div class="actor-profile">
-        <h2>${name}</h2>
-        ${profileImg ? `<img src="${profileImg}" alt="${name}">` : ''}
-        <p><em>Known for: ${data.known_for_department || 'Acting'}</em></p>
-        <p class="overview">${bio}</p>
-      </div>
-    `;
+// GET RANDOM BACKDROP FROM THEIR CREDITS
+const creditsWithBackdrops = allCredits.filter(c => c.backdrop_path);
+let randomBackdrop = null;
+if (creditsWithBackdrops.length > 0) {
+  const randomCredit = creditsWithBackdrops[Math.floor(Math.random() * creditsWithBackdrops.length)];
+  randomBackdrop = randomCredit.backdrop_path;
+}
+
+let html = '';
+
+// ADD HERO SECTION WITH RANDOM BACKDROP
+if (randomBackdrop) {
+  html += '<div class="detail-hero">';
+  html += `<img class="detail-backdrop" src="${TMDB_IMG}${randomBackdrop}" alt="${name}">`;
+  html += '<div class="detail-hero-content">';
+  if (profileImg) {
+    html += `<img class="detail-poster" src="${profileImg}" alt="${name}">`;
+  }
+  html += `
+    <div class="detail-title-block">
+      <h2>${name}</h2>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.7);"><em>Known for: ${knownFor}</em></p>
+    </div>
+  `;
+  html += '</div></div>';
+} else {
+  // Fallback if no backdrop available
+  html += `
+    <div class="actor-profile">
+      <h2>${name}</h2>
+      ${profileImg ? `<img src="${profileImg}" alt="${name}">` : ''}
+      <p><em>Known for: ${knownFor}</em></p>
+    </div>
+  `;
+}
+
+html += `<p class="overview">${bio}</p>`;
 
     // Add favorite button for actor
 html += '<div class="detail-actions">';
@@ -2845,16 +3074,17 @@ html += `
     html += '</div>';
 
     if (movieCredits.length > 0 && tvCredits.length > 0) {
-      html += `
-        <div class="filter-buttons">
-          <button class="filter-btn active" data-filter="all">All (${allCredits.length})</button>
-          <button class="filter-btn" data-filter="movies">Movies (${movieCredits.length})</button>
-          <button class="filter-btn" data-filter="tv">TV (${tvCredits.length})</button>
-        </div>
-      `;
-    }
+  html += `
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">All (${allCredits.length})</button>
+      <button class="filter-btn" data-filter="movies">Movies (${movieCredits.length})</button>
+      <button class="filter-btn" data-filter="tv">TV (${tvCredits.length})</button>
+    </div>
+  `;
+}
 
-    html += '<h3>Credits</h3><div class="vertical-grid" id="actor-credits"></div>';
+const creditsLabel = isDirector ? 'Directed' : 'Credits';
+html += `<h3>${creditsLabel}</h3><div class="vertical-grid" id="actor-credits"></div>`;
 
     if (profileImages.length > 0) {
       html += '<h3>Photos</h3><div class="gallery-scroll">';
@@ -2915,6 +3145,32 @@ html += `
 function closeDetail() {
   document.getElementById('detail-view').classList.remove('active');
   currentDetailItem = null;
+  
+  // Update all favorite buttons without full reload
+  updateAllFavoriteButtons();
+}
+// Update all favorite star buttons on the page
+function updateAllFavoriteButtons() {
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    const card = btn.closest('.card');
+    if (!card) return;
+    
+    // Get the item data from the onclick attribute
+    const onclickAttr = btn.getAttribute('onclick');
+    const idMatch = onclickAttr.match(/toggleFavoriteFromCard\((\d+),\s*'([^']+)'/);
+    
+    if (idMatch) {
+      const id = parseInt(idMatch[1]);
+      const type = idMatch[2];
+      const favorited = isFavorited(id, type);
+      
+      btn.classList.toggle('favorited', favorited);
+      btn.textContent = favorited ? '⭐' : '☆';
+    }
+  });
+  
+  // Also reload favorites section to show/hide if needed
+  loadFavorites();
 }
 /* ═══════════════════════════════════════════════════════════════════
    ENHANCED SEARCH - WITH YEAR FILTERS & GENRE SEARCH
