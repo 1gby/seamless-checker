@@ -11,7 +11,7 @@ A collection of powerful, browser-based web tools designed for creators, designe
 ## 🚀 Live Applications
 
 - **[Main Hub](https://rud3boy.vercel.app)** - Central dashboard for all tools
-- **[Pattern Checker](https://rud3boy.vercel.app/seamless)** - Seamless pattern design & testing
+- **[Pattern Checker](https://rud3boy.vercel.app/seamless)** - Seamless pattern Checker
 - **[File Converter](https://rud3boy.vercel.app/converter)** - Universal media file conversion
 - **[Watcher](https://rud3boy.vercel.app/watcher)** - Entertainment streaming platform
 
