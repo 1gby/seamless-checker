@@ -266,30 +266,30 @@ A modern entertainment streaming platform featuring TMDB integration, favorites 
 
 1. **Clone the repository**
    
-   ```bash
+   bash
    git clone https://github.com/yourusername/web-tools-rudeboy.git
    cd web-tools-rudeboy
-   ```
+   
 1. **Install dependencies**
    
-   ```bash
+   bash
    npm install
-   ```
+   
 1. **Set up environment variables**
    Create a `.env.local` file in the root directory:
    
-   ```env
+   env
    TMDB_API_KEY=your_tmdb_api_key
    FANART_API_KEY=your_fanart_api_key
    WEATHER_API_KEY=your_openweathermap_api_key
-   ```
+   
 1. **Run development server**
    
-   ```bash
+   bash
    npm run dev
    # or
    vercel dev
-   ```
+   
 1. **Open in browser**
    Navigate to `http://localhost:3000`
 
@@ -297,23 +297,22 @@ A modern entertainment streaming platform featuring TMDB integration, favorites 
 
 1. **Install Vercel CLI**
    
-   ```bash
+   bash
    npm install -g vercel
-   ```
+   
 1. **Deploy**
    
-   ```bash
+   bash
    vercel
-   ```
+   
 1. **Set environment variables**
 - Go to your Vercel dashboard
 - Navigate to project settings
 - Add environment variables under “Environment Variables”
 1. **Production deployment**
    
-   ```bash
+   bash
    vercel --prod
-   ```
 
 -----
 
@@ -373,7 +372,7 @@ API keys are protected using Vercel serverless functions to prevent exposure in 
 
 **Example serverless function** (`/api/tmdb.js`):
 
-```javascript
+javascript
 export default async function handler(req, res) {
   const { endpoint } = req.query;
   const response = await fetch(
@@ -382,7 +381,6 @@ export default async function handler(req, res) {
   const data = await response.json();
   res.status(200).json(data);
 }
-```
 
 -----
 
