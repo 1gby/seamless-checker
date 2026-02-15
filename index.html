@@ -6,6 +6,8 @@
   Landing page for Rudeboy's web tools
   - Pattern Checker
   - File Converter
+  - Watcher
+  - Coming Soon
   - Social Links (Ko-fi, Instagram)
   
   FEATURES:
@@ -16,7 +18,9 @@
   - PWA-ready
 ═══════════════════════════════════════════════════════════════════════════════
 -->
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -26,6 +30,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <!-- PWA Icons -->
+
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/main.png">
 <link rel="apple-touch-icon" sizes="152x152" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/main.png">
 <link rel="apple-touch-icon" sizes="120x120" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/main.png">
@@ -135,7 +140,7 @@ gap:2rem;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   LINKS GRID - 2x2 layout, all same size
+   LINKS GRID - 3 rows: 2x smaller top, 2x larger middle, 2x smaller bottom
    ═══════════════════════════════════════════════════════════════════════════ */
 .links-grid{
 display:grid;
@@ -177,8 +182,8 @@ pointer-events:none;
 }
 
 .link-box img{
-width:50px;
-height:50px;
+width:70px;
+height:70px;
 object-fit:contain;
 transition:all 0.3s;
 position:relative;
@@ -187,8 +192,8 @@ pointer-events:none;
 }
 
 .link-box svg{
-width:50px;
-height:50px;
+width:70px;
+height:70px;
 transition:all 0.3s;
 position:relative;
 z-index:1;
@@ -548,13 +553,15 @@ gap:0.75rem;
 }
 }
 </style>
+
 </head>
 <body>
 <div id="container">
-  
+
   <!-- ═══════════════════════════════════════════════════════════════════════
        HEADER
        ═══════════════════════════════════════════════════════════════════════ -->
+
   <div id="header">
     <div class="logo-section">
       <img id="logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy Logo">
@@ -565,41 +572,61 @@ gap:0.75rem;
   <!-- ═══════════════════════════════════════════════════════════════════════
        MAIN CONTENT
        ═══════════════════════════════════════════════════════════════════════ -->
+
   <div id="main-content">
-    
-    <!-- 2x2 Links Grid -->
-    <div class="links-grid">
-      <!-- Pattern Checker (Purple with nova icon) -->
-      <a href="https://rud3boy.vercel.app/seamless" class="link-box purple">
-        <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png" alt="Pattern Checker">
-        <div class="link-label">Pattern Checker</div>
-      </a>
-      
-      <!-- File Converter (Green with Rude icon) -->
-      <a href="https://rud3boy.vercel.app/converter" class="link-box green">
-        <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png" alt="File Converter">
-        <div class="link-label">File Converter</div>
-      </a>
-      
-      <!-- Ko-fi (Green) -->
-      <a href="https://ko-fi.com/rud3boy" target="_blank" rel="noopener" class="link-box green">
-        <img src="https://storage.ko-fi.com/cdn/nav-logo-stroke.png" alt="Ko-fi">
-        <div class="link-label">Ko-fi</div>
-      </a>
-      
-      <!-- Instagram (Purple) -->
-      <a href="https://www.instagram.com/createdbyrudeboy" target="_blank" rel="noopener" class="link-box purple">
-        <svg viewBox="0 0 24 24" width="50" height="50" fill="currentColor" style="color:#E1306C">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-        </svg>
-        <div class="link-label">Instagram</div>
-      </a>
-    </div>
+
+<!-- 3-Row Grid: All same size -->
+<div class="links-grid">
+  
+  <!-- TOP ROW -->
+  <!-- Pattern Checker (Purple with nova icon) -->
+  <a href="https://rud3boy.vercel.app/seamless" class="link-box purple">
+    <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/nova.png" alt="Pattern Checker">
+    <div class="link-label">Pattern Checker</div>
+  </a>
+  
+  <!-- File Converter (Green with Rude icon) -->
+  <a href="https://rud3boy.vercel.app/converter" class="link-box green">
+    <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png" alt="File Converter">
+    <div class="link-label">File Converter</div>
+  </a>
+  
+  <!-- MIDDLE ROW -->
+  <!-- Watcher (Green with view icon) -->
+  <a href="https://rud3boy.vercel.app/watcher" class="link-box green">
+    <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png" alt="Watcher">
+    <div class="link-label">Watcher</div>
+  </a>
+  
+  <!-- Coming Soon (Purple with soon icon) - Non-clickable -->
+  <a href="https://rud3boy.vercel.app" class="link-box purple" onclick="return false;">
+    <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/soon.png" alt="Coming Soon">
+    <div class="link-label">Coming Soon</div>
+  </a>
+  
+  <!-- BOTTOM ROW -->
+  <!-- Ko-fi (Purple) -->
+  <a href="https://ko-fi.com/rud3boy" target="_blank" rel="noopener" class="link-box purple">
+    <img src="https://storage.ko-fi.com/cdn/nav-logo-stroke.png" alt="Ko-fi">
+    <div class="link-label">Ko-fi</div>
+  </a>
+  
+  <!-- Instagram (Green) -->
+  <a href="https://www.instagram.com/createdbyrudeboy" target="_blank" rel="noopener" class="link-box green">
+    <svg viewBox="0 0 24 24" width="70" height="70" fill="currentColor" style="color:#E1306C">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+    </svg>
+    <div class="link-label">Instagram</div>
+  </a>
+  
+</div>
 
   </div>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
-       Visitors
+       Visitors Tracker
        ═══════════════════════════════════════════════════════════════════════ -->
+
 <div style="display: flex; justify-content: center; align-items: center; padding: 10px;">
   <a href="https://readmecodegen.com" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: fit-content;">
     <img src="https://readmecode-pdf.onrender.com/api/badge/user_mlml52u9_m7szx6?style=style1&textColor=%2310b981&bg=%238b5cf6" alt="Visitor Badge" style="display: block; max-width: 100%; height: auto;" />
@@ -609,37 +636,40 @@ gap:0.75rem;
   <!-- ═══════════════════════════════════════════════════════════════════════
        FOOTER
        ═══════════════════════════════════════════════════════════════════════ -->
+
   <div id="footer">
     <div class="footer-content">
-      
-      <!-- Weather Widget -->
-      <div class="weather-widget" id="weatherWidget">
-        <div class="weather-icon-temp">
-          <span class="weather-icon" id="weatherIcon">🌤️</span>
-          <span class="weather-temp" id="weatherTemp">--°</span>
-        </div>
-        <span class="weather-divider">|</span>
-        <div class="weather-time-wrapper">
-          <span class="weather-time" id="weatherTime">--:--</span>
-        </div>
-        <span class="weather-divider">|</span>
-        <div class="weather-condition-wrapper">
-          <span class="weather-condition" id="weatherCondition">Loading...</span>
-        </div>
-        <span class="weather-divider">|</span>
-        <div class="weather-location-wrapper">
-          <span class="weather-location" id="weatherLocation">--</span>
-        </div>
-      </div>
 
-      <!-- Footer Credit (Easter Egg trigger) -->
-      <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
+  <!-- Weather Widget -->
+  <div class="weather-widget" id="weatherWidget">
+    <div class="weather-icon-temp">
+      <span class="weather-icon" id="weatherIcon">🌤️</span>
+      <span class="weather-temp" id="weatherTemp">--°</span>
     </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-time-wrapper">
+      <span class="weather-time" id="weatherTime">--:--</span>
+    </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-condition-wrapper">
+      <span class="weather-condition" id="weatherCondition">Loading...</span>
+    </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-location-wrapper">
+      <span class="weather-location" id="weatherLocation">--</span>
+    </div>
+  </div>
+
+  <!-- Footer Credit (Easter Egg trigger) -->
+  <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
+</div>
+
   </div>
 
 </div>
 
 <!-- Loading Overlay -->
+
 <div class="loading-overlay" id="loadingOverlay">
   <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
   <div class="loading-text" id="loadingText">Loading...</div>
@@ -650,12 +680,14 @@ gap:0.75rem;
 </div>
 
 <!-- Easter Egg Overlay -->
+
 <div class="easter-egg-overlay" id="easterEggOverlay">
   <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
   <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
 </div>
 
 <!-- Easter Egg Audio -->
+
 <audio id="easterEggAudio" preload="none"></audio>
 
 <script>
@@ -1186,9 +1218,11 @@ linkBoxes.forEach(box => {
 });
 
 </script>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
-       Visitors
+       Visitor Tracking Script
        ═══════════════════════════════════════════════════════════════════════ -->
+
 <script src="https://readmecodegen.com/view-tracker.js" data-user="user_mlml52u9_m7szx6"></script>
 </body>
 </html>
