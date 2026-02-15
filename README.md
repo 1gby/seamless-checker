@@ -1,15 +1,3 @@
-
-Main
-
-https://rud3boy.vercel.app/
-
-
-Tools
-
-https://rud3boy.vercel.app/seamless
-https://rud3boy.vercel.app/converter
-https://rud3boy.vercel.app/watcher
-
 # Web Tools by Rudeboy™
 
 ![Rudeboy Logo](https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png)
