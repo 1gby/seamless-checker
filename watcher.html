@@ -1418,9 +1418,14 @@
     <div class="horizontal-scroll" id="adult-teen-grid"></div>
   </section>
 
-  <section id="section-adult-moms" style="display:none;">
+    <section id="section-adult-moms" style="display:none;">
     <h2>🔞 Horny Moms</h2>
     <div class="horizontal-scroll" id="adult-moms-grid"></div>
+  </section>
+
+  <section id="section-adult-xxx-parody" style="display:none;">
+    <h2>🔞 XXX Parody</h2>
+    <div class="horizontal-scroll" id="adult-xxx-parody-grid"></div>
   </section>
 
   <!-- FAVORITES SECTION - XXX MODE -->
@@ -2177,10 +2182,15 @@ async function loadAdultSections() {
         const results = shuffleArray(data.results || []).slice(0, 20);
         await renderHorizontal('adult-teen-grid', results);
       })(),
-      (async () => {
+            (async () => {
         const data = await tmdbAdult('/search/movie', { query: 'horny moms', page: 1 });
         const results = shuffleArray(data.results || []).slice(0, 20);
         await renderHorizontal('adult-moms-grid', results);
+      })(),
+      (async () => {
+        const data = await tmdbAdult('/search/movie', { query: 'xxx parody', page: 1 });
+        const results = shuffleArray(data.results || []).slice(0, 20);
+        await renderHorizontal('adult-xxx-parody-grid', results);
       })()
     ]);
   } catch (err) {
@@ -2281,7 +2291,8 @@ async function loadHome() {
       document.getElementById('section-adult-anal').style.display = 'block';
       document.getElementById('section-adult-milfs').style.display = 'block';
       document.getElementById('section-adult-teen').style.display = 'block';
-      document.getElementById('section-adult-moms').style.display = 'block';
+            document.getElementById('section-adult-moms').style.display = 'block';
+      document.getElementById('section-adult-xxx-parody').style.display = 'block';
       
       await loadAdultSections();
       await loadFavorites();
@@ -2306,7 +2317,9 @@ async function loadHome() {
       document.getElementById('section-adult-anal').style.display = 'none';
       document.getElementById('section-adult-milfs').style.display = 'none';
       document.getElementById('section-adult-teen').style.display = 'none';
-      document.getElementById('section-adult-moms').style.display = 'none';
+            document.getElementById('section-adult-moms').style.display = 'none';
+      document.getElementById('section-adult-xxx-parody').style.display = 'none';
+      document.getElementById('section-xxx-favorites').style.display = 'none';
       document.getElementById('section-xxx-favorites').style.display = 'none';
       
       document.getElementById('section-airing').style.display = 'block';
