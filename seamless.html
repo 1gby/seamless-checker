@@ -1,6 +1,9 @@
-<!-- Rudeboy Pattern Checker - P.I.M.P PRODUCTION -->
-<!-- UPDATED: Weather Widget 2x4 Grid + Social Buttons with Images -->
+<!-- Rudeboy Pattern Checker - P.I.M.P PRODUCTION - DARK MODE -->
+
+<!-- UPDATED: Full Dark Mode with Black, Purple & Green Theme -->
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -16,1218 +19,1231 @@
 <meta name="apple-mobile-web-app-title" content="Rudeboy Pattern">
 <style>
 /* ==================== GLOBAL RESET ==================== */
-:root{color-scheme:dark}
+:root{
+  color-scheme:dark;
+  --color-black: #000000;
+  --color-purple: #764ba2;
+  --color-green: #10b981;
+  --color-dark-bg: rgba(0, 0, 0, 0.95);
+  --color-glass: rgba(0, 0, 0, 0.8);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cccccc;
+  --color-text-muted: #999999;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;background:#000}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;background:var(--color-black)}
 
 /* ==================== BODY & CONTAINER ==================== */
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%);
-  color:#eee;
-  min-height:100vh;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:env(safe-area-inset-bottom);
-  touch-action:pan-x pan-y;
+font-family:-apple-system,BlinkMacSystemFont,‘Segoe UI’,Roboto,‘Helvetica Neue’,Arial,sans-serif;
+background:linear-gradient(135deg,#000000 0%,#0a0a0a 100%);
+color:var(–color-text-primary);
+min-height:100vh;
+padding-top:env(safe-area-inset-top);
+padding-bottom:env(safe-area-inset-bottom);
+touch-action:pan-x pan-y;
 }
 
 /* Standalone PWA Mode Enhancements */
 body.standalone-mode #header{
-  background:rgba(0,0,0,0.8);
-  backdrop-filter:blur(60px) saturate(200%);
-  -webkit-backdrop-filter:blur(60px) saturate(200%);
-  border-bottom:1px solid rgba(16,185,129,0.3);
+background:var(–color-glass);
+backdrop-filter:blur(60px) saturate(200%);
+-webkit-backdrop-filter:blur(60px) saturate(200%);
+border-bottom:1px solid rgba(16,185,129,0.3);
 }
 
 body.standalone-mode .title::after{
-  content:' PWA';
-  font-size:0.6em;
-  opacity:0.5;
-  margin-left:0.3rem;
+content:’ PWA’;
+font-size:0.6em;
+opacity:0.5;
+margin-left:0.3rem;
 }
 
 #container{display:flex;flex-direction:column;min-height:100vh}
 
 /* ==================== HEADER ==================== */
 #header{
-  padding:1.5rem 2rem;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,0.1);
-  box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:2rem;
-  flex-wrap:wrap;
+padding:1.5rem 2rem;
+background:var(–color-glass);
+backdrop-filter:blur(40px) saturate(180%);
+-webkit-backdrop-filter:blur(40px) saturate(180%);
+border-bottom:1px solid rgba(118,75,162,0.4);
+box-shadow:0 8px 32px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.05);
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:2rem;
+flex-wrap:wrap;
 }
 
 .logo-section{display:flex;align-items:center;gap:1.5rem}
 
 #logo{
-  height:42px;
-  width:auto;
-  cursor:pointer;
-  transition:transform 0.3s,filter 0.3s;
-  filter:drop-shadow(0 0 0px rgba(16,185,129,0));
-  animation:pulse 2s ease-in-out infinite;
+height:42px;
+width:auto;
+cursor:pointer;
+transition:transform 0.3s,filter 0.3s;
+filter:drop-shadow(0 0 0px rgba(16,185,129,0));
+animation:pulse 2s ease-in-out infinite;
 }
 /* Logo pulsing glow animation */
 @keyframes pulse{
-  0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
-  50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}
+0%,100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+50%{filter:drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1))}
 }
 #logo:hover{transform:scale(1.05)}
 #logo:active{animation:glow-pulse 0.4s ease-out;transform:scale(0.98)}
 @keyframes glow-pulse{
-  0%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
-  50%{filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8))}
-  100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+0%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
+50%{filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8))}
+100%{filter:drop-shadow(0 0 0px rgba(16,185,129,0))}
 }
 
 .title{
-  font-size:1.5rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  margin:0;
+font-size:1.5rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+margin:0;
 }
 
 .header-buttons{
-  display:flex;
-  align-items:center;
-  gap:0.75rem;
-  flex-wrap:nowrap;
-  justify-content:center;
-  width:100%;
-  max-width:600px;
+display:flex;
+align-items:center;
+gap:0.75rem;
+flex-wrap:nowrap;
+justify-content:center;
+width:100%;
+max-width:600px;
 }
 
 .file-input-wrapper{position:relative;display:flex;flex:1}
 .file-input-wrapper input[type=file]{
-  position:absolute;
-  left:-9999px;
-  opacity:0;
-  pointer-events:none;
+position:absolute;
+left:-9999px;
+opacity:0;
+pointer-events:none;
 }
 
 /* Header button styles with glassmorphism effect */
 .upload-btn,.export-btn-header,.sample-btn{
-  padding:0.85rem 1rem;
-  min-height:52px;
-  color:white;
-  border:none;
-  border-radius:16px;
-  font-size:0.9rem;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.3s;
-  width:100%;
-  white-space:nowrap;
-  text-align:center;
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  position:relative;
-  overflow:hidden;
+padding:0.85rem 1rem;
+min-height:52px;
+color:white;
+border:none;
+border-radius:16px;
+font-size:0.9rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+width:100%;
+white-space:nowrap;
+text-align:center;
+flex:1;
+display:flex;
+align-items:center;
+justify-content:center;
+background:var(–color-glass);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.4);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.5);
+position:relative;
+overflow:hidden;
 }
 
 /* Button hover effect overlay */
 .upload-btn::before,.export-btn-header::before,.sample-btn::before{
-  content:'';
-  position:absolute;
-  top:-50%;
-  left:-50%;
-  width:200%;
-  height:200%;
-  background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%);
-  opacity:0;
-  transition:opacity 0.3s;
+content:’’;
+position:absolute;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%);
+opacity:0;
+transition:opacity 0.3s;
 }
 
 .upload-btn:hover::before,.export-btn-header:hover::before,.sample-btn:hover::before{
-  opacity:1;
+opacity:1;
 }
 
 /* Upload button with purple glow */
 .upload-btn{
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 .upload-btn:hover{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,0.15);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+transform:translateY(-2px);
+background:rgba(0,0,0,0.9);
+box-shadow:0 12px 40px rgba(0,0,0,0.9),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 .upload-btn:active{
-  transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.8),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.6);
 }
 
 /* Sample button with green glow */
 .sample-btn{
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 .sample-btn:hover{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,0.15);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+transform:translateY(-2px);
+background:rgba(0,0,0,0.9);
+box-shadow:0 12px 40px rgba(0,0,0,0.9),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 .sample-btn:active{
-  transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.8),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.6);
 }
 
 /* Export button with purple glow */
 .export-btn-header{
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 .export-btn-header:hover{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,0.15);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+transform:translateY(-2px);
+background:rgba(0,0,0,0.9);
+box-shadow:0 12px 40px rgba(0,0,0,0.9),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.15),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 .export-btn-header:active{
-  transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.4),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.8),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.6);
 }
 .export-btn-header:disabled{
-  opacity:0.4;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+opacity:0.4;
+cursor:not-allowed;
+transform:none;
+box-shadow:0 8px 32px rgba(0,0,0,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.5);
 }
 
 /* ==================== CANVAS AREA ==================== */
 #canvas-wrapper{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:2rem;
-  position:relative;
-  touch-action:none;
+flex:1;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:2rem;
+position:relative;
+touch-action:none;
 }
 
 #canvas{
-  max-width:1200px;
-  width:100%;
-  aspect-ratio:1;
-  border-radius:20px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.5);
-  cursor:pointer;
-  transition:all 0.3s;
-  background:rgba(255,255,255,0.015);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,0.06);
-  touch-action:none;
+max-width:1200px;
+width:100%;
+aspect-ratio:1;
+border-radius:20px;
+box-shadow:0 20px 60px rgba(0,0,0,0.9);
+cursor:pointer;
+transition:all 0.3s;
+background:rgba(0,0,0,0.5);
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+border:1px solid rgba(118,75,162,0.3);
+touch-action:none;
 }
 #canvas.has-image{cursor:grab}
 #canvas.has-image:active{cursor:grabbing}
-#canvas:hover{box-shadow:0 25px 70px rgba(0,0,0,0.6)}
+#canvas:hover{box-shadow:0 25px 70px rgba(0,0,0,1)}
 
 /* Empty state when no image loaded */
 .empty-state{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  text-align:center;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity 0.3s;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+pointer-events:none;
+opacity:0;
+transition:opacity 0.3s;
 }
 .empty-state.visible{opacity:1}
 .empty-state-icon{font-size:4rem;margin-bottom:1rem;opacity:0.6}
-.empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:#888}
-.empty-state-subtext{font-size:0.95rem;color:#666}
+.empty-state-text{font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;color:var(–color-text-secondary)}
+.empty-state-subtext{font-size:0.95rem;color:var(–color-text-muted)}
 
 /* ==================== EXPORT MODAL ==================== */
 .export-modal{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(30px);
-  -webkit-backdrop-filter:blur(30px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  opacity:0;
-  transition:opacity 0.3s;
-  padding:2rem;
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.95);
+backdrop-filter:blur(30px);
+-webkit-backdrop-filter:blur(30px);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+opacity:0;
+transition:opacity 0.3s;
+padding:2rem;
 }
 .export-modal.visible{display:flex;opacity:1}
 
 .export-modal-content{
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  padding:2rem;
-  max-width:400px;
-  width:100%;
+background:var(–color-glass);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:20px;
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 8px 32px rgba(0,0,0,0.9),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.5);
+padding:2rem;
+max-width:400px;
+width:100%;
 }
 
 .export-modal-title{
-  font-size:1.5rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  margin:0 0 1.5rem 0;
-  text-align:center;
+font-size:1.5rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+margin:0 0 1.5rem 0;
+text-align:center;
 }
 
 .export-options{
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-  margin-bottom:1.5rem;
+display:flex;
+flex-direction:column;
+gap:1rem;
+margin-bottom:1.5rem;
 }
 
 .export-option{
-  display:flex;
-  flex-direction:column;
-  gap:0.5rem;
+display:flex;
+flex-direction:column;
+gap:0.5rem;
 }
 
 .export-option-label{
-  font-size:0.9rem;
-  font-weight:600;
-  color:#aaa;
+font-size:0.9rem;
+font-weight:600;
+color:var(–color-text-secondary);
 }
 
 .export-option select,
 .export-option input{
-  padding:0.75rem 1rem;
-  font-size:0.95rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  font-family:inherit;
-  width:100%;
+padding:0.75rem 1rem;
+font-size:0.95rem;
+border-radius:12px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+font-family:inherit;
+width:100%;
 }
 
 .export-buttons{
-  display:flex;
-  gap:1rem;
+display:flex;
+gap:1rem;
 }
 
 .export-btn-confirm,
 .export-btn-cancel{
-  flex:1;
-  padding:0.85rem 1rem;
-  border-radius:12px;
-  font-size:0.95rem;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:none;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
+flex:1;
+padding:0.85rem 1rem;
+border-radius:12px;
+font-size:0.95rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+border:none;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
 }
 
 .export-btn-confirm{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .export-btn-confirm:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+transform:translateY(-2px);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .export-btn-cancel{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(239,68,68,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(239,68,68,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .export-btn-cancel:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(239,68,68,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+transform:translateY(-2px);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(239,68,68,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 /* ==================== LOADING OVERLAY ==================== */
 .loading-overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(30px);
-  -webkit-backdrop-filter:blur(30px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  z-index:10000;
-  opacity:0;
-  transition:opacity 0.3s;
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.98);
+backdrop-filter:blur(30px);
+-webkit-backdrop-filter:blur(30px);
+display:none;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:10000;
+opacity:0;
+transition:opacity 0.3s;
 }
 .loading-overlay.visible{display:flex;opacity:1}
 
 .loading-logo{
-  width:120px;
-  height:120px;
-  opacity:0.8;
-  animation:spin-glow 3s linear infinite;
+width:120px;
+height:120px;
+opacity:0.8;
+animation:spin-glow 3s linear infinite;
 }
 /* Loading logo spin animation with color change */
 @keyframes spin-glow{
-  0%{
-    transform:rotate(0deg);
-    filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
-  }
-  50%{
-    transform:rotate(360deg);
-    filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
-  }
-  51%{
-    filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
-  }
-  100%{
-    transform:rotate(720deg);
-    filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
-  }
+0%{
+transform:rotate(0deg);
+filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+}
+50%{
+transform:rotate(360deg);
+filter:drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8));
+}
+51%{
+filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+}
+100%{
+transform:rotate(720deg);
+filter:drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8));
+}
 }
 
 .loading-text{
-  font-size:1.2rem;
-  font-weight:600;
-  color:#eee;
-  margin-top:1.5rem;
-  text-align:center;
-  opacity:0.9;
+font-size:1.2rem;
+font-weight:600;
+color:var(–color-text-primary);
+margin-top:1.5rem;
+text-align:center;
+opacity:0.9;
 }
 
 .loading-subtext{
-  font-size:0.9rem;
-  color:#999;
-  margin-top:0.5rem;
-  text-align:center;
-  display:none;
+font-size:0.9rem;
+color:var(–color-text-muted);
+margin-top:0.5rem;
+text-align:center;
+display:none;
 }
 
 .loading-subtext:not(:empty){
-  display:block;
+display:block;
 }
 
 /* Progress bar for loading states */
 .progress-bar-container{
-  width:280px;
-  height:6px;
-  background:rgba(255,255,255,0.1);
-  border-radius:10px;
-  margin:1.5rem auto 0;
-  overflow:hidden;
-  display:none;
-  border:1px solid rgba(255,255,255,0.2);
+width:280px;
+height:6px;
+background:rgba(0,0,0,0.8);
+border-radius:10px;
+margin:1.5rem auto 0;
+overflow:hidden;
+display:none;
+border:1px solid rgba(118,75,162,0.3);
 }
 
 .progress-bar-container.visible{
-  display:block;
+display:block;
 }
 
 .progress-bar-fill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#10b981 0%,#764ba2 100%);
-  border-radius:10px;
-  transition:width 0.3s ease;
-  box-shadow:0 0 10px rgba(16,185,129,0.6);
+height:100%;
+width:0%;
+background:linear-gradient(90deg,var(–color-green) 0%,var(–color-purple) 100%);
+border-radius:10px;
+transition:width 0.3s ease;
+box-shadow:0 0 10px rgba(16,185,129,0.6);
 }
 /* ==================== CONTROLS SECTION ==================== */
 #controls{
-  padding:2rem;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border-top:1px solid rgba(255,255,255,0.1);
-  box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+padding:2rem;
+background:var(–color-glass);
+backdrop-filter:blur(40px) saturate(180%);
+-webkit-backdrop-filter:blur(40px) saturate(180%);
+border-top:1px solid rgba(16,185,129,0.4);
+box-shadow:0 -8px 32px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .master-dropdown-wrapper{max-width:360px;margin:0 auto 1.5rem}
 
 /* Instructions accordion */
 .instructions-accordion{
-  margin-bottom:1.5rem;
+margin-bottom:1.5rem;
 }
 
 .instructions-accordion-header{
-  padding:0.75rem 1rem;
-  font-size:0.95rem;
-  border-radius:16px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  cursor:pointer;
-  transition:all 0.3s;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  user-select:none;
+padding:0.75rem 1rem;
+font-size:0.95rem;
+border-radius:16px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(16,185,129,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+cursor:pointer;
+transition:all 0.3s;
+display:flex;
+justify-content:space-between;
+align-items:center;
+user-select:none;
 }
 
 .instructions-accordion-header:hover{
-  background:rgba(255,255,255,0.15);
-  border-color:rgba(255,255,255,0.25);
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+background:rgba(0,0,0,0.8);
+border-color:rgba(16,185,129,0.5);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .instructions-accordion-content{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.3s ease;
-  margin-top:0.5rem;
+max-height:0;
+overflow:hidden;
+transition:max-height 0.3s ease;
+margin-top:0.5rem;
 }
 
 .instructions-accordion.open .instructions-accordion-content{
-  max-height:5000px;
-  overflow-y:auto;
+max-height:5000px;
+overflow-y:auto;
 }
 
 .instructions-card{
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  padding:1.5rem;
-  max-height:70vh;
-  overflow-y:auto;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:16px;
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+padding:1.5rem;
+max-height:70vh;
+overflow-y:auto;
 }
 
 .instructions-card h3{
-  font-size:1.1rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  margin:0 0 0.75rem 0;
+font-size:1.1rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+margin:0 0 0.75rem 0;
 }
 
 .instructions-card h4{
-  font-size:0.95rem;
-  font-weight:700;
-  color:#10b981;
-  margin:1rem 0 0.5rem 0;
+font-size:0.95rem;
+font-weight:700;
+color:#10b981;
+margin:1rem 0 0.5rem 0;
 }
 
 .instructions-card p{
-  font-size:0.9rem;
-  line-height:1.6;
-  color:#ccc;
-  margin:0 0 0.75rem 0;
+font-size:0.9rem;
+line-height:1.6;
+color:var(–color-text-secondary);
+margin:0 0 0.75rem 0;
 }
 
 .instructions-card ul{
-  font-size:0.9rem;
-  line-height:1.6;
-  color:#ccc;
-  margin:0 0 0.75rem 0;
-  padding-left:1.5rem;
+font-size:0.9rem;
+line-height:1.6;
+color:var(–color-text-secondary);
+margin:0 0 0.75rem 0;
+padding-left:1.5rem;
 }
 
 .instructions-card li{
-  margin-bottom:0.5rem;
+margin-bottom:0.5rem;
 }
 
 /* Base styles for selects and buttons */
 select,button{
-  padding:0.75rem 1rem;
-  font-size:0.95rem;
-  border-radius:16px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  cursor:pointer;
-  transition:all 0.3s;
-  font-family:inherit;
-  width:100%;
+padding:0.75rem 1rem;
+font-size:0.95rem;
+border-radius:16px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+cursor:pointer;
+transition:all 0.3s;
+font-family:inherit;
+width:100%;
 }
 select:hover,button:hover{
-  background:rgba(255,255,255,0.15);
-  border-color:rgba(255,255,255,0.25);
+background:rgba(0,0,0,0.8);
+border-color:rgba(118,75,162,0.5);
 }
 select:focus,button:focus{
-  outline:none;
-  border-color:rgba(102,126,234,0.5);
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 20px rgba(102,126,234,0.4),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+outline:none;
+border-color:rgba(16,185,129,0.5);
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 20px rgba(16,185,129,0.4),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 select:active,button:active{transform:translateY(0)}
 
 /* Master dropdown with purple glow */
 #masterDropdown{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #masterDropdown:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #masterDropdown:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 .preview-group{
-  margin-bottom:1.5rem;
+margin-bottom:1.5rem;
 }
 
 .preview-group-title{
-  font-size:0.75rem;
-  font-weight:700;
-  color:#667eea;
-  text-transform:uppercase;
-  letter-spacing:1.5px;
-  margin-bottom:0.75rem;
-  padding-left:0.5rem;
-  opacity:0.8;
+font-size:0.75rem;
+font-weight:700;
+color:#10b981;
+text-transform:uppercase;
+letter-spacing:1.5px;
+margin-bottom:0.75rem;
+padding-left:0.5rem;
+opacity:0.8;
 }
 
 .preview-group-content{
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
+display:flex;
+flex-direction:column;
+gap:1rem;
 }
 
 /* Canvas quality and grid size with purple glow */
 #canvasQuality,#gridSize{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #canvasQuality:hover,#gridSize:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #canvasQuality:active,#gridSize:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 /* Repeat type and background color with green glow */
 #repeatType,#bgColor{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #repeatType:hover,#bgColor:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #repeatType:active,#bgColor:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 /* Country stores and view mode with purple glow */
 #countryStores,#viewMode{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #countryStores:hover,#viewMode:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 #countryStores:active,#viewMode:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 /* Slider dropdown specific glow colors - Purple for X offset and mockup zoom */
-.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header,
-.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+.slider-dropdown[data-slider=“offsetX”] .slider-dropdown-header,
+.slider-dropdown[data-slider=“mockupZoom”] .slider-dropdown-header{
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 /* Green for Y offset and mockup rotate */
-.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header,
-.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+.slider-dropdown[data-slider=“offsetY”] .slider-dropdown-header,
+.slider-dropdown[data-slider=“mockupRotate”] .slider-dropdown-header{
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .slider-dropdown-header:hover{
-  background:rgba(255,255,255,0.15);
-  border-color:rgba(255,255,255,0.25);
+background:rgba(0,0,0,0.8);
+border-color:rgba(118,75,162,0.5);
 }
 
-.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:hover,
-.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+.slider-dropdown[data-slider=“offsetX”] .slider-dropdown-header:hover,
+.slider-dropdown[data-slider=“mockupZoom”] .slider-dropdown-header:hover{
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
-.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:hover,
-.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+.slider-dropdown[data-slider=“offsetY”] .slider-dropdown-header:hover,
+.slider-dropdown[data-slider=“mockupRotate”] .slider-dropdown-header:hover{
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
-.slider-dropdown[data-slider="offsetX"] .slider-dropdown-header:active,
-.slider-dropdown[data-slider="mockupZoom"] .slider-dropdown-header:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+.slider-dropdown[data-slider=“offsetX”] .slider-dropdown-header:active,
+.slider-dropdown[data-slider=“mockupZoom”] .slider-dropdown-header:active{
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
-.slider-dropdown[data-slider="offsetY"] .slider-dropdown-header:active,
-.slider-dropdown[data-slider="mockupRotate"] .slider-dropdown-header:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+.slider-dropdown[data-slider=“offsetY”] .slider-dropdown-header:active,
+.slider-dropdown[data-slider=“mockupRotate”] .slider-dropdown-header:active{
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 /* Scale slider with purple glow */
-.slider-dropdown[data-slider="scale"] .slider-dropdown-header{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+.slider-dropdown[data-slider=“scale”] .slider-dropdown-header{
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
-.slider-dropdown[data-slider="scale"] .slider-dropdown-header:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+.slider-dropdown[data-slider=“scale”] .slider-dropdown-header:hover{
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
-.slider-dropdown[data-slider="scale"] .slider-dropdown-header:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+.slider-dropdown[data-slider=“scale”] .slider-dropdown-header:active{
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(118,75,162,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 .controls-section{
-  display:none;
-  transition:all 0.3s;
-  margin-top:1.5rem;
+display:none;
+transition:all 0.3s;
+margin-top:1.5rem;
 }
 .controls-section.active{display:block}
 
 .settings-dropdowns,.sliders-container{
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-  max-width:360px;
-  margin:0 auto;
+display:flex;
+flex-direction:column;
+gap:1rem;
+max-width:360px;
+margin:0 auto;
 }
 
 .section-label{
-  font-size:0.85rem;
-  font-weight:700;
-  color:#667eea;
-  text-align:center;
-  margin-bottom:0.5rem;
-  text-transform:uppercase;
-  letter-spacing:1px;
+font-size:0.85rem;
+font-weight:700;
+color:#667eea;
+text-align:center;
+margin-bottom:0.5rem;
+text-transform:uppercase;
+letter-spacing:1px;
 }
 
 .slider-dropdown{margin-bottom:0}
 
 .slider-dropdown-header{
-  padding:0.75rem 1rem;
-  font-size:0.95rem;
-  border-radius:16px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  cursor:pointer;
-  transition:all 0.3s;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  user-select:none;
+padding:0.75rem 1rem;
+font-size:0.95rem;
+border-radius:16px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+cursor:pointer;
+transition:all 0.3s;
+display:flex;
+justify-content:space-between;
+align-items:center;
+user-select:none;
 }
 
 .slider-dropdown-content{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.3s ease;
-  margin-top:0.5rem;
+max-height:0;
+overflow:hidden;
+transition:max-height 0.3s ease;
+margin-top:0.5rem;
 }
 .slider-dropdown.open .slider-dropdown-content{max-height:200px}
 
 .slider-group{
-  display:flex;
-  flex-direction:column;
-  gap:0.75rem;
-  padding:1.2rem 1.5rem;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  position:relative;
+display:flex;
+flex-direction:column;
+gap:0.75rem;
+padding:1.2rem 1.5rem;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:16px;
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+position:relative;
 }
 
 .slider-wrapper{position:relative}
 
 /* Center line indicator for sliders */
 .slider-wrapper.centered::before{
-  content:'';
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%, -50%);
-  width:2px;
-  height:20px;
-  background:rgba(102,126,234,0.5);
-  pointer-events:none;
-  z-index:1;
+content:’’;
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%, -50%);
+width:2px;
+height:20px;
+background:rgba(16,185,129,0.5);
+pointer-events:none;
+z-index:1;
 }
 
 .zoom-slider-wrapper{
-  margin-bottom:1rem;
+margin-bottom:1rem;
 }
 
 .zoom-slider-header{
-  padding:0.75rem 1rem;
-  font-size:0.95rem;
-  border-radius:16px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  cursor:pointer;
-  transition:all 0.3s;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  user-select:none;
+padding:0.75rem 1rem;
+font-size:0.95rem;
+border-radius:16px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+cursor:pointer;
+transition:all 0.3s;
+display:flex;
+justify-content:space-between;
+align-items:center;
+user-select:none;
 }
 
 .zoom-slider-header:hover{
-  background:rgba(255,255,255,0.15);
-  border-color:rgba(255,255,255,0.25);
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+background:rgba(0,0,0,0.8);
+border-color:rgba(118,75,162,0.5);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(118,75,162,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .zoom-slider-content{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.3s ease;
-  margin-top:0.5rem;
+max-height:0;
+overflow:hidden;
+transition:max-height 0.3s ease;
+margin-top:0.5rem;
 }
 .zoom-slider-wrapper.open .zoom-slider-content{max-height:200px}
 
 /* Range slider styles with gradient track */
-input[type="range"]{
-  width:100%;
-  height:6px;
-  border-radius:20px;
-  background:linear-gradient(90deg,rgba(102,126,234,0.3) 0%,rgba(118,75,162,0.3) 100%);
-  border:1px solid rgba(255,255,255,0.1);
-  outline:none;
-  -webkit-appearance:none;
-  transition:all 0.3s;
-  box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);
+input[type=“range”]{
+width:100%;
+height:8px;
+border-radius:20px;
+background:linear-gradient(90deg,rgba(16,185,129,0.2) 0%,rgba(118,75,162,0.2) 100%);
+border:1px solid rgba(118,75,162,0.3);
+outline:none;
+-webkit-appearance:none;
+transition:all 0.3s;
+box-shadow:inset 0 2px 4px rgba(0,0,0,0.8);
 }
 
 /* Custom slider thumb with glassmorphism */
-input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  width:60px;
-  height:28px;
-  border-radius:50px;
-  background:rgba(255,255,255,0.3);
-  cursor:pointer;
-  border:2px solid rgba(255,255,255,0.6);
-  box-shadow:
-    0 4px 16px rgba(0,0,0,0.3),
-    0 0 20px rgba(102,126,234,0.4),
-    inset 0 2px 6px rgba(255,255,255,0.4),
-    inset 0 -2px 6px rgba(0,0,0,0.1);
-  transition:all 0.3s ease;
-  backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
+input[type=“range”]::-webkit-slider-thumb{
+-webkit-appearance:none;
+width:70px;
+height:32px;
+border-radius:50px;
+background:rgba(255,255,255,0.25);
+cursor:pointer;
+border:2px solid rgba(255,255,255,0.5);
+box-shadow:
+0 4px 16px rgba(0,0,0,0.6),
+0 0 20px rgba(102,126,234,0.5),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.2);
+transition:all 0.3s ease;
+backdrop-filter:blur(20px) saturate(180%);
+-webkit-backdrop-filter:blur(20px) saturate(180%);
 }
 
-input[type="range"]::-webkit-slider-thumb:hover{
-  transform:scale(1.08);
-  background:rgba(255,255,255,0.4);
-  box-shadow:
-    0 6px 24px rgba(0,0,0,0.4),
-    0 0 30px rgba(102,126,234,0.6),
-    inset 0 2px 8px rgba(255,255,255,0.5),
-    inset 0 -2px 8px rgba(0,0,0,0.15);
+input[type=“range”]::-webkit-slider-thumb:hover{
+transform:scale(1.1);
+background:rgba(255,255,255,0.35);
+border:2px solid rgba(255,255,255,0.7);
+box-shadow:
+0 6px 24px rgba(0,0,0,0.7),
+0 0 30px rgba(102,126,234,0.7),
+inset 0 2px 10px rgba(255,255,255,0.7),
+inset 0 -2px 10px rgba(0,0,0,0.25);
 }
 
-input[type="range"]::-webkit-slider-thumb:active{
-  transform:scale(1.02);
-  background:rgba(255,255,255,0.35);
-  box-shadow:
-    0 2px 12px rgba(0,0,0,0.5),
-    0 0 35px rgba(118,75,162,0.8),
-    inset 0 2px 6px rgba(255,255,255,0.45),
-    inset 0 -2px 6px rgba(0,0,0,0.2);
+input[type=“range”]::-webkit-slider-thumb:active{
+transform:scale(1.05);
+background:rgba(255,255,255,0.3);
+box-shadow:
+0 2px 12px rgba(0,0,0,0.8),
+0 0 35px rgba(118,75,162,0.9),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.3);
 }
 
 /* Firefox slider thumb styles */
-input[type="range"]::-moz-range-thumb{
-  width:60px;
-  height:28px;
-  border-radius:50px;
-  background:rgba(255,255,255,0.3);
-  cursor:pointer;
-  border:2px solid rgba(255,255,255,0.6);
-  box-shadow:
-    0 4px 16px rgba(0,0,0,0.3),
-    0 0 20px rgba(102,126,234,0.4),
-    inset 0 2px 6px rgba(255,255,255,0.4),
-    inset 0 -2px 6px rgba(0,0,0,0.1);
-  transition:all 0.3s ease;
+input[type=“range”]::-moz-range-thumb{
+width:70px;
+height:32px;
+border-radius:50px;
+background:rgba(255,255,255,0.25);
+cursor:pointer;
+border:2px solid rgba(255,255,255,0.5);
+box-shadow:
+0 4px 16px rgba(0,0,0,0.6),
+0 0 20px rgba(102,126,234,0.5),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.2);
+transition:all 0.3s ease;
 }
 
-input[type="range"]::-moz-range-thumb:hover{
-  transform:scale(1.08);
-  background:rgba(255,255,255,0.4);
-  box-shadow:
-    0 6px 24px rgba(0,0,0,0.4),
-    0 0 30px rgba(102,126,234,0.6),
-    inset 0 2px 8px rgba(255,255,255,0.5),
-    inset 0 -2px 8px rgba(0,0,0,0.15);
+input[type=“range”]::-moz-range-thumb:hover{
+transform:scale(1.1);
+background:rgba(255,255,255,0.35);
+border:2px solid rgba(255,255,255,0.7);
+box-shadow:
+0 6px 24px rgba(0,0,0,0.7),
+0 0 30px rgba(102,126,234,0.7),
+inset 0 2px 10px rgba(255,255,255,0.7),
+inset 0 -2px 10px rgba(0,0,0,0.25);
 }
 
-input[type="range"]::-moz-range-thumb:active{
-  transform:scale(1.02);
-  background:rgba(255,255,255,0.35);
-  box-shadow:
-    0 2px 12px rgba(0,0,0,0.5),
-    0 0 35px rgba(118,75,162,0.8),
-    inset 0 2px 6px rgba(255,255,255,0.45),
-    inset 0 -2px 6px rgba(0,0,0,0.2);
+input[type=“range”]::-moz-range-thumb:active{
+transform:scale(1.05);
+background:rgba(255,255,255,0.3);
+box-shadow:
+0 2px 12px rgba(0,0,0,0.8),
+0 0 35px rgba(118,75,162,0.9),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.3);
 }
 
 .slider-value{
-  font-size:0.9rem;
-  font-weight:600;
-  color:#667eea;
-  min-width:45px;
-  text-align:right;
+font-size:0.9rem;
+font-weight:600;
+color:#667eea;
+min-width:45px;
+text-align:right;
 }
 
 /* ==================== WEATHER WIDGET - 2x4 GRID LAYOUT ==================== */
 .weather-widget{
-  display:none;
-  align-items:center;
-  justify-content:space-between;
-  gap:0.3rem;
-  padding:1rem 1.1rem;
-  margin-bottom:1rem;
-  background:rgba(40,40,45,0.95);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1);
-  font-size:0.85rem;
-  max-width:900px;
-  margin-left:auto;
-  margin-right:auto;
-  flex-wrap:nowrap;
+display:none;
+align-items:center;
+justify-content:space-between;
+gap:0.3rem;
+padding:1rem 1.1rem;
+margin-bottom:1rem;
+background:var(–color-glass);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:20px;
+border:1px solid rgba(16,185,129,0.4);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05);
+font-size:0.85rem;
+max-width:900px;
+margin-left:auto;
+margin-right:auto;
+flex-wrap:nowrap;
 }
 
 .weather-widget.visible{display:flex}
 .weather-widget.loading{opacity:0.6}
 
 .weather-col{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:0.1rem;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:0.1rem;
 }
 
 .weather-col-time{
-  min-width:70px;
+min-width:70px;
 }
 
 .weather-col-condition{
-  min-width:65px;
-  max-width:75px;
+min-width:65px;
+max-width:75px;
 }
 
 .weather-col-location{
-  min-width:65px;
-  max-width:75px;
+min-width:65px;
+max-width:75px;
 }
 
 .weather-icon{font-size:1.3rem;line-height:1}
 .weather-temp{
-  font-size:1.0rem;
-  font-weight:700;
-  color:#b794f6;
+font-size:1.0rem;
+font-weight:700;
+color:#b794f6;
 }
 .weather-time{
-  font-size:0.9rem;
-  font-weight:600;
-  color:#10b981;
+font-size:0.9rem;
+font-weight:600;
+color:#10b981;
 }
 .weather-divider{
-  color:rgba(255,255,255,0.3);
-  font-weight:300;
-  font-size:0.9rem;
-  margin:0 -0.1rem;
+color:rgba(255,255,255,0.2);
+font-weight:300;
+font-size:0.9rem;
+margin:0 -0.1rem;
 }
 
 .weather-condition-line1,
 .weather-condition-line2{
-  font-size:0.70rem;
-  font-weight:600;
-  color:#10b981;
-  animation:condition-glow 4s ease-in-out infinite;
-  text-align:center;
-  line-height:1.05;
+font-size:0.70rem;
+font-weight:600;
+color:#10b981;
+animation:condition-glow 4s ease-in-out infinite;
+text-align:center;
+line-height:1.05;
 }
 
 @keyframes condition-glow{
-  0%,100%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
-  50%{color:#b794f6;text-shadow:0 0 10px rgba(183,148,246,0.6)}
+0%,100%{color:#10b981;text-shadow:0 0 10px rgba(16,185,129,0.6)}
+50%{color:#b794f6;text-shadow:0 0 10px rgba(183,148,246,0.6)}
 }
 
 .weather-location-line1,
 .weather-location-line2{
-  font-size:0.70rem;
-  font-weight:600;
-  color:#b794f6;
-  animation:location-glow 4s ease-in-out infinite;
-  text-align:center;
-  line-height:1.05;
+font-size:0.70rem;
+font-weight:600;
+color:#b794f6;
+animation:location-glow 4s ease-in-out infinite;
+text-align:center;
+line-height:1.05;
 }
 
 @keyframes location-glow{
-  0%,100%{color:#b794f6;text-shadow:0 0 8px rgba(183,148,246,0.6)}
-  50%{color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.6)}
+0%,100%{color:#b794f6;text-shadow:0 0 8px rgba(183,148,246,0.6)}
+50%{color:#10b981;text-shadow:0 0 8px rgba(16,185,129,0.6)}
 }
 
 /* ==================== SOCIAL BUTTONS - SQUARE ICON BOXES ==================== */
 .social-buttons{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:0.75rem;
-  margin-bottom:1.5rem;
-  flex-wrap:nowrap;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:0.75rem;
+margin-bottom:1.5rem;
+flex-wrap:nowrap;
 }
 
 .social-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:72px;
-  height:72px;
-  border-radius:18px;
-  background:rgba(40,40,45,0.95);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1);
-  cursor:pointer;
-  transition:all 0.3s;
-  text-decoration:none;
-  flex-shrink:0;
+display:flex;
+align-items:center;
+justify-content:center;
+width:72px;
+height:72px;
+border-radius:18px;
+background:var(–color-glass);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.4);
+box-shadow:0 8px 32px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05);
+cursor:pointer;
+transition:all 0.3s;
+text-decoration:none;
+flex-shrink:0;
 }
 
 .social-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.15);
-  background:rgba(50,50,55,0.95);
+transform:translateY(-2px);
+box-shadow:0 12px 40px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.1);
+background:rgba(0,0,0,0.9);
 }
 
 .social-btn:active{
-  transform:translateY(0);
-  box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.1);
+transform:translateY(0);
+box-shadow:0 4px 16px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .social-btn img{
-  width:42px;
-  height:42px;
-  border-radius:6px;
-  object-fit:contain;
+width:42px;
+height:42px;
+border-radius:6px;
+object-fit:contain;
 }
 /* ==================== TOOLS SECTION ==================== */
 .tools-section{display:none;margin-top:1.5rem}
 .tools-section.active{display:block}
 
 .tool-card{
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  padding:1.2rem 1.5rem;
-  margin-bottom:1rem;
-  max-width:360px;
-  margin-left:auto;
-  margin-right:auto;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border-radius:16px;
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+padding:1.2rem 1.5rem;
+margin-bottom:1rem;
+max-width:360px;
+margin-left:auto;
+margin-right:auto;
 }
 
 .tool-title{
-  font-size:1rem;
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  margin:0 0 0.75rem 0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+font-size:1rem;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+margin:0 0 0.75rem 0;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 /* Color palette toggle button */
 .palette-toggle{
-  font-size:0.75rem;
-  padding:0.3rem 0.6rem;
-  border-radius:8px;
-  background:rgba(16,185,129,0.2);
-  color:#10b981;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:1px solid rgba(16,185,129,0.3);
+font-size:0.75rem;
+padding:0.3rem 0.6rem;
+border-radius:8px;
+background:rgba(16,185,129,0.2);
+color:#10b981;
+cursor:pointer;
+transition:all 0.3s;
+border:1px solid rgba(16,185,129,0.3);
 }
 .palette-toggle:hover{background:rgba(16,185,129,0.3)}
 
 /* Calculator recommendations toggle button */
 .calc-recommendations-toggle{
-  font-size:0.75rem;
-  padding:0.3rem 0.6rem;
-  border-radius:8px;
-  background:rgba(118,75,162,0.2);
-  color:#764ba2;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:1px solid rgba(118,75,162,0.3);
+font-size:0.75rem;
+padding:0.3rem 0.6rem;
+border-radius:8px;
+background:rgba(118,75,162,0.2);
+color:#764ba2;
+cursor:pointer;
+transition:all 0.3s;
+border:1px solid rgba(118,75,162,0.3);
 }
 .calc-recommendations-toggle:hover{background:rgba(118,75,162,0.3)}
 
 .calc-recommendations{
-  display:none;
-  margin-top:0.75rem;
-  padding-top:0.75rem;
-  border-top:1px solid rgba(255,255,255,0.1);
+display:none;
+margin-top:0.75rem;
+padding-top:0.75rem;
+border-top:1px solid rgba(255,255,255,0.1);
 }
 .calc-recommendations.active{display:block}
 
 .calc-preset-group{margin-bottom:1rem}
 
 .calc-preset-label{
-  font-size:0.8rem;
-  font-weight:700;
-  color:#667eea;
-  margin-bottom:0.5rem;
-  text-transform:uppercase;
-  letter-spacing:0.5px;
+font-size:0.8rem;
+font-weight:700;
+color:#10b981;
+margin-bottom:0.5rem;
+text-transform:uppercase;
+letter-spacing:0.5px;
 }
 
 .calc-preset-buttons{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:0.5rem;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:0.5rem;
 }
 
 /* Calculator preset buttons */
 .calc-preset-btn{
-  padding:0.5rem 0.75rem;
-  border-radius:8px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
-  color:#ccc;
-  font-size:0.75rem;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.3s;
-  text-align:center;
+padding:0.5rem 0.75rem;
+border-radius:8px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 2px 12px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+color:var(–color-text-secondary);
+font-size:0.75rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+text-align:center;
 }
 
 .calc-preset-btn:hover{
-  background:rgba(255,255,255,0.15);
-  border-color:rgba(255,255,255,0.3);
-  transform:translateY(-1px);
-  box-shadow:0 3px 14px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.35);
+background:rgba(0,0,0,0.8);
+border-color:rgba(118,75,162,0.5);
+transform:translateY(-1px);
+box-shadow:0 3px 14px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .calc-preset-btn:active{
-  transform:translateY(0);
-  box-shadow:0 1px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.25);
+transform:translateY(0);
+box-shadow:0 1px 8px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 /* Color palette grid - 9 color swatches */
 .color-palette{
-  display:grid;
-  grid-template-columns:repeat(9,1fr);
-  gap:0.5rem;
-  margin-top:0.75rem;
+display:grid;
+grid-template-columns:repeat(9,1fr);
+gap:0.5rem;
+margin-top:0.75rem;
 }
 
 .color-palette.hex-mode{display:none}
 
 .color-swatch{
-  width:100%;
-  aspect-ratio:1;
-  border-radius:8px;
-  border:2px solid rgba(255,255,255,0.3);
-  cursor:pointer;
-  transition:all 0.3s;
-  position:relative;
-  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+width:100%;
+aspect-ratio:1;
+border-radius:8px;
+border:2px solid rgba(118,75,162,0.3);
+cursor:pointer;
+transition:all 0.3s;
+position:relative;
+box-shadow:0 2px 8px rgba(0,0,0,0.6);
 }
 
 .color-swatch:hover{
-  transform:scale(1.1);
-  border-color:rgba(255,255,255,0.6);
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+transform:scale(1.1);
+border-color:rgba(16,185,129,0.6);
+box-shadow:0 4px 12px rgba(0,0,0,0.8);
 }
 
 .color-swatch:active{transform:scale(0.98)}
 
 /* Hex tooltip that appears on hover */
 .hex-tooltip{
-  position:absolute;
-  bottom:calc(100% + 8px);
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.9);
-  color:#fff;
-  padding:0.3rem 0.6rem;
-  border-radius:6px;
-  font-size:0.7rem;
-  font-weight:600;
-  white-space:nowrap;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity 0.3s;
-  z-index:100;
+position:absolute;
+bottom:calc(100% + 8px);
+left:50%;
+transform:translateX(-50%);
+background:rgba(0,0,0,0.95);
+color:#fff;
+padding:0.3rem 0.6rem;
+border-radius:6px;
+font-size:0.7rem;
+font-weight:600;
+white-space:nowrap;
+pointer-events:none;
+opacity:0;
+transition:opacity 0.3s;
+z-index:100;
+border:1px solid rgba(16,185,129,0.3);
 }
 
 .color-swatch:hover .hex-tooltip{opacity:1}
 
 /* Checkmark when color is copied */
 .color-swatch.copied::after{
-  content:'✓';
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  color:#fff;
-  font-size:20px;
-  font-weight:bold;
-  text-shadow:0 0 4px rgba(0,0,0,0.8);
+content:‘✓’;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+color:#fff;
+font-size:20px;
+font-weight:bold;
+text-shadow:0 0 4px rgba(0,0,0,1);
 }
 
 /* Hex checker tool */
@@ -1237,201 +1253,201 @@ input[type="range"]::-moz-range-thumb:active{
 .hex-input-row{display:flex;gap:0.5rem;margin-bottom:0.75rem}
 
 .hex-input{
-  flex:1;
-  padding:0.75rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  font-family:'Courier New',monospace;
-  font-size:0.95rem;
-  font-weight:600;
+flex:1;
+padding:0.75rem;
+border-radius:12px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+font-family:‘Courier New’,monospace;
+font-size:0.95rem;
+font-weight:600;
 }
 
 /* Live preview of hex color */
 .hex-preview{
-  width:100%;
-  height:80px;
-  border-radius:12px;
-  border:2px solid rgba(255,255,255,0.3);
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
-  transition:all 0.3s;
+width:100%;
+height:80px;
+border-radius:12px;
+border:2px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 12px rgba(0,0,0,0.6);
+transition:all 0.3s;
 }
 
 /* Seamless test dropdown */
 .seamless-test-dropdown{margin-bottom:1rem}
 
 .seamless-test-dropdown select{
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .seamless-test-dropdown select:hover{
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
 }
 
 .seamless-test-dropdown select:active{
-  box-shadow:0 0 0 3px rgba(102,126,234,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.25),inset 0 -2px 0 rgba(0,0,0,0.25);
+box-shadow:0 0 0 3px rgba(16,185,129,0.2),0 0 30px rgba(16,185,129,1),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.4);
 }
 
 /* Save pattern input and button */
 .save-input-row{
-  display:flex;
-  gap:0.5rem;
-  margin-bottom:0.75rem;
+display:flex;
+gap:0.5rem;
+margin-bottom:0.75rem;
 }
 
 .pattern-name-input{
-  flex:1;
-  padding:0.75rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  font-size:0.95rem;
-  font-family:inherit;
+flex:1;
+padding:0.75rem;
+border-radius:12px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+font-size:0.95rem;
+font-family:inherit;
 }
 
 .save-pattern-btn{
-  padding:0.75rem 1.5rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
-  color:#eee;
-  font-size:0.95rem;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.3s;
-  white-space:nowrap;
+padding:0.75rem 1.5rem;
+border-radius:12px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(16,185,129,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+color:var(–color-text-primary);
+font-size:0.95rem;
+font-weight:600;
+cursor:pointer;
+transition:all 0.3s;
+white-space:nowrap;
 }
 
 .save-pattern-btn:hover{
-  background:rgba(255,255,255,0.15);
-  box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
-  transform:translateY(-2px);
+background:rgba(0,0,0,0.8);
+box-shadow:0 6px 24px rgba(0,0,0,0.8),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.1),inset 0 -2px 0 rgba(0,0,0,0.3);
+transform:translateY(-2px);
 }
 
 .save-pattern-btn:disabled{
-  opacity:0.4;
-  cursor:not-allowed;
-  transform:none;
+opacity:0.4;
+cursor:not-allowed;
+transform:none;
 }
 
 /* Saved patterns list */
 .saved-patterns-list{
-  display:flex;
-  flex-direction:column;
-  gap:0.5rem;
-  max-height:300px;
-  overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:0.5rem;
+max-height:300px;
+overflow-y:auto;
 }
 
 .saved-pattern-item{
-  display:flex;
-  align-items:center;
-  gap:0.75rem;
-  padding:0.75rem;
-  border-radius:12px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  cursor:pointer;
-  transition:all 0.3s;
+display:flex;
+align-items:center;
+gap:0.75rem;
+padding:0.75rem;
+border-radius:12px;
+background:rgba(0,0,0,0.4);
+border:1px solid rgba(118,75,162,0.2);
+cursor:pointer;
+transition:all 0.3s;
 }
 
 .saved-pattern-item:hover{
-  background:rgba(255,255,255,0.1);
-  border-color:rgba(255,255,255,0.2);
-  transform:translateX(4px);
+background:rgba(0,0,0,0.6);
+border-color:rgba(16,185,129,0.3);
+transform:translateX(4px);
 }
 
 .saved-pattern-thumb{
-  width:50px;
-  height:50px;
-  border-radius:8px;
-  object-fit:cover;
-  border:2px solid rgba(255,255,255,0.3);
+width:50px;
+height:50px;
+border-radius:8px;
+object-fit:cover;
+border:2px solid rgba(118,75,162,0.3);
 }
 
 .saved-pattern-info{
-  flex:1;
-  min-width:0;
+flex:1;
+min-width:0;
 }
 
 .saved-pattern-name{
-  font-size:0.95rem;
-  font-weight:600;
-  color:#eee;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+font-size:0.95rem;
+font-weight:600;
+color:var(–color-text-primary);
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
 }
 
 .saved-pattern-date{
-  font-size:0.75rem;
-  color:#999;
+font-size:0.75rem;
+color:var(–color-text-muted);
 }
 
 .saved-pattern-delete{
-  padding:0.5rem;
-  width:44px;
-  height:44px;
-  flex-shrink:0;
-  border-radius:8px;
-  background:rgba(239,68,68,0.2);
-  border:1px solid rgba(239,68,68,0.3);
-  color:#ef4444;
-  cursor:pointer;
-  transition:all 0.3s;
-  font-size:0.9rem;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+padding:0.5rem;
+width:44px;
+height:44px;
+flex-shrink:0;
+border-radius:8px;
+background:rgba(239,68,68,0.2);
+border:1px solid rgba(239,68,68,0.3);
+color:#ef4444;
+cursor:pointer;
+transition:all 0.3s;
+font-size:0.9rem;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 .saved-pattern-delete:hover{
-  background:rgba(239,68,68,0.3);
-  transform:scale(1.1);
+background:rgba(239,68,68,0.3);
+transform:scale(1.1);
 }
 
 /* Dimension calculator slider */
 .calc-single-slider{margin-top:0.75rem}
 
 .calc-label-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:0.5rem;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:0.5rem;
 }
 
 .calc-labels{display:flex;gap:0.5rem}
 
 .calc-label{
-  font-size:1.2rem;
-  font-weight:700;
-  cursor:pointer;
-  padding:0.3rem 0.8rem;
-  border-radius:8px;
-  transition:all 0.3s;
-  user-select:none;
-  border:1px solid rgba(118,75,162,0.3);
-  background:rgba(118,75,162,0.2);
-  color:#764ba2;
+font-size:1.2rem;
+font-weight:700;
+cursor:pointer;
+padding:0.3rem 0.8rem;
+border-radius:8px;
+transition:all 0.3s;
+user-select:none;
+border:1px solid rgba(118,75,162,0.3);
+background:rgba(118,75,162,0.2);
+color:#764ba2;
 }
 
 .calc-label:hover{background:rgba(118,75,162,0.3)}
 
 .calc-label.active{
-  background:rgba(16,185,129,0.2);
-  color:#10b981;
-  border:1px solid rgba(16,185,129,0.3);
+background:rgba(16,185,129,0.2);
+color:#10b981;
+border:1px solid rgba(16,185,129,0.3);
 }
 
 .calc-label.active:hover{background:rgba(16,185,129,0.3)}
@@ -1440,24 +1456,24 @@ input[type="range"]::-moz-range-thumb:active{
 .calc-unit-buttons{display:flex;gap:0.5rem}
 
 .calc-unit-btn{
-  font-size:0.8rem;
-  padding:0.3rem 0.6rem;
-  border-radius:6px;
-  cursor:pointer;
-  transition:all 0.3s;
-  border:1px solid rgba(118,75,162,0.3);
-  font-weight:600;
-  background:rgba(118,75,162,0.2);
-  color:#764ba2;
-  user-select:none;
+font-size:0.8rem;
+padding:0.3rem 0.6rem;
+border-radius:6px;
+cursor:pointer;
+transition:all 0.3s;
+border:1px solid rgba(118,75,162,0.3);
+font-weight:600;
+background:rgba(118,75,162,0.2);
+color:#764ba2;
+user-select:none;
 }
 
 .calc-unit-btn:hover{background:rgba(118,75,162,0.3)}
 
 .calc-unit-btn.active{
-  background:rgba(16,185,129,0.2);
-  color:#10b981;
-  border:1px solid rgba(16,185,129,0.3);
+background:rgba(16,185,129,0.2);
+color:#10b981;
+border:1px solid rgba(16,185,129,0.3);
 }
 
 .calc-unit-btn.active:hover{background:rgba(16,185,129,0.3)}
@@ -1466,12 +1482,12 @@ input[type="range"]::-moz-range-thumb:active{
 
 /* Calculator result display */
 .calc-result{
-  margin-top:1rem;
-  padding:0.75rem;
-  background:rgba(16,185,129,0.1);
-  border-radius:8px;
-  border:1px solid rgba(16,185,129,0.3);
-  text-align:center;
+margin-top:1rem;
+padding:0.75rem;
+background:rgba(16,185,129,0.1);
+border-radius:8px;
+border:1px solid rgba(16,185,129,0.3);
+text-align:center;
 }
 
 .calc-result-value{font-size:1.1rem;font-weight:700;color:#10b981}
@@ -1483,278 +1499,279 @@ input[type="range"]::-moz-range-thumb:active{
 .stores-intro{text-align:center;margin-bottom:1.5rem}
 
 .stores-intro-text{
-  font-size:1.1rem;
-  font-weight:600;
-  color:#aaa;
-  margin-bottom:1rem;
+font-size:1.1rem;
+font-weight:600;
+color:var(–color-text-secondary);
+margin-bottom:1rem;
 }
 
 .stores-dropdowns{
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-  max-width:360px;
-  margin:0 auto 2rem;
+display:flex;
+flex-direction:column;
+gap:1rem;
+max-width:360px;
+margin:0 auto 2rem;
 }
 
 .mockup-sliders{
-  max-width:360px;
-  margin:0 auto;
-  padding-top:1.5rem;
-  border-top:1px solid rgba(255,255,255,0.1);
+max-width:360px;
+margin:0 auto;
+padding-top:1.5rem;
+border-top:1px solid rgba(255,255,255,0.1);
 }
 
 .mockup-section-label{
-  font-size:0.85rem;
-  font-weight:700;
-  color:#667eea;
-  text-align:center;
-  margin-bottom:1rem;
-  text-transform:uppercase;
-  letter-spacing:1px;
+font-size:0.85rem;
+font-weight:700;
+color:#667eea;
+text-align:center;
+margin-bottom:1rem;
+text-transform:uppercase;
+letter-spacing:1px;
 }
 
 /* ==================== FOOTER ==================== */
 #footer{
-  padding:2rem;
-  background:rgba(0,0,0,0.5);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border-top:1px solid rgba(255,255,255,0.1);
-  box-shadow:0 -8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+padding:2rem;
+background:rgba(0,0,0,0.8);
+backdrop-filter:blur(40px) saturate(180%);
+-webkit-backdrop-filter:blur(40px) saturate(180%);
+border-top:1px solid rgba(118,75,162,0.4);
+box-shadow:0 -8px 32px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .footer-content{max-width:1200px;margin:0 auto;text-align:center}
 
 .footer-credit{
-  font-weight:700;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  font-size:1.1rem;
-  cursor:pointer;
-  transition:all 0.3s;
+font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+font-size:1.1rem;
+cursor:pointer;
+transition:all 0.3s;
 }
 .footer-credit:hover{opacity:0.8;transform:scale(1.02)}
 
 /* Pattern info bar with quality metrics */
 .pattern-info{
-  display:none;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
-  gap:0.6rem;
-  padding:1rem 1.5rem;
-  margin-top:1rem;
+display:none;
+flex-wrap:wrap;
+justify-content:center;
+align-items:center;
+gap:0.6rem;
+padding:1rem 1.5rem;
+margin-top:1rem;
 }
 .pattern-info.visible{display:flex}
 
 .info-pill{
-  padding:0.5rem 1rem;
-  border-radius:20px;
-  font-size:0.85rem;
-  font-weight:600;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 2px 12px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.3);
-  animation:pill-glow 4s ease-in-out infinite;
-  white-space:nowrap;
+padding:0.5rem 1rem;
+border-radius:20px;
+font-size:0.85rem;
+font-weight:600;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 2px 12px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+animation:pill-glow 4s ease-in-out infinite;
+white-space:nowrap;
 }
 
 /* Info pill glow animation */
 @keyframes pill-glow{
-  0%,100%{
-    box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(118,75,162,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
-    border-color:rgba(118,75,162,0.3);
-  }
-  50%{
-    box-shadow:0 2px 12px rgba(0,0,0,0.3),0 0 10px rgba(16,185,129,0.4),inset 0 1px 0 rgba(255,255,255,0.3);
-    border-color:rgba(16,185,129,0.3);
-  }
+0%,100%{
+box-shadow:0 2px 12px rgba(0,0,0,0.6),0 0 10px rgba(118,75,162,0.4),inset 0 1px 0 rgba(255,255,255,0.05);
+border-color:rgba(118,75,162,0.3);
+}
+50%{
+box-shadow:0 2px 12px rgba(0,0,0,0.6),0 0 10px rgba(16,185,129,0.4),inset 0 1px 0 rgba(255,255,255,0.05);
+border-color:rgba(16,185,129,0.3);
+}
 }
 
-.info-pill .info-label{color:#aaa;margin-right:0.3rem}
+.info-pill .info-label{color:var(–color-text-muted);margin-right:0.3rem}
 
 .info-pill .info-value{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  font-weight:700;
+background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+font-weight:700;
 }
 
 .info-pill .info-value.success{
-  background:linear-gradient(135deg,#10b981 0%,#059669 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+background:linear-gradient(135deg,#10b981 0%,#059669 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
 }
 
 .info-pill .info-value.warning{
-  background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
 }
 
 /* ==================== EASTER EGG OVERLAY ==================== */
 .easter-egg-overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  background:rgba(0,0,0,0.95);
-  backdrop-filter:blur(30px);
-  -webkit-backdrop-filter:blur(30px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:20000;
-  opacity:0;
-  transition:opacity 0.5s;
-  overflow:hidden;
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.98);
+backdrop-filter:blur(30px);
+-webkit-backdrop-filter:blur(30px);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:20000;
+opacity:0;
+transition:opacity 0.5s;
+overflow:hidden;
 }
 .easter-egg-overlay.visible{display:flex;opacity:1}
 
 .easter-egg-logo{
-  width:150px;
-  height:150px;
-  opacity:0;
-  animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
+width:150px;
+height:150px;
+opacity:0;
+animation:spin-in 1s ease-out forwards,egg-glow 2s ease-in-out infinite 1s;
 }
 
 /* Easter egg logo animations */
 @keyframes spin-in{
-  0%{transform:scale(0) rotate(0deg);opacity:0}
-  100%{transform:scale(1) rotate(720deg);opacity:1}
+0%{transform:scale(0) rotate(0deg);opacity:0}
+100%{transform:scale(1) rotate(720deg);opacity:1}
 }
 
 @keyframes spin-out{
-  0%{transform:scale(1) rotate(0deg);opacity:1}
-  100%{transform:scale(0) rotate(-720deg);opacity:0}
+0%{transform:scale(1) rotate(0deg);opacity:1}
+100%{transform:scale(0) rotate(-720deg);opacity:0}
 }
 
 @keyframes egg-glow{
-  0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}
-  50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}
+0%,100%{filter:drop-shadow(0 0 15px rgba(118,75,162,0.8))}
+50%{filter:drop-shadow(0 0 20px rgba(16,185,129,0.8))}
 }
 
 .matrix-canvas{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  opacity:0;
-  transition:opacity 1s;
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+opacity:0;
+transition:opacity 1s;
 }
 .matrix-canvas.visible{opacity:1}
 
 /* ==================== INSTALL BANNER ==================== */
 .install-banner{
-  position:fixed;
-  top:calc(env(safe-area-inset-top) + 1rem);
-  left:50%;
-  transform:translateX(-50%) translateY(-120%);
-  background:rgba(16,185,129,0.15);
-  backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
-  border:1px solid rgba(16,185,129,0.4);
-  border-radius:16px;
-  padding:1rem 1.5rem;
-  display:flex;
-  align-items:center;
-  gap:1rem;
-  z-index:9998;
-  transition:transform 0.3s ease;
-  box-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 20px rgba(16,185,129,0.4);
-  max-width:90%;
+position:fixed;
+top:calc(env(safe-area-inset-top) + 1rem);
+left:50%;
+transform:translateX(-50%) translateY(-120%);
+background:rgba(16,185,129,0.15);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
+border:1px solid rgba(16,185,129,0.4);
+border-radius:16px;
+padding:1rem 1.5rem;
+display:flex;
+align-items:center;
+gap:1rem;
+z-index:9998;
+transition:transform 0.3s ease;
+box-shadow:0 8px 32px rgba(0,0,0,0.9),0 0 20px rgba(16,185,129,0.4);
+max-width:90%;
 }
 
 .install-banner.visible{
-  transform:translateX(-50%) translateY(0);
+transform:translateX(-50%) translateY(0);
 }
 
 .install-banner span{
-  color:#eee;
-  font-size:0.9rem;
-  font-weight:600;
+color:var(–color-text-primary);
+font-size:0.9rem;
+font-weight:600;
 }
 
 .install-btn-small{
-  padding:0.5rem 1rem;
-  background:rgba(16,185,129,0.3);
-  border:1px solid rgba(16,185,129,0.5);
-  border-radius:12px;
-  color:#10b981;
-  font-weight:600;
-  font-size:0.85rem;
-  cursor:pointer;
-  transition:all 0.3s;
-  white-space:nowrap;
+padding:0.5rem 1rem;
+background:rgba(16,185,129,0.3);
+border:1px solid rgba(16,185,129,0.5);
+border-radius:12px;
+color:#10b981;
+font-weight:600;
+font-size:0.85rem;
+cursor:pointer;
+transition:all 0.3s;
+white-space:nowrap;
 }
 
 .install-btn-small:hover{
-  background:rgba(16,185,129,0.4);
-  transform:translateY(-2px);
+background:rgba(16,185,129,0.4);
+transform:translateY(-2px);
 }
 
 .install-close{
-  padding:0.3rem 0.6rem;
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.2);
-  border-radius:8px;
-  color:#999;
-  font-size:0.9rem;
-  cursor:pointer;
-  transition:all 0.3s;
+padding:0.3rem 0.6rem;
+background:rgba(0,0,0,0.6);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:8px;
+color:var(–color-text-muted);
+font-size:0.9rem;
+cursor:pointer;
+transition:all 0.3s;
 }
 
 .install-close:hover{
-  background:rgba(255,255,255,0.15);
-  color:#fff;
+background:rgba(0,0,0,0.8);
+color:var(–color-text-primary);
 }
 
 /* ==================== RESPONSIVE STYLES ==================== */
 @media(max-width:768px){
-  #header{
-    padding:1rem;
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .logo-section{justify-content:center}
-  .header-buttons{gap:0.5rem;padding:0;max-width:100%}
-  .title{font-size:1.2rem}
-  #canvas-wrapper{padding:1rem}
-  #controls{padding:1.5rem 1rem}
-  .weather-widget{flex-wrap:wrap;gap:0.5rem;font-size:0.85rem}
-  .weather-temp{font-size:1.0rem}
-  .weather-icon{font-size:1.0rem}
-  .color-palette{grid-template-columns:repeat(9,1fr);gap:0.4rem}
-  .pattern-info{font-size:0.8rem;gap:0.4rem;padding:0.75rem 1rem}
-  .info-pill{font-size:0.75rem;padding:0.4rem 0.8rem}
-  .export-modal-content{padding:1.5rem}
-  .export-buttons{flex-direction:column}
-  .calc-preset-buttons{grid-template-columns:1fr}
-  .social-buttons{gap:0.5rem}
-  .social-btn{min-width:100px;padding:0.6rem 1.2rem;font-size:0.85rem}
-  
-  .install-banner{
-    flex-direction:column;
-    gap:0.75rem;
-    padding:1rem;
-  }
-  
-  .install-banner span{
-    font-size:0.85rem;
-    text-align:center;
-  }
+#header{
+padding:1rem;
+flex-direction:column;
+align-items:stretch;
+}
+.logo-section{justify-content:center}
+.header-buttons{gap:0.5rem;padding:0;max-width:100%}
+.title{font-size:1.2rem}
+#canvas-wrapper{padding:1rem}
+#controls{padding:1.5rem 1rem}
+.weather-widget{flex-wrap:wrap;gap:0.5rem;font-size:0.85rem}
+.weather-temp{font-size:1.0rem}
+.weather-icon{font-size:1.0rem}
+.color-palette{grid-template-columns:repeat(9,1fr);gap:0.4rem}
+.pattern-info{font-size:0.8rem;gap:0.4rem;padding:0.75rem 1rem}
+.info-pill{font-size:0.75rem;padding:0.4rem 0.8rem}
+.export-modal-content{padding:1.5rem}
+.export-buttons{flex-direction:column}
+.calc-preset-buttons{grid-template-columns:1fr}
+.social-buttons{gap:0.5rem}
+.social-btn{min-width:100px;padding:0.6rem 1.2rem;font-size:0.85rem}
+
+.install-banner{
+flex-direction:column;
+gap:0.75rem;
+padding:1rem;
+}
+
+.install-banner span{
+font-size:0.85rem;
+text-align:center;
+}
 }
 </style>
+
 <title>Seamless Pattern Checker</title>
 </head>
 <body>
@@ -1787,6 +1804,7 @@ input[type="range"]::-moz-range-thumb:active{
   </div>
 
   <!-- ==================== CANVAS AREA ==================== -->
+
   <div id="canvas-wrapper">
     <canvas id="canvas"></canvas>
     <div class="empty-state visible" id="emptyState">
@@ -1797,472 +1815,474 @@ input[type="range"]::-moz-range-thumb:active{
   </div>
   <!-- ==================== CONTROLS SECTION ==================== -->
   <div id="controls">
-    
-    <!-- Master dropdown for section navigation -->
-    <div class="master-dropdown-wrapper">
-      <select id="masterDropdown">
-        <option value="">Settings</option>
-        <option value="display">Preview Options</option>
-        <option value="controls">Pattern Transform</option>
-        <option value="tools">Tools</option>
-        <option value="stores">Stores</option>
+
+<!-- Master dropdown for section navigation -->
+<div class="master-dropdown-wrapper">
+  <select id="masterDropdown">
+    <option value="">Settings</option>
+    <option value="display">Preview Options</option>
+    <option value="controls">Pattern Transform</option>
+    <option value="tools">Tools</option>
+    <option value="stores">Stores</option>
+  </select>
+</div>
+
+<!-- Instructions accordion -->
+<div class="instructions-accordion" id="instructionsAccordion">
+  <div class="instructions-accordion-header">
+    <span>📚 Instructions</span>
+    <span>▼</span>
+  </div>
+  <div class="instructions-accordion-content">
+    <div class="instructions-card">
+      <h3>👋 Welcome to P.I.M.P (Pattern Image Management Platform)</h3>
+      <p>Your complete toolkit for creating, testing, and exporting seamless patterns for print-on-demand and digital products.</p>
+      
+      <h4>📤 Getting Started</h4>
+      <ul>
+        <li><strong>Upload:</strong> Click the Upload button or drag & drop your square tile image</li>
+        <li><strong>Sample:</strong> Try our pre-loaded patterns to explore features</li>
+        <li><strong>Export:</strong> Save your work in multiple resolutions and formats (PNG or JPG)</li>
+      </ul>
+      
+      <h4>⚙️ Settings Menu</h4>
+      <ul>
+        <li><strong>Preview Options:</strong> Canvas quality, repeat patterns, backgrounds, grid overlays, and zoom control</li>
+        <li><strong>Pattern Transform:</strong> Adjust offset X/Y, scale, and positioning with precision sliders</li>
+        <li><strong>Tools:</strong> Color palette extractor, hex checker, dimension calculator, seamless edge test, and save patterns</li>
+        <li><strong>Stores:</strong> Preview patterns on product mockups and access POD store links</li>
+      </ul>
+      
+      <h4>📐 Dimension Calculator</h4>
+      <p>Calculate perfect pixel dimensions for any size and DPI. Toggle between Size/DPI modes and switch units (inches/cm). Click "Recommendations" for instant presets:</p>
+      <ul>
+        <li><strong>Print Quality:</strong> 4"×4" @ 300 DPI, 6"×6" @ 300 DPI, 8"×8" @ 300 DPI, 12"×12" @ 300 DPI</li>
+        <li><strong>Web/Digital:</strong> 512px, 1024px, 2048px, 4096px @ 72 DPI</li>
+        <li><strong>Print-on-Demand:</strong> Redbubble (1600px), Society6 (2400px), Spoonflower (2000px), Zazzle (3200px)</li>
+      </ul>
+      
+      <h4>🎨 Color Tools</h4>
+      <ul>
+        <li><strong>Color Palette:</strong> Auto-extracts top 9 dominant colors from your pattern (click any swatch to copy hex code)</li>
+        <li><strong>Hex Checker:</strong> Test any hex color with live preview - perfect for matching brand colors</li>
+      </ul>
+      
+      <h4>🔍 Pattern Testing & Display</h4>
+      <ul>
+        <li><strong>Repeat Types:</strong> Full Drop, Half Drop, Brick - see how your pattern tiles in different layouts</li>
+        <li><strong>Grid Overlay:</strong> Toggle measurement grid (1", 2", 6", 12") to visualize scale</li>
+        <li><strong>Seamless Test:</strong> Red edge overlay reveals alignment issues - found in Tools section</li>
+        <li><strong>Zoom & Pan:</strong> Mouse wheel to zoom (1%-800%), click & drag to pan around canvas</li>
+      </ul>
+      
+      <h4>🛍️ Product Mockups</h4>
+      <ul>
+        <li><strong>View Modes:</strong> Preview your pattern on phone cases, tote bags, mugs, bedding, and more</li>
+        <li><strong>Mockup Controls:</strong> Adjust zoom (100%-150%) and rotation (0-360°) for perfect product shots</li>
+      </ul>
+      
+      <h4>💾 Save Patterns</h4>
+      <ul>
+        <li><strong>Local Storage:</strong> Save your patterns with all settings to your browser</li>
+        <li><strong>Quick Load:</strong> Click any saved pattern to restore it instantly</li>
+        <li><strong>Management:</strong> Delete old patterns to keep your library organized</li>
+      </ul>
+      
+      <h4>💡 Pro Tips</h4>
+      <ul>
+        <li>Use <strong>Ultra (2400px)</strong> or <strong>Max (3200px)</strong> canvas quality for final exports</li>
+        <li>Always run the seamless test (Tools section) before uploading to print-on-demand stores</li>
+        <li>Extract your color palette to create compelling product descriptions and tags</li>
+        <li>Use the dimension calculator to ensure your pattern meets platform requirements</li>
+        <li>Save your patterns frequently to avoid losing your work</li>
+        <li>Pattern info bar shows quality score, contrast level, and unique color count</li>
+      </ul>
+      <h4>📱 Mobile Features</h4>
+      <ul>
+        <li><strong>Haptic Feedback:</strong> Feel subtle vibrations when tapping buttons, adjusting sliders, and completing actions (mobile only)</li>
+        <li><strong>Install as App:</strong> Add to your home screen for a native app experience with offline access</li>
+        <li><strong>Pinch to Zoom:</strong> Use two-finger pinch gestures to zoom on mobile devices</li>
+      </ul>
+      
+      <h4>⚡ Smart Loading</h4>
+      <ul>
+        <li><strong>Progress Tracking:</strong> Watch real-time progress bars when loading patterns and exporting files</li>
+        <li><strong>Export Stages:</strong> See each step during export: creating canvas → rendering → generating file → preparing download</li>
+        <li><strong>Contextual Messages:</strong> Loading screens show file names, sizes, and current operations</li>
+      </ul>
+      
+      <h4>🌤️ Live Weather Widget</h4>
+      <ul>
+        <li><strong>Real-Time Updates:</strong> Footer displays current temperature, weather conditions, time, and your location</li>
+        <li><strong>Auto-Detection:</strong> Automatically detects your location and adjusts temperature units (°F for US, °C elsewhere)</li>
+      </ul>
+      
+      <h4>📊 Pattern Info Bar</h4>
+      <ul>
+        <li><strong>Quality Score:</strong> Excellent (3000px+), Good (2000px+), or Low (under 2000px)</li>
+        <li><strong>Contrast Level:</strong> High (7+), Medium (3-7), or Low (under 3) - indicates visual pop</li>
+        <li><strong>Canvas Size:</strong> Current rendering resolution (1200-3200px)</li>
+        <li><strong>Unique Colors:</strong> Number of distinct colors detected in your pattern</li>
+      </ul>
+
+      <h4>🏪 Print-on-Demand Ready</h4>
+      <p>Export at recommended sizes for all major POD platforms. The Stores section includes direct links to Redbubble, Society6, Spoonflower, Zazzle, Gelato, Contrado, and more.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Display section - Preview options -->
+<div class="controls-section" id="displaySection">
+  
+  <div class="preview-group">
+    <div class="preview-group-title">Canvas & Quality</div>
+    <div class="preview-group-content">
+      <select id="canvasQuality">
+        <option value="1200">Canvas Quality: Standard (1200px)</option>
+        <option value="1600">Canvas Quality: High (1600px)</option>
+        <option value="2400">Canvas Quality: Ultra (2400px)</option>
+        <option value="3200">Canvas Quality: Max (3200px)</option>
       </select>
     </div>
+  </div>
 
-    <!-- Instructions accordion -->
-    <div class="instructions-accordion" id="instructionsAccordion">
-      <div class="instructions-accordion-header">
-        <span>📚 Instructions</span>
-        <span>▼</span>
+  <div class="preview-group">
+    <div class="preview-group-title">Pattern Settings</div>
+    <div class="preview-group-content">
+      <select id="repeatType">
+        <option value="full">Repeat Type: Full Drop</option>
+        <option value="half-drop">Repeat Type: Half Drop</option>
+        <option value="brick">Repeat Type: Brick</option>
+      </select>
+      <select id="bgColor">
+        <option value="checker">Background: Transparent Grid</option>
+        <option value="#000000">Background: Black</option>
+        <option value="#ffffff">Background: White</option>
+        <option value="#1a1a1a">Background: Gray</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="preview-group">
+    <div class="preview-group-title">View & Display</div>
+    <div class="preview-group-content">
+      <select id="gridSize">
+        <option value="off">Grid Overlay: Off</option>
+        <option value="1">Grid Overlay: 1 inch</option>
+        <option value="2">Grid Overlay: 2 inches</option>
+        <option value="6">Grid Overlay: 6 inches</option>
+        <option value="12">Grid Overlay: 12 inches</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="preview-group">
+    <div class="preview-group-title">Zoom Control</div>
+    <div class="preview-group-content">
+      <div class="zoom-slider-wrapper" id="zoomSliderWrapper">
+        <div class="zoom-slider-header">
+          <span>Zoom</span>
+          <span class="slider-value" id="zoomValue">100%</span>
+        </div>
+        <div class="zoom-slider-content">
+          <div class="slider-group">
+            <div class="slider-wrapper centered">
+              <input type="range" id="zoomSlider" min="0" max="100" step="1" value="50">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="instructions-accordion-content">
-        <div class="instructions-card">
-          <h3>👋 Welcome to P.I.M.P (Pattern Image Management Platform)</h3>
-          <p>Your complete toolkit for creating, testing, and exporting seamless patterns for print-on-demand and digital products.</p>
-          
-          <h4>📤 Getting Started</h4>
-          <ul>
-            <li><strong>Upload:</strong> Click the Upload button or drag & drop your square tile image</li>
-            <li><strong>Sample:</strong> Try our pre-loaded patterns to explore features</li>
-            <li><strong>Export:</strong> Save your work in multiple resolutions and formats (PNG or JPG)</li>
-          </ul>
-          
-          <h4>⚙️ Settings Menu</h4>
-          <ul>
-            <li><strong>Preview Options:</strong> Canvas quality, repeat patterns, backgrounds, grid overlays, and zoom control</li>
-            <li><strong>Pattern Transform:</strong> Adjust offset X/Y, scale, and positioning with precision sliders</li>
-            <li><strong>Tools:</strong> Color palette extractor, hex checker, dimension calculator, seamless edge test, and save patterns</li>
-            <li><strong>Stores:</strong> Preview patterns on product mockups and access POD store links</li>
-          </ul>
-          
-          <h4>📐 Dimension Calculator</h4>
-          <p>Calculate perfect pixel dimensions for any size and DPI. Toggle between Size/DPI modes and switch units (inches/cm). Click "Recommendations" for instant presets:</p>
-          <ul>
-            <li><strong>Print Quality:</strong> 4"×4" @ 300 DPI, 6"×6" @ 300 DPI, 8"×8" @ 300 DPI, 12"×12" @ 300 DPI</li>
-            <li><strong>Web/Digital:</strong> 512px, 1024px, 2048px, 4096px @ 72 DPI</li>
-            <li><strong>Print-on-Demand:</strong> Redbubble (1600px), Society6 (2400px), Spoonflower (2000px), Zazzle (3200px)</li>
-          </ul>
-          
-          <h4>🎨 Color Tools</h4>
-          <ul>
-            <li><strong>Color Palette:</strong> Auto-extracts top 9 dominant colors from your pattern (click any swatch to copy hex code)</li>
-            <li><strong>Hex Checker:</strong> Test any hex color with live preview - perfect for matching brand colors</li>
-          </ul>
-          
-          <h4>🔍 Pattern Testing & Display</h4>
-          <ul>
-            <li><strong>Repeat Types:</strong> Full Drop, Half Drop, Brick - see how your pattern tiles in different layouts</li>
-            <li><strong>Grid Overlay:</strong> Toggle measurement grid (1", 2", 6", 12") to visualize scale</li>
-            <li><strong>Seamless Test:</strong> Red edge overlay reveals alignment issues - found in Tools section</li>
-            <li><strong>Zoom & Pan:</strong> Mouse wheel to zoom (1%-800%), click & drag to pan around canvas</li>
-          </ul>
-          
-          <h4>🛍️ Product Mockups</h4>
-          <ul>
-            <li><strong>View Modes:</strong> Preview your pattern on phone cases, tote bags, mugs, bedding, and more</li>
-            <li><strong>Mockup Controls:</strong> Adjust zoom (100%-150%) and rotation (0-360°) for perfect product shots</li>
-          </ul>
-          
-          <h4>💾 Save Patterns</h4>
-          <ul>
-            <li><strong>Local Storage:</strong> Save your patterns with all settings to your browser</li>
-            <li><strong>Quick Load:</strong> Click any saved pattern to restore it instantly</li>
-            <li><strong>Management:</strong> Delete old patterns to keep your library organized</li>
-          </ul>
-          
-          <h4>💡 Pro Tips</h4>
-          <ul>
-            <li>Use <strong>Ultra (2400px)</strong> or <strong>Max (3200px)</strong> canvas quality for final exports</li>
-            <li>Always run the seamless test (Tools section) before uploading to print-on-demand stores</li>
-            <li>Extract your color palette to create compelling product descriptions and tags</li>
-            <li>Use the dimension calculator to ensure your pattern meets platform requirements</li>
-            <li>Save your patterns frequently to avoid losing your work</li>
-            <li>Pattern info bar shows quality score, contrast level, and unique color count</li>
-          </ul>
-          <h4>📱 Mobile Features</h4>
-          <ul>
-            <li><strong>Haptic Feedback:</strong> Feel subtle vibrations when tapping buttons, adjusting sliders, and completing actions (mobile only)</li>
-            <li><strong>Install as App:</strong> Add to your home screen for a native app experience with offline access</li>
-            <li><strong>Pinch to Zoom:</strong> Use two-finger pinch gestures to zoom on mobile devices</li>
-          </ul>
-          
-          <h4>⚡ Smart Loading</h4>
-          <ul>
-            <li><strong>Progress Tracking:</strong> Watch real-time progress bars when loading patterns and exporting files</li>
-            <li><strong>Export Stages:</strong> See each step during export: creating canvas → rendering → generating file → preparing download</li>
-            <li><strong>Contextual Messages:</strong> Loading screens show file names, sizes, and current operations</li>
-          </ul>
-          
-          <h4>🌤️ Live Weather Widget</h4>
-          <ul>
-            <li><strong>Real-Time Updates:</strong> Footer displays current temperature, weather conditions, time, and your location</li>
-            <li><strong>Auto-Detection:</strong> Automatically detects your location and adjusts temperature units (°F for US, °C elsewhere)</li>
-          </ul>
-          
-          <h4>📊 Pattern Info Bar</h4>
-          <ul>
-            <li><strong>Quality Score:</strong> Excellent (3000px+), Good (2000px+), or Low (under 2000px)</li>
-            <li><strong>Contrast Level:</strong> High (7+), Medium (3-7), or Low (under 3) - indicates visual pop</li>
-            <li><strong>Canvas Size:</strong> Current rendering resolution (1200-3200px)</li>
-            <li><strong>Unique Colors:</strong> Number of distinct colors detected in your pattern</li>
-          </ul>
+    </div>
+  </div>
 
-          <h4>🏪 Print-on-Demand Ready</h4>
-          <p>Export at recommended sizes for all major POD platforms. The Stores section includes direct links to Redbubble, Society6, Spoonflower, Zazzle, Gelato, Contrado, and more.</p>
+</div>
+
+<!-- Controls section - Pattern transform sliders -->
+<div class="controls-section" id="controlsSection">
+  <div class="sliders-container">
+    
+    <!-- Offset X slider -->
+    <div class="slider-dropdown" data-slider="offsetX">
+      <div class="slider-dropdown-header">
+        <span>Offset X</span>
+        <span class="slider-value" id="offsetXValue">0%</span>
+      </div>
+      <div class="slider-dropdown-content">
+        <div class="slider-group">
+          <div class="slider-wrapper">
+            <input type="range" id="offsetX" min="0" max="100" value="0">
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Display section - Preview options -->
-    <div class="controls-section" id="displaySection">
-      
-      <div class="preview-group">
-        <div class="preview-group-title">Canvas & Quality</div>
-        <div class="preview-group-content">
-          <select id="canvasQuality">
-            <option value="1200">Canvas Quality: Standard (1200px)</option>
-            <option value="1600">Canvas Quality: High (1600px)</option>
-            <option value="2400">Canvas Quality: Ultra (2400px)</option>
-            <option value="3200">Canvas Quality: Max (3200px)</option>
-          </select>
-        </div>
+    <!-- Offset Y slider -->
+    <div class="slider-dropdown" data-slider="offsetY">
+      <div class="slider-dropdown-header">
+        <span>Offset Y</span>
+        <span class="slider-value" id="offsetYValue">0%</span>
       </div>
-
-      <div class="preview-group">
-        <div class="preview-group-title">Pattern Settings</div>
-        <div class="preview-group-content">
-          <select id="repeatType">
-            <option value="full">Repeat Type: Full Drop</option>
-            <option value="half-drop">Repeat Type: Half Drop</option>
-            <option value="brick">Repeat Type: Brick</option>
-          </select>
-          <select id="bgColor">
-            <option value="checker">Background: Transparent Grid</option>
-            <option value="#000000">Background: Black</option>
-            <option value="#ffffff">Background: White</option>
-            <option value="#1a1a1a">Background: Gray</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="preview-group">
-        <div class="preview-group-title">View & Display</div>
-        <div class="preview-group-content">
-          <select id="gridSize">
-            <option value="off">Grid Overlay: Off</option>
-            <option value="1">Grid Overlay: 1 inch</option>
-            <option value="2">Grid Overlay: 2 inches</option>
-            <option value="6">Grid Overlay: 6 inches</option>
-            <option value="12">Grid Overlay: 12 inches</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="preview-group">
-        <div class="preview-group-title">Zoom Control</div>
-        <div class="preview-group-content">
-          <div class="zoom-slider-wrapper" id="zoomSliderWrapper">
-            <div class="zoom-slider-header">
-              <span>Zoom</span>
-              <span class="slider-value" id="zoomValue">100%</span>
-            </div>
-            <div class="zoom-slider-content">
-              <div class="slider-group">
-                <div class="slider-wrapper centered">
-                  <input type="range" id="zoomSlider" min="0" max="100" step="1" value="50">
-                </div>
-              </div>
-            </div>
+      <div class="slider-dropdown-content">
+        <div class="slider-group">
+          <div class="slider-wrapper">
+            <input type="range" id="offsetY" min="0" max="100" value="0">
           </div>
         </div>
-      </div>
-
-    </div>
-
-    <!-- Controls section - Pattern transform sliders -->
-    <div class="controls-section" id="controlsSection">
-      <div class="sliders-container">
-        
-        <!-- Offset X slider -->
-        <div class="slider-dropdown" data-slider="offsetX">
-          <div class="slider-dropdown-header">
-            <span>Offset X</span>
-            <span class="slider-value" id="offsetXValue">0%</span>
-          </div>
-          <div class="slider-dropdown-content">
-            <div class="slider-group">
-              <div class="slider-wrapper">
-                <input type="range" id="offsetX" min="0" max="100" value="0">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Offset Y slider -->
-        <div class="slider-dropdown" data-slider="offsetY">
-          <div class="slider-dropdown-header">
-            <span>Offset Y</span>
-            <span class="slider-value" id="offsetYValue">0%</span>
-          </div>
-          <div class="slider-dropdown-content">
-            <div class="slider-group">
-              <div class="slider-wrapper">
-                <input type="range" id="offsetY" min="0" max="100" value="0">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scale slider -->
-        <div class="slider-dropdown" data-slider="scale">
-          <div class="slider-dropdown-header">
-            <span>Scale</span>
-            <span class="slider-value" id="scaleValue">1.00×</span>
-          </div>
-          <div class="slider-dropdown-content">
-            <div class="slider-group">
-              <div class="slider-wrapper centered">
-                <input type="range" id="patternScale" min="0" max="100" step="1" value="50">
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
 
-    <!-- Tools section - Color palette, calculator, seamless test, save patterns -->
-    <div class="controls-section tools-section" id="toolsSection">
-  
-      <!-- Color palette tool -->
-      <div class="tool-card" id="colorPaletteCard">
-        <div class="tool-title">
-          <span>🎨 Color Palette</span>
-          <span class="palette-toggle" id="paletteToggle">Hex Checker</span>
-        </div>
-        <div class="color-palette" id="colorPalette"></div>
-        <div class="hex-checker" id="hexChecker">
-          <div class="hex-input-row">
-            <input type="text" class="hex-input" id="hexInput" placeholder="#FF0000" maxlength="7">
-          </div>
-          <div class="hex-preview" id="hexPreview"></div>
-        </div>
+    <!-- Scale slider -->
+    <div class="slider-dropdown" data-slider="scale">
+      <div class="slider-dropdown-header">
+        <span>Scale</span>
+        <span class="slider-value" id="scaleValue">1.00×</span>
       </div>
-
-      <!-- Dimension calculator -->
-      <div class="tool-card" id="dimensionCalcCard">
-        <div class="tool-title">
-          <span>📐 Dimension Calculator</span>
-          <span class="calc-recommendations-toggle" id="calcRecommendationsToggle">Recommendations</span>
-        </div>
-        <div class="calc-single-slider">
-          <div class="calc-label-row">
-            <div class="calc-labels">
-              <span class="calc-label active" id="labelSize" data-field="size">Size</span>
-              <span class="calc-label" id="labelDPI" data-field="dpi">DPI</span>
-            </div>
-            <div class="calc-unit-buttons">
-              <span class="calc-unit-btn active" id="btnInches" data-unit="inches">in</span>
-              <span class="calc-unit-btn" id="btnCM" data-unit="cm">cm</span>
-            </div>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
-            <span class="calc-current-value" id="currentValue">9 × 9"</span>
-          </div>
-          <input type="range" id="calcSlider" min="1" max="200" value="9">
-        </div>
-        
-        <!-- Calculator presets -->
-        <div class="calc-recommendations" id="calcRecommendations">
-          <div class="calc-preset-group">
-            <div class="calc-preset-label">Print Quality</div>
-            <div class="calc-preset-buttons">
-              <button class="calc-preset-btn" data-size="4" data-dpi="300" data-unit="in">4" × 4" @ 300 DPI</button>
-              <button class="calc-preset-btn" data-size="6" data-dpi="300" data-unit="in">6" × 6" @ 300 DPI</button>
-              <button class="calc-preset-btn" data-size="8" data-dpi="300" data-unit="in">8" × 8" @ 300 DPI</button>
-              <button class="calc-preset-btn" data-size="12" data-dpi="300" data-unit="in">12" × 12" @ 300 DPI</button>
-            </div>
-          </div>
-          
-          <div class="calc-preset-group">
-            <div class="calc-preset-label">Web/Digital</div>
-            <div class="calc-preset-buttons">
-              <button class="calc-preset-btn" data-px="512">512 × 512px</button>
-              <button class="calc-preset-btn" data-px="1024">1024 × 1024px</button>
-              <button class="calc-preset-btn" data-px="2048">2048 × 2048px</button>
-              <button class="calc-preset-btn" data-px="4096">4096 × 4096px</button>
-            </div>
-          </div>
-          
-          <div class="calc-preset-group">
-            <div class="calc-preset-label">Print-on-Demand</div>
-            <div class="calc-preset-buttons">
-              <button class="calc-preset-btn" data-size="10.67" data-dpi="150" data-unit="in">Redbubble (1600px)</button>
-              <button class="calc-preset-btn" data-size="16" data-dpi="150" data-unit="in">Society6 (2400px)</button>
-              <button class="calc-preset-btn" data-size="13.33" data-dpi="150" data-unit="in">Spoonflower (2000px)</button>
-              <button class="calc-preset-btn" data-size="21.33" data-dpi="150" data-unit="in">Zazzle (3200px)</button>
-            </div>
+      <div class="slider-dropdown-content">
+        <div class="slider-group">
+          <div class="slider-wrapper centered">
+            <input type="range" id="patternScale" min="0" max="100" step="1" value="50">
           </div>
         </div>
-        
-        <div class="calc-result">
-          <div class="calc-result-value" id="calcResultValue">1350 × 1350px</div>
-        </div>
-      </div>
-
-      <!-- Seamless test -->
-      <div class="seamless-test-dropdown">
-        <select id="seamlessTest">
-          <option value="off">Seamless Test: Off</option>
-          <option value="on">Seamless Test: On (Red Edges)</option>
-        </select>
-      </div>
-
-      <!-- Save pattern -->
-      <div class="tool-card" id="savePatternCard">
-        <div class="tool-title">
-          <span>💾 Save Pattern</span>
-        </div>
-        <div class="save-input-row">
-          <input type="text" class="pattern-name-input" id="patternNameInput" placeholder="Pattern name...">
-          <button class="save-pattern-btn" id="savePatternBtn">Save</button>
-        </div>
-        <div class="saved-patterns-list" id="savedPatternsList"></div>
-      </div>
-
-    </div>
-
-    <!-- Stores section - Product mockups and store links -->
-    <div class="controls-section stores-section" id="storesSection">
-      <div class="stores-intro">
-        <div class="stores-intro-text">Preview your pattern on products!</div>
-      </div>
-      
-      <div class="stores-dropdowns">
-        <select id="viewMode">
-          <option value="tile">View Mode: Infinite Tile</option>
-          <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
-          <option value="phone">Mockup: Phone Case</option>
-          <option value="ipad">Mockup: iPad Case</option>
-          <option value="tote">Mockup: Tote Bag</option>
-          <option value="bandana">Mockup: Bandana</option>
-          <option value="bedspread">Mockup: Bedspread</option>
-          <option value="mug">Mockup: Mug</option>
-          <option value="sweatshirt">Mockup: Sweatshirt</option>
-          <option value="fabric">Mockup: Fabric Swatch</option>
-          <option value="bottle">Mockup: Water Bottle</option>
-        </select>
-      </div>
-      
-      <!-- Mockup controls -->
-      <div class="mockup-sliders">
-        <div class="mockup-section-label">Mockup Controls</div>
-        <div class="sliders-container">
-          
-          <div class="slider-dropdown" data-slider="mockupZoom">
-            <div class="slider-dropdown-header">
-              <span>Mockup Zoom</span>
-              <span class="slider-value" id="mockupZoomValue">100%</span>
-            </div>
-            <div class="slider-dropdown-content">
-              <div class="slider-group">
-                <div class="slider-wrapper">
-                  <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="slider-dropdown" data-slider="mockupRotate">
-            <div class="slider-dropdown-header">
-              <span>Mockup Rotate</span>
-              <span class="slider-value" id="mockupRotateValue">0°</span>
-            </div>
-            <div class="slider-dropdown-content">
-              <div class="slider-group">
-                <div class="slider-wrapper">
-                  <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      
-      <!-- Store links -->
-      <div class="stores-intro" style="margin-top:2rem">
-        <div class="stores-intro-text">Turn your patterns into real products!</div>
-      </div>
-      <div class="stores-dropdowns">
-        <select id="countryStores">
-          <option value="">Select Store</option>
-          <option value="https://www.gelato.com/">Gelato 🇪🇺</option>
-          <option value="https://www.contrado.co.uk/">Contrado 🇪🇺</option>
-          <option value="https://www.saal-digital.com/">Saal Digital 🇪🇺</option>
-          <option value="https://www.photobook-europe.com/">Photobook Europe 🇪🇺</option>
-          <option value="https://www.whitewall.com/">WhiteWall 🇪🇺</option>
-          <option value="https://www.canvaspeople.com/">CanvasPeople 🇺🇸</option>
-          <option value="https://www.canvaschamp.com/">CanvasChamp 🇺🇸</option>
-          <option value="https://www.mpix.com/">Mpix 🇺🇸</option>
-          <option value="https://www.canvaspop.com/">Canvaspop 🇺🇸</option>
-          <option value="https://canvasondemand.com/">Canvas On Demand 🇺🇸</option>
-          <option value="https://www.canvascanada.ca/">CanvasCanada.ca 🇨🇦</option>
-          <option value="https://www.canvaschamp.ca/">CanvasChamp.ca 🇨🇦</option>
-          <option value="https://www.bestcanvas.ca/">BestCanvas.ca 🇨🇦</option>
-          <option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
-          <option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Pattern info bar -->
-    <div class="pattern-info" id="patternInfo">
-      <div class="info-pill">
-        <span class="info-label">Pattern:</span>
-        <span class="info-value" id="infoPattern">--</span>
-      </div>
-      <div class="info-pill">
-        <span class="info-label">Quality:</span>
-        <span class="info-value" id="infoQuality">--</span>
-      </div>
-      <div class="info-pill">
-        <span class="info-label">Contrast:</span>
-        <span class="info-value" id="infoContrast">--</span>
-      </div>
-      <div class="info-pill">
-        <span class="info-label">Canvas:</span>
-        <span class="info-value" id="infoCanvas">1200px</span>
-      </div>
-      <div class="info-pill">
-        <span class="info-label">Colors:</span>
-        <span class="info-value" id="infoColors">--</span>
       </div>
     </div>
 
   </div>
+</div>
 
-  <!-- ==================== FOOTER SECTION ==================== -->
-  <div id="footer">
-    <div class="footer-content">
-      
-      <!-- Social buttons - Square icon boxes -->
-      <div class="social-buttons">
-        <a href="https://rud3boy.vercel.app/converter" target="_blank" class="social-btn conversion">
-          <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png" alt="Converter" onerror="this.style.display='none'">
-        </a>
-        
-        <a href="https://ko-fi.com/rud3boy" target="_blank" class="social-btn kofi">
-          <img src="https://storage.ko-fi.com/cdn/kofi_stroke_cup.svg" alt="Ko-fi" onerror="this.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/rude.png'">
-        </a>
-        
-        <a href="https://www.instagram.com/createdbyrudeboy" target="_blank" class="social-btn instagram">
-          <img src="data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23E4405F' d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z'/%3E%3C/svg%3E" alt="Instagram">
-        </a>
+<!-- Tools section - Color palette, calculator, seamless test, save patterns -->
+<div class="controls-section tools-section" id="toolsSection">
+
+  <!-- Color palette tool -->
+  <div class="tool-card" id="colorPaletteCard">
+    <div class="tool-title">
+      <span>🎨 Color Palette</span>
+      <span class="palette-toggle" id="paletteToggle">Hex Checker</span>
+    </div>
+    <div class="color-palette" id="colorPalette"></div>
+    <div class="hex-checker" id="hexChecker">
+      <div class="hex-input-row">
+        <input type="text" class="hex-input" id="hexInput" placeholder="#FF0000" maxlength="7">
+      </div>
+      <div class="hex-preview" id="hexPreview"></div>
+    </div>
+  </div>
+
+  <!-- Dimension calculator -->
+  <div class="tool-card" id="dimensionCalcCard">
+    <div class="tool-title">
+      <span>📐 Dimension Calculator</span>
+      <span class="calc-recommendations-toggle" id="calcRecommendationsToggle">Recommendations</span>
+    </div>
+    <div class="calc-single-slider">
+      <div class="calc-label-row">
+        <div class="calc-labels">
+          <span class="calc-label active" id="labelSize" data-field="size">Size</span>
+          <span class="calc-label" id="labelDPI" data-field="dpi">DPI</span>
+        </div>
+        <div class="calc-unit-buttons">
+          <span class="calc-unit-btn active" id="btnInches" data-unit="inches">in</span>
+          <span class="calc-unit-btn" id="btnCM" data-unit="cm">cm</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+        <span class="calc-current-value" id="currentValue">9 × 9"</span>
+      </div>
+      <input type="range" id="calcSlider" min="1" max="200" value="9">
+    </div>
+    
+    <!-- Calculator presets -->
+    <div class="calc-recommendations" id="calcRecommendations">
+      <div class="calc-preset-group">
+        <div class="calc-preset-label">Print Quality</div>
+        <div class="calc-preset-buttons">
+          <button class="calc-preset-btn" data-size="4" data-dpi="300" data-unit="in">4" × 4" @ 300 DPI</button>
+          <button class="calc-preset-btn" data-size="6" data-dpi="300" data-unit="in">6" × 6" @ 300 DPI</button>
+          <button class="calc-preset-btn" data-size="8" data-dpi="300" data-unit="in">8" × 8" @ 300 DPI</button>
+          <button class="calc-preset-btn" data-size="12" data-dpi="300" data-unit="in">12" × 12" @ 300 DPI</button>
+        </div>
       </div>
       
-      <!-- Weather widget - 2x4 grid layout -->
-      <div class="weather-widget" id="weatherWidget">
+      <div class="calc-preset-group">
+        <div class="calc-preset-label">Web/Digital</div>
+        <div class="calc-preset-buttons">
+          <button class="calc-preset-btn" data-px="512">512 × 512px</button>
+          <button class="calc-preset-btn" data-px="1024">1024 × 1024px</button>
+          <button class="calc-preset-btn" data-px="2048">2048 × 2048px</button>
+          <button class="calc-preset-btn" data-px="4096">4096 × 4096px</button>
+        </div>
+      </div>
+      
+      <div class="calc-preset-group">
+        <div class="calc-preset-label">Print-on-Demand</div>
+        <div class="calc-preset-buttons">
+          <button class="calc-preset-btn" data-size="10.67" data-dpi="150" data-unit="in">Redbubble (1600px)</button>
+          <button class="calc-preset-btn" data-size="16" data-dpi="150" data-unit="in">Society6 (2400px)</button>
+          <button class="calc-preset-btn" data-size="13.33" data-dpi="150" data-unit="in">Spoonflower (2000px)</button>
+          <button class="calc-preset-btn" data-size="21.33" data-dpi="150" data-unit="in">Zazzle (3200px)</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="calc-result">
+      <div class="calc-result-value" id="calcResultValue">1350 × 1350px</div>
+    </div>
+  </div>
+
+  <!-- Seamless test -->
+  <div class="seamless-test-dropdown">
+    <select id="seamlessTest">
+      <option value="off">Seamless Test: Off</option>
+      <option value="on">Seamless Test: On (Red Edges)</option>
+    </select>
+  </div>
+
+  <!-- Save pattern -->
+  <div class="tool-card" id="savePatternCard">
+    <div class="tool-title">
+      <span>💾 Save Pattern</span>
+    </div>
+    <div class="save-input-row">
+      <input type="text" class="pattern-name-input" id="patternNameInput" placeholder="Pattern name...">
+      <button class="save-pattern-btn" id="savePatternBtn">Save</button>
+    </div>
+    <div class="saved-patterns-list" id="savedPatternsList"></div>
+  </div>
+
+</div>
+
+<!-- Stores section - Product mockups and store links -->
+<div class="controls-section stores-section" id="storesSection">
+  <div class="stores-intro">
+    <div class="stores-intro-text">Preview your pattern on products!</div>
+  </div>
+  
+  <div class="stores-dropdowns">
+    <select id="viewMode">
+      <option value="tile">View Mode: Infinite Tile</option>
+      <option value="tile-grid">View Mode: Infinite Tile + Grid</option>
+      <option value="phone">Mockup: Phone Case</option>
+      <option value="ipad">Mockup: iPad Case</option>
+      <option value="tote">Mockup: Tote Bag</option>
+      <option value="bandana">Mockup: Bandana</option>
+      <option value="bedspread">Mockup: Bedspread</option>
+      <option value="mug">Mockup: Mug</option>
+      <option value="sweatshirt">Mockup: Sweatshirt</option>
+      <option value="fabric">Mockup: Fabric Swatch</option>
+      <option value="bottle">Mockup: Water Bottle</option>
+    </select>
+  </div>
+  
+  <!-- Mockup controls -->
+  <div class="mockup-sliders">
+    <div class="mockup-section-label">Mockup Controls</div>
+    <div class="sliders-container">
+      
+      <div class="slider-dropdown" data-slider="mockupZoom">
+        <div class="slider-dropdown-header">
+          <span>Mockup Zoom</span>
+          <span class="slider-value" id="mockupZoomValue">100%</span>
+        </div>
+        <div class="slider-dropdown-content">
+          <div class="slider-group">
+            <div class="slider-wrapper">
+              <input type="range" id="mockupZoom" min="100" max="150" step="1" value="100">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-dropdown" data-slider="mockupRotate">
+        <div class="slider-dropdown-header">
+          <span>Mockup Rotate</span>
+          <span class="slider-value" id="mockupRotateValue">0°</span>
+        </div>
+        <div class="slider-dropdown-content">
+          <div class="slider-group">
+            <div class="slider-wrapper">
+              <input type="range" id="mockupRotate" min="0" max="360" step="1" value="0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  <!-- Store links -->
+  <div class="stores-intro" style="margin-top:2rem">
+    <div class="stores-intro-text">Turn your patterns into real products!</div>
+  </div>
+  <div class="stores-dropdowns">
+    <select id="countryStores">
+      <option value="">Select Store</option>
+      <option value="https://www.gelato.com/">Gelato 🇪🇺</option>
+      <option value="https://www.contrado.co.uk/">Contrado 🇪🇺</option>
+      <option value="https://www.saal-digital.com/">Saal Digital 🇪🇺</option>
+      <option value="https://www.photobook-europe.com/">Photobook Europe 🇪🇺</option>
+      <option value="https://www.whitewall.com/">WhiteWall 🇪🇺</option>
+      <option value="https://www.canvaspeople.com/">CanvasPeople 🇺🇸</option>
+      <option value="https://www.canvaschamp.com/">CanvasChamp 🇺🇸</option>
+      <option value="https://www.mpix.com/">Mpix 🇺🇸</option>
+      <option value="https://www.canvaspop.com/">Canvaspop 🇺🇸</option>
+      <option value="https://canvasondemand.com/">Canvas On Demand 🇺🇸</option>
+      <option value="https://www.canvascanada.ca/">CanvasCanada.ca 🇨🇦</option>
+      <option value="https://www.canvaschamp.ca/">CanvasChamp.ca 🇨🇦</option>
+      <option value="https://www.bestcanvas.ca/">BestCanvas.ca 🇨🇦</option>
+      <option value="https://www.canvaspop.com/">Canvaspop 🇨🇦</option>
+      <option value="https://posterjack.ca/">Posterjack 🇨🇦</option>
+    </select>
+  </div>
+</div>
+
+<!-- Pattern info bar -->
+<div class="pattern-info" id="patternInfo">
+  <div class="info-pill">
+    <span class="info-label">Pattern:</span>
+    <span class="info-value" id="infoPattern">--</span>
+  </div>
+  <div class="info-pill">
+    <span class="info-label">Quality:</span>
+    <span class="info-value" id="infoQuality">--</span>
+  </div>
+  <div class="info-pill">
+    <span class="info-label">Contrast:</span>
+    <span class="info-value" id="infoContrast">--</span>
+  </div>
+  <div class="info-pill">
+    <span class="info-label">Canvas:</span>
+    <span class="info-value" id="infoCanvas">1200px</span>
+  </div>
+  <div class="info-pill">
+    <span class="info-label">Colors:</span>
+    <span class="info-value" id="infoColors">--</span>
+  </div>
+</div>
+
+  </div>
+
+  <!-- ==================== FOOTER SECTION ==================== -->
+
+  <div id="footer">
+    <div class="footer-content">
+
+  <!-- Social buttons - Square icon boxes -->
+  <div class="social-buttons">
+    <a href="https://rud3boy.vercel.app/converter" target="_blank" class="social-btn conversion">
+      <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Rude.png" alt="Converter" onerror="this.style.display='none'">
+    </a>
+    
+    <a href="https://ko-fi.com/rud3boy" target="_blank" class="social-btn kofi">
+      <img src="https://storage.ko-fi.com/cdn/kofi_stroke_cup.svg" alt="Ko-fi" onerror="this.src='https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/rude.png'">
+    </a>
+    
+    <a href="https://www.instagram.com/createdbyrudeboy" target="_blank" class="social-btn instagram">
+      <img src="data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23E4405F' d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z'/%3E%3C/svg%3E" alt="Instagram">
+    </a>
+  </div>
+  
+  <!-- Weather widget - 2x4 grid layout -->
+  <div class="weather-widget" id="weatherWidget">
+
   <div class="weather-col">
     <span class="weather-icon" id="weatherIcon">🌤️</span>
     <span class="weather-temp" id="weatherTemp">--°</span>
@@ -2282,14 +2302,16 @@ input[type="range"]::-moz-range-thumb:active{
   <span class="weather-location-line2" id="weatherLocationLine2">Canada</span>
 </div>
 </div>
-      
-      <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
-    </div>
+
+  <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
+</div>
+
   </div>
 
 </div>
 
 <!-- ==================== EXPORT MODAL ==================== -->
+
 <div class="export-modal" id="exportModal">
   <div class="export-modal-content">
     <div class="export-modal-title">📤 Custom Export</div>
@@ -2325,6 +2347,7 @@ input[type="range"]::-moz-range-thumb:active{
 </div>
 
 <!-- ==================== LOADING OVERLAY ==================== -->
+
 <div class="loading-overlay" id="loadingOverlay">
   <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
   <div class="loading-text" id="loadingText">Loading...</div>
@@ -2335,12 +2358,14 @@ input[type="range"]::-moz-range-thumb:active{
 </div>
 
 <!-- ==================== EASTER EGG OVERLAY ==================== -->
+
 <div class="easter-egg-overlay" id="easterEggOverlay">
   <canvas class="matrix-canvas" id="matrixCanvas"></canvas>
   <img class="easter-egg-logo" id="easterEggLogo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Rudeboy">
 </div>
 
 <audio id="easterEggAudio" preload="none"></audio>
+
 <script>
 /* ==================== CORE JAVASCRIPT - HELPER FUNCTIONS ==================== */
 
@@ -4556,7 +4581,9 @@ els.mockupRotate.addEventListener('input', (e) => {
 
 draw();
 </script>
+
 <!-- Hidden visitor tracker - counts toward home page total -->
+
 <img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
 </body>
 </html>
