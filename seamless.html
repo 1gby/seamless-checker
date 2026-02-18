@@ -467,7 +467,7 @@ display:block;
 .progress-bar-fill{
 height:100%;
 width:0%;
-background:#10b981;
+background:linear-gradient(90deg,var(–color-green) 0%,var(–color-purple) 100%);
 border-radius:10px;
 transition:width 0.3s ease;
 box-shadow:0 0 10px rgba(16,185,129,0.6);
@@ -777,8 +777,8 @@ background:rgba(0,0,0,0.6);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 border-radius:16px;
-border:2px solid rgba(118,75,162,0.5);
-box-shadow:0 4px 20px rgba(0,0,0,0.6),0 0 15px rgba(118,75,162,0.4),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 2px 0 rgba(255,255,255,0.05),inset 0 -2px 0 rgba(0,0,0,0.3);
 position:relative;
 }
 
@@ -834,125 +834,112 @@ margin-top:0.5rem;
 }
 .zoom-slider-wrapper.open .zoom-slider-content{max-height:200px}
 
-/* Range slider styles with solid purple track */
-/* Range slider - base input styling */
-input[type=“range”]{
+/* Range slider styles with gradient track */
+input[type="range"]{
 width:100%;
-height:28px;
-background:transparent;
+height:32px;
+border-radius:20px;
+background:linear-gradient(90deg,rgba(16,185,129,0.2) 0%,rgba(118,75,162,0.2) 100%);
+border:1px solid rgba(118,75,162,0.3);
 outline:none;
 -webkit-appearance:none;
-appearance:none;
 transition:all 0.3s;
+box-shadow:inset 0 2px 4px rgba(0,0,0,0.8);
 cursor:pointer;
-margin:0;
-padding:0;
-}
-
-/* Webkit slider track */
-input[type=“range”]::-webkit-slider-runnable-track{
-width:100%;
-height:6px;
-border-radius:20px;
-background:rgba(118,75,162,0.3);
-border:1px solid rgba(118,75,162,0.5);
-box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);
-}
-
-/* Firefox slider track */
-input[type=“range”]::-moz-range-track{
-width:100%;
-height:6px;
-border-radius:20px;
-background:rgba(118,75,162,0.3);
-border:1px solid rgba(118,75,162,0.5);
-box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);
 }
 
 /* Custom slider thumb with glassmorphism */
-input[type=“range”]::-webkit-slider-thumb{
+input[type="range"]::-webkit-slider-thumb{
 -webkit-appearance:none;
-appearance:none;
-width:60px;
-height:28px;
+width:65px;
+height:30px;
 border-radius:50px;
-background:rgba(255,255,255,0.3);
+background:rgba(255,255,255,0.25);
 cursor:pointer;
-border:2px solid rgba(255,255,255,0.6);
+border:2px solid rgba(255,255,255,0.5);
 box-shadow:
-0 4px 16px rgba(0,0,0,0.3),
-0 0 20px rgba(102,126,234,0.4),
-inset 0 2px 6px rgba(255,255,255,0.4),
-inset 0 -2px 6px rgba(0,0,0,0.1);
+0 4px 16px rgba(0,0,0,0.6),
+0 0 20px rgba(102,126,234,0.5),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.2);
 transition:all 0.3s ease;
 backdrop-filter:blur(20px) saturate(180%);
 -webkit-backdrop-filter:blur(20px) saturate(180%);
-margin-top:-11px;
+margin-top:0px;
 }
 
-input[type=“range”]::-webkit-slider-thumb:hover{
-transform:scale(1.08);
-background:rgba(255,255,255,0.4);
-box-shadow:
-0 6px 24px rgba(0,0,0,0.4),
-0 0 30px rgba(102,126,234,0.6),
-inset 0 2px 8px rgba(255,255,255,0.5),
-inset 0 -2px 8px rgba(0,0,0,0.15);
+input[type="range"]::-webkit-slider-runnable-track{
+height:32px;
+border-radius:20px;
+background:linear-gradient(90deg,rgba(16,185,129,0.15) 0%,rgba(118,75,162,0.15) 100%);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:inset 0 2px 4px rgba(0,0,0,0.8);
 }
 
-input[type=“range”]::-webkit-slider-thumb:active{
-transform:scale(1.02);
+input[type="range"]::-webkit-slider-thumb:hover{
+transform:scale(1.05);
 background:rgba(255,255,255,0.35);
+border:2px solid rgba(255,255,255,0.7);
 box-shadow:
-0 2px 12px rgba(0,0,0,0.5),
-0 0 35px rgba(118,75,162,0.8),
-inset 0 2px 6px rgba(255,255,255,0.45),
-inset 0 -2px 6px rgba(0,0,0,0.2);
+0 6px 24px rgba(0,0,0,0.7),
+0 0 30px rgba(102,126,234,0.7),
+inset 0 2px 10px rgba(255,255,255,0.7),
+inset 0 -2px 10px rgba(0,0,0,0.25);
+}
+
+input[type="range"]::-webkit-slider-thumb:active{
+transform:scale(1.02);
+background:rgba(255,255,255,0.3);
+box-shadow:
+0 2px 12px rgba(0,0,0,0.8),
+0 0 35px rgba(118,75,162,0.9),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.3);
 }
 
 /* Firefox slider thumb styles */
-input[type=“range”]::-moz-range-thumb{
-width:60px;
-height:28px;
+input[type="range"]::-moz-range-thumb{
+width:65px;
+height:30px;
 border-radius:50px;
-background:rgba(255,255,255,0.3);
+background:rgba(255,255,255,0.25);
 cursor:pointer;
-border:2px solid rgba(255,255,255,0.6);
+border:2px solid rgba(255,255,255,0.5);
 box-shadow:
-0 4px 16px rgba(0,0,0,0.3),
-0 0 20px rgba(102,126,234,0.4),
-inset 0 2px 6px rgba(255,255,255,0.4),
-inset 0 -2px 6px rgba(0,0,0,0.1);
+0 4px 16px rgba(0,0,0,0.6),
+0 0 20px rgba(102,126,234,0.5),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.2);
 transition:all 0.3s ease;
-border:none;
 }
 
-input[type=“range”]::-moz-range-thumb:hover{
-transform:scale(1.08);
-background:rgba(255,255,255,0.4);
-box-shadow:
-0 6px 24px rgba(0,0,0,0.4),
-0 0 30px rgba(102,126,234,0.6),
-inset 0 2px 8px rgba(255,255,255,0.5),
-inset 0 -2px 8px rgba(0,0,0,0.15);
+input[type="range"]::-moz-range-track{
+height:32px;
+border-radius:20px;
+background:linear-gradient(90deg,rgba(16,185,129,0.15) 0%,rgba(118,75,162,0.15) 100%);
+border:1px solid rgba(118,75,162,0.3);
+box-shadow:inset 0 2px 4px rgba(0,0,0,0.8);
 }
 
-input[type=“range”]::-moz-range-thumb:active{
-transform:scale(1.02);
+input[type="range"]::-moz-range-thumb:hover{
+transform:scale(1.05);
 background:rgba(255,255,255,0.35);
+border:2px solid rgba(255,255,255,0.7);
 box-shadow:
-0 2px 12px rgba(0,0,0,0.5),
-0 0 35px rgba(118,75,162,0.8),
-inset 0 2px 6px rgba(255,255,255,0.45),
-inset 0 -2px 6px rgba(0,0,0,0.2);
+0 6px 24px rgba(0,0,0,0.7),
+0 0 30px rgba(102,126,234,0.7),
+inset 0 2px 10px rgba(255,255,255,0.7),
+inset 0 -2px 10px rgba(0,0,0,0.25);
 }
 
-.slider-value{
-font-size:0.9rem;
-font-weight:600;
-color:#667eea;
-min-width:45px;
-text-align:right;
+input[type="range"]::-moz-range-thumb:active{
+transform:scale(1.02);
+background:rgba(255,255,255,0.3);
+box-shadow:
+0 2px 12px rgba(0,0,0,0.8),
+0 0 35px rgba(118,75,162,0.9),
+inset 0 2px 8px rgba(255,255,255,0.6),
+inset 0 -2px 8px rgba(0,0,0,0.3);
 }
 
 /* ==================== WEATHER WIDGET - 2x4 GRID LAYOUT ==================== */
@@ -1795,7 +1782,7 @@ text-align:center;
 }
 </style>
 
-<title>Seamless Pattern Checker - Dark Mode v2.1</title>
+<title>Seamless Pattern Checker</title>
 </head>
 <body>
 
