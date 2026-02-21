@@ -2090,7 +2090,7 @@ async function loadAdultSections() {
       (async () => {
         const data = await tmdbAdult('/discover/movie', {
           'sort_by': 'release_date.desc',
-          'with_release_type': '4',
+          'with_release_type': '4|5|6',
           'certification_country': 'US',
           'certification': 'NC-17',
           'release_date.lte': today
