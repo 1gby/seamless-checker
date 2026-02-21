@@ -2341,7 +2341,7 @@ async function loadHome() {
         loadSection('/tv/airing_today', {}, 'airing-grid'),
         loadSection('/discover/movie', {
           'sort_by': 'release_date.desc',
-          'with_release_type': '4',
+          'with_release_type': '4|5|6',
           'vote_count.gte': '50',
           'release_date.lte': today
         }, 'new-releases-grid'),
