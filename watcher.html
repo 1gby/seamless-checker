@@ -380,13 +380,39 @@
 
     /* Episode list */
     #episodes-container { display: flex; flex-direction: column; gap: 1rem; }
-    .episode-item { background: rgba(20,20,40,0.6); padding: 1rem; border-radius: 10px; border-left: 3px solid var(--accent-purple); display: flex; gap: 1rem; }
+    .episode-item { background: rgba(20,20,40,0.6); padding: 1rem; border-radius: 10px; border-left: 3px solid var(--accent-purple); display: flex; gap: 1rem; position: relative; }
+    .episode-item.watched { border-left-color: var(--accent-green); opacity: 0.65; }
+    .episode-item.watched .episode-number { color: var(--accent-green); }
     .episode-still    { width: 150px; height: 84px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #111; }
     .episode-details  { flex: 1; }
     .episode-number   { font-size: 0.75rem; color: var(--accent-green); font-weight: 700; margin-bottom: 0.5rem; }
     .episode-title    { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
     .episode-overview { font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.4; }
     .episode-air-date { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.5rem; }
+    .episode-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .ep-action-btn {
+      padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.68rem; font-weight: 700;
+      border: 1.5px solid; cursor: pointer; transition: all 0.15s; display: inline-flex;
+      align-items: center; gap: 0.2rem; white-space: nowrap; background: none;
+    }
+    .ep-action-btn.play  { border-color: var(--accent-green); color: var(--accent-green); }
+    .ep-action-btn.play:hover { background: rgba(16,185,129,0.2); }
+    .ep-action-btn.watch { border-color: rgba(118,75,162,0.4); color: #c084fc; }
+    .ep-action-btn.watch:hover { background: rgba(118,75,162,0.15); }
+    .ep-action-btn.watch.is-watched { border-color: var(--accent-green); color: var(--accent-green); }
+    .ep-action-btn.mark  { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); font-size: 0.6rem; }
+    .ep-action-btn.mark:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+
+    /* Simple play button in detail view */
+    .detail-play-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.4rem; border-radius: 12px; font-size: 0.95rem; font-weight: 700;
+      background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(118,75,162,0.15));
+      border: 2px solid var(--accent-green); color: var(--accent-green);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .detail-play-btn:hover { background: rgba(16,185,129,0.3); transform: scale(1.02); }
+    .detail-play-btn .play-icon { font-size: 1.2rem; }
 
     .season-selector-container { margin: 1rem 0; }
     .season-dropdown {
@@ -796,6 +822,13 @@
     .source-toggle-card.active .stc-check {
       background: var(--accent-green); border-color: var(--accent-green); color: #000;
     }
+    .source-toggle-card.excluded {
+      border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.06);
+    }
+    .source-toggle-card.excluded .stc-check {
+      background: var(--accent-red); border-color: var(--accent-red); color: #fff;
+    }
+    .source-toggle-card.excluded .stc-label { color: rgba(255,255,255,0.4); text-decoration: line-through; }
     .source-toggle-card .stc-icon { font-size: 1.1rem; flex-shrink: 0; }
     .source-toggle-card .stc-label { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.85); }
 
@@ -940,6 +973,8 @@
       .vertical-grid       { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
       .episode-item        { flex-direction: column; }
       .episode-still       { width: 100%; height: auto; }
+      .episode-actions     { gap: 0.25rem; }
+      .ep-action-btn       { font-size: 0.6rem; padding: 0.2rem 0.45rem; }
       #torrent-overlay-header { padding: 0.85rem 1rem; }
       #torrent-filter-bar  { padding: 0.6rem 1rem; }
       .tor-result-row      { padding: 0.65rem 0.75rem; }
@@ -976,11 +1011,9 @@
          alt="Rudeboy" title="Click to refresh">
 
 <!-- Centered title -->
-
 <h1 class="title-text" id="app-title">Watcher</h1>
 
 <!-- Right cluster: adult indicator + settings gear -->
-
 <div class="header-right">
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
   <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
@@ -1097,46 +1130,45 @@
   <div id="torrent-overlay-inner">
 
 <!-- Header bar -->
-
 <div id="torrent-overlay-header">
   <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
   <div style="flex:1;">
     <div id="torrent-overlay-title-text">🧲 Stream via Real-Debrid</div>
     <div id="torrent-overlay-subtitle">Select a torrent to add to your RD account</div>
   </div>
-  <!-- Re-search input -->
+</div>
+
+<!-- Live filter chips (multi-select) -->
+<div id="torrent-filter-bar">
+  <button class="tor-filter-chip active" data-tor-filter="all"    onclick="toggleTorFilter(this,'all')">All</button>
+  <button class="tor-filter-chip"        data-tor-filter="4k"     onclick="toggleTorFilter(this,'4k')">4K</button>
+  <button class="tor-filter-chip"        data-tor-filter="1080p"  onclick="toggleTorFilter(this,'1080p')">1080p</button>
+  <button class="tor-filter-chip"        data-tor-filter="720p"   onclick="toggleTorFilter(this,'720p')">720p</button>
+  <button class="tor-filter-chip"        data-tor-filter="480p"   onclick="toggleTorFilter(this,'480p')">480p</button>
+  <button class="tor-filter-chip"        data-tor-filter="seeds"  onclick="toggleTorFilter(this,'seeds')">Min 50 Seeds</button>
+  <button class="tor-filter-chip"        data-tor-filter="no3d"   onclick="toggleTorFilter(this,'no3d')">Hide 3D</button>
+  <button class="tor-filter-chip"        data-tor-filter="eng"    onclick="toggleTorFilter(this,'eng')">English Only</button>
+  <button class="tor-filter-chip"        data-tor-filter="addon"  onclick="toggleTorFilter(this,'addon')">🧩 Addons</button>
+  <button class="tor-filter-chip"        data-tor-filter="direct" onclick="toggleTorFilter(this,'direct')">⚡ Direct</button>
+</div>
+
+<!-- Re-search input (moved below filters) -->
+<div style="display:flex;gap:0.4rem;padding:0.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
-    style="padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
-           border:1px solid rgba(118,75,162,0.4);color:#fff;font-size:0.8rem;width:160px;"
+    style="flex:1;padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
+           border:1px solid rgba(118,75,162,0.4);color:#fff;font-size:0.8rem;min-width:0;"
     onkeydown="if(event.key==='Enter')runTorrentOverlaySearch()">
   <button class="settings-btn purple" style="padding:0.4rem 0.7rem;"
           onclick="runTorrentOverlaySearch()">🔍</button>
 </div>
 
-<!-- Live filter chips -->
-
-<div id="torrent-filter-bar">
-  <button class="tor-filter-chip active" data-tor-filter="all"   onclick="setTorFilter(this,'all')">All</button>
-  <button class="tor-filter-chip"        data-tor-filter="4k"    onclick="setTorFilter(this,'4k')">4K Only</button>
-  <button class="tor-filter-chip"        data-tor-filter="1080p" onclick="setTorFilter(this,'1080p')">1080p+</button>
-  <button class="tor-filter-chip"        data-tor-filter="720p"  onclick="setTorFilter(this,'720p')">720p</button>
-  <button class="tor-filter-chip"        data-tor-filter="seeds" onclick="setTorFilter(this,'seeds')">Min 50 Seeds</button>
-  <button class="tor-filter-chip"        data-tor-filter="no3d"  onclick="setTorFilter(this,'no3d')">Hide 3D</button>
-  <button class="tor-filter-chip"        data-tor-filter="eng"   onclick="setTorFilter(this,'eng')">English Only</button>
-  <button class="tor-filter-chip"        data-tor-filter="addon" onclick="setTorFilter(this,'addon')">🧩 Addons</button>
-  <button class="tor-filter-chip"        data-tor-filter="direct" onclick="setTorFilter(this,'direct')">⚡ Direct</button>
-</div>
-
 <!-- Status line -->
-
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
 
 <!-- Results list (populated by JS) -->
-
 <div id="torrent-overlay-results"></div>
 
 <!-- Stream player (shown after RD unrestrict) -->
-
 <div id="torrent-overlay-player">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;"></div>
@@ -1162,18 +1194,15 @@
   <div id="settings-panel">
 
 <!-- Header -->
-
 <div id="settings-header">
   <h2>⚙️ Settings</h2>
   <button id="settings-close" onclick="closeSettingsModal()">×</button>
 </div>
 
 <!-- Body -->
-
 <div id="settings-body">
 
   <!-- § Real-Debrid Token -->
-
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid API Token</div>
     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
@@ -1195,10 +1224,9 @@
   </div>
 
   <!-- § Torrent Sources -->
-
   <div class="settings-section">
-    <div class="settings-section-title">Torrent Sources</div>
-    <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;">Choose which sources to search. Unchecked = skip that source.</p>
+    <div class="settings-section-title">Built-in Scrapers</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
     <div class="source-toggle-grid">
       <div class="source-toggle-card active" id="src-knaben" onclick="toggleSource('knaben')">
         <div class="stc-check">✓</div>
@@ -1218,8 +1246,22 @@
     </div>
   </div>
 
-  <!-- § Quality Filters -->
+  <div class="settings-section">
+    <div class="settings-section-title">Provider Filter (Addon Results)</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">
+      Filter which providers appear in addon results (Torrentio/Comet). <span style="color:var(--accent-green);">Green</span> = show,
+      <span style="color:var(--accent-red);">Red</span> = hidden. Tap to toggle.
+    </p>
+    <div style="display:flex;gap:0.3rem;margin-bottom:0.5rem;flex-wrap:wrap;">
+      <button class="exclude-preset-chip" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(16,185,129,0.08);" onclick="setAllProviders(true)">✓ Include All</button>
+      <button class="exclude-preset-chip" onclick="setAllProviders(false)">✕ Exclude All</button>
+    </div>
+    <div class="source-toggle-grid" id="provider-filter-grid">
+      <!-- Populated by JS from PROVIDER_LIST -->
+    </div>
+  </div>
 
+  <!-- § Quality Filters -->
   <div class="settings-section">
     <div class="settings-section-title">Quality Filters (include in results)</div>
     <div class="settings-checkbox-grid">
@@ -1234,7 +1276,6 @@
   </div>
 
   <!-- § Exclude Keywords -->
-
   <div class="settings-section">
     <div class="settings-section-title">Exclude from Results</div>
     <div class="settings-checkbox-grid">
@@ -1247,7 +1288,6 @@
   </div>
 
   <!-- § Exclude Uploaders / Groups -->
-
   <div class="settings-section">
     <div class="settings-section-title">Exclude Uploaders / Groups</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;">Comma-separated keywords — results containing these are hidden.</p>
@@ -1269,7 +1309,6 @@
   </div>
 
   <!-- § Search Options -->
-
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
     <div class="settings-row">
@@ -1278,16 +1317,15 @@
     </div>
     <div class="settings-row">
       <label>Max results — Knaben</label>
-      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="50" value="20" onchange="saveSettings()">
+      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="200" value="50" onchange="saveSettings()">
     </div>
     <div class="settings-row">
       <label>Max results — YTS</label>
-      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="20" value="10" onchange="saveSettings()">
+      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="20" onchange="saveSettings()">
     </div>
   </div>
 
   <!-- § Stremio Addons (Torrentio, Comet, etc.) -->
-
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
@@ -1324,11 +1362,11 @@
   </div>
 
   <!-- § RD Library -->
-
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid Library</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
       <button class="settings-btn green" onclick="openRDLibrary()">📂 View My RD Library</button>
+      <button class="settings-btn purple" onclick="openRDLibrary()">🔄 Refresh</button>
       <button class="settings-btn red"   onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close Library</button>
     </div>
     <!-- Library sub-view -->
@@ -1339,7 +1377,6 @@
   </div>
 
   <!-- § Disclaimer -->
-
   <div class="settings-section">
     <div class="settings-section-title">Legal Disclaimer</div>
     <div class="settings-disclaimer">
@@ -1494,12 +1531,15 @@
   let currentDetailItem = null;   // full item object open in detail view
   let currentImdbId     = null;   // IMDB ID for Stremio addon queries
   let currentMediaType  = null;   // 'movie' or 'tv'
+  let currentSeason     = null;   // Current season number (TV)
+  let currentEpisode    = null;   // Current episode number (TV)
   let searchTimeout     = null;   // debounce timer for search input
 
   // Active torrent search state (for the overlay)
   let torrentOverlayResults   = [];  // raw results from last search
   let torrentOverlayDisplayed = [];  // filtered subset currently rendered
-  let torrentOverlayFilter    = 'all';
+  let torrentOverlayFilter    = 'all'; // legacy — now using activeFilters Set
+  let activeFilters = new Set(); // multi-select filter set
   let torrentOverlayTitle     = '';  // display title for stream player label
 
   // Favorites stored in localStorage
@@ -1552,8 +1592,10 @@
     excludeKeywords: '',
     // Torrent sources (all enabled by default)
     srcKnaben: true, srcYts: true, src1337x: true,
+    // Provider filter (addon results) — empty = show all
+    excludedProviders: [],
     // Search limits
-    minSeeds: 0, maxKnaben: 20, maxYts: 10,
+    minSeeds: 0, maxKnaben: 50, maxYts: 20,
     // Stremio Addons — array of { name, url, enabled }
     stremioAddons: [],
   };
@@ -1588,6 +1630,8 @@
     updateSourceCard('1337x',  appSettings.src1337x  !== false);
     // Render addon list in settings
     renderAddonList();
+    // Render provider filter grid
+    renderProviderGrid();
     // Token field
     const tok = getRDToken();
     const inp = document.getElementById('settings-token-input');
@@ -1613,9 +1657,10 @@
       srcKnaben:  appSettings.srcKnaben !== false,
       srcYts:     appSettings.srcYts    !== false,
       src1337x:   appSettings.src1337x  !== false,
+      excludedProviders: appSettings.excludedProviders || [],
       minSeeds:   parseInt(gb('sf-min-seeds'))  || 0,
-      maxKnaben:  parseInt(gb('sf-max-knaben')) || 20,
-      maxYts:     parseInt(gb('sf-max-yts'))    || 10,
+      maxKnaben:  parseInt(gb('sf-max-knaben')) || 50,
+      maxYts:     parseInt(gb('sf-max-yts'))    || 20,
       stremioAddons: appSettings.stremioAddons || [],
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
@@ -2014,13 +2059,20 @@
         const poster = meta.poster || '';
         const name   = meta.name || meta.title || 'Unknown';
         const imdbId = meta.imdb_id || meta.id || '';
+
+        // Poster with TMDB fallback
+        const imgEl = poster
+          ? `<img src="${poster}" alt="" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy"
+               onerror="this.onerror=null;tmdbPosterFallback(this,'${imdbId.replace(/'/g, '')}','${entry.catalog.type}')">`
+          : `<div class="catalog-poster-placeholder" data-imdb="${imdbId}" data-type="${entry.catalog.type}"
+               style="width:100%;aspect-ratio:2/3;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`;
+
         card.innerHTML = `
-          ${poster ? `<img src="${poster}" alt="" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy">` : `<div style="width:100%;aspect-ratio:2/3;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`}
+          ${imgEl}
           <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>`;
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
         card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
         card.onclick = () => {
-          // Try to open in TMDB detail view using IMDB ID
           if (imdbId.startsWith('tt')) {
             closeSettingsModal();
             searchAndOpenByImdb(imdbId, entry.catalog.type);
@@ -2028,6 +2080,26 @@
         };
         resultsEl.appendChild(card);
       });
+
+      // Auto-fetch TMDB posters for placeholder items (batch)
+      setTimeout(() => {
+        resultsEl.querySelectorAll('.catalog-poster-placeholder').forEach(async (el) => {
+          const iid  = el.dataset.imdb;
+          const type = el.dataset.type;
+          if (!iid || !iid.startsWith('tt')) return;
+          try {
+            const data = await tmdb(`/find/${iid}?external_source=imdb_id`);
+            const results = type === 'series' ? (data.tv_results || []) : (data.movie_results || []);
+            if (results[0]?.poster_path) {
+              const img = document.createElement('img');
+              img.src = `${TMDB_IMG}${results[0].poster_path}`;
+              img.style.cssText = 'width:100%;aspect-ratio:2/3;object-fit:cover;display:block;';
+              img.loading = 'lazy';
+              el.replaceWith(img);
+            }
+          } catch {}
+        });
+      }, 100);
     } catch (e) {
       if (statusEl) statusEl.textContent = `❌ ${e.message}`;
     }
@@ -2051,9 +2123,87 @@
     }
   }
 
+  // TMDB poster fallback for broken addon catalog images
+  async function tmdbPosterFallback(imgEl, imdbId, type) {
+    if (!imdbId || !imdbId.startsWith('tt')) return;
+    try {
+      const data = await tmdb(`/find/${imdbId}?external_source=imdb_id`);
+      const results = type === 'series' ? (data.tv_results || []) : (data.movie_results || []);
+      if (results[0]?.poster_path) {
+        imgEl.src = `${TMDB_IMG}${results[0].poster_path}`;
+      }
+    } catch {}
+  }
+
   /* ═══════════════════════════════════════════════════════════════════
-     § 04b  TORRENT SOURCES + EXCLUDE UPLOADERS
+     § 04b  TORRENT SOURCES + PROVIDER FILTER + EXCLUDE UPLOADERS
      ═══════════════════════════════════════════════════════════════════ */
+
+  // Full provider list from Torrentio/Comet ecosystem
+  const PROVIDER_LIST = [
+    { id: 'yts',              name: 'YTS',              icon: '🍿' },
+    { id: 'eztv',             name: 'EZTV',             icon: '📺' },
+    { id: 'rarbg',            name: 'RARBG',            icon: '🏴' },
+    { id: '1337x',            name: '1337x',            icon: '📂' },
+    { id: 'thepiratebay',     name: 'ThePirateBay',     icon: '☠️' },
+    { id: 'kickasstorrents',  name: 'KickassTorrents',  icon: '💥' },
+    { id: 'torrentgalaxy',    name: 'TorrentGalaxy',    icon: '🌌' },
+    { id: 'magnetdl',         name: 'MagnetDL',         icon: '🧲' },
+    { id: 'horriblesubs',     name: 'HorribleSubs',     icon: '🎌' },
+    { id: 'nyaasi',           name: 'NyaaSi',           icon: '🐱' },
+    { id: 'tokyotosho',       name: 'TokyoTosho',       icon: '🗼' },
+    { id: 'anidex',           name: 'AniDex',           icon: '🎎' },
+    { id: 'nekobt',           name: 'nekoBT',           icon: '😺' },
+    { id: 'rutor',            name: 'Rutor',            icon: '🇷🇺', group: 'foreign' },
+    { id: 'rutracker',        name: 'Rutracker',        icon: '🇷🇺', group: 'foreign' },
+    { id: 'comando',          name: 'Comando',          icon: '🇧🇷', group: 'foreign' },
+    { id: 'bludv',            name: 'BluDV',            icon: '🇧🇷', group: 'foreign' },
+    { id: 'micoleaodublado',  name: 'MicoLeaoDublado',  icon: '🇧🇷', group: 'foreign' },
+    { id: 'torrent9',         name: 'Torrent9',         icon: '🇫🇷', group: 'foreign' },
+    { id: 'ilcorsaronero',    name: 'ilCorSaRoNeRo',    icon: '🇮🇹', group: 'foreign' },
+    { id: 'mejortorrent',     name: 'MejorTorrent',     icon: '🇪🇸', group: 'foreign' },
+    { id: 'wolfmax4k',        name: 'Wolfmax4k',        icon: '🇪🇸', group: 'foreign' },
+    { id: 'cinecalidad',      name: 'Cinecalidad',      icon: '🇲🇽', group: 'foreign' },
+    { id: 'besttorrents',     name: 'BestTorrents',     icon: '🇷🇺', group: 'foreign' },
+  ];
+
+  function getExcludedProviders() {
+    return new Set(appSettings.excludedProviders || []);
+  }
+
+  function toggleProvider(providerId) {
+    if (!appSettings.excludedProviders) appSettings.excludedProviders = [];
+    const idx = appSettings.excludedProviders.indexOf(providerId);
+    if (idx >= 0) appSettings.excludedProviders.splice(idx, 1);
+    else appSettings.excludedProviders.push(providerId);
+    saveSettings();
+    renderProviderGrid();
+  }
+
+  function setAllProviders(include) {
+    if (include) appSettings.excludedProviders = [];
+    else appSettings.excludedProviders = PROVIDER_LIST.map(p => p.id);
+    saveSettings();
+    renderProviderGrid();
+  }
+
+  function renderProviderGrid() {
+    const grid = document.getElementById('provider-filter-grid');
+    if (!grid) return;
+    const excluded = getExcludedProviders();
+    grid.innerHTML = '';
+    PROVIDER_LIST.forEach(p => {
+      const isExcluded = excluded.has(p.id);
+      const card = document.createElement('div');
+      card.className = `source-toggle-card ${isExcluded ? 'excluded' : 'active'}`;
+      card.onclick = () => toggleProvider(p.id);
+      card.innerHTML = `
+        <div class="stc-check">${isExcluded ? '✕' : '✓'}</div>
+        <div class="stc-icon">${p.icon}</div>
+        <div class="stc-label">${p.name}</div>`;
+      grid.appendChild(card);
+    });
+  }
 
   function toggleSource(key) {
     const settingKey = key === '1337x' ? 'src1337x' : `src${key.charAt(0).toUpperCase() + key.slice(1)}`;
@@ -2405,6 +2555,15 @@
         }
       }
 
+      // Provider filter (hide addon results from excluded providers)
+      const excludedProviders = getExcludedProviders();
+      if (excludedProviders.size > 0 && r.sourceLabel) {
+        const srcLower = r.sourceLabel.toLowerCase();
+        for (const pid of excludedProviders) {
+          if (srcLower.includes(pid)) return false;
+        }
+      }
+
       // Quality include-filters (only active when at least one is checked)
       const anyQualityChecked = s.sf4k || s.sf1080p || s.sf720p || s.sf480p || s.sfBluray;
       if (anyQualityChecked) {
@@ -2425,6 +2584,16 @@
   // ── Master search ────────────────────────────────────────────────────
   async function searchTorrents(title, onStatus, imdbId, mediaType, season, episode) {
     let allResults = [];
+    const existingHashes = new Set();
+
+    function dedupeAndMerge(newResults) {
+      const unique = newResults.filter(r => {
+        if (r.hash && existingHashes.has(r.hash)) return false;
+        if (r.hash) existingHashes.add(r.hash);
+        return true;
+      });
+      allResults = [...allResults, ...unique];
+    }
 
     // 1. Stremio Addons (parallel, fast — query first)
     const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
@@ -2432,9 +2601,8 @@
       try {
         const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
         if (addonResults.length > 0) {
-          allResults = applySettingsFilters(filterTorrentResults(addonResults));
-          onStatus('results', `⚡ ${allResults.length} results from Stremio addons`, allResults);
-          // Don't return yet — also search traditional sources for more options
+          dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
+          onStatus('results', `⚡ ${allResults.length} results from addons — searching more…`, sortTorrentResults(allResults));
         }
       } catch (e) { console.warn('[search] Stremio addons:', e); }
     }
@@ -2443,62 +2611,77 @@
     if (appSettings.srcKnaben !== false) {
       onStatus('searching', `🔍 Searching Knaben for "${title}"…`);
       try {
-        const raw     = await searchKnaben(title, appSettings.maxKnaben || 20);
+        const raw     = await searchKnaben(title, appSettings.maxKnaben || 50);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
-        if (filtered.length > 0) {
-          // Deduplicate against addon results by hash
-          const existingHashes = new Set(allResults.map(r => r.hash).filter(Boolean));
-          const newResults = filtered.filter(r => !r.hash || !existingHashes.has(r.hash));
-          allResults = [...allResults, ...newResults];
-          onStatus('results', `✅ ${allResults.length} total results`, allResults);
-          if (allResults.length > 0) return allResults;
+        dedupeAndMerge(filtered);
+        if (allResults.length > 0) {
+          onStatus('results', `✅ ${allResults.length} results — still searching…`, sortTorrentResults(allResults));
         }
-        if (allResults.length === 0) onStatus('info', '⚠️ Knaben returned 0 results — trying YTS…');
       } catch (e) {
         console.warn('[search] Knaben:', e);
-        if (allResults.length === 0) onStatus('info', `⚠️ Knaben failed (${e.message}) — trying YTS…`);
+        onStatus('info', `⚠️ Knaben: ${e.message}`);
       }
     }
-
-    // If addon results exist but Knaben had nothing, still return what we have
-    if (allResults.length > 0) return allResults;
 
     // 3. YTS (skip in adult mode — adult content not on YTS)
     if (!isAdultMode && appSettings.srcYts !== false) {
       try {
         onStatus('searching', `🍿 Searching YTS for "${title}"…`);
-        const raw     = await searchYTS(title, appSettings.maxYts || 10);
+        const raw     = await searchYTS(title, appSettings.maxYts || 20);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
-        if (filtered.length > 0) {
-          allResults = [...allResults, ...filtered];
-          onStatus('results', `✅ ${allResults.length} results from YTS`, allResults);
-          return allResults;
+        dedupeAndMerge(filtered);
+        if (allResults.length > 0) {
+          onStatus('results', `✅ ${allResults.length} results — still searching…`, sortTorrentResults(allResults));
         }
-        onStatus('info', '⚠️ YTS returned 0 — trying 1337x…');
-      } catch (e) {
-        console.warn('[search] YTS:', e);
-        onStatus('info', `⚠️ YTS failed (${e.message}) — trying 1337x…`);
-      }
+      } catch (e) { console.warn('[search] YTS:', e); }
     }
 
-    // 4. 1337x (last resort)
+    // 4. 1337x
     if (appSettings.src1337x !== false) {
       try {
         onStatus('searching', `🔎 Searching 1337x for "${title}"…`);
         const raw     = await search1337x(title);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
-        if (filtered.length > 0) {
-          allResults = [...allResults, ...filtered];
-          onStatus('results', `✅ ${allResults.length} results from 1337x`, allResults);
-          return allResults;
+        dedupeAndMerge(filtered);
+        if (allResults.length > 0) {
+          onStatus('results', `✅ ${allResults.length} total results`, sortTorrentResults(allResults));
         }
       } catch (e) { console.warn('[search] 1337x:', e); }
     }
 
-    if (allResults.length > 0) return allResults;
+    if (allResults.length > 0) {
+      const sorted = sortTorrentResults(allResults);
+      onStatus('results', `✅ ${sorted.length} results`, sorted);
+      return sorted;
+    }
 
     onStatus('empty', `😶 No torrents found for "${title}" on any source.`);
     return [];
+  }
+
+  // Smart sort: best streams at top
+  function sortTorrentResults(results) {
+    const qualityRank = (title) => {
+      const t = title.toLowerCase();
+      if (/2160|4k|uhd/.test(t))           return 4;
+      if (/1080/.test(t))                   return 3;
+      if (/720/.test(t))                    return 2;
+      if (/480/.test(t))                    return 1;
+      if (/remux/i.test(t))                return 5;
+      if (/bluray|blu-ray/i.test(t))       return 3.5;
+      return 1.5;
+    };
+
+    return [...results].sort((a, b) => {
+      // Direct streams first
+      const da = a._isDirect ? 1 : 0, db = b._isDirect ? 1 : 0;
+      if (da !== db) return db - da;
+      // Then by quality rank
+      const qa = qualityRank(a.title), qb = qualityRank(b.title);
+      if (qa !== qb) return qb - qa;
+      // Then by seeds
+      return (b.seeds || 0) - (a.seeds || 0);
+    });
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -2768,55 +2951,26 @@
   // Build the inline trigger widget embedded inside the detail view
   function buildTorrentSection(title, year, imdbId, mediaType) {
     const searchQuery = year ? `${title} ${year}` : title;
-    // Escape for use in onclick attrs
     const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    const hasToken = !!getRDToken();
-    const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled).length;
-    const addonInfo = enabledAddons > 0
-      ? `<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:12px;background:rgba(118,75,162,0.12);border:1px solid rgba(118,75,162,0.3);color:#c084fc;">🧩 ${enabledAddons} addon${enabledAddons > 1 ? 's' : ''}</span>`
-      : '';
-    const imdbInfo = imdbId
-      ? `<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:12px;background:rgba(255,165,0,0.1);border:1px solid rgba(255,165,0,0.3);color:#ffa500;">${imdbId}</span>`
-      : '';
-
     return `
-<div id="torrent-trigger-section">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
-    <h3 style="margin:0;font-size:1.6rem;color:var(--accent-green);">🧲 Stream via Real-Debrid</h3>
-    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-      <div style="font-size:0.72rem;padding:0.3rem 0.7rem;border-radius:20px;
-                  background:${hasToken ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'};
-                  border:1px solid ${hasToken ? 'var(--accent-green)' : 'var(--accent-red)'};
-                  color:${hasToken ? 'var(--accent-green)' : 'var(--accent-red)'};">
-        ${hasToken ? '🔑 RD Connected' : '🔑 No Token'}
-      </div>
-      ${addonInfo}
-      ${imdbInfo}
-      <button class="settings-btn purple" style="font-size:0.72rem;" onclick="openSettingsModal()">⚙️ Settings</button>
-    </div>
-  </div>
-  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
-    <button class="btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}')">
-      🔍 Find Torrents
-    </button>
-  </div>
-  <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);line-height:1.5;">
-    Searches ${enabledAddons > 0 ? 'Stremio addons + ' : ''}Knaben → YTS → 1337x. Results open in full-screen overlay.
-    ${enabledAddons > 0 ? 'Addon results appear first with ⚡ direct streaming.' : ''}
-    Requires a Real-Debrid account to stream.
-  </p>
+<div style="margin:1rem 0;">
+  <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}')">
+    <span class="play-icon">▶</span> Play
+  </button>
 </div>`;
   }
 
   // Open the torrent overlay and kick off the search
-  function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType) {
+  function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode) {
     torrentOverlayTitle   = displayTitle || searchQuery || '';
     torrentOverlayResults = [];
-    torrentOverlayFilter  = 'all';
+    activeFilters.clear();
 
-    // Store IMDB ID for addon queries (also update globals)
+    // Store IMDB ID and episode info for addon queries
     if (imdbId) currentImdbId = imdbId;
     if (mediaType) currentMediaType = mediaType;
+    currentSeason  = season  || null;
+    currentEpisode = episode || null;
 
     // Update overlay header
     const titleEl    = document.getElementById('torrent-overlay-title-text');
@@ -2888,30 +3042,63 @@
             </div>`;
         }
       }
-    }, currentImdbId, currentMediaType);
+    }, currentImdbId, currentMediaType, currentSeason, currentEpisode);
   }
 
   // Filter chip logic
-  function setTorFilter(btn, filter) {
-    document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    torrentOverlayFilter = filter;
+  function toggleTorFilter(btn, filter) {
+    if (filter === 'all') {
+      // Clear all filters
+      activeFilters.clear();
+      document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+    } else {
+      // Toggle this filter
+      const allBtn = document.querySelector('.tor-filter-chip[data-tor-filter="all"]');
+      if (activeFilters.has(filter)) {
+        activeFilters.delete(filter);
+        btn.classList.remove('active');
+      } else {
+        activeFilters.add(filter);
+        btn.classList.add('active');
+      }
+      // If no filters active, reactivate "All"
+      if (activeFilters.size === 0) {
+        if (allBtn) allBtn.classList.add('active');
+      } else {
+        if (allBtn) allBtn.classList.remove('active');
+      }
+    }
     applyTorFilter();
   }
 
   function applyTorFilter() {
-    const all = torrentOverlayResults;
-    let filtered;
-    switch (torrentOverlayFilter) {
-      case '4k':     filtered = all.filter(r => /2160|4k|uhd/i.test(r.title)); break;
-      case '1080p':  filtered = all.filter(r => /1080/i.test(r.title)); break;
-      case '720p':   filtered = all.filter(r => /720/i.test(r.title)); break;
-      case 'seeds':  filtered = all.filter(r => r.seeds >= 50); break;
-      case 'no3d':   filtered = all.filter(r => !/\b3d\b/i.test(r.title)); break;
-      case 'eng':    filtered = all.filter(r => !/french|german|spanish|italian|portuguese|arabic|hindi|korean|japanese|chinese/i.test(r.title)); break;
-      case 'addon':  filtered = all.filter(r => !['knaben','yts','1337x'].includes(r.source)); break;
-      case 'direct': filtered = all.filter(r => !!r._isDirect); break;
-      default:       filtered = all;
+    let filtered = torrentOverlayResults;
+    if (activeFilters.size === 0) {
+      // "All" — no filtering
+    } else {
+      // Quality filters: if any quality is selected, result must match at least one
+      const quals = [];
+      if (activeFilters.has('4k'))    quals.push(r => /2160|4k|uhd/i.test(r.title));
+      if (activeFilters.has('1080p')) quals.push(r => /1080/i.test(r.title));
+      if (activeFilters.has('720p'))  quals.push(r => /720/i.test(r.title));
+      if (activeFilters.has('480p'))  quals.push(r => /480/i.test(r.title));
+
+      // Non-quality filters: each must pass (AND logic)
+      const conditions = [];
+      if (activeFilters.has('seeds'))  conditions.push(r => r.seeds >= 50);
+      if (activeFilters.has('no3d'))   conditions.push(r => !/\b3d\b/i.test(r.title));
+      if (activeFilters.has('eng'))    conditions.push(r => !/french|german|spanish|italian|portuguese|arabic|hindi|korean|japanese|chinese/i.test(r.title));
+      if (activeFilters.has('addon'))  conditions.push(r => !['knaben','yts','1337x'].includes(r.source));
+      if (activeFilters.has('direct')) conditions.push(r => !!r._isDirect);
+
+      filtered = filtered.filter(r => {
+        // Quality: OR logic (match any selected quality)
+        if (quals.length > 0 && !quals.some(fn => fn(r))) return false;
+        // Other filters: AND logic (all must pass)
+        for (const fn of conditions) { if (!fn(r)) return false; }
+        return true;
+      });
     }
     torrentOverlayDisplayed = filtered;
     renderTorrentList(filtered);
@@ -2965,14 +3152,16 @@
       badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}">${sourceLabel}</span>`;
 
       // Action buttons HTML
+      const inLibrary = isInLocalLibrary(torrent);
       let actions = '';
       if (isDirect) {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
-        actions += `<a class="tor-action-btn ext" href="${torrent._directUrl || '#'}" target="_blank" rel="noopener">↗ Open</a>`;
+        actions += `<button class="tor-action-btn ${inLibrary ? 'rd added' : 'ext'}" data-action="add-lib">${inLibrary ? '✅ In Library' : '📚 Add'}</button>`;
       } else {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play via RD</button>`;
         if (hasRD) actions += `<button class="tor-action-btn rd" data-action="add-rd">⬇ Add to RD</button>`;
+        actions += `<button class="tor-action-btn ${inLibrary ? 'rd added' : 'ext'}" data-action="add-lib">${inLibrary ? '✅ In Library' : '📚 Add'}</button>`;
       }
 
       row.innerHTML = `
@@ -2992,9 +3181,10 @@
         btn.onclick = (e) => {
           e.stopPropagation();
           const action = btn.dataset.action;
-          if (action === 'play')     handleTorrentPlay(torrent, row);
-          else if (action === 'add-rd') handleTorrentAddRD(torrent, row);
-          else if (action === 'infuse') handleTorrentInfuse(torrent, row);
+          if (action === 'play')       handleTorrentPlay(torrent, row);
+          else if (action === 'add-rd')  handleTorrentAddRD(torrent, row);
+          else if (action === 'infuse')  handleTorrentInfuse(torrent, row);
+          else if (action === 'add-lib') handleAddToLibrary(torrent, btn);
         };
       });
       resultsEl.appendChild(row);
@@ -3118,9 +3308,53 @@
   // ── Open in Infuse ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
-    // Infuse uses infuse://x-callback-url/play?url=...
     const infuseUrl = `infuse://x-callback-url/play?url=${encodeURIComponent(torrent._directUrl)}`;
     window.location.href = infuseUrl;
+  }
+
+  // ── Local Library (📚) ──
+  function getLocalLibrary() {
+    try { return JSON.parse(localStorage.getItem('watcher_library') || '[]'); }
+    catch { return []; }
+  }
+  function saveLocalLibrary(lib) {
+    localStorage.setItem('watcher_library', JSON.stringify(lib));
+  }
+  function isInLocalLibrary(torrent) {
+    const lib = getLocalLibrary();
+    const key = torrent.hash || torrent.title;
+    return lib.some(item => item.key === key);
+  }
+  function handleAddToLibrary(torrent, btn) {
+    const lib = getLocalLibrary();
+    const key = torrent.hash || torrent.title;
+    const existing = lib.findIndex(item => item.key === key);
+    if (existing >= 0) {
+      // Remove from library
+      lib.splice(existing, 1);
+      saveLocalLibrary(lib);
+      btn.classList.remove('rd', 'added');
+      btn.classList.add('ext');
+      btn.innerHTML = '📚 Add';
+    } else {
+      // Add to library
+      lib.push({
+        key,
+        title: torrent.title,
+        size: torrent.size,
+        quality: torrent.quality || guessQuality(torrent.title),
+        source: torrent.source,
+        directUrl: torrent._directUrl || null,
+        magnet: torrent.magnet || null,
+        hash: torrent.hash || null,
+        addedAt: new Date().toISOString(),
+        imdbId: currentImdbId || null,
+      });
+      saveLocalLibrary(lib);
+      btn.classList.remove('ext');
+      btn.classList.add('rd', 'added');
+      btn.innerHTML = '✅ In Library';
+    }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -3205,6 +3439,97 @@
     document.querySelectorAll('.tor-result-row').forEach(r => { r.classList.remove('selected'); r.classList.remove('dimmed'); });
   }
 
+
+  /* ═══════════════════════════════════════════════════════════════════
+     § 10b  EPISODE WATCH TRACKING
+     ═══════════════════════════════════════════════════════════════════ */
+  function getWatchedEpisodes(tvId) {
+    try { return JSON.parse(localStorage.getItem(`watched_${tvId}`) || '{}'); }
+    catch { return {}; }
+  }
+  function saveWatchedEpisodes(tvId, data) {
+    localStorage.setItem(`watched_${tvId}`, JSON.stringify(data));
+  }
+  function isEpisodeWatched(tvId, season, episode) {
+    const d = getWatchedEpisodes(tvId);
+    return !!d[`s${season}e${episode}`];
+  }
+  function toggleEpisodeWatched(tvId, season, episode) {
+    const d = getWatchedEpisodes(tvId);
+    const key = `s${season}e${episode}`;
+    if (d[key]) delete d[key];
+    else d[key] = Date.now();
+    saveWatchedEpisodes(tvId, d);
+    return !!d[key];
+  }
+  function markPreviousWatched(tvId, season, episode) {
+    const d = getWatchedEpisodes(tvId);
+    // Mark all episodes in this season up to (but not including) the given one
+    for (let e = 1; e < episode; e++) d[`s${season}e${e}`] = Date.now();
+    // Mark all episodes in previous seasons (assume up to 30 eps per season)
+    for (let s = 1; s < season; s++) {
+      for (let e = 1; e <= 50; e++) d[`s${s}e${e}`] = Date.now();
+    }
+    saveWatchedEpisodes(tvId, d);
+  }
+  function unmarkFromEpisode(tvId, season, episode) {
+    const d = getWatchedEpisodes(tvId);
+    // Unmark this episode and all after it in this season
+    for (let e = episode; e <= 50; e++) delete d[`s${season}e${e}`];
+    // Unmark all episodes in later seasons
+    for (let s = season + 1; s <= 30; s++) {
+      for (let e = 1; e <= 50; e++) delete d[`s${s}e${e}`];
+    }
+    saveWatchedEpisodes(tvId, d);
+  }
+  function getNextUnwatched(tvId, seasons) {
+    const d = getWatchedEpisodes(tvId);
+    for (const s of seasons) {
+      if (s.season_number === 0) continue; // skip specials
+      for (let e = 1; e <= s.episode_count; e++) {
+        if (!d[`s${s.season_number}e${e}`]) return { season: s.season_number, episode: e };
+      }
+    }
+    return null; // all watched
+  }
+  function refreshEpisodeUI(tvId, seasonNum) {
+    const container = document.getElementById('episodes-container');
+    if (!container) return;
+    container.querySelectorAll('.episode-item').forEach(item => {
+      const ep = parseInt(item.dataset.episode);
+      if (!ep) return;
+      const watched = isEpisodeWatched(tvId, seasonNum, ep);
+      item.classList.toggle('watched', watched);
+      const watchBtn = item.querySelector('.ep-watch-btn');
+      if (watchBtn) {
+        watchBtn.classList.toggle('is-watched', watched);
+        watchBtn.textContent = watched ? '✅ Watched' : '👁 Watch';
+      }
+    });
+  }
+
+  function handleToggleWatched(tvId, season, episode) {
+    toggleEpisodeWatched(tvId, season, episode);
+    refreshEpisodeUI(tvId, season);
+  }
+  function handleMarkPrevious(tvId, season, episode) {
+    markPreviousWatched(tvId, season, episode);
+    refreshEpisodeUI(tvId, season);
+  }
+  function handleUnmarkFrom(tvId, season, episode) {
+    unmarkFromEpisode(tvId, season, episode);
+    refreshEpisodeUI(tvId, season);
+  }
+  function markAllSeason(tvId, season, count, mark) {
+    const d = getWatchedEpisodes(tvId);
+    for (let e = 1; e <= count; e++) {
+      const key = `s${season}e${e}`;
+      if (mark) d[key] = Date.now();
+      else delete d[key];
+    }
+    saveWatchedEpisodes(tvId, d);
+    refreshEpisodeUI(tvId, season);
+  }
 
   /* ═══════════════════════════════════════════════════════════════════
      § 11  FAVORITES SYSTEM
@@ -3807,8 +4132,21 @@
       html += `<button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()"><span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}</button>`;
       html += '</div>';
 
-      // ★ RD trigger widget
-      html += buildTorrentSection(title, firstAirYear, currentImdbId, 'tv');
+      // ★ Play button — shows next unwatched episode
+      const nextEp = getNextUnwatched(tvId, seasons);
+      const tvSearchBase = year ? `${title} ${firstAirYear}` : title;
+      if (nextEp) {
+        const epLabel = `S${nextEp.season}E${nextEp.episode}`;
+        const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
+        html += `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+          <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode})">
+            <span class="play-icon">▶</span> Play ${epLabel}
+          </button>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
+        </div>`;
+      } else {
+        html += buildTorrentSection(title, firstAirYear, currentImdbId, 'tv');
+      }
 
       if (trailers.length > 0) {
         html += '<h3>Trailers</h3><div class="trailers-scroll">';
@@ -3854,24 +4192,47 @@
       const seasonSelector = document.getElementById('season-selector');
       if (seasonSelector) {
         seasonSelector.addEventListener('change', async (e) => {
-          const num = e.target.value;
+          const num = parseInt(e.target.value);
           const epContainer = document.getElementById('episodes-container');
-          if (!num) { epContainer.innerHTML = ''; return; }
+          if (!num && num !== 0) { epContainer.innerHTML = ''; return; }
           epContainer.innerHTML = '<p style="color:rgba(255,255,255,0.4);padding:1rem;text-align:center;">Loading…</p>';
           try {
             const sd = await apiFunc(`/tv/${tvId}/season/${num}`);
             epContainer.innerHTML = '';
+
+            // Mark all / unmark all row
+            const controlRow = document.createElement('div');
+            controlRow.style.cssText = 'display:flex;gap:0.4rem;padding:0.5rem 0;flex-wrap:wrap;';
+            controlRow.innerHTML = `
+              <button class="ep-action-btn mark" onclick="markAllSeason(${tvId},${num},${sd.episodes.length},true)">✅ Mark all watched</button>
+              <button class="ep-action-btn mark" onclick="markAllSeason(${tvId},${num},${sd.episodes.length},false)">✕ Unmark all</button>`;
+            epContainer.appendChild(controlRow);
+
             sd.episodes.forEach(ep => {
               const div = document.createElement('div');
               div.className = 'episode-item';
+              div.dataset.episode = ep.episode_number;
+              const watched = isEpisodeWatched(tvId, num, ep.episode_number);
+              if (watched) div.classList.add('watched');
+
               const still   = ep.still_path ? `${TMDB_IMG}${ep.still_path}` : '';
               const airDate = ep.air_date ? new Date(ep.air_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : 'Unknown';
+              const epCode  = `S${String(num).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')}`;
+              const epSearch = `${title} ${epCode}`;
+              const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
               div.innerHTML = `${still?`<img class="episode-still" src="${still}" alt="Ep ${ep.episode_number}" loading="lazy">`:''}
                 <div class="episode-details">
-                  <div class="episode-number">Episode ${ep.episode_number}</div>
+                  <div class="episode-number">${epCode} — Episode ${ep.episode_number}</div>
                   <div class="episode-title">${ep.name||'Untitled'}</div>
                   <div class="episode-overview">${ep.overview||'No description.'}</div>
                   <div class="episode-air-date">Aired: ${airDate}</div>
+                  <div class="episode-actions">
+                    <button class="ep-action-btn play" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epCode}','${safe(currentImdbId||'')}','tv',${num},${ep.episode_number})">▶ Play ${epCode}</button>
+                    <button class="ep-action-btn watch ep-watch-btn ${watched?'is-watched':''}" onclick="handleToggleWatched(${tvId},${num},${ep.episode_number})">${watched?'✅ Watched':'👁 Watch'}</button>
+                    <button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">⬆ Mark prev</button>
+                    <button class="ep-action-btn mark" onclick="handleUnmarkFrom(${tvId},${num},${ep.episode_number})">⬇ Unmark from here</button>
+                  </div>
                 </div>`;
               epContainer.appendChild(div);
             });
@@ -4010,6 +4371,8 @@
     currentDetailItem = null;
     currentImdbId     = null;
     currentMediaType  = null;
+    currentSeason     = null;
+    currentEpisode    = null;
     updateAllFavoriteButtons();
   }
 
