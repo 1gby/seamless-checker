@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
@@ -6,6 +7,7 @@
   <title>Watcher by Rudeboy™</title>
 
   <!-- ── Open Graph / Twitter Cards ── -->
+
   <meta property="og:title"       content="Watcher by Rudeboy™">
   <meta property="og:description" content="Stream and discover movies, TV shows, and more">
   <meta property="og:image"       content="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
@@ -17,6 +19,7 @@
   <meta name="twitter:image"      content="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
 
   <!-- ── PWA / Apple ── -->
+
   <meta name="apple-mobile-web-app-capable"         content="yes">
   <meta name="apple-mobile-web-app-status-bar-style"content="black-translucent">
   <meta name="apple-mobile-web-app-title"           content="Watcher">
@@ -25,6 +28,7 @@
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
 
   <!-- ── Fonts ── -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -674,18 +678,28 @@
        § CSS-16  SETTINGS MODAL
        ═══════════════════════════════════════════════════════════════════ */
     #settings-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
-      z-index: 1500; display: none; align-items: flex-start; justify-content: center;
-      padding: 1rem; overflow-y: auto;
+      position: fixed !important;
+      top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+      width: 100% !important; height: 100% !important;
+      background: rgba(0,0,0,0.92);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      z-index: 9999 !important;
+      display: none !important;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
-    #settings-overlay.active { display: flex; }
+    #settings-overlay.active { display: flex !important; }
 
     #settings-panel {
       background: var(--modal-bg); border: 1.5px solid rgba(16,185,129,0.4);
       border-radius: 20px; width: 100%; max-width: 620px;
-      margin: auto; overflow: hidden;
+      margin: 0 auto; overflow: hidden;
       box-shadow: 0 0 60px rgba(16,185,129,0.15);
+      flex-shrink: 0;
     }
 
     #settings-header {
@@ -916,12 +930,14 @@
       .tor-result-row      { flex-wrap: wrap; }
     }
   </style>
+
 </head>
 <body>
 
 <!-- ══════════════════════════════════════════════════════════════════
      LOADING OVERLAY
      ══════════════════════════════════════════════════════════════════ -->
+
 <div class="loading-overlay" id="loadingOverlay">
   <img class="loading-logo" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png" alt="Loading">
   <div class="loading-text"    id="loadingText">Loading...</div>
@@ -934,6 +950,7 @@
 <!-- ══════════════════════════════════════════════════════════════════
      HEADER  (logo · title · settings ⚙️ · adult mode indicator 🔞)
      ══════════════════════════════════════════════════════════════════ -->
+
 <div id="header">
   <div class="header-top">
     <!-- Logo — click to refresh -->
@@ -941,21 +958,24 @@
          src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png"
          alt="Rudeboy" title="Click to refresh">
 
-    <!-- Centered title -->
-    <h1 class="title-text" id="app-title">Watcher</h1>
+<!-- Centered title -->
+<h1 class="title-text" id="app-title">Watcher</h1>
 
-    <!-- Right cluster: adult indicator + settings gear -->
-    <div class="header-right">
-      <div id="mode-indicator" title="Adult Mode Active">🔞</div>
-      <button id="install-pwa-btn" onclick="triggerInstall()" title="Install App"
-  style="display:none;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4);
-         color:#a5b4fc;border-radius:20px;padding:0.3rem 0.75rem;font-size:0.72rem;cursor:pointer;
-         align-items:center;gap:0.3rem;">⊕ Install</button>
+<!-- Right cluster: adult indicator + settings gear -->
+<div class="header-right">
+  <div id="mode-indicator" title="Adult Mode Active">🔞</div>
+  <button id="install-pwa-btn" onclick="triggerInstall()" title="Install App"
+
+style=“display:none;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4);
+color:#a5b4fc;border-radius:20px;padding:0.3rem 0.75rem;font-size:0.72rem;cursor:pointer;
+align-items:center;gap:0.3rem;”>⊕ Install</button>
 <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
-    </div>
+</div>
+
   </div>
 
   <!-- Search bar -->
+
   <div id="search-container">
     <input type="text" id="search-input"
            placeholder="Movies, TV, Actors, Genres, or Year"
@@ -966,7 +986,9 @@
 <!-- ══════════════════════════════════════════════════════════════════
      NORMAL MODE — HOME SECTIONS
      ══════════════════════════════════════════════════════════════════ -->
+
 <!-- Continue Watching + Watchlist (shown when populated) -->
+
 <section id="section-continue-watching" style="display:none;">
   <h2>▶ Continue Watching</h2>
   <div class="horizontal-scroll" id="continue-watching-grid"></div>
@@ -994,6 +1016,7 @@
 <section id="section-anticipated-movies">  <h2>Most Anticipated Movies</h2>   <div class="horizontal-scroll" id="anticipated-movies-grid"></div></section>
 
 <!-- FAVORITES — Normal Mode -->
+
 <section id="section-favorites" style="display:none;">
   <h2>⭐ My Favorites</h2>
   <div class="filter-buttons">
@@ -1008,6 +1031,7 @@
 <!-- ══════════════════════════════════════════════════════════════════
      ADULT / XXX SECTIONS  (hidden until adult mode activated)
      ══════════════════════════════════════════════════════════════════ -->
+
 <section id="section-xxx-new-releases"            style="display:none;"><h2>🔞 New Releases</h2>            <div class="horizontal-scroll" id="xxx-new-releases-grid"></div></section>
 <section id="section-adult-my-first-sex-teacher"  style="display:none;"><h2>🔞 My First Sex Teacher</h2>    <div class="horizontal-scroll" id="adult-my-first-sex-teacher-grid"></div></section>
 <section id="section-adult-moms-teach-sex"        style="display:none;"><h2>🔞 Moms Teach Sex</h2>          <div class="horizontal-scroll" id="adult-moms-teach-sex-grid"></div></section>
@@ -1031,6 +1055,7 @@
 <section id="section-adult-xxx-parody"            style="display:none;"><h2>🔞 XXX Parody</h2>             <div class="horizontal-scroll" id="adult-xxx-parody-grid"></div></section>
 
 <!-- FAVORITES — XXX Mode -->
+
 <section id="section-xxx-favorites" style="display:none;">
   <h2>🔞⭐ XXX Favorites</h2>
   <div class="filter-buttons">
@@ -1044,12 +1069,14 @@
 <!-- ══════════════════════════════════════════════════════════════════
      GENRE BROWSE BUTTONS
      ══════════════════════════════════════════════════════════════════ -->
+
 <div class="genre-buttons-container" id="genre-buttons-container">
   <h2>Browse by Genre</h2>
   <div class="genre-buttons-scroll" id="genre-buttons"></div>
 </div>
 
 <!-- TMDB Attribution -->
+
 <div class="tmdb-attribution">
   <a href="https://www.themoviedb.org" target="_blank" rel="noopener">
     <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_2-9665a76b1ae401a510ec1e0ca40ddcb3b0cfe45f1d51b77a308fea0845885648.svg" alt="Powered by TMDB">
@@ -1059,6 +1086,7 @@
 <!-- ══════════════════════════════════════════════════════════════════
      DETAIL VIEW  (movie / TV / actor)
      ══════════════════════════════════════════════════════════════════ -->
+
 <div id="detail-view">
   <div id="detail-content">
     <span id="detail-close">×</span>
@@ -1069,9 +1097,11 @@
 <!-- ══════════════════════════════════════════════════════════════════
      TORRENT RESULTS OVERLAY  (full-page, z-index 1100)
      ══════════════════════════════════════════════════════════════════ -->
+
 <div id="torrent-overlay">
 
   <!-- Hero Section -->
+
   <div id="torrent-overlay-hero">
     <img id="torrent-overlay-hero-bg" src="" alt="">
     <div id="torrent-overlay-hero-gradient"></div>
@@ -1090,105 +1120,105 @@
 
   <div id="torrent-overlay-inner">
 
-    <!-- Header bar -->
-    <div id="torrent-overlay-header">
-      <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
-      <div style="flex:1;min-width:0;">
-        <div id="torrent-overlay-title-text">Stream via Real-Debrid</div>
-        <div id="torrent-overlay-subtitle">Select a torrent to add to your RD account</div>
-      </div>
-      <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
-        style="padding:0.38rem 0.75rem;border-radius:20px;background:rgba(255,255,255,0.07);
-               border:1px solid rgba(118,75,162,0.4);color:#fff;font-size:0.75rem;width:130px;max-width:35vw;"
-        onkeydown="if(event.key==='Enter')runTorrentOverlaySearch()">
-      <button class="settings-btn purple" style="padding:0.38rem 0.65rem;font-size:0.8rem;"
-              onclick="runTorrentOverlaySearch()">🔍</button>
-    </div>
+<!-- Header bar -->
+<div id="torrent-overlay-header">
+  <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
+  <div style="flex:1;min-width:0;">
+    <div id="torrent-overlay-title-text">Stream via Real-Debrid</div>
+    <div id="torrent-overlay-subtitle">Select a torrent to add to your RD account</div>
+  </div>
+  <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
+    style="padding:0.38rem 0.75rem;border-radius:20px;background:rgba(255,255,255,0.07);
+           border:1px solid rgba(118,75,162,0.4);color:#fff;font-size:0.75rem;width:130px;max-width:35vw;"
+    onkeydown="if(event.key==='Enter')runTorrentOverlaySearch()">
+  <button class="settings-btn purple" style="padding:0.38rem 0.65rem;font-size:0.8rem;"
+          onclick="runTorrentOverlaySearch()">🔍</button>
+</div>
 
-    <!-- Filter chips — quality + source -->
-    <div id="torrent-filter-bar">
-      <!-- Quality filters -->
-      <button class="tor-filter-chip active" data-tor-filter="all"   onclick="setTorFilter(this,'all')">All</button>
-      <button class="tor-filter-chip"        data-tor-filter="4k"    onclick="setTorFilter(this,'4k')">4K</button>
-      <button class="tor-filter-chip"        data-tor-filter="1080p" onclick="setTorFilter(this,'1080p')">1080p+</button>
-      <button class="tor-filter-chip"        data-tor-filter="720p"  onclick="setTorFilter(this,'720p')">720p</button>
-      <button class="tor-filter-chip"        data-tor-filter="seeds" onclick="setTorFilter(this,'seeds')">50+ Seeds</button>
-      <button class="tor-filter-chip"        data-tor-filter="no3d"  onclick="setTorFilter(this,'no3d')">No 3D</button>
-      <button class="tor-filter-chip"        data-tor-filter="eng"   onclick="setTorFilter(this,'eng')">English</button>
-      <!-- Source provider filters (divider) -->
-      <span style="color:rgba(255,255,255,0.15);margin:0 0.2rem;align-self:center;">│</span>
-      <button class="tor-filter-chip"        data-tor-filter="src-knaben" onclick="setTorFilter(this,'src-knaben')">🔍 Knaben</button>
-      <button class="tor-filter-chip"        data-tor-filter="src-yts"    onclick="setTorFilter(this,'src-yts')">🍿 YTS</button>
-      <button class="tor-filter-chip"        data-tor-filter="src-1337x"  onclick="setTorFilter(this,'src-1337x')">📂 1337x</button>
-    </div>
+<!-- Filter chips — quality + source -->
+<div id="torrent-filter-bar">
+  <!-- Quality filters -->
+  <button class="tor-filter-chip active" data-tor-filter="all"   onclick="setTorFilter(this,'all')">All</button>
+  <button class="tor-filter-chip"        data-tor-filter="4k"    onclick="setTorFilter(this,'4k')">4K</button>
+  <button class="tor-filter-chip"        data-tor-filter="1080p" onclick="setTorFilter(this,'1080p')">1080p+</button>
+  <button class="tor-filter-chip"        data-tor-filter="720p"  onclick="setTorFilter(this,'720p')">720p</button>
+  <button class="tor-filter-chip"        data-tor-filter="seeds" onclick="setTorFilter(this,'seeds')">50+ Seeds</button>
+  <button class="tor-filter-chip"        data-tor-filter="no3d"  onclick="setTorFilter(this,'no3d')">No 3D</button>
+  <button class="tor-filter-chip"        data-tor-filter="eng"   onclick="setTorFilter(this,'eng')">English</button>
+  <!-- Source provider filters (divider) -->
+  <span style="color:rgba(255,255,255,0.15);margin:0 0.2rem;align-self:center;">│</span>
+  <button class="tor-filter-chip"        data-tor-filter="src-knaben" onclick="setTorFilter(this,'src-knaben')">🔍 Knaben</button>
+  <button class="tor-filter-chip"        data-tor-filter="src-yts"    onclick="setTorFilter(this,'src-yts')">🍿 YTS</button>
+  <button class="tor-filter-chip"        data-tor-filter="src-1337x"  onclick="setTorFilter(this,'src-1337x')">📂 1337x</button>
+</div>
 
-    <!-- Sort bar -->
-    <div id="torrent-sort-bar" style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 1rem;
-         border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.2);">
-      <span style="font-size:0.62rem;color:rgba(255,255,255,0.3);white-space:nowrap;">Sort:</span>
-      <button class="tor-filter-chip active" data-sort="seeds"   onclick="setTorSort(this,'seeds')">▲ Seeds</button>
-      <button class="tor-filter-chip"        data-sort="quality" onclick="setTorSort(this,'quality')">🎬 Quality</button>
-      <button class="tor-filter-chip"        data-sort="size"    onclick="setTorSort(this,'size')">💾 Size</button>
-      <button class="tor-filter-chip"        data-sort="source"  onclick="setTorSort(this,'source')">📦 Source</button>
-      <div style="flex:1;"></div>
-      <button class="tor-filter-chip" id="show-ignored-btn" onclick="toggleShowIgnored()" style="font-size:0.6rem;">👁 Ignored</button>
-    </div>
+<!-- Sort bar -->
+<div id="torrent-sort-bar" style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 1rem;
+     border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.2);">
+  <span style="font-size:0.62rem;color:rgba(255,255,255,0.3);white-space:nowrap;">Sort:</span>
+  <button class="tor-filter-chip active" data-sort="seeds"   onclick="setTorSort(this,'seeds')">▲ Seeds</button>
+  <button class="tor-filter-chip"        data-sort="quality" onclick="setTorSort(this,'quality')">🎬 Quality</button>
+  <button class="tor-filter-chip"        data-sort="size"    onclick="setTorSort(this,'size')">💾 Size</button>
+  <button class="tor-filter-chip"        data-sort="source"  onclick="setTorSort(this,'source')">📦 Source</button>
+  <div style="flex:1;"></div>
+  <button class="tor-filter-chip" id="show-ignored-btn" onclick="toggleShowIgnored()" style="font-size:0.6rem;">👁 Ignored</button>
+</div>
 
-    <!-- Status line -->
-    <div id="torrent-overlay-status">Ready to search…</div>
+<!-- Status line -->
+<div id="torrent-overlay-status">Ready to search…</div>
 
-    <!-- Results list (populated by JS) -->
-    <div id="torrent-overlay-results"></div>
+<!-- Results list (populated by JS) -->
+<div id="torrent-overlay-results"></div>
 
-    <!-- Stream player (shown after RD unrestrict) -->
-    <div id="torrent-overlay-player">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.4rem;">
-        <div id="torrent-overlay-playing" style="font-size:0.78rem;color:var(--accent-green);font-weight:600;"></div>
-        <button class="settings-btn purple" style="font-size:0.72rem;padding:0.3rem 0.6rem;" onclick="hideTorrentPlayer()">↑ Results</button>
-      </div>
-      <div id="torrent-overlay-stream-links"></div>
-      <!-- Full URL display -->
-      <div id="stream-url-box"></div>
-      <div style="position:relative;">
-        <video id="rd-player" controls playsinline webkit-playsinline preload="metadata"
-               style="width:100%;display:block;background:#000;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,0.7);aspect-ratio:16/9;">
-          Your browser does not support HTML5 video.
-        </video>
-        <!-- PiP button overlay -->
-        <button id="pip-btn" title="Picture in Picture" onclick="togglePiP()"
-          style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#fff;
-                 border-radius:8px;padding:0.3rem 0.5rem;font-size:0.75rem;cursor:pointer;display:none;">
-          ⧉ PiP
-        </button>
-      </div>
-      <!-- Player control bar -->
-      <div id="player-controls-bar" style="display:none;margin-top:0.4rem;
-           flex-wrap:wrap;gap:0.4rem;align-items:center;">
-        <span style="font-size:0.62rem;color:rgba(255,255,255,0.35);">Speed:</span>
-        <select id="playback-speed" onchange="document.getElementById('rd-player').playbackRate=parseFloat(this.value)"
-          style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;
-                 padding:0.2rem 0.4rem;font-size:0.68rem;cursor:pointer;">
-          <option value="0.5">0.5×</option>
-          <option value="0.75">0.75×</option>
-          <option value="1" selected>1×</option>
-          <option value="1.25">1.25×</option>
-          <option value="1.5">1.5×</option>
-          <option value="2">2×</option>
-        </select>
-        <span style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-left:0.4rem;">Subtitles:</span>
-        <select id="subtitle-track" onchange="setSubtitleTrack(parseInt(this.value))"
-          style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;
-                 padding:0.2rem 0.4rem;font-size:0.68rem;cursor:pointer;">
-          <option value="-1">Off</option>
-        </select>
-        <span style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin-left:auto;">
-          ⌨️ Space=play · ←/→=seek · F=fullscreen · M=mute
-        </span>
-      </div>
-      <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.3rem;">
-        💡 Won't play inline? Hit ↗ to open in VLC / IINA.
-      </p>
-    </div>
+<!-- Stream player (shown after RD unrestrict) -->
+<div id="torrent-overlay-player">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.4rem;">
+    <div id="torrent-overlay-playing" style="font-size:0.78rem;color:var(--accent-green);font-weight:600;"></div>
+    <button class="settings-btn purple" style="font-size:0.72rem;padding:0.3rem 0.6rem;" onclick="hideTorrentPlayer()">↑ Results</button>
+  </div>
+  <div id="torrent-overlay-stream-links"></div>
+  <!-- Full URL display -->
+  <div id="stream-url-box"></div>
+  <div style="position:relative;">
+    <video id="rd-player" controls playsinline webkit-playsinline preload="metadata"
+           style="width:100%;display:block;background:#000;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,0.7);aspect-ratio:16/9;">
+      Your browser does not support HTML5 video.
+    </video>
+    <!-- PiP button overlay -->
+    <button id="pip-btn" title="Picture in Picture" onclick="togglePiP()"
+      style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#fff;
+             border-radius:8px;padding:0.3rem 0.5rem;font-size:0.75rem;cursor:pointer;display:none;">
+      ⧉ PiP
+    </button>
+  </div>
+  <!-- Player control bar -->
+  <div id="player-controls-bar" style="display:none;margin-top:0.4rem;
+       flex-wrap:wrap;gap:0.4rem;align-items:center;">
+    <span style="font-size:0.62rem;color:rgba(255,255,255,0.35);">Speed:</span>
+    <select id="playback-speed" onchange="document.getElementById('rd-player').playbackRate=parseFloat(this.value)"
+      style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;
+             padding:0.2rem 0.4rem;font-size:0.68rem;cursor:pointer;">
+      <option value="0.5">0.5×</option>
+      <option value="0.75">0.75×</option>
+      <option value="1" selected>1×</option>
+      <option value="1.25">1.25×</option>
+      <option value="1.5">1.5×</option>
+      <option value="2">2×</option>
+    </select>
+    <span style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-left:0.4rem;">Subtitles:</span>
+    <select id="subtitle-track" onchange="setSubtitleTrack(parseInt(this.value))"
+      style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;
+             padding:0.2rem 0.4rem;font-size:0.68rem;cursor:pointer;">
+      <option value="-1">Off</option>
+    </select>
+    <span style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin-left:auto;">
+      ⌨️ Space=play · ←/→=seek · F=fullscreen · M=mute
+    </span>
+  </div>
+  <p style="font-size:0.62rem;color:rgba(255,255,255,0.2);margin-top:0.3rem;">
+    💡 Won't play inline? Hit ↗ to open in VLC / IINA.
+  </p>
+</div>
 
   </div><!-- /torrent-overlay-inner -->
 </div><!-- /torrent-overlay -->
@@ -1196,298 +1226,332 @@
 <!-- ══════════════════════════════════════════════════════════════════
      SETTINGS MODAL  (z-index 1500)
      ══════════════════════════════════════════════════════════════════ -->
+
 <div id="settings-overlay" onclick="if(event.target===this)closeSettingsModal()">
   <div id="settings-panel">
 
-    <!-- Header -->
-    <div id="settings-header">
-      <h2>⚙️ Settings</h2>
-      <button id="settings-close" onclick="closeSettingsModal()">×</button>
+<!-- Header -->
+<div id="settings-header">
+  <h2>⚙️ Settings</h2>
+  <button id="settings-close" onclick="closeSettingsModal()">×</button>
+</div>
+
+<!-- Body -->
+<div id="settings-body">
+
+  <!-- § TMDB API Key -->
+  <div class="settings-section">
+    <div class="settings-section-title">🎬 TMDB API Key</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.6rem;">
+      Required for all content. Get your free key at
+      <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener"
+         style="color:#c084fc;">themoviedb.org/settings/api</a>
+    </p>
+    <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+      <input type="password" id="settings-tmdb-key" class="settings-token-input"
+             placeholder="Paste your TMDB API key (v3 auth)…"
+             style="flex:1;min-width:180px;" onchange="saveTMDBKey()">
+      <button class="settings-btn" style="font-size:0.72rem;padding:0.35rem 0.6rem;"
+              onclick="toggleTMDBKeyVisibility()">👁</button>
+      <button class="settings-btn green" onclick="saveTMDBKey()">Save</button>
+    </div>
+    <div id="tmdb-key-status" style="font-size:0.7rem;margin-top:0.4rem;color:rgba(255,255,255,0.4);"></div>
+  </div>
+
+  <!-- § Debrid Service Selector + Token -->
+  <div class="settings-section">
+    <div class="settings-section-title">⚡ Real-Debrid</div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.85rem;flex-wrap:wrap;">
+
+
     </div>
 
-    <!-- Body -->
-    <div id="settings-body">
+    <!-- Connection badge + get-token links -->
+    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.6rem;">
+      <div id="settings-rd-status" class="disconnected">● Not connected</div>
+      <a id="token-get-link" href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
+         style="font-size:0.72rem;color:rgba(255,255,255,0.4);text-decoration:underline;">
+        Get token ↗
+      </a>
+    </div>
 
-      <!-- § Debrid Service Selector + Token -->
-      <div class="settings-section">
-        <div class="settings-section-title">⚡ Real-Debrid</div>
-        <div style="display:flex;gap:0.5rem;margin-bottom:0.85rem;flex-wrap:wrap;">
+    <!-- Token input -->
+    <div class="settings-token-row">
+      <div style="position:relative;flex:1;min-width:200px;display:flex;align-items:center;">
+        <input type="password" id="settings-token-input" class="settings-token-input"
+               style="width:100%;padding-right:2.5rem;"
+               placeholder="Paste API token here…"
+               autocomplete="off" spellcheck="false">
+        <button onclick="toggleTokenVisibility()" id="token-eye-btn"
+          style="position:absolute;right:0.5rem;background:none;border:none;color:rgba(255,255,255,0.5);
+                 cursor:pointer;font-size:1rem;padding:0.25rem;line-height:1;"
+          title="Show/hide token">👁</button>
+      </div>
+      <button class="settings-btn green"  onclick="saveRDToken()">Save</button>
+      <button class="settings-btn purple" onclick="testRDToken()">Test</button>
+      <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
+    </div>
 
-
+    <!-- Account info widget (shown after successful token test) -->
+    <div id="rd-account-widget" style="display:none;margin-top:0.75rem;padding:0.65rem 0.85rem;
+         background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);
+         border-radius:12px;display:none;">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Account</div>
+          <div id="rd-acct-username" style="font-size:0.82rem;font-weight:700;color:#c084fc;"></div>
         </div>
-
-        <!-- Connection badge + get-token links -->
-        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.6rem;">
-          <div id="settings-rd-status" class="disconnected">● Not connected</div>
-          <a id="token-get-link" href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
-             style="font-size:0.72rem;color:rgba(255,255,255,0.4);text-decoration:underline;">
-            Get token ↗
-          </a>
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Type</div>
+          <div id="rd-acct-type" style="font-size:0.78rem;font-weight:600;color:var(--accent-green);"></div>
         </div>
-
-        <!-- Token input -->
-        <div class="settings-token-row">
-          <div style="position:relative;flex:1;min-width:200px;display:flex;align-items:center;">
-            <input type="password" id="settings-token-input" class="settings-token-input"
-                   style="width:100%;padding-right:2.5rem;"
-                   placeholder="Paste API token here…"
-                   autocomplete="off" spellcheck="false">
-            <button onclick="toggleTokenVisibility()" id="token-eye-btn"
-              style="position:absolute;right:0.5rem;background:none;border:none;color:rgba(255,255,255,0.5);
-                     cursor:pointer;font-size:1rem;padding:0.25rem;line-height:1;"
-              title="Show/hide token">👁</button>
-          </div>
-          <button class="settings-btn green"  onclick="saveRDToken()">Save</button>
-          <button class="settings-btn purple" onclick="testRDToken()">Test</button>
-          <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Expires</div>
+          <div id="rd-acct-expiry" style="font-size:0.78rem;font-weight:600;color:#f59e0b;"></div>
         </div>
-
-        <!-- Account info widget (shown after successful token test) -->
-        <div id="rd-account-widget" style="display:none;margin-top:0.75rem;padding:0.65rem 0.85rem;
-             background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);
-             border-radius:12px;display:none;">
-          <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
-            <div>
-              <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Account</div>
-              <div id="rd-acct-username" style="font-size:0.82rem;font-weight:700;color:#c084fc;"></div>
-            </div>
-            <div>
-              <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Type</div>
-              <div id="rd-acct-type" style="font-size:0.78rem;font-weight:600;color:var(--accent-green);"></div>
-            </div>
-            <div>
-              <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Expires</div>
-              <div id="rd-acct-expiry" style="font-size:0.78rem;font-weight:600;color:#f59e0b;"></div>
-            </div>
-            <div>
-              <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Active DLs</div>
-              <div id="rd-acct-downloads" style="font-size:0.78rem;font-weight:600;color:#fff;"></div>
-            </div>
-          </div>
-          <!-- Expiry progress bar -->
-          <div style="margin-top:0.5rem;background:rgba(255,255,255,0.08);border-radius:999px;height:4px;overflow:hidden;">
-            <div id="rd-expiry-bar" style="height:100%;background:var(--accent-green);border-radius:999px;transition:width 0.5s;width:0%;"></div>
-          </div>
-          <div id="rd-expiry-label" style="font-size:0.6rem;color:rgba(255,255,255,0.3);margin-top:0.2rem;"></div>
-        </div>
-
-        <!-- Active download limit warning -->
-        <div id="rd-limit-warning" style="display:none;margin-top:0.5rem;padding:0.45rem 0.65rem;
-             background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);
-             border-radius:8px;font-size:0.7rem;color:#f59e0b;">
-          ⚠️ RD limits active downloads to <strong>6</strong>. Delete completed/failed torrents in your library to free slots.
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;">Active DLs</div>
+          <div id="rd-acct-downloads" style="font-size:0.78rem;font-weight:600;color:#fff;"></div>
         </div>
       </div>
+      <!-- Expiry progress bar -->
+      <div style="margin-top:0.5rem;background:rgba(255,255,255,0.08);border-radius:999px;height:4px;overflow:hidden;">
+        <div id="rd-expiry-bar" style="height:100%;background:var(--accent-green);border-radius:999px;transition:width 0.5s;width:0%;"></div>
+      </div>
+      <div id="rd-expiry-label" style="font-size:0.6rem;color:rgba(255,255,255,0.3);margin-top:0.2rem;"></div>
+    </div>
 
-      <!-- § Quality Filters — EXCLUDE -->
-      <div class="settings-section">
-        <div class="settings-section-title">Exclude These Qualities</div>
-        <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Check to hide that quality from results. Leave all unchecked to show everything.</p>
-        <div class="settings-checkbox-grid">
-          <label class="settings-checkbox-label"><input type="checkbox" id="sf-4k"      onchange="saveSettings()"> 4K / UHD</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="sf-1080p"   onchange="saveSettings()"> 1080p</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="sf-720p"    onchange="saveSettings()"> 720p</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="sf-480p"    onchange="saveSettings()"> 480p</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="sf-bluray"  onchange="saveSettings()"> BluRay / Remux</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="sf-3d"      onchange="saveSettings()"> 3D</label>
+    <!-- Active download limit warning -->
+    <div id="rd-limit-warning" style="display:none;margin-top:0.5rem;padding:0.45rem 0.65rem;
+         background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);
+         border-radius:8px;font-size:0.7rem;color:#f59e0b;">
+      ⚠️ RD limits active downloads to <strong>6</strong>. Delete completed/failed torrents in your library to free slots.
+    </div>
+  </div>
+
+  <!-- § Quality Filters — EXCLUDE -->
+  <div class="settings-section">
+    <div class="settings-section-title">Exclude These Qualities</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Check to hide that quality from results. Leave all unchecked to show everything.</p>
+    <div class="settings-checkbox-grid">
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-4k"      onchange="saveSettings()"> 4K / UHD</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-1080p"   onchange="saveSettings()"> 1080p</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-720p"    onchange="saveSettings()"> 720p</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-480p"    onchange="saveSettings()"> 480p</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-bluray"  onchange="saveSettings()"> BluRay / Remux</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-3d"      onchange="saveSettings()"> 3D</label>
+    </div>
+  </div>
+
+  <!-- § Exclude Keywords -->
+  <div class="settings-section">
+    <div class="settings-section-title">Exclude from Results</div>
+    <div class="settings-checkbox-grid">
+      <label class="settings-checkbox-label"><input type="checkbox" id="se-cam"      onchange="saveSettings()"> CAM / HDCAM</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="se-screener" onchange="saveSettings()"> Screener</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="se-dubbed"   onchange="saveSettings()"> Dubbed</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="se-subbed"   onchange="saveSettings()"> Subbed</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="se-hdr"      onchange="saveSettings()"> HDR only</label>
+    </div>
+  </div>
+
+  <!-- § Search Options -->
+  <div class="settings-section">
+    <div class="settings-section-title">Search Options</div>
+    <div class="settings-row">
+      <label>Min seeders</label>
+      <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Max results — Knaben</label>
+      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="50" value="20" onchange="saveSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Max results — YTS</label>
+      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="20" value="10" onchange="saveSettings()">
+    </div>
+  </div>
+
+  <!-- § Source Providers -->
+  <div class="settings-section">
+    <div class="settings-section-title">Torrent Sources</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Choose which sources to search. Unchecked = skip that source.</p>
+    <div class="settings-checkbox-grid">
+      <label class="settings-checkbox-label"><input type="checkbox" id="src-knaben" checked onchange="saveSettings()"> 🔍 Knaben</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="src-yts"    checked onchange="saveSettings()"> 🍿 YTS</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="src-1337x"  checked onchange="saveSettings()"> 📂 1337x</label>
+    </div>
+    <div style="margin-top:0.75rem;">
+      <div class="settings-section-title" style="margin-bottom:0.5rem;">Exclude Uploaders / Groups</div>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Comma-separated keywords — results containing these are hidden.</p>
+      <input type="text" id="sf-exclude-uploaders" class="settings-url-input"
+             placeholder="e.g. rarbg, rutor, kinozal, torrent.ru"
+             onchange="saveSettings()">
+      <div style="display:flex;gap:0.4rem;margin-top:0.5rem;flex-wrap:wrap;">
+        <span style="font-size:0.62rem;color:rgba(255,255,255,0.3);width:100%;margin-bottom:0.1rem;">Quick presets — tap to add:</span>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('rutor,kinozal,torrent.ru,rutracker,toloka')">🇷🇺 Russian sites</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('rarbg')">RARBG</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('eztv')">EZTV</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('yifi,yts.mx')">YIFi/YTS</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('french,german,spanish,italian,portuguese,arabic,hindi,korean,japanese,chinese')">Non-English</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('hdrip,hdcam,cam,camrip,telesync,ts,tc,telecine')">Cams/TS</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('dubbed,dub,multidub')">Dubbed</button>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="addExcludeUploaders('xvid,divx,avi,dvdrip')">Old formats</button>
+        <button class="settings-btn purple" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+          onclick="clearExcludeUploaders()">↺ Clear all</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- § Stremio Integration -->
+  <!-- § Streaming Method + Addon Manager -->
+  <div class="settings-section">
+    <div class="settings-section-title">🎬 Streaming Method</div>
+    <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:0.75rem;">
+      Real-Debrid plays directly in Watcher. Stremio / Torrentio / Comet open in external apps.
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+      <button class="tor-filter-chip active" id="stream-method-rd"        onclick="setStreamMethod('rd')">⚡ Real-Debrid</button>
+      <button class="tor-filter-chip"        id="stream-method-torrentio" onclick="setStreamMethod('torrentio')">🌊 Torrentio</button>
+      <button class="tor-filter-chip"        id="stream-method-comet"     onclick="setStreamMethod('comet')">☄️ Comet</button>
+      <button class="tor-filter-chip"        id="stream-method-infuse"    onclick="setStreamMethod('infuse')">🎬 Infuse</button>
+    </div>
+    <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-bottom:0.75rem;">
+      Real-Debrid plays inline. Torrentio/Comet/Infuse open in their external apps via deep link.
+    </p>
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener"
+         class="settings-btn purple" style="text-decoration:none;display:inline-flex;align-items:center;">⚙️ Configure Torrentio</a>
+      <a href="https://comet.elfhosted.com" target="_blank" rel="noopener"
+         class="settings-btn purple" style="text-decoration:none;display:inline-flex;align-items:center;">☄️ Setup Comet</a>
+      <a href="https://firecore.com/infuse" target="_blank" rel="noopener"
+         class="settings-btn purple" style="text-decoration:none;display:inline-flex;align-items:center;">🎬 Get Infuse</a>
+    </div>
+
+    <!-- ── ADDON MANAGER ─────────────────────────────────────── -->
+    <div style="border:1px solid rgba(118,75,162,0.25);border-radius:14px;overflow:hidden;margin-bottom:0.5rem;">
+      <div style="background:rgba(118,75,162,0.08);padding:0.65rem 1rem;
+                  display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+        <span style="font-size:0.75rem;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:1px;">
+          📦 Installed Add-ons
+        </span>
+        <button class="settings-btn purple" style="font-size:0.65rem;padding:0.25rem 0.55rem;"
+                onclick="loadAddonCatalog()">🔄 Refresh</button>
+      </div>
+      <div id="addon-list" style="padding:0.5rem 0.75rem;display:flex;flex-direction:column;gap:0.4rem;max-height:280px;overflow-y:auto;">
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);text-align:center;padding:1rem;">
+          Tap Refresh to load your installed Stremio add-ons
         </div>
       </div>
-
-      <!-- § Exclude Keywords -->
-      <div class="settings-section">
-        <div class="settings-section-title">Exclude from Results</div>
-        <div class="settings-checkbox-grid">
-          <label class="settings-checkbox-label"><input type="checkbox" id="se-cam"      onchange="saveSettings()"> CAM / HDCAM</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="se-screener" onchange="saveSettings()"> Screener</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="se-dubbed"   onchange="saveSettings()"> Dubbed</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="se-subbed"   onchange="saveSettings()"> Subbed</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="se-hdr"      onchange="saveSettings()"> HDR only</label>
-        </div>
+      <!-- Add custom addon URL -->
+      <div style="padding:0.6rem 0.75rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;gap:0.4rem;">
+        <input type="url" id="addon-url-input" class="settings-url-input"
+               placeholder="Paste manifest URL…  https://torrentio.strem.fun/manifest.json"
+               style="flex:1;min-width:0;font-size:0.72rem;">
+        <button class="settings-btn green" style="font-size:0.65rem;padding:0.3rem 0.55rem;white-space:nowrap;"
+                onclick="installAddon()">+ Install</button>
       </div>
+    </div>
 
-      <!-- § Search Options -->
-      <div class="settings-section">
-        <div class="settings-section-title">Search Options</div>
-        <div class="settings-row">
-          <label>Min seeders</label>
-          <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
-        </div>
-        <div class="settings-row">
-          <label>Max results — Knaben</label>
-          <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="50" value="20" onchange="saveSettings()">
-        </div>
-        <div class="settings-row">
-          <label>Max results — YTS</label>
-          <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="20" value="10" onchange="saveSettings()">
-        </div>
+    <!-- ── CATALOG BROWSER ───────────────────────────────────── -->
+    <div id="addon-catalog-section" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;gap:0.5rem;flex-wrap:wrap;">
+        <span id="addon-catalog-title" style="font-size:0.75rem;font-weight:700;color:var(--accent-green);"></span>
+        <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
+                onclick="closeAddonCatalog()">✕ Close</button>
       </div>
+      <div id="addon-catalog-list" style="display:flex;flex-direction:column;gap:0.4rem;max-height:320px;overflow-y:auto;"></div>
+    </div>
 
-      <!-- § Source Providers -->
-      <div class="settings-section">
-        <div class="settings-section-title">Torrent Sources</div>
-        <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Choose which sources to search. Unchecked = skip that source.</p>
-        <div class="settings-checkbox-grid">
-          <label class="settings-checkbox-label"><input type="checkbox" id="src-knaben" checked onchange="saveSettings()"> 🔍 Knaben</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="src-yts"    checked onchange="saveSettings()"> 🍿 YTS</label>
-          <label class="settings-checkbox-label"><input type="checkbox" id="src-1337x"  checked onchange="saveSettings()"> 📂 1337x</label>
-        </div>
-        <div style="margin-top:0.75rem;">
-          <div class="settings-section-title" style="margin-bottom:0.5rem;">Exclude Uploaders / Groups</div>
-          <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:0.5rem;">Comma-separated keywords — results containing these are hidden.</p>
-          <input type="text" id="sf-exclude-uploaders" class="settings-url-input"
-                 placeholder="e.g. rarbg, rutor, kinozal, torrent.ru"
-                 onchange="saveSettings()">
-          <div style="display:flex;gap:0.4rem;margin-top:0.4rem;flex-wrap:wrap;">
-            <button class="settings-btn red" style="font-size:0.7rem;padding:0.3rem 0.6rem;"
-              onclick="addExcludeUploaders('rutor,kinozal,torrent.ru,rutracker,toloka')">🚫 Add Russian sites</button>
-            <button class="settings-btn red" style="font-size:0.7rem;padding:0.3rem 0.6rem;"
-              onclick="addExcludeUploaders('rarbg')">🚫 RARBG</button>
-            <button class="settings-btn purple" style="font-size:0.7rem;padding:0.3rem 0.6rem;"
-              onclick="clearExcludeUploaders()">↺ Clear</button>
-          </div>
-        </div>
+    <!-- Torrentio sort/filter options -->
+    <div style="margin-top:0.75rem;padding:0.65rem 0.85rem;background:rgba(255,255,255,0.03);
+                border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;
+                  text-transform:uppercase;letter-spacing:1px;">Torrentio / Comet Options</div>
+      <div class="settings-checkbox-grid">
+        <label class="settings-checkbox-label"><input type="checkbox" id="tio-nobinaries" onchange="saveSettings()"> No Binaries</label>
+        <label class="settings-checkbox-label"><input type="checkbox" id="tio-nox265"     onchange="saveSettings()"> No H.265</label>
+        <label class="settings-checkbox-label"><input type="checkbox" id="tio-nohevc"     onchange="saveSettings()"> No HEVC</label>
+        <label class="settings-checkbox-label"><input type="checkbox" id="tio-cached"     onchange="saveSettings()"> RD Cached Only</label>
       </div>
-
-      <!-- § Stremio Integration -->
-      <!-- § Streaming Method + Addon Manager -->
-      <div class="settings-section">
-        <div class="settings-section-title">🎬 Streaming Method</div>
-        <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:0.75rem;">
-          Real-Debrid plays directly in Watcher. Stremio / Torrentio / Comet open in external apps.
-        </p>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
-          <button class="tor-filter-chip active" id="stream-method-rd"        onclick="setStreamMethod('rd')">⚡ Real-Debrid</button>
-          <button class="tor-filter-chip"        id="stream-method-stremio"   onclick="setStreamMethod('stremio')">📺 Stremio App</button>
-          <button class="tor-filter-chip"        id="stream-method-torrentio" onclick="setStreamMethod('torrentio')">🌊 Torrentio</button>
-          <button class="tor-filter-chip"        id="stream-method-comet"     onclick="setStreamMethod('comet')">☄️ Comet</button>
-        </div>
-
-        <!-- Stremio app URL -->
-        <label style="font-size:0.75rem;color:rgba(255,255,255,0.55);display:block;margin-bottom:0.3rem;">Stremio App URL</label>
-        <input type="url" id="settings-stremio-url" class="settings-url-input" style="margin-bottom:0.6rem;"
-               placeholder="stremio://  or  https://app.strem.io" onchange="saveSettings()">
-        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
-          <button class="settings-btn purple" onclick="openStremio()">▶ Open Stremio</button>
-          <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener"
-             class="settings-btn purple" style="text-decoration:none;display:inline-flex;align-items:center;">⚙️ Configure Torrentio</a>
-          <a href="https://comet.elfhosted.com" target="_blank" rel="noopener"
-             class="settings-btn purple" style="text-decoration:none;display:inline-flex;align-items:center;">☄️ Setup Comet</a>
-        </div>
-
-        <!-- ── ADDON MANAGER ─────────────────────────────────────── -->
-        <div style="border:1px solid rgba(118,75,162,0.25);border-radius:14px;overflow:hidden;margin-bottom:0.5rem;">
-          <div style="background:rgba(118,75,162,0.08);padding:0.65rem 1rem;
-                      display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
-            <span style="font-size:0.75rem;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:1px;">
-              📦 Installed Add-ons
-            </span>
-            <button class="settings-btn purple" style="font-size:0.65rem;padding:0.25rem 0.55rem;"
-                    onclick="loadAddonCatalog()">🔄 Refresh</button>
-          </div>
-          <div id="addon-list" style="padding:0.5rem 0.75rem;display:flex;flex-direction:column;gap:0.4rem;max-height:280px;overflow-y:auto;">
-            <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);text-align:center;padding:1rem;">
-              Tap Refresh to load your installed Stremio add-ons
-            </div>
-          </div>
-          <!-- Add custom addon URL -->
-          <div style="padding:0.6rem 0.75rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;gap:0.4rem;">
-            <input type="url" id="addon-url-input" class="settings-url-input"
-                   placeholder="Paste manifest URL…  https://torrentio.strem.fun/manifest.json"
-                   style="flex:1;min-width:0;font-size:0.72rem;">
-            <button class="settings-btn green" style="font-size:0.65rem;padding:0.3rem 0.55rem;white-space:nowrap;"
-                    onclick="installAddon()">+ Install</button>
-          </div>
-        </div>
-
-        <!-- ── CATALOG BROWSER ───────────────────────────────────── -->
-        <div id="addon-catalog-section" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;gap:0.5rem;flex-wrap:wrap;">
-            <span id="addon-catalog-title" style="font-size:0.75rem;font-weight:700;color:var(--accent-green);"></span>
-            <button class="settings-btn red" style="font-size:0.65rem;padding:0.25rem 0.5rem;"
-                    onclick="closeAddonCatalog()">✕ Close</button>
-          </div>
-          <div id="addon-catalog-list" style="display:flex;flex-direction:column;gap:0.4rem;max-height:320px;overflow-y:auto;"></div>
-        </div>
-
-        <!-- Torrentio sort/filter options -->
-        <div style="margin-top:0.75rem;padding:0.65rem 0.85rem;background:rgba(255,255,255,0.03);
-                    border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;
-                      text-transform:uppercase;letter-spacing:1px;">Torrentio / Comet Options</div>
-          <div class="settings-checkbox-grid">
-            <label class="settings-checkbox-label"><input type="checkbox" id="tio-nobinaries" onchange="saveSettings()"> No Binaries</label>
-            <label class="settings-checkbox-label"><input type="checkbox" id="tio-nox265"     onchange="saveSettings()"> No H.265</label>
-            <label class="settings-checkbox-label"><input type="checkbox" id="tio-nohevc"     onchange="saveSettings()"> No HEVC</label>
-            <label class="settings-checkbox-label"><input type="checkbox" id="tio-cached"     onchange="saveSettings()"> RD Cached Only</label>
-          </div>
-          <div class="settings-row" style="margin-top:0.5rem;">
-            <label style="font-size:0.75rem;color:rgba(255,255,255,0.55);">Sort</label>
-            <select id="tio-sort" class="season-dropdown" style="width:auto;padding:0.3rem 0.55rem;font-size:0.75rem;" onchange="saveSettings()">
-              <option value="qualitysize">Quality + Size</option>
-              <option value="quality">Quality</option>
-              <option value="size">Size</option>
-              <option value="seeders">Seeders</option>
-            </select>
-          </div>
-        </div>
+      <div class="settings-row" style="margin-top:0.5rem;">
+        <label style="font-size:0.75rem;color:rgba(255,255,255,0.55);">Sort</label>
+        <select id="tio-sort" class="season-dropdown" style="width:auto;padding:0.3rem 0.55rem;font-size:0.75rem;" onchange="saveSettings()">
+          <option value="qualitysize">Quality + Size</option>
+          <option value="quality">Quality</option>
+          <option value="size">Size</option>
+          <option value="seeders">Seeders</option>
+        </select>
       </div>
+    </div>
+  </div>
 
-      <!-- § RD Library -->
-      <div class="settings-section">
-        <div class="settings-section-title">Real-Debrid Library</div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-          <button class="settings-btn green" onclick="openRDLibrary()">📂 View My RD Library</button>
-          <button class="settings-btn red"   onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close Library</button>
-        </div>
-        <!-- Library sub-view -->
-        <!-- Library sort controls -->
-        <div id="rd-library-controls" style="display:none;flex-wrap:wrap;gap:0.4rem;margin-top:0.6rem;">
-          <span style="font-size:0.62rem;color:rgba(255,255,255,0.3);align-self:center;">Sort:</span>
-          <button class="tor-filter-chip active" data-lib-sort="date"    onclick="setLibSort(this,'date')">📅 Date</button>
-          <button class="tor-filter-chip"        data-lib-sort="name"    onclick="setLibSort(this,'name')">🔤 Name</button>
-          <button class="tor-filter-chip"        data-lib-sort="size"    onclick="setLibSort(this,'size')">💾 Size</button>
-          <button class="tor-filter-chip"        data-lib-sort="quality" onclick="setLibSort(this,'quality')">🎬 Quality</button>
-          <button class="tor-filter-chip"        data-lib-sort="status"  onclick="setLibSort(this,'status')">⚙️ Status</button>
-        </div>
-        <div id="rd-library-panel">
-          <div id="rd-library-status" style="font-size:0.78rem;color:rgba(255,255,255,0.5);padding:0.45rem 0;"></div>
-          <div id="rd-library-list"></div>
-        </div>
-      </div>
+  <!-- § RD Library -->
+  <div class="settings-section">
+    <div class="settings-section-title">Real-Debrid Library</div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="settings-btn green" onclick="openRDLibrary()">📂 View My RD Library</button>
+      <button class="settings-btn red"   onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close Library</button>
+    </div>
+    <!-- Library sub-view -->
+    <!-- Library sort controls -->
+    <div id="rd-library-controls" style="display:none;flex-wrap:wrap;gap:0.4rem;margin-top:0.6rem;">
+      <span style="font-size:0.62rem;color:rgba(255,255,255,0.3);align-self:center;">Sort:</span>
+      <button class="tor-filter-chip active" data-lib-sort="date"    onclick="setLibSort(this,'date')">📅 Date</button>
+      <button class="tor-filter-chip"        data-lib-sort="name"    onclick="setLibSort(this,'name')">🔤 Name</button>
+      <button class="tor-filter-chip"        data-lib-sort="size"    onclick="setLibSort(this,'size')">💾 Size</button>
+      <button class="tor-filter-chip"        data-lib-sort="quality" onclick="setLibSort(this,'quality')">🎬 Quality</button>
+      <button class="tor-filter-chip"        data-lib-sort="status"  onclick="setLibSort(this,'status')">⚙️ Status</button>
+    </div>
+    <div id="rd-library-panel">
+      <div id="rd-library-status" style="font-size:0.78rem;color:rgba(255,255,255,0.5);padding:0.45rem 0;"></div>
+      <div id="rd-library-list"></div>
+    </div>
+  </div>
 
-      <!-- § Adult PIN -->
-      <div class="settings-section" id="adult-pin-section" style="display:none;">
-        <div class="settings-section-title">🔒 Adult Mode PIN</div>
-        <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.6rem;">
-          Required to unlock 🔞 mode. Default: 1234
-        </p>
-        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-          <input type="password" id="adult-pin-input" class="settings-token-input"
-                 placeholder="Enter new PIN…" maxlength="8" style="flex:1;min-width:100px;">
-          <button class="settings-btn green" onclick="saveAdultPIN()">Save PIN</button>
-        </div>
-      </div>
+  <!-- § Adult PIN -->
+  <div class="settings-section" id="adult-pin-section" style="display:none;">
+    <div class="settings-section-title">🔒 Adult Mode PIN</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.6rem;">
+      Required to unlock 🔞 mode. Default: 1234
+    </p>
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+      <input type="password" id="adult-pin-input" class="settings-token-input"
+             placeholder="Enter new PIN…" maxlength="8" style="flex:1;min-width:100px;">
+      <button class="settings-btn green" onclick="saveAdultPIN()">Save PIN</button>
+    </div>
+  </div>
 
-      <!-- § Disclaimer -->
-      <div class="settings-section">
-        <div class="settings-section-title">Legal Disclaimer</div>
-        <div class="settings-disclaimer">
-          <strong>For personal, legal use only.</strong> Watcher is a discovery and streaming interface.
-          Only stream content you own or have the legal right to access.
-          <br><br>
-          <strong>Real-Debrid</strong> is a third-party paid service — Watcher has no affiliation with them.
-          Torrent indexers (Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
-          <br><br>
-          Downloading or streaming copyrighted material without authorisation may be illegal in your region.
-          Use responsibly and in accordance with your local laws.
-        </div>
-      </div>
+  <!-- § Disclaimer -->
+  <div class="settings-section">
+    <div class="settings-section-title">Legal Disclaimer</div>
+    <div class="settings-disclaimer">
+      <strong>For personal, legal use only.</strong> Watcher is a discovery and streaming interface.
+      Only stream content you own or have the legal right to access.
+      <br><br>
+      <strong>Real-Debrid</strong> is a third-party paid service — Watcher has no affiliation with them.
+      Torrent indexers (Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
+      <br><br>
+      Downloading or streaming copyrighted material without authorisation may be illegal in your region.
+      Use responsibly and in accordance with your local laws.
+    </div>
+  </div>
 
-    </div><!-- /settings-body -->
+</div><!-- /settings-body -->
+
   </div><!-- /settings-panel -->
 </div><!-- /settings-overlay -->
 
 <!-- IMAGE LIGHTBOX -->
+
 <div id="image-lightbox">
   <img id="lightbox-img" src="" alt="Full size">
 </div>
@@ -1495,6 +1559,7 @@
 <!-- ══════════════════════════════════════════════════════════════════
      FOOTER
      ══════════════════════════════════════════════════════════════════ -->
+
 <div id="footer">
   <div class="weather-widget" id="weatherWidget">
     <span class="weather-icon" id="weatherIcon">🌤️</span>
@@ -1510,6 +1575,7 @@
 </div>
 
 <!-- EASTER EGG OVERLAY -->
+
 <div id="easter-egg-overlay">
   <canvas id="matrixCanvas" class="matrix-canvas"></canvas>
 </div>
@@ -1517,9 +1583,19 @@
 <audio id="easterAudio" preload="none"></audio>
 
 <!-- Visitor counter (hidden) -->
+
 <img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display:none;" />
 
 <script>
+
+// Kill any stale service worker that may be caching old broken JS
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+  caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+}
+
 /* ╔══════════════════════════════════════════════════════════════════════════
    ║  WATCHER BY RUDEBOY™  —  JAVASCRIPT
    ╠══════════════════════════════════════════════════════════════════════════
@@ -1583,8 +1659,10 @@
   /* ═══════════════════════════════════════════════════════════════════
      § 01  CONSTANTS & API CONFIG
      ═══════════════════════════════════════════════════════════════════ */
-  const API_PROXY  = '/api/tmdb';          // Vercel serverless TMDB proxy
+  const TMDB_BASE  = 'https://api.themoviedb.org/3'; // Direct TMDB (fallback)
+  const API_PROXY  = '/api/tmdb';                     // Vercel serverless proxy
   const TMDB_IMG   = 'https://image.tmdb.org/t/p/w500';
+  function getTMDBKey() { return localStorage.getItem('watcher_tmdb_key') || ''; }
   const YT_EMBED   = 'https://www.youtube.com/embed/';
   const RD_API     = 'https://api.real-debrid.com/rest/1.0';
   const YTS_API    = 'https://yts.mx/api/v2/list_movies.json';
@@ -1787,11 +1865,25 @@
     const tioSort = document.getElementById('tio-sort');
     if (tioSort) tioSort.value = appSettings.tioSort || 'qualitysize';
     // Stream method chips
-    ['rd','stremio','torrentio','comet'].forEach(m => {
+    ['rd','torrentio','comet','infuse'].forEach(m => {
       const btn = document.getElementById(`stream-method-${m}`);
       if (btn) btn.classList.toggle('active', appSettings.streamMethod === m);
     });
     // Token field
+    // Populate TMDB key field
+    const tmdbKeyInp = document.getElementById('settings-tmdb-key');
+    if (tmdbKeyInp) tmdbKeyInp.value = getTMDBKey();
+    const tmdbStatus = document.getElementById('tmdb-key-status');
+    if (tmdbStatus) {
+      const onVercel = window.location.hostname !== 'localhost' && !window.location.protocol.startsWith('file');
+      if (onVercel) {
+        tmdbStatus.textContent = '✅ Using server-side API key (Vercel)';
+        tmdbStatus.style.color = '#10b981';
+      } else {
+        tmdbStatus.textContent = getTMDBKey() ? '✅ Key saved — direct API mode' : '⚠️ Add key for local use';
+        tmdbStatus.style.color = getTMDBKey() ? '#10b981' : '#f59e0b';
+      }
+    }
     const tok = getRDToken();
     const inp = document.getElementById('settings-token-input');
     if (inp) inp.value = tok || '';
@@ -2196,7 +2288,9 @@
 
   function openSettingsModal() {
     loadSettings();
-    document.getElementById('settings-overlay').classList.add('active');
+    const overlay = document.getElementById('settings-overlay');
+    overlay.classList.add('active');
+    overlay.scrollTop = 0;
   }
   function closeSettingsModal() {
     saveSettings();
@@ -2213,6 +2307,22 @@
       badge.className = 'disconnected';
       badge.textContent = '● Not connected';
     }
+  }
+
+  function saveTMDBKey() {
+    const inp = document.getElementById('settings-tmdb-key');
+    const val = inp?.value?.trim();
+    if (!val) return;
+    localStorage.setItem('watcher_tmdb_key', val);
+    const status = document.getElementById('tmdb-key-status');
+    if (status) { status.textContent = '✅ Saved — reloading…'; status.style.color = '#10b981'; }
+    setTimeout(() => location.reload(), 800);
+  }
+
+  function toggleTMDBKeyVisibility() {
+    const inp = document.getElementById('settings-tmdb-key');
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
   }
 
   function saveRDToken() {
@@ -2268,10 +2378,10 @@
         }
         // Check active downloads via /torrents (quick poll — limit 10)
         try {
-          const tRes   = await fetch(\`\${RD_API}/torrents?limit=100\`, { headers:{ Authorization: \`Bearer \${tok}\` } });
+          const tRes   = await fetch(`${RD_API}/torrents?limit=100`, { headers:{ Authorization: `Bearer ${tok}` } });
           const tData  = tRes.ok ? await tRes.json() : [];
           const active = Array.isArray(tData) ? tData.filter(t => !['downloaded','error','magnet_error','dead','virus'].includes(t.status)) : [];
-          if (dEl)   dEl.textContent = \`\${active.length} / 6\`;
+          if (dEl)   dEl.textContent = `${active.length} / 6`;
           if (dEl)   dEl.style.color = active.length >= 5 ? '#ef4444' : active.length >= 3 ? '#f59e0b' : '#10b981';
           const warn = document.getElementById('rd-limit-warning');
           if (warn)  warn.style.display = active.length >= 5 ? 'block' : 'none';
@@ -2335,11 +2445,6 @@
   // Token management
   function getRDToken()   { return localStorage.getItem('rd_token') || ''; }
   function clearRDToken() { localStorage.removeItem('rd_token'); }
-`);
-      if (btn) btn.classList.toggle('active', s === svc);
-    });
-
-  }
 
   // Authenticated fetch wrapper for RD API
   async function rdFetch(path, options = {}) {
@@ -3686,9 +3791,19 @@
   }
 
   async function tmdb(endpoint, params = {}) {
-    const url = new URL(API_PROXY, window.location.origin);
-    url.searchParams.set('api', 'tmdb');
-    url.searchParams.set('endpoint', endpoint);
+    // Try Vercel proxy first (works when deployed), fallback to direct API with key
+    const key = getTMDBKey();
+    const useProxy = window.location.hostname !== 'localhost' && !window.location.protocol.startsWith('file');
+    let url;
+    if (useProxy) {
+      url = new URL(API_PROXY, window.location.origin);
+      url.searchParams.set('api', 'tmdb');
+      url.searchParams.set('endpoint', endpoint);
+    } else {
+      if (!key) throw new Error('No TMDB API key — open ⚙️ Settings → TMDB API Key.');
+      url = new URL(`${TMDB_BASE}${endpoint}`);
+      url.searchParams.set('api_key', key);
+    }
     url.searchParams.set('language', 'en-US');
     url.searchParams.set('include_adult', 'false');
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
@@ -3698,9 +3813,18 @@
   }
 
   async function tmdbAdult(endpoint, params = {}) {
-    const url = new URL(API_PROXY, window.location.origin);
-    url.searchParams.set('api', 'tmdb');
-    url.searchParams.set('endpoint', endpoint);
+    const key = getTMDBKey();
+    const useProxy = window.location.hostname !== 'localhost' && !window.location.protocol.startsWith('file');
+    let url;
+    if (useProxy) {
+      url = new URL(API_PROXY, window.location.origin);
+      url.searchParams.set('api', 'tmdb');
+      url.searchParams.set('endpoint', endpoint);
+    } else {
+      if (!key) throw new Error('No TMDB API key — open ⚙️ Settings → TMDB API Key.');
+      url = new URL(`${TMDB_BASE}${endpoint}`);
+      url.searchParams.set('api_key', key);
+    }
     url.searchParams.set('language', 'en-US');
     url.searchParams.set('include_adult', 'true');
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
@@ -3714,20 +3838,7 @@
   async function getImageUrl(item, type = 'poster') {
     if (type === 'poster' && item.poster_path)  return `${TMDB_IMG}${item.poster_path}`;
     if (item.backdrop_path)                      return `${TMDB_IMG}${item.backdrop_path}`;
-    try {
-      const mediaType = item.media_type === 'tv' ? 'tv' : 'movies';
-      const url = new URL(API_PROXY, window.location.origin);
-      url.searchParams.set('api', 'fanart');
-      url.searchParams.set('endpoint', `/${mediaType}/${item.id}`);
-      const response = await fetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.movieposter?.[0])     return data.movieposter[0].url;
-        if (data.tvposter?.[0])        return data.tvposter[0].url;
-        if (data.moviebackground?.[0]) return data.moviebackground[0].url;
-        if (data.showbackground?.[0])  return data.showbackground[0].url;
-      }
-    } catch {}
+    if (item.profile_path)                       return `${TMDB_IMG}${item.profile_path}`;
     return null;
   }
 
@@ -4713,7 +4824,23 @@
     return 'Your Location';
   }
 
+  // Clock ticker for weather widget
+  function startWeatherClock() {
+    function tick() {
+      const now  = new Date();
+      let h = now.getHours(), m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      const mm = String(m).padStart(2,'0');
+      const el = document.getElementById('weatherTime');
+      if (el) el.textContent = `${h}:${mm} ${ampm}`;
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
   async function getWeather() {
+    startWeatherClock();
     const widget = document.getElementById('weatherWidget');
     widget.classList.add('visible');
     if (!navigator.geolocation) { document.getElementById('weatherCondition').textContent = 'Location unavailable'; return; }
@@ -5060,5 +5187,6 @@ self.addEventListener('fetch', e => {
   })();
 
 </script>
+
 </body>
 </html>
