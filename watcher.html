@@ -3701,26 +3701,38 @@
     const lib = getLocalLibrary();
     const key = torrent.hash || torrent.title;
     const torHash = (torrent.hash || '').toLowerCase();
-    const existing = lib.findIndex(item => item.key === key);
+    const existing = lib.findIndex(item => item.key === key || item.key === torHash);
     const inRD = torHash && rdTorrentCache?.has(torHash);
 
     if (existing >= 0 || inRD) {
       // ── REMOVE ──
-      // Remove from local library
       if (existing >= 0) {
         lib.splice(existing, 1);
         saveLocalLibrary(lib);
       }
 
-      // Also remove from RD if present
+      // Remove from RD
       if (inRD && getRDToken()) {
         const rdEntry = rdTorrentCache.get(torHash);
-        rdFetch(`/torrents/delete/${rdEntry.id}`, { method: 'DELETE' })
-          .then(() => {
-            console.log('[RD] Deleted torrent', rdEntry.id);
+        // If we have a real ID, delete directly. If 'pending', look it up first.
+        const doDelete = async () => {
+          let realId = rdEntry.id;
+          if (realId === 'pending') {
+            // Re-fetch torrent list to find the real ID by hash
+            try {
+              const torrents = await rdFetch('/torrents?limit=100');
+              const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
+              if (found) realId = found.id;
+              else { console.warn('[RD] Could not find torrent by hash for deletion'); return; }
+            } catch (e) { console.warn('[RD] Lookup failed:', e.message); return; }
+          }
+          try {
+            await rdFetch(`/torrents/delete/${realId}`, { method: 'DELETE' });
+            console.log('[RD] ✅ Deleted torrent', realId);
             rdTorrentCache.delete(torHash);
-          })
-          .catch(e => console.warn('[RD] Delete failed:', e.message));
+          } catch (e) { console.warn('[RD] Delete failed:', e.message); }
+        };
+        doDelete();
       }
 
       btn.classList.remove('rd', 'added');
@@ -3739,18 +3751,29 @@
       saveLocalLibrary(lib);
       btn.classList.remove('ext');
       btn.classList.add('rd', 'added');
-      btn.innerHTML = '✅ In Library';
+      btn.innerHTML = '✅ Adding…';
 
-      // Add to RD cache in background
       const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
       if (getRDToken() || torrent._directUrl) {
         addToRDBackground(magnet, torrent._directUrl).then(ok => {
           if (ok) {
             btn.innerHTML = '✅ In RD';
-            // Update cache so toggle works
-            if (torHash) rdTorrentCache?.set(torHash, { id: 'pending', status: 'downloaded' });
+            // Fetch real ID so removal works later
+            if (torHash && getRDToken()) {
+              rdFetch('/torrents?limit=100').then(torrents => {
+                const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
+                if (found) rdTorrentCache?.set(torHash, { id: found.id, status: found.status });
+                else rdTorrentCache?.set(torHash, { id: 'pending', status: 'downloaded' });
+              }).catch(() => {
+                rdTorrentCache?.set(torHash, { id: 'pending', status: 'downloaded' });
+              });
+            }
+          } else {
+            btn.innerHTML = '✅ In Library';
           }
         });
+      } else {
+        btn.innerHTML = '✅ In Library';
       }
     }
   }
