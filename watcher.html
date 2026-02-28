@@ -3527,9 +3527,10 @@
       const inLibrary = isInLocalLibrary(torrent);
       const torHash = (torrent.hash || '').toLowerCase();
       const inRD = torHash && rdTorrentCache?.has(torHash);
-      const libState = inRD ? 'rd' : inLibrary ? 'local' : 'none';
-      const libLabel = inRD ? '✅ In RD' : inLibrary ? '✅ In Library' : '📚 Add';
-      const libClass = libState !== 'none' ? 'rd added' : 'ext';
+      const isAdded = inRD || inLibrary;
+      // If user has RD, "In RD" is the label (RD is the library)
+      const libLabel = isAdded ? (hasRD ? '✅ In RD' : '✅ In Library') : '📚 Add';
+      const libClass = isAdded ? 'rd added' : 'ext';
       let actions = '';
       if (isDirect) {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
@@ -3714,7 +3715,7 @@
     if (libBtn) {
       libBtn.classList.remove('ext');
       libBtn.classList.add('rd', 'added');
-      libBtn.innerHTML = '✅ In Library';
+      libBtn.innerHTML = getRDToken() ? '✅ In RD' : '✅ In Library';
     }
     // Also add to RD cache in background
     const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
@@ -3740,19 +3741,18 @@
     return lib.some(item => item.key === key || (h && item.key === h) || (h && item.hash?.toLowerCase() === h));
   }
 
-  // Sweep all visible library buttons and update labels based on RD cache + local library
+  // Sweep all visible library buttons and update labels
   function refreshLibraryButtons() {
+    const hasRD = !!getRDToken();
     document.querySelectorAll('.tor-action-btn[data-action="add-lib"][data-hash]').forEach(btn => {
       const h = btn.dataset.hash;
       if (!h) return;
       const inRD = rdTorrentCache?.has(h);
       const inLocal = isInLocalLibrary({ hash: h });
-      if (inRD) {
+      const isAdded = inRD || inLocal;
+      if (isAdded) {
         btn.classList.remove('ext'); btn.classList.add('rd', 'added');
-        btn.innerHTML = '✅ In RD';
-      } else if (inLocal) {
-        btn.classList.remove('ext'); btn.classList.add('rd', 'added');
-        btn.innerHTML = '✅ In Library';
+        btn.innerHTML = hasRD ? '✅ In RD' : '✅ In Library';
       } else {
         btn.classList.remove('rd', 'added'); btn.classList.add('ext');
         btn.innerHTML = '📚 Add';
@@ -3771,35 +3771,31 @@
       const idx = lib.findIndex(item => item.key === key || (torHash && item.key === torHash) || (torHash && item.hash?.toLowerCase() === torHash));
       if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
 
-      // 2. Remove from RD
-      if (torHash && rdTorrentCache?.has(torHash) && getRDToken()) {
-        const rdEntry = rdTorrentCache.get(torHash);
+      // 2. Always try to remove from RD by looking up the hash directly
+      if (torHash && getRDToken()) {
         btn.innerHTML = '🗑 Removing…';
         (async () => {
           try {
-            let realId = rdEntry.id;
-            // If ID is 'pending', look up the real one
-            if (realId === 'pending') {
-              const torrents = await rdFetch('/torrents?limit=100');
-              const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
-              if (found) realId = found.id;
-            }
-            if (realId && realId !== 'pending') {
-              await rdFetch(`/torrents/delete/${realId}`, { method: 'DELETE' });
+            // Look up the real torrent ID from RD by hash — don't trust cache
+            const torrents = await rdFetch('/torrents?limit=100');
+            const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
+            if (found) {
+              await rdFetch(`/torrents/delete/${found.id}`, { method: 'DELETE' });
               showToast('🗑 Removed from RD', 'success');
+            } else {
+              showToast('Removed from library', 'info');
             }
-            rdTorrentCache.delete(torHash);
+            if (rdTorrentCache) rdTorrentCache.delete(torHash);
           } catch (e) {
-            console.warn('[RD] Delete failed:', e.message);
-            showToast('Removed locally (RD delete may be delayed)', 'info');
-            rdTorrentCache.delete(torHash);
+            console.warn('[RD] Remove failed:', e.message);
+            showToast('Removed locally', 'info');
+            if (rdTorrentCache) rdTorrentCache.delete(torHash);
           }
           btn.classList.remove('rd', 'added');
           btn.classList.add('ext');
           btn.innerHTML = '📚 Add';
         })();
       } else {
-        // Just local removal
         btn.classList.remove('rd', 'added');
         btn.classList.add('ext');
         btn.innerHTML = '📚 Add';
