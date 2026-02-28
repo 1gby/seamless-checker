@@ -807,16 +807,17 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem;
     }
     .source-toggle-card {
-      display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.8rem;
+      display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.6rem;
       background: rgba(255,255,255,0.03); border: 1.5px solid rgba(118,75,162,0.25);
       border-radius: 12px; cursor: pointer; transition: all 0.2s; user-select: none;
+      min-width: 0; overflow: hidden;
     }
     .source-toggle-card:hover { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.04); }
     .source-toggle-card.active { border-color: rgba(16,185,129,0.5); background: rgba(16,185,129,0.06); }
     .source-toggle-card .stc-check {
-      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
       background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+      display: flex; align-items: center; justify-content: center; font-size: 0.7rem;
       transition: all 0.2s;
     }
     .source-toggle-card.active .stc-check {
@@ -829,8 +830,19 @@
       background: var(--accent-red); border-color: var(--accent-red); color: #fff;
     }
     .source-toggle-card.excluded .stc-label { color: rgba(255,255,255,0.4); text-decoration: line-through; }
-    .source-toggle-card .stc-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .source-toggle-card .stc-label { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .source-toggle-card .stc-icon { font-size: 1rem; flex-shrink: 0; }
+    .source-toggle-card .stc-label { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+    /* Catalog card play buttons */
+    .cat-play-btn {
+      padding: 0.15rem 0.35rem; border-radius: 6px; font-size: 0.6rem;
+      border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.1);
+      color: var(--accent-green); cursor: pointer; transition: all 0.15s;
+    }
+    .cat-play-btn:hover { background: rgba(16,185,129,0.25); }
+    .cat-play-btn.cat-infuse { border-color: rgba(255,149,0,0.4); color: #ff9500; background: rgba(255,149,0,0.08); }
+    .cat-play-btn.cat-vlc { border-color: rgba(255,136,0,0.4); color: #ff8800; background: rgba(255,136,0,0.08); }
+    .cat-play-btn.cat-info { border-color: rgba(118,75,162,0.4); color: #c084fc; background: rgba(118,75,162,0.08); }
 
     /* Exclude uploader/group preset chips */
     .exclude-presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
@@ -913,27 +925,22 @@
        ═══════════════════════════════════════════════════════════════════ */
     .weather-widget {
       display: none; align-items: center; justify-content: center;
-      gap: 0.5rem; padding: 0.65rem 0.75rem; margin-bottom: 1rem;
+      gap: 0.6rem; padding: 0.5rem 0.75rem; margin-bottom: 1rem;
       background: rgba(0,0,0,0.8);
       backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
-      border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3);
-      font-size: 0.8rem; animation: weather-glow 4s ease-in-out infinite;
-      max-width: 100%; flex-wrap: nowrap; overflow: hidden;
-    }
-    @keyframes weather-glow {
-      0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 15px rgba(118,75,162,0.4); }
-      50%       { box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 15px rgba(16,185,129,0.4); }
+      border-radius: 16px; border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      font-size: 0.8rem; max-width: 100%; flex-wrap: nowrap; overflow: hidden;
     }
     .weather-widget.visible { display: flex; }
-    .weather-icon   { font-size: 1.1rem; flex-shrink: 0; }
-    .weather-temp   { font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
-    .weather-time   { font-size: 0.8rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; }
-    .weather-divider{ color: rgba(255,255,255,0.3); font-weight: 300; }
-    .weather-condition { font-size: 0.7rem; font-weight: 600; animation: condition-glow 4s ease-in-out infinite; white-space: nowrap; }
-    @keyframes condition-glow { 0%, 100% { color: #764ba2; } 50% { color: #10b981; } }
-    .weather-location  { font-size: 0.7rem; font-weight: 600; animation: location-glow 4s ease-in-out infinite; white-space: nowrap; }
-    @keyframes location-glow { 0%, 100% { color: #10b981; } 50% { color: #764ba2; } }
+    .weather-col          { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+    .weather-icon-temp    { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .weather-icon         { font-size: 1.3rem; line-height: 1; }
+    .weather-temp         { font-size: 0.8rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; line-height: 1; }
+    .weather-time         { font-size: 0.8rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; }
+    .weather-divider      { color: rgba(255,255,255,0.2); font-weight: 300; }
+    .weather-condition    { font-size: 0.7rem; font-weight: 600; color: #764ba2; white-space: nowrap; text-align: center; line-height: 1.2; }
+    .weather-location     { font-size: 0.7rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; text-align: center; line-height: 1.2; }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-21  FOOTER + EASTER EGG
@@ -1120,8 +1127,8 @@
 <div id="favorites-page" style="position:fixed;inset:0;z-index:1050;background:var(--bg);display:none;overflow-y:auto;">
   <div style="max-width:900px;margin:0 auto;padding:1rem;">
     <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-      <button onclick="closeFavoritesPage()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">←</button>
-      <h2 style="margin:0;font-size:1.4rem;">🔥 My Favorites</h2>
+      <button onclick="closeFavoritesPage()" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(118,75,162,0.3);color:#fff;font-size:1.2rem;cursor:pointer;width:2.5rem;height:2.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">←</button>
+      <h2 style="margin:0;font-size:1.3rem;color:var(--accent-green);font-family:var(--ff-display);letter-spacing:0.05em;">🔥 MY FAVORITES</h2>
     </div>
     <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
       <button class="tor-filter-chip active" data-fav-filter="all" onclick="setFavFilter(this,'all')">All</button>
@@ -1129,7 +1136,7 @@
       <button class="tor-filter-chip" data-fav-filter="tv" onclick="setFavFilter(this,'tv')">📺 TV Shows</button>
       <button class="tor-filter-chip" data-fav-filter="person" onclick="setFavFilter(this,'person')">🎭 Actors</button>
     </div>
-    <div class="vertical-grid" id="favorites-page-grid"></div>
+    <div id="favorites-page-grid"></div>
   </div>
 </div>
 
@@ -1420,14 +1427,20 @@
 
 <div id="footer">
   <div class="weather-widget" id="weatherWidget">
-    <span class="weather-icon" id="weatherIcon">🌤️</span>
-    <span class="weather-temp" id="weatherTemp">--°</span>
+    <div class="weather-col weather-icon-temp">
+      <span class="weather-icon" id="weatherIcon">🌤️</span>
+      <span class="weather-temp" id="weatherTemp">--°</span>
+    </div>
     <span class="weather-divider">|</span>
     <span class="weather-time" id="weatherTime">--:--</span>
     <span class="weather-divider">|</span>
-    <span class="weather-condition" id="weatherCondition">Loading...</span>
+    <span class="weather-col">
+      <span class="weather-condition" id="weatherCondition">Loading...</span>
+    </span>
     <span class="weather-divider">|</span>
-    <span class="weather-location" id="weatherLocation">--</span>
+    <span class="weather-col">
+      <span class="weather-location" id="weatherLocation">--</span>
+    </span>
   </div>
   <div id="easterEgg">Created by Rudeboy™</div>
 </div>
@@ -2067,31 +2080,34 @@
 
       metas.forEach(meta => {
         const card = document.createElement('div');
-        card.style.cssText = 'cursor:pointer; border-radius:8px; overflow:hidden; background:rgba(255,255,255,0.03); border:1px solid rgba(118,75,162,0.15); transition:all 0.2s;';
+        card.style.cssText = 'cursor:pointer; border-radius:8px; overflow:hidden; background:rgba(255,255,255,0.03); border:1px solid rgba(118,75,162,0.15); transition:all 0.2s; position:relative;';
         const poster = meta.poster || '';
         const name   = meta.name || meta.title || 'Unknown';
         const imdbId = meta.imdb_id || meta.id || '';
+        const catType = entry.catalog.type;
+        const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
         // Poster with TMDB fallback
         const imgEl = poster
           ? `<img src="${poster}" alt="" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy"
-               onerror="this.onerror=null;tmdbPosterFallback(this,'${imdbId.replace(/'/g, '')}','${entry.catalog.type}')">`
-          : `<div class="catalog-poster-placeholder" data-imdb="${imdbId}" data-type="${entry.catalog.type}"
+               onerror="this.onerror=null;tmdbPosterFallback(this,'${imdbId.replace(/'/g, '')}','${catType}')">`
+          : `<div class="catalog-poster-placeholder" data-imdb="${imdbId}" data-type="${catType}"
                style="width:100%;aspect-ratio:2/3;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`;
 
         card.innerHTML = `
           ${imgEl}
-          <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>`;
+          <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>
+          <div style="display:flex;gap:0.2rem;padding:0.2rem 0.3rem 0.35rem;flex-wrap:wrap;">
+            <button class="cat-play-btn" onclick="event.stopPropagation();playCatalogItem('${safe(imdbId)}','${safe(name)}','${catType}')">▶</button>
+            <button class="cat-play-btn cat-infuse" onclick="event.stopPropagation();playCatalogInfuse('${safe(imdbId)}','${safe(name)}','${catType}')">📺</button>
+            <button class="cat-play-btn cat-vlc" onclick="event.stopPropagation();playCatalogVLC('${safe(imdbId)}','${safe(name)}','${catType}')">🎬</button>
+            <button class="cat-play-btn cat-info" onclick="event.stopPropagation();catalogInfo('${safe(imdbId)}','${catType}')">ℹ️</button>
+          </div>`;
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
         card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
         card.onclick = () => {
           closeSettingsModal();
-          if (imdbId.startsWith('tt')) {
-            searchAndOpenByImdb(imdbId, entry.catalog.type);
-          } else {
-            // No IMDB ID — open torrent search directly with the title
-            openTorrentOverlay(name, name, '', entry.catalog.type === 'series' ? 'tv' : 'movie');
-          }
+          playCatalogItem(imdbId, name, catType);
         };
         resultsEl.appendChild(card);
       });
@@ -2148,6 +2164,62 @@
         imgEl.src = `${TMDB_IMG}${results[0].poster_path}`;
       }
     } catch {}
+  }
+
+  // ── Catalog Direct Play ──
+  // Play catalog item: searches addon streams and opens torrent overlay
+  async function playCatalogItem(imdbId, name, catType) {
+    closeSettingsModal();
+    const mediaType = catType === 'series' ? 'tv' : 'movie';
+    // Open torrent overlay and search for streams
+    openTorrentOverlay(name, name, imdbId, mediaType);
+  }
+
+  // Play catalog item directly in Infuse
+  async function playCatalogInfuse(imdbId, name, catType) {
+    closeSettingsModal();
+    const url = await getCatalogStreamUrl(imdbId, name, catType);
+    if (url) {
+      window.location.href = `infuse://x-callback-url/play?url=${encodeURIComponent(url)}`;
+    } else {
+      playCatalogItem(imdbId, name, catType);
+    }
+  }
+
+  // Play catalog item directly in VLC
+  async function playCatalogVLC(imdbId, name, catType) {
+    closeSettingsModal();
+    const url = await getCatalogStreamUrl(imdbId, name, catType);
+    if (url) {
+      window.location.href = `vlc://${url}`;
+    } else {
+      playCatalogItem(imdbId, name, catType);
+    }
+  }
+
+  // Open TMDB detail for catalog item
+  function catalogInfo(imdbId, catType) {
+    closeSettingsModal();
+    if (imdbId && imdbId.startsWith('tt')) {
+      searchAndOpenByImdb(imdbId, catType);
+    }
+  }
+
+  // Get first direct stream URL from addon for quick play
+  async function getCatalogStreamUrl(imdbId, name, catType) {
+    if (!imdbId || !imdbId.startsWith('tt')) return null;
+    const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
+    if (addons.length === 0) return null;
+
+    const type = catType === 'series' ? 'series' : 'movie';
+    for (const addon of addons) {
+      try {
+        const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
+        const direct = streams.find(s => s._isDirect && s._directUrl);
+        if (direct) return direct._directUrl;
+      } catch {}
+    }
+    return null;
   }
 
   /* ═══════════════════════════════════════════════════════════════════
