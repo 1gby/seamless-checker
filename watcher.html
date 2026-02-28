@@ -1103,9 +1103,11 @@
          alt="Rudeboy" title="Click to refresh">
 
 <!-- Centered title -->
+
 <h1 class="title-text" id="app-title">Watcher</h1>
 
 <!-- Right cluster: favorites + adult indicator + settings gear -->
+
 <div class="header-right">
   <button id="favs-btn" title="Favorites" onclick="openFavoritesPage()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🔥</button>
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
@@ -1210,6 +1212,7 @@
      ══════════════════════════════════════════════════════════════════ -->
 
 <!-- FAVORITES PAGE OVERLAY -->
+
 <div id="favorites-overlay" onclick="if(event.target===this)closeFavoritesPage()">
   <div id="favorites-panel">
     <div id="favorites-header">
@@ -1243,6 +1246,7 @@
   <div id="torrent-overlay-inner">
 
 <!-- Header bar -->
+
 <div id="torrent-overlay-header">
   <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
   <div style="flex:1;">
@@ -1252,6 +1256,7 @@
 </div>
 
 <!-- Live filter chips (multi-select) -->
+
 <div id="torrent-filter-bar">
   <button class="tor-filter-chip active" data-tor-filter="all"    onclick="toggleTorFilter(this,'all')">All</button>
   <button class="tor-filter-chip"        data-tor-filter="4k"     onclick="toggleTorFilter(this,'4k')">4K</button>
@@ -1266,6 +1271,7 @@
 </div>
 
 <!-- Re-search input (moved below filters) -->
+
 <div style="display:flex;gap:0.4rem;padding:0.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
     style="flex:1;padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
@@ -1276,12 +1282,15 @@
 </div>
 
 <!-- Status line -->
+
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
 
 <!-- Results list (populated by JS) -->
+
 <div id="torrent-overlay-results"></div>
 
 <!-- Stream player (shown after RD unrestrict) -->
+
 <div id="torrent-overlay-player">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;"></div>
@@ -1307,15 +1316,18 @@
   <div id="settings-panel">
 
 <!-- Header -->
+
 <div id="settings-header">
   <h2>⚙️ Settings</h2>
   <button id="settings-close" onclick="closeSettingsModal()">×</button>
 </div>
 
 <!-- Body -->
+
 <div id="settings-body">
 
   <!-- § Real-Debrid Token -->
+
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid API Token</div>
     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
@@ -1338,6 +1350,7 @@
   </div>
 
   <!-- § Torrent Sources -->
+
   <div class="settings-section">
     <div class="settings-section-title">Built-in Scrapers</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
@@ -1376,6 +1389,7 @@
   </div>
 
   <!-- § Quality Filters -->
+
   <div class="settings-section">
     <div class="settings-section-title">Quality Filters (include in results)</div>
     <div class="settings-checkbox-grid">
@@ -1390,6 +1404,7 @@
   </div>
 
   <!-- § Exclude Keywords -->
+
   <div class="settings-section">
     <div class="settings-section-title">Exclude from Results</div>
     <div class="settings-checkbox-grid">
@@ -1406,6 +1421,7 @@
   </div>
 
   <!-- § Search Options -->
+
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
     <div class="settings-row">
@@ -1423,6 +1439,7 @@
   </div>
 
   <!-- § Stremio Addons (Torrentio, Comet, etc.) -->
+
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
@@ -1459,6 +1476,7 @@
   </div>
 
   <!-- § RD Library -->
+
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid Library</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -1474,6 +1492,7 @@
   </div>
 
   <!-- § Import / Export Settings -->
+
   <div class="settings-section">
     <div class="settings-section-title">Backup & Restore</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -1485,6 +1504,7 @@
   </div>
 
   <!-- § Disclaimer -->
+
   <div class="settings-section">
     <div class="settings-section-title">Legal Disclaimer</div>
     <div class="settings-disclaimer">
@@ -3626,8 +3646,8 @@
     }
     // Also add to RD cache in background
     const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
-    if (magnet && getRDToken()) {
-      addToRDBackground(magnet).then(ok => {
+    if (getRDToken() || torrent._directUrl) {
+      addToRDBackground(magnet, torrent._directUrl).then(ok => {
         if (ok && libBtn) libBtn.innerHTML = '✅ In RD';
       });
     }
@@ -3673,25 +3693,43 @@
 
       // Also add to RD cache in background (non-blocking)
       const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
-      if (magnet && getRDToken()) {
-        addToRDBackground(magnet).then(ok => {
+      if (getRDToken() || torrent._directUrl) {
+        addToRDBackground(magnet, torrent._directUrl).then(ok => {
           if (ok) btn.innerHTML = '✅ In RD';
         });
       }
     }
   }
 
-  // Background RD add — no UI blocking, just cache it
-  async function addToRDBackground(magnet) {
+  // Background RD add — uses addon proxy URL if available (most reliable),
+  // falls back to direct RD API calls
+  async function addToRDBackground(magnetOrUrl, directUrl) {
+    // Method 1 (preferred): Ping the Torrentio/addon proxy URL
+    // This triggers THEIR server to call RD addMagnet+selectFiles+unrestrict
+    // Same thing Infuse does — works reliably without CORS issues
+    if (directUrl) {
+      try {
+        console.log('[RD bg] Pinging addon proxy to trigger RD cache:', directUrl.slice(0, 80));
+        await fetch(directUrl, { mode: 'no-cors', signal: AbortSignal.timeout(15000) });
+        console.log('[RD bg] ✅ Addon proxy pinged — RD should cache this');
+        return true;
+      } catch (e) {
+        console.warn('[RD bg] Addon proxy ping failed:', e.message);
+        // Fall through to Method 2
+      }
+    }
+
+    // Method 2: Direct RD API (addMagnet → selectFiles)
+    const magnet = magnetOrUrl;
     if (!magnet?.startsWith('magnet:?xt=urn:btih:') || !getRDToken()) return false;
     try {
+      console.log('[RD bg] Trying direct RD API addMagnet');
       const added = await rdFetch('/torrents/addMagnet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ magnet }),
       });
       if (added?.id) {
-        // Quick poll — if cached it'll be instant; don't wait forever
         for (let i = 0; i < 5; i++) {
           await new Promise(r => setTimeout(r, 2000));
           const info = await rdFetch(`/torrents/info/${added.id}`);
@@ -3702,11 +3740,13 @@
               body: new URLSearchParams({ files: 'all' }),
             });
           }
-          if (info.status === 'downloaded') return true;
+          if (info.status === 'downloaded') { console.log('[RD bg] ✅ Cached via API'); return true; }
           if (['error','dead','virus','magnet_error'].includes(info.status)) return false;
         }
+        console.log('[RD bg] Added to RD (may still be downloading)');
+        return true; // Added even if not fully cached yet
       }
-    } catch (e) { console.warn('[RD bg add]', e.message); }
+    } catch (e) { console.warn('[RD bg] API add failed:', e.message); }
     return false;
   }
 
@@ -4400,74 +4440,39 @@
   }
 
   // ── Catalog play from cache (for addon catalog items) ──
+  // Simple flow: query addon → get stream URL → show Infuse/VLC popup
+  // The addon (Torrentio) handles all RD resolution server-side
   async function playCatalogFromCache(imdbId, name, catType) {
     closeSettingsModal();
-    if (!getRDToken() && !(appSettings.stremioAddons || []).some(a => a.enabled)) {
+
+    const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
+    if (addons.length === 0 && !getRDToken()) {
       const mediaType = catType === 'series' ? 'tv' : 'movie';
       openTorrentOverlay(name, name, imdbId, mediaType);
       return;
     }
 
-    // Method 1: Check RD torrents first (most reliable — already in your library)
-    if (getRDToken()) {
-      try {
-        const torrents = await rdFetch('/torrents?limit=100');
-        const normalName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const match = torrents?.find(t => {
-          const fn = (t.filename || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-          return fn.includes(normalName) || normalName.includes(fn.slice(0, 15));
-        });
-        if (match?.status === 'downloaded') {
-          // Use playRDTorrent which handles unrestrict properly
-          await playRDTorrent(match.id);
-          return;
-        }
-      } catch (e) { console.warn('[catalog] RD library check failed:', e.message); }
-    }
-
-    // Method 2: Query addons for streams with infoHash, then add to RD for fresh link
-    const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
     const type = catType === 'series' ? 'series' : 'movie';
 
+    // Query each addon for streams — find one with a playable URL
     for (const addon of addons) {
       try {
         const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
+        if (!streams?.length) continue;
 
-        // Prefer streams with infoHash — we can add to RD for a reliable link
-        const withHash = streams.find(s => s.hash);
-        if (withHash && getRDToken()) {
-          const magnet = withHash.magnet || buildMagnet(withHash.hash, withHash.title);
-          const links = await addToRealDebrid(magnet, (t, m) => console.log('[catalog RD]', m));
-          if (links?.length) {
-            showPlayFromCachePopup(links[0].url, links[0].filename || name);
-            return;
-          }
-        }
-
-        // Fallback: direct URL from addon (may be proxy — less reliable for Infuse)
+        // Pick the best stream with a direct URL (Torrentio proxy URL)
         const direct = streams.find(s => s._isDirect && s._directUrl);
         if (direct) {
-          // Try to unrestrict if it's an RD link
-          if (direct._directUrl.includes('real-debrid') || direct._directUrl.includes('debrid')) {
-            try {
-              const v = await rdFetch('/unrestrict/link', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ link: direct._directUrl }),
-              });
-              if (v?.download) {
-                showPlayFromCachePopup(v.download, v.filename || name);
-                return;
-              }
-            } catch {}
-          }
-          showPlayFromCachePopup(direct._directUrl, name);
+          console.log('[catalog] Found stream URL from', addon.name, direct._directUrl?.slice(0, 80));
+          showPlayFromCachePopup(direct._directUrl, direct.title || name);
           return;
         }
-      } catch {}
+      } catch (e) {
+        console.warn(`[catalog] ${addon.name} failed:`, e.message);
+      }
     }
 
-    // Last resort: torrent search
+    // No addon stream found — fall back to torrent search
     const mediaType = catType === 'series' ? 'tv' : 'movie';
     openTorrentOverlay(name, name, imdbId, mediaType);
   }
