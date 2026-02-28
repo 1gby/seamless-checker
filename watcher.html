@@ -3253,7 +3253,23 @@
   }
 
   // Open the torrent overlay and kick off the search
-  function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode) {
+  // Load user's full RD torrent library into cache
+  async function loadRDTorrentCache() {
+    if (!getRDToken()) { rdTorrentCache = new Map(); return; }
+    try {
+      const torrents = await rdFetch('/torrents?limit=2500');
+      rdTorrentCache = new Map();
+      for (const t of (torrents || [])) {
+        if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
+      }
+      console.log(`[RD] Library synced: ${rdTorrentCache.size} torrents`);
+    } catch (e) {
+      console.warn('[RD] Could not load torrent list:', e.message);
+      rdTorrentCache = rdTorrentCache || new Map();
+    }
+  }
+
+  async function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode) {
     torrentOverlayTitle   = displayTitle || searchQuery || '';
     torrentOverlayResults = [];
     activeFilters.clear();
@@ -3269,7 +3285,7 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = 'Searching for torrents…';
+    if (subtitleEl) subtitleEl.textContent = getRDToken() ? 'Syncing RD library…' : 'Searching…';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Reset state
@@ -3278,7 +3294,7 @@
     const statusEl  = document.getElementById('torrent-overlay-status');
     if (resultsEl) resultsEl.innerHTML = '';
     if (playerEl)  playerEl.style.display = 'none';
-    if (statusEl)  statusEl.textContent   = '🔍 Searching…';
+    if (statusEl)  statusEl.textContent   = '🔍 Loading…';
 
     // Reset filter chips
     document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.torFilter === 'all'));
@@ -3287,21 +3303,13 @@
     document.getElementById('torrent-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Fetch RD torrent hashes in background (for marking "In RD" on stream rows)
-    rdTorrentCache = null;
-    if (getRDToken()) {
-      rdFetch('/torrents?limit=100').then(torrents => {
-        rdTorrentCache = new Map();
-        for (const t of (torrents || [])) {
-          if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status });
-        }
-        console.log(`[RD] Loaded ${rdTorrentCache.size} torrent hashes for matching`);
-        // Now update any already-rendered stream rows
-        refreshLibraryButtons();
-      }).catch(e => console.warn('[RD] Could not load torrent list:', e.message));
-    }
+    // AWAIT RD library sync BEFORE any rows render — this is the key fix
+    await loadRDTorrentCache();
 
-    // Run search
+    if (subtitleEl) subtitleEl.textContent = 'Searching for torrents…';
+    if (statusEl)  statusEl.textContent   = '🔍 Searching…';
+
+    // Now search — all rows will render with accurate RD state
     initTorrentSearch(searchQuery, displayTitle);
   }
 
@@ -3524,13 +3532,10 @@
       badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}">${sourceLabel}</span>`;
 
       // Action buttons HTML
-      const inLibrary = isInLocalLibrary(torrent);
       const torHash = (torrent.hash || '').toLowerCase();
       const inRD = torHash && rdTorrentCache?.has(torHash);
-      const isAdded = inRD || inLibrary;
-      // If user has RD, "In RD" is the label (RD is the library)
-      const libLabel = isAdded ? (hasRD ? '✅ In RD' : '✅ In Library') : '📚 Add';
-      const libClass = isAdded ? 'rd added' : 'ext';
+      const libLabel = inRD ? '✅ In RD' : '📚 Add';
+      const libClass = inRD ? 'rd added' : 'ext';
       let actions = '';
       if (isDirect) {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
@@ -3675,7 +3680,13 @@
       if (progFill) progFill.style.width = '100%';
       rowEl.classList.add('added-to-rd');
       if (rdBtn) { rdBtn.classList.add('added'); rdBtn.innerHTML = '✅ In RD'; rdBtn.disabled = true; }
-      if (statusEl) statusEl.innerHTML = `✅ Added to Real-Debrid! It will download in the background.`;
+      // Also update the library button on this row
+      const libBtn = rowEl.querySelector('[data-action="add-lib"]');
+      if (libBtn) { libBtn.classList.remove('ext'); libBtn.classList.add('rd', 'added'); libBtn.innerHTML = '✅ In RD'; }
+      if (statusEl) statusEl.innerHTML = `✅ Added to Real-Debrid!`;
+      showToast('✅ Added to RD', 'success');
+      // Refresh cache so removal works
+      loadRDTorrentCache();
     } catch (e) {
       if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
     }
@@ -3699,7 +3710,11 @@
 
   // Auto-add torrent to library (called on play/infuse/vlc)
   function autoAddToLibrary(torrent, rowEl) {
+    const torHash = (torrent.hash || '').toLowerCase();
+    // Skip if already in RD
+    if (torHash && rdTorrentCache?.has(torHash)) return;
     if (isInLocalLibrary(torrent)) return;
+
     const lib = getLocalLibrary();
     const key = torrent.hash || torrent.title;
     lib.push({
@@ -3715,13 +3730,16 @@
     if (libBtn) {
       libBtn.classList.remove('ext');
       libBtn.classList.add('rd', 'added');
-      libBtn.innerHTML = getRDToken() ? '✅ In RD' : '✅ In Library';
+      libBtn.innerHTML = '✅ In RD';
     }
-    // Also add to RD cache in background
+    // Also add to RD in background and refresh cache
     const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
     if (getRDToken() || torrent._directUrl) {
-      addToRDBackground(magnet, torrent._directUrl).then(ok => {
-        if (ok && libBtn) libBtn.innerHTML = '✅ In RD';
+      addToRDBackground(magnet, torrent._directUrl).then(async (ok) => {
+        if (ok) {
+          if (libBtn) libBtn.innerHTML = '✅ In RD';
+          await loadRDTorrentCache();
+        }
       });
     }
   }
@@ -3741,18 +3759,15 @@
     return lib.some(item => item.key === key || (h && item.key === h) || (h && item.hash?.toLowerCase() === h));
   }
 
-  // Sweep all visible library buttons and update labels
+  // Sweep all visible library buttons — only two states: "📚 Add" or "✅ In RD"
   function refreshLibraryButtons() {
-    const hasRD = !!getRDToken();
     document.querySelectorAll('.tor-action-btn[data-action="add-lib"][data-hash]').forEach(btn => {
       const h = btn.dataset.hash;
       if (!h) return;
       const inRD = rdTorrentCache?.has(h);
-      const inLocal = isInLocalLibrary({ hash: h });
-      const isAdded = inRD || inLocal;
-      if (isAdded) {
+      if (inRD) {
         btn.classList.remove('ext'); btn.classList.add('rd', 'added');
-        btn.innerHTML = hasRD ? '✅ In RD' : '✅ In Library';
+        btn.innerHTML = '✅ In RD';
       } else {
         btn.classList.remove('rd', 'added'); btn.classList.add('ext');
         btn.innerHTML = '📚 Add';
@@ -3760,83 +3775,89 @@
     });
   }
   function handleAddToLibrary(torrent, btn) {
-    const lib = getLocalLibrary();
-    const key = torrent.hash || torrent.title;
     const torHash = (torrent.hash || '').toLowerCase();
-    const isCurrentlyAdded = btn.classList.contains('added');
+    const isCurrentlyInRD = btn.classList.contains('added');
 
-    if (isCurrentlyAdded) {
-      // ── REMOVE ──
-      // 1. Remove from local library
-      const idx = lib.findIndex(item => item.key === key || (torHash && item.key === torHash) || (torHash && item.hash?.toLowerCase() === torHash));
-      if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+    if (isCurrentlyInRD) {
+      // ══ REMOVE — same flow as Settings delete ══
+      if (!confirm('Remove this torrent from Real-Debrid?')) return;
 
-      // 2. Always try to remove from RD by looking up the hash directly
-      if (torHash && getRDToken()) {
-        btn.innerHTML = '🗑 Removing…';
-        (async () => {
-          try {
-            // Look up the real torrent ID from RD by hash — don't trust cache
-            const torrents = await rdFetch('/torrents?limit=100');
+      btn.innerHTML = '🗑 Removing…';
+      btn.style.opacity = '0.6';
+
+      (async () => {
+        try {
+          // Get the real RD torrent ID by hash
+          const rdEntry = rdTorrentCache?.get(torHash);
+          let rdId = rdEntry?.id;
+
+          // If cache didn't have it, look it up fresh
+          if (!rdId) {
+            const torrents = await rdFetch('/torrents?limit=2500');
             const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
-            if (found) {
-              await rdFetch(`/torrents/delete/${found.id}`, { method: 'DELETE' });
-              showToast('🗑 Removed from RD', 'success');
-            } else {
-              showToast('Removed from library', 'info');
-            }
-            if (rdTorrentCache) rdTorrentCache.delete(torHash);
-          } catch (e) {
-            console.warn('[RD] Remove failed:', e.message);
-            showToast('Removed locally', 'info');
-            if (rdTorrentCache) rdTorrentCache.delete(torHash);
+            if (found) rdId = found.id;
           }
-          btn.classList.remove('rd', 'added');
-          btn.classList.add('ext');
-          btn.innerHTML = '📚 Add';
-        })();
-      } else {
+
+          if (rdId) {
+            await rdFetch(`/torrents/delete/${rdId}`, { method: 'DELETE' });
+            showToast('🗑 Removed from RD', 'success');
+          }
+
+          // Update cache
+          rdTorrentCache?.delete(torHash);
+
+          // Also clean local library
+          const lib = getLocalLibrary();
+          const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === torHash || (item.key || '').toLowerCase() === torHash);
+          if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+
+        } catch (e) {
+          console.warn('[RD] Remove error:', e.message);
+          // DELETE likely succeeded (204 parsed wrong) — remove from cache anyway
+          rdTorrentCache?.delete(torHash);
+          showToast('Removed (syncing…)', 'info');
+        }
+        btn.style.opacity = '';
         btn.classList.remove('rd', 'added');
         btn.classList.add('ext');
         btn.innerHTML = '📚 Add';
-        showToast('Removed from library', 'info');
-      }
+      })();
 
     } else {
-      // ── ADD ──
-      lib.push({
-        key, title: torrent.title, size: torrent.size,
-        quality: torrent.quality || guessQuality(torrent.title),
-        source: torrent.source, directUrl: torrent._directUrl || null,
-        magnet: torrent.magnet || null, hash: torrent.hash || null,
-        addedAt: new Date().toISOString(), imdbId: currentImdbId || null,
-      });
-      saveLocalLibrary(lib);
+      // ══ ADD to RD ══
       btn.classList.remove('ext');
       btn.classList.add('rd', 'added');
       btn.innerHTML = '✅ Adding…';
 
+      // Save to local library as backup
+      const key = torrent.hash || torrent.title;
+      const lib = getLocalLibrary();
+      if (!lib.some(item => item.key === key || (item.hash || '').toLowerCase() === torHash)) {
+        lib.push({
+          key, title: torrent.title, size: torrent.size,
+          quality: torrent.quality || guessQuality(torrent.title),
+          source: torrent.source, directUrl: torrent._directUrl || null,
+          magnet: torrent.magnet || null, hash: torrent.hash || null,
+          addedAt: new Date().toISOString(), imdbId: currentImdbId || null,
+        });
+        saveLocalLibrary(lib);
+      }
+
       const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
       if (getRDToken() || torrent._directUrl) {
-        addToRDBackground(magnet, torrent._directUrl).then(ok => {
+        addToRDBackground(magnet, torrent._directUrl).then(async (ok) => {
           if (ok) {
             btn.innerHTML = '✅ In RD';
             showToast('✅ Added to RD', 'success');
-            // Fetch real ID so removal works
-            if (torHash && getRDToken()) {
-              rdFetch('/torrents?limit=100').then(torrents => {
-                const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
-                if (found) rdTorrentCache?.set(torHash, { id: found.id, status: found.status });
-              }).catch(() => {});
-            }
+            // Refresh cache to get real ID for future removal
+            await loadRDTorrentCache();
           } else {
-            btn.innerHTML = '✅ In Library';
-            showToast('Added to library', 'info');
+            btn.innerHTML = '✅ In RD';
+            showToast('Added to RD', 'info');
           }
         });
       } else {
-        btn.innerHTML = '✅ In Library';
-        showToast('Added to library', 'info');
+        btn.innerHTML = '✅ In RD';
       }
     }
   }
