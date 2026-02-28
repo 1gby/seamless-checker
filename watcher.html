@@ -2982,42 +2982,43 @@
 
   // Unrestrict RD links and filter to video files
   async function unrestrictVideoLinks(links) {
-    // If any links look like video files, restrict to those; otherwise try all (up to 8)
-    const videoLinks = links.filter(link =>
-      VIDEO_EXTS.has((link.split('?')[0].split('.').pop() || '').toLowerCase())
-    );
-    const toProcess = videoLinks.length > 0 ? videoLinks : links.slice(0, 8);
+    if (!links?.length) return [];
+    // Try all links (up to 10) — don't pre-filter by extension since RD links are hoster URLs
+    const toProcess = links.slice(0, 10);
+    console.log(`[RD] Unrestricting ${toProcess.length} link(s)…`, toProcess[0]?.slice(0,60));
 
-    console.log(`[RD] Unrestricting ${toProcess.length} link(s)…`);
-
-    const settled = await Promise.allSettled(
-      toProcess.map(link =>
-        rdFetch('/unrestrict/link', {
+    const results = [];
+    // Process sequentially to avoid rate-limit issues
+    for (const link of toProcess) {
+      try {
+        const v = await rdFetch('/unrestrict/link', {
           method:  'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body:    new URLSearchParams({ link }),
-        })
-      )
-    );
-
-    const results = [];
-    for (const r of settled) {
-      if (r.status === 'fulfilled' && r.value?.download) {
-        const v   = r.value;
-        const ext = (v.filename || '').split('.').pop().toLowerCase();
-        // If we specifically filtered to video links, skip non-video results
-        if (videoLinks.length > 0 && !VIDEO_EXTS.has(ext)) continue;
-        results.push({
-          url:      v.download,
-          filename: v.filename || 'video',
-          filesize: v.filesize || 0,
-          quality:  guessQuality(v.filename || ''),
-          mimeType: v.mimeType || '',
         });
+        if (v?.download) {
+          const ext = (v.filename || '').split('.').pop().toLowerCase();
+          const isVideo = VIDEO_EXTS.has(ext);
+          results.push({
+            url:      v.download,
+            filename: v.filename || 'video',
+            filesize: v.filesize || 0,
+            quality:  guessQuality(v.filename || ''),
+            mimeType: v.mimeType || '',
+            isVideo,
+          });
+          console.log(`[RD] ✅ Unrestricted: ${v.filename} (${isVideo ? 'video' : ext})`);
+        }
+      } catch (e) {
+        console.warn(`[RD] ❌ Unrestrict failed for link:`, e.message);
       }
     }
+
+    // Prefer video files, but return all if no videos found
+    const videos = results.filter(r => r.isVideo);
+    const final = videos.length > 0 ? videos : results;
     // Largest file first (usually highest quality)
-    return results.sort((a, b) => b.filesize - a.filesize);
+    return final.sort((a, b) => b.filesize - a.filesize);
   }
 
   function guessQuality(filename) {
@@ -3092,10 +3093,30 @@
   async function playRDTorrent(torrentId) {
     try {
       const info = await rdFetch(`/torrents/info/${torrentId}`);
-      if (!info?.links?.length) { alert('No links available'); return; }
-      const links = await unrestrictVideoLinks(info.links);
-      if (links.length === 0) { alert('No playable files'); return; }
-      showPlayFromCachePopup(links[0].url, links[0].filename || info.filename || 'stream');
+      if (!info) { alert('Could not load torrent info'); return; }
+
+      // Method 1: Unrestrict the links
+      if (info.links?.length) {
+        const links = await unrestrictVideoLinks(info.links);
+        if (links.length > 0) {
+          showPlayFromCachePopup(links[0].url, links[0].filename || info.filename || 'stream');
+          return;
+        }
+      }
+
+      // Method 2: If unrestrict failed, try /streaming/transcode for a direct link
+      try {
+        const streams = await rdFetch(`/streaming/transcode/${torrentId}`);
+        // RD returns qualities like { apple: {}, dash: {}, liveMP4: {}, h264WebM: {} }
+        const mp4 = streams?.apple?.full ||
+                     Object.values(streams || {}).find(q => q?.full)?.full;
+        if (mp4) {
+          showPlayFromCachePopup(mp4, info.filename || 'stream');
+          return;
+        }
+      } catch (e) { console.warn('[RD] Transcode fallback failed:', e.message); }
+
+      alert('No playable files found — try unrestricting manually on real-debrid.com');
     } catch (e) { alert('Error: ' + e.message); }
   }
 
@@ -3603,6 +3624,13 @@
       libBtn.classList.add('rd', 'added');
       libBtn.innerHTML = '✅ In Library';
     }
+    // Also add to RD cache in background
+    const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
+    if (magnet && getRDToken()) {
+      addToRDBackground(magnet).then(ok => {
+        if (ok && libBtn) libBtn.innerHTML = '✅ In RD';
+      });
+    }
   }
 
   // ── Local Library (📚) ──
@@ -3644,8 +3672,9 @@
       btn.innerHTML = '✅ In Library';
 
       // Also add to RD cache in background (non-blocking)
-      if (torrent.magnet && getRDToken()) {
-        addToRDBackground(torrent.magnet).then(ok => {
+      const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
+      if (magnet && getRDToken()) {
+        addToRDBackground(magnet).then(ok => {
           if (ok) btn.innerHTML = '✅ In RD';
         });
       }
@@ -3903,6 +3932,10 @@
       if (i > -1) favList.movies.splice(i, 1); else favList.movies.push({ ...item, media_type: 'movie' });
     }
     saveFavorites();
+    // Update "This Week" section if TV favorites changed
+    if (type === 'tv' && !isAdultMode) {
+      loadFavThisWeek();
+    }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -4302,29 +4335,35 @@
   // ══════════════════════════════════════════════════════════════════
 
   // ── Play from cache popup (Infuse / VLC / Browser) ──
-  function showPlayFromCachePopup(url, title) {
-    // Remove existing popup
+  function showPlayFromCachePopup(url, title, rdTorrentId) {
     document.getElementById('cache-play-popup')?.remove();
+
+    const safeTitle = (title || 'stream').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const displayTitle = safeTitle.length > 60 ? safeTitle.slice(0,60)+'…' : safeTitle;
+    const encodedUrl = encodeURIComponent(url);
 
     const popup = document.createElement('div');
     popup.id = 'cache-play-popup';
     popup.innerHTML = `
       <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
       <div class="cache-popup-panel">
-        <div class="cache-popup-title">${title.length > 60 ? title.slice(0,60)+'…' : title}</div>
+        <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="infuse://x-callback-url/play?url=${encodeURIComponent(url)}" class="cache-popup-btn infuse" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="infuse://x-callback-url/play?url=${encodedUrl}" class="cache-popup-btn infuse" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             📺 Infuse
           </a>
-          <a href="vlc://${url}" class="cache-popup-btn vlc" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="vlc://${url.replace(/"/g, '%22')}" class="cache-popup-btn vlc" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             🎬 VLC
           </a>
-          <button class="cache-popup-btn browser" onclick="window.open('${url}','_blank');this.closest('#cache-play-popup').remove();">
-            🌐 Browser
-          </button>
+          <button class="cache-popup-btn browser" id="cache-browser-btn">🌐 Browser</button>
         </div>
         <button class="cache-popup-close" onclick="this.closest('#cache-play-popup').remove()">Cancel</button>
       </div>`;
+    // Attach browser click safely
+    popup.querySelector('#cache-browser-btn').onclick = () => {
+      window.open(url, '_blank');
+      popup.remove();
+    };
     document.body.appendChild(popup);
   }
 
@@ -4364,43 +4403,66 @@
   async function playCatalogFromCache(imdbId, name, catType) {
     closeSettingsModal();
     if (!getRDToken() && !(appSettings.stremioAddons || []).some(a => a.enabled)) {
-      // No RD or addons — fallback to torrent search
       const mediaType = catType === 'series' ? 'tv' : 'movie';
       openTorrentOverlay(name, name, imdbId, mediaType);
       return;
     }
 
-    // Try to get stream URL from addons
+    // Method 1: Check RD torrents first (most reliable — already in your library)
+    if (getRDToken()) {
+      try {
+        const torrents = await rdFetch('/torrents?limit=100');
+        const normalName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const match = torrents?.find(t => {
+          const fn = (t.filename || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          return fn.includes(normalName) || normalName.includes(fn.slice(0, 15));
+        });
+        if (match?.status === 'downloaded') {
+          // Use playRDTorrent which handles unrestrict properly
+          await playRDTorrent(match.id);
+          return;
+        }
+      } catch (e) { console.warn('[catalog] RD library check failed:', e.message); }
+    }
+
+    // Method 2: Query addons for streams with infoHash, then add to RD for fresh link
     const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
     const type = catType === 'series' ? 'series' : 'movie';
 
     for (const addon of addons) {
       try {
         const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
-        const direct = streams.find(s => s._isDirect && s._directUrl);
-        if (direct) {
-          showPlayFromCachePopup(direct._directUrl, name);
-          return;
-        }
-      } catch {}
-    }
 
-    // Fallback: check RD torrents for matching hash
-    if (getRDToken()) {
-      try {
-        const torrents = await rdFetch('/torrents?limit=100');
-        // Try to find a match by title similarity
-        const normalName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const match = torrents?.find(t => {
-          const fn = (t.filename || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-          return fn.includes(normalName) || normalName.includes(fn.slice(0, 15));
-        });
-        if (match?.status === 'downloaded' && match.links?.length) {
-          const links = await unrestrictVideoLinks(match.links);
-          if (links.length) {
-            showPlayFromCachePopup(links[0].url, name);
+        // Prefer streams with infoHash — we can add to RD for a reliable link
+        const withHash = streams.find(s => s.hash);
+        if (withHash && getRDToken()) {
+          const magnet = withHash.magnet || buildMagnet(withHash.hash, withHash.title);
+          const links = await addToRealDebrid(magnet, (t, m) => console.log('[catalog RD]', m));
+          if (links?.length) {
+            showPlayFromCachePopup(links[0].url, links[0].filename || name);
             return;
           }
+        }
+
+        // Fallback: direct URL from addon (may be proxy — less reliable for Infuse)
+        const direct = streams.find(s => s._isDirect && s._directUrl);
+        if (direct) {
+          // Try to unrestrict if it's an RD link
+          if (direct._directUrl.includes('real-debrid') || direct._directUrl.includes('debrid')) {
+            try {
+              const v = await rdFetch('/unrestrict/link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ link: direct._directUrl }),
+              });
+              if (v?.download) {
+                showPlayFromCachePopup(v.download, v.filename || name);
+                return;
+              }
+            } catch {}
+          }
+          showPlayFromCachePopup(direct._directUrl, name);
+          return;
         }
       } catch {}
     }
