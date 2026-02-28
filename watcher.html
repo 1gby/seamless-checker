@@ -1011,9 +1011,11 @@
          alt="Rudeboy" title="Click to refresh">
 
 <!-- Centered title -->
+
 <h1 class="title-text" id="app-title">Watcher</h1>
 
 <!-- Right cluster: adult indicator + settings gear -->
+
 <div class="header-right">
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
   <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
@@ -1130,6 +1132,7 @@
   <div id="torrent-overlay-inner">
 
 <!-- Header bar -->
+
 <div id="torrent-overlay-header">
   <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
   <div style="flex:1;">
@@ -1139,6 +1142,7 @@
 </div>
 
 <!-- Live filter chips (multi-select) -->
+
 <div id="torrent-filter-bar">
   <button class="tor-filter-chip active" data-tor-filter="all"    onclick="toggleTorFilter(this,'all')">All</button>
   <button class="tor-filter-chip"        data-tor-filter="4k"     onclick="toggleTorFilter(this,'4k')">4K</button>
@@ -1153,6 +1157,7 @@
 </div>
 
 <!-- Re-search input (moved below filters) -->
+
 <div style="display:flex;gap:0.4rem;padding:0.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
     style="flex:1;padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
@@ -1163,12 +1168,15 @@
 </div>
 
 <!-- Status line -->
+
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
 
 <!-- Results list (populated by JS) -->
+
 <div id="torrent-overlay-results"></div>
 
 <!-- Stream player (shown after RD unrestrict) -->
+
 <div id="torrent-overlay-player">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;"></div>
@@ -1194,15 +1202,18 @@
   <div id="settings-panel">
 
 <!-- Header -->
+
 <div id="settings-header">
   <h2>⚙️ Settings</h2>
   <button id="settings-close" onclick="closeSettingsModal()">×</button>
 </div>
 
 <!-- Body -->
+
 <div id="settings-body">
 
   <!-- § Real-Debrid Token -->
+
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid API Token</div>
     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
@@ -1224,6 +1235,7 @@
   </div>
 
   <!-- § Torrent Sources -->
+
   <div class="settings-section">
     <div class="settings-section-title">Built-in Scrapers</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
@@ -1262,6 +1274,7 @@
   </div>
 
   <!-- § Quality Filters -->
+
   <div class="settings-section">
     <div class="settings-section-title">Quality Filters (include in results)</div>
     <div class="settings-checkbox-grid">
@@ -1276,6 +1289,7 @@
   </div>
 
   <!-- § Exclude Keywords -->
+
   <div class="settings-section">
     <div class="settings-section-title">Exclude from Results</div>
     <div class="settings-checkbox-grid">
@@ -1288,6 +1302,7 @@
   </div>
 
   <!-- § Exclude Uploaders / Groups -->
+
   <div class="settings-section">
     <div class="settings-section-title">Exclude Uploaders / Groups</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;">Comma-separated keywords — results containing these are hidden.</p>
@@ -1309,6 +1324,7 @@
   </div>
 
   <!-- § Search Options -->
+
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
     <div class="settings-row">
@@ -1326,6 +1342,7 @@
   </div>
 
   <!-- § Stremio Addons (Torrentio, Comet, etc.) -->
+
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
@@ -1362,6 +1379,7 @@
   </div>
 
   <!-- § RD Library -->
+
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid Library</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -1377,6 +1395,7 @@
   </div>
 
   <!-- § Disclaimer -->
+
   <div class="settings-section">
     <div class="settings-section-title">Legal Disclaimer</div>
     <div class="settings-disclaimer">
@@ -1595,7 +1614,7 @@
     // Provider filter (addon results) — empty = show all
     excludedProviders: [],
     // Search limits
-    minSeeds: 0, maxKnaben: 50, maxYts: 20,
+    minSeeds: 0, maxKnaben: 100, maxYts: 20,
     // Stremio Addons — array of { name, url, enabled }
     stremioAddons: [],
   };
@@ -2354,7 +2373,7 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   // ── Knaben ──────────────────────────────────────────────────────────
-  async function searchKnaben(title, maxResults = 50) {
+  async function searchKnaben(title, maxResults = 100) {
     const q = encodeURIComponent(title.replace(/\s+/g, '+'));
     const urlsToTry = [
       `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
@@ -2611,7 +2630,7 @@
     if (appSettings.srcKnaben !== false) {
       onStatus('searching', `🔍 Searching Knaben for "${title}"…`);
       try {
-        const raw     = await searchKnaben(title, appSettings.maxKnaben || 50);
+        const raw     = await searchKnaben(title, appSettings.maxKnaben || 100);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
         if (allResults.length > 0) {
@@ -3002,6 +3021,8 @@
   function closeTorrentOverlay() {
     document.getElementById('torrent-overlay').classList.remove('active');
     document.body.style.overflow = '';
+    // Cleanup scroll observer
+    if (torrentScrollObserver) { torrentScrollObserver.disconnect(); torrentScrollObserver = null; }
     // Pause video if playing
     const vid = document.getElementById('rd-player');
     if (vid) { vid.pause(); vid.src = ''; }
@@ -3104,17 +3125,26 @@
     renderTorrentList(filtered);
   }
 
-  // Render the vertical result list
+  // Render the vertical result list with infinite scroll
+  const TORRENT_PAGE_SIZE = 25;
+  let torrentRenderOffset = 0;
+  let torrentScrollObserver = null;
+
   function renderTorrentList(results) {
     const resultsEl = document.getElementById('torrent-overlay-results');
     const statusEl  = document.getElementById('torrent-overlay-status');
     if (!resultsEl) return;
+
+    // Cleanup previous observer
+    if (torrentScrollObserver) { torrentScrollObserver.disconnect(); torrentScrollObserver = null; }
+    torrentRenderOffset = 0;
 
     if (results.length === 0) {
       resultsEl.innerHTML = `<div style="padding:1.5rem;text-align:center;color:rgba(255,255,255,0.35);font-size:0.85rem;">No results match the active filter.</div>`;
       return;
     }
 
+    // Status bar
     const cached  = results.filter(r => r.seeds > 50).length;
     const direct  = results.filter(r => !!r._isDirect).length;
     const addons  = results.filter(r => !['knaben','yts','1337x'].includes(r.source)).length;
@@ -3127,7 +3157,62 @@
     }
 
     resultsEl.innerHTML = '';
-    results.forEach((torrent, idx) => {
+    // Render first page
+    renderTorrentPage(results, resultsEl);
+
+    // Setup infinite scroll if more results
+    if (results.length > TORRENT_PAGE_SIZE) {
+      setupTorrentScrollObserver(results, resultsEl);
+    }
+  }
+
+  function renderTorrentPage(results, container) {
+    const start = torrentRenderOffset;
+    const end   = Math.min(start + TORRENT_PAGE_SIZE, results.length);
+
+    for (let idx = start; idx < end; idx++) {
+      const torrent = results[idx];
+      const row = buildTorrentRow(torrent, idx);
+      container.appendChild(row);
+    }
+    torrentRenderOffset = end;
+
+    // Remove old sentinel
+    const oldSentinel = container.querySelector('.tor-scroll-sentinel');
+    if (oldSentinel) oldSentinel.remove();
+
+    // Add sentinel if more results
+    if (torrentRenderOffset < results.length) {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'tor-scroll-sentinel';
+      sentinel.style.cssText = 'padding:1.5rem;text-align:center;color:rgba(255,255,255,0.3);font-size:0.8rem;';
+      sentinel.innerHTML = `<span style="animation:pulse 1.5s ease-in-out infinite;display:inline-block;">↓ Loading more… (${torrentRenderOffset}/${results.length})</span>`;
+      container.appendChild(sentinel);
+    } else if (results.length > TORRENT_PAGE_SIZE) {
+      const endMarker = document.createElement('div');
+      endMarker.style.cssText = 'padding:1rem;text-align:center;color:rgba(255,255,255,0.2);font-size:0.72rem;';
+      endMarker.textContent = `— All ${results.length} results loaded —`;
+      container.appendChild(endMarker);
+    }
+  }
+
+  function setupTorrentScrollObserver(results, container) {
+    torrentScrollObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && torrentRenderOffset < results.length) {
+          renderTorrentPage(results, container);
+          // Re-observe new sentinel
+          const newSentinel = container.querySelector('.tor-scroll-sentinel');
+          if (newSentinel) torrentScrollObserver.observe(newSentinel);
+        }
+      }
+    }, { root: document.getElementById('torrent-overlay'), rootMargin: '200px' });
+
+    const sentinel = container.querySelector('.tor-scroll-sentinel');
+    if (sentinel) torrentScrollObserver.observe(sentinel);
+  }
+
+  function buildTorrentRow(torrent, idx) {
       const seedColor = torrent.seeds > 100 ? '#10b981' : torrent.seeds > 20 ? '#f59e0b' : '#ef4444';
       const sourceLabel = torrent.sourceLabel
         || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x' }[torrent.source]
@@ -3187,8 +3272,7 @@
           else if (action === 'add-lib') handleAddToLibrary(torrent, btn);
         };
       });
-      resultsEl.appendChild(row);
-    });
+      return row;
   }
 
   // ── Play action: Direct streams play immediately, others go through RD ──
