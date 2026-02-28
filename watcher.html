@@ -1671,6 +1671,7 @@
 
   // Active torrent search state (for the overlay)
   let torrentOverlayResults   = [];  // raw results from last search
+  let rdTorrentCache = null;         // Map<hash, {id, status}> — fetched once per overlay open
   let torrentOverlayDisplayed = [];  // filtered subset currently rendered
   let torrentOverlayFilter    = 'all'; // legacy — now using activeFilters Set
   let activeFilters = new Set(); // multi-select filter set
@@ -3102,7 +3103,7 @@
         if (playBtn) playBtn.onclick = (e) => { e.stopPropagation(); playRDTorrent(t.id); };
         // Delete button
         const delBtn = row.querySelector('.rd-lib-btn.delete');
-        if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteRDTorrent(t.id, delBtn); };
+        if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteRDTorrent(t.id, delBtn, t.hash); };
         listEl.appendChild(row);
       });
     } catch (e) {
@@ -3140,12 +3141,25 @@
     } catch (e) { alert('Error: ' + e.message); }
   }
 
-  async function deleteRDTorrent(torrentId, btn) {
+  async function deleteRDTorrent(torrentId, btn, hash) {
     if (!confirm('Delete this torrent from Real-Debrid?')) return;
     try {
       await rdFetch(`/torrents/delete/${torrentId}`, { method: 'DELETE' });
       const row = btn.closest('.rd-lib-item');
       if (row) row.remove();
+
+      // Update rdTorrentCache
+      const h = (hash || '').toLowerCase();
+      if (h && rdTorrentCache) rdTorrentCache.delete(h);
+
+      // Update any matching stream row button in the torrent overlay
+      if (h) {
+        document.querySelectorAll(`.tor-action-btn[data-hash="${h}"]`).forEach(libBtn => {
+          libBtn.classList.remove('rd', 'added');
+          libBtn.classList.add('ext');
+          libBtn.innerHTML = '📚 Add';
+        });
+      }
     } catch (e) { alert('Error: ' + e.message); }
   }
 
@@ -3233,6 +3247,18 @@
     // Show overlay
     document.getElementById('torrent-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    // Fetch RD torrent hashes in background (for marking "In RD" on stream rows)
+    rdTorrentCache = null;
+    if (getRDToken()) {
+      rdFetch('/torrents?limit=100').then(torrents => {
+        rdTorrentCache = new Map();
+        for (const t of (torrents || [])) {
+          if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status });
+        }
+        console.log(`[RD] Loaded ${rdTorrentCache.size} torrent hashes for matching`);
+      }).catch(e => console.warn('[RD] Could not load torrent list:', e.message));
+    }
 
     // Run search
     initTorrentSearch(searchQuery, displayTitle);
@@ -3458,16 +3484,21 @@
 
       // Action buttons HTML
       const inLibrary = isInLocalLibrary(torrent);
+      const torHash = (torrent.hash || '').toLowerCase();
+      const inRD = torHash && rdTorrentCache?.has(torHash);
+      const libState = inRD ? 'rd' : inLibrary ? 'local' : 'none';
+      const libLabel = inRD ? '✅ In RD' : inLibrary ? '✅ In Library' : '📚 Add';
+      const libClass = libState !== 'none' ? 'rd added' : 'ext';
       let actions = '';
       if (isDirect) {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
-        actions += `<button class="tor-action-btn ${inLibrary ? 'rd added' : 'ext'}" data-action="add-lib">${inLibrary ? '✅ In Library' : '📚 Add'}</button>`;
+        actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
       } else {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play via RD</button>`;
         if (hasRD) actions += `<button class="tor-action-btn rd" data-action="add-rd">⬇ Add to RD</button>`;
-        actions += `<button class="tor-action-btn ${inLibrary ? 'rd added' : 'ext'}" data-action="add-lib">${inLibrary ? '✅ In Library' : '📚 Add'}</button>`;
+        actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
       }
 
       row.innerHTML = `
@@ -3669,16 +3700,35 @@
   function handleAddToLibrary(torrent, btn) {
     const lib = getLocalLibrary();
     const key = torrent.hash || torrent.title;
+    const torHash = (torrent.hash || '').toLowerCase();
     const existing = lib.findIndex(item => item.key === key);
-    if (existing >= 0) {
-      // Remove from library
-      lib.splice(existing, 1);
-      saveLocalLibrary(lib);
+    const inRD = torHash && rdTorrentCache?.has(torHash);
+
+    if (existing >= 0 || inRD) {
+      // ── REMOVE ──
+      // Remove from local library
+      if (existing >= 0) {
+        lib.splice(existing, 1);
+        saveLocalLibrary(lib);
+      }
+
+      // Also remove from RD if present
+      if (inRD && getRDToken()) {
+        const rdEntry = rdTorrentCache.get(torHash);
+        rdFetch(`/torrents/delete/${rdEntry.id}`, { method: 'DELETE' })
+          .then(() => {
+            console.log('[RD] Deleted torrent', rdEntry.id);
+            rdTorrentCache.delete(torHash);
+          })
+          .catch(e => console.warn('[RD] Delete failed:', e.message));
+      }
+
       btn.classList.remove('rd', 'added');
       btn.classList.add('ext');
       btn.innerHTML = '📚 Add';
+
     } else {
-      // Add to local library
+      // ── ADD ──
       lib.push({
         key, title: torrent.title, size: torrent.size,
         quality: torrent.quality || guessQuality(torrent.title),
@@ -3691,11 +3741,15 @@
       btn.classList.add('rd', 'added');
       btn.innerHTML = '✅ In Library';
 
-      // Also add to RD cache in background (non-blocking)
+      // Add to RD cache in background
       const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
       if (getRDToken() || torrent._directUrl) {
         addToRDBackground(magnet, torrent._directUrl).then(ok => {
-          if (ok) btn.innerHTML = '✅ In RD';
+          if (ok) {
+            btn.innerHTML = '✅ In RD';
+            // Update cache so toggle works
+            if (torHash) rdTorrentCache?.set(torHash, { id: 'pending', status: 'downloaded' });
+          }
         });
       }
     }
