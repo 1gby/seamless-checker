@@ -919,7 +919,7 @@
       border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);
       box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3);
       font-size: 0.8rem; animation: weather-glow 4s ease-in-out infinite;
-      max-width: 100%; flex-wrap: wrap;
+      max-width: 100%; flex-wrap: nowrap; overflow: hidden;
     }
     @keyframes weather-glow {
       0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 15px rgba(118,75,162,0.4); }
@@ -930,9 +930,9 @@
     .weather-temp   { font-size: 0.85rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
     .weather-time   { font-size: 0.8rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; }
     .weather-divider{ color: rgba(255,255,255,0.3); font-weight: 300; }
-    .weather-condition { font-size: 0.7rem; font-weight: 600; animation: condition-glow 4s ease-in-out infinite; word-wrap: break-word; line-height: 1.1; max-width: 70px; }
+    .weather-condition { font-size: 0.7rem; font-weight: 600; animation: condition-glow 4s ease-in-out infinite; white-space: nowrap; }
     @keyframes condition-glow { 0%, 100% { color: #764ba2; } 50% { color: #10b981; } }
-    .weather-location  { font-size: 0.7rem; font-weight: 600; animation: location-glow 4s ease-in-out infinite; max-width: 70px; text-align: center; }
+    .weather-location  { font-size: 0.7rem; font-weight: 600; animation: location-glow 4s ease-in-out infinite; white-space: nowrap; }
     @keyframes location-glow { 0%, 100% { color: #10b981; } 50% { color: #764ba2; } }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -1011,12 +1011,11 @@
          alt="Rudeboy" title="Click to refresh">
 
 <!-- Centered title -->
-
 <h1 class="title-text" id="app-title">Watcher</h1>
 
-<!-- Right cluster: adult indicator + settings gear -->
-
+<!-- Right cluster: favorites + adult indicator + settings gear -->
 <div class="header-right">
+  <button id="favs-btn" title="Favorites" onclick="openFavoritesPage()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🔥</button>
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
   <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
 </div>
@@ -1117,6 +1116,23 @@
      DETAIL VIEW  (movie / TV / actor)
      ══════════════════════════════════════════════════════════════════ -->
 
+<!-- FAVORITES PAGE OVERLAY -->
+<div id="favorites-page" style="position:fixed;inset:0;z-index:1050;background:var(--bg);display:none;overflow-y:auto;">
+  <div style="max-width:900px;margin:0 auto;padding:1rem;">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+      <button onclick="closeFavoritesPage()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;">←</button>
+      <h2 style="margin:0;font-size:1.4rem;">🔥 My Favorites</h2>
+    </div>
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <button class="tor-filter-chip active" data-fav-filter="all" onclick="setFavFilter(this,'all')">All</button>
+      <button class="tor-filter-chip" data-fav-filter="movie" onclick="setFavFilter(this,'movie')">🎬 Movies</button>
+      <button class="tor-filter-chip" data-fav-filter="tv" onclick="setFavFilter(this,'tv')">📺 TV Shows</button>
+      <button class="tor-filter-chip" data-fav-filter="person" onclick="setFavFilter(this,'person')">🎭 Actors</button>
+    </div>
+    <div class="vertical-grid" id="favorites-page-grid"></div>
+  </div>
+</div>
+
 <div id="detail-view">
   <div id="detail-content">
     <span id="detail-close">×</span>
@@ -1132,7 +1148,6 @@
   <div id="torrent-overlay-inner">
 
 <!-- Header bar -->
-
 <div id="torrent-overlay-header">
   <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
   <div style="flex:1;">
@@ -1142,7 +1157,6 @@
 </div>
 
 <!-- Live filter chips (multi-select) -->
-
 <div id="torrent-filter-bar">
   <button class="tor-filter-chip active" data-tor-filter="all"    onclick="toggleTorFilter(this,'all')">All</button>
   <button class="tor-filter-chip"        data-tor-filter="4k"     onclick="toggleTorFilter(this,'4k')">4K</button>
@@ -1157,7 +1171,6 @@
 </div>
 
 <!-- Re-search input (moved below filters) -->
-
 <div style="display:flex;gap:0.4rem;padding:0.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
     style="flex:1;padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
@@ -1168,15 +1181,12 @@
 </div>
 
 <!-- Status line -->
-
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
 
 <!-- Results list (populated by JS) -->
-
 <div id="torrent-overlay-results"></div>
 
 <!-- Stream player (shown after RD unrestrict) -->
-
 <div id="torrent-overlay-player">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;"></div>
@@ -1202,18 +1212,15 @@
   <div id="settings-panel">
 
 <!-- Header -->
-
 <div id="settings-header">
   <h2>⚙️ Settings</h2>
   <button id="settings-close" onclick="closeSettingsModal()">×</button>
 </div>
 
 <!-- Body -->
-
 <div id="settings-body">
 
   <!-- § Real-Debrid Token -->
-
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid API Token</div>
     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
@@ -1235,7 +1242,6 @@
   </div>
 
   <!-- § Torrent Sources -->
-
   <div class="settings-section">
     <div class="settings-section-title">Built-in Scrapers</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
@@ -1274,7 +1280,6 @@
   </div>
 
   <!-- § Quality Filters -->
-
   <div class="settings-section">
     <div class="settings-section-title">Quality Filters (include in results)</div>
     <div class="settings-checkbox-grid">
@@ -1289,7 +1294,6 @@
   </div>
 
   <!-- § Exclude Keywords -->
-
   <div class="settings-section">
     <div class="settings-section-title">Exclude from Results</div>
     <div class="settings-checkbox-grid">
@@ -1299,32 +1303,13 @@
       <label class="settings-checkbox-label"><input type="checkbox" id="se-subbed"   onchange="saveSettings()"> Subbed</label>
       <label class="settings-checkbox-label"><input type="checkbox" id="se-hdr"      onchange="saveSettings()"> HDR only</label>
     </div>
-  </div>
-
-  <!-- § Exclude Uploaders / Groups -->
-
-  <div class="settings-section">
-    <div class="settings-section-title">Exclude Uploaders / Groups</div>
-    <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;">Comma-separated keywords — results containing these are hidden.</p>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.5rem;">Custom keywords (comma-separated):</p>
     <input type="text" id="se-exclude-keywords" class="exclude-keywords-input"
-           placeholder="e.g. rarbg, rutor, kinozal, torrent.ru"
+           placeholder="e.g. rarbg, rutor, kinozal"
            onchange="saveSettings()" onkeyup="saveSettings()">
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.4rem;">Quick presets — tap to add:</p>
-    <div class="exclude-presets">
-      <button class="exclude-preset-chip" onclick="addExcludePreset('russian')">🇷🇺 Russian sites</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('rarbg')">RARBG</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('eztv')">EZTV</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('yifi')">YIFi/YTS</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('nonenglish')">Non-English</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('cams')">Cams/TS</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('dubbed')">Dubbed</button>
-      <button class="exclude-preset-chip" onclick="addExcludePreset('oldformats')">Old formats</button>
-      <button class="exclude-preset-chip clear-chip" onclick="clearExcludeKeywords()">↺ Clear all</button>
-    </div>
   </div>
 
   <!-- § Search Options -->
-
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
     <div class="settings-row">
@@ -1342,7 +1327,6 @@
   </div>
 
   <!-- § Stremio Addons (Torrentio, Comet, etc.) -->
-
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
@@ -1379,7 +1363,6 @@
   </div>
 
   <!-- § RD Library -->
-
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid Library</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -1394,8 +1377,18 @@
     </div>
   </div>
 
-  <!-- § Disclaimer -->
+  <!-- § Import / Export Settings -->
+  <div class="settings-section">
+    <div class="settings-section-title">Backup & Restore</div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="settings-btn green" onclick="exportSettings()">📤 Export Settings</button>
+      <button class="settings-btn purple" onclick="document.getElementById('import-file-input').click()">📥 Import Settings</button>
+      <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importSettings(event)">
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">Exports all settings, favorites, watch history, and library as JSON.</p>
+  </div>
 
+  <!-- § Disclaimer -->
   <div class="settings-section">
     <div class="settings-section-title">Legal Disclaimer</div>
     <div class="settings-disclaimer">
@@ -2092,9 +2085,12 @@
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
         card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
         card.onclick = () => {
+          closeSettingsModal();
           if (imdbId.startsWith('tt')) {
-            closeSettingsModal();
             searchAndOpenByImdb(imdbId, entry.catalog.type);
+          } else {
+            // No IMDB ID — open torrent search directly with the title
+            openTorrentOverlay(name, name, '', entry.catalog.type === 'series' ? 'tv' : 'movie');
           }
         };
         resultsEl.appendChild(card);
@@ -2374,11 +2370,12 @@
 
   // ── Knaben ──────────────────────────────────────────────────────────
   async function searchKnaben(title, maxResults = 100) {
-    const q = encodeURIComponent(title.replace(/\s+/g, '+'));
+    const q = encodeURIComponent(title);
+
+    // Method 1: Try Knaben HTML scraping (multiple URL patterns)
     const urlsToTry = [
-      `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
       `https://knaben.eu/search/${q}/0/0/seeders_desc`,
-      `https://knaben.org/search/${q}/0/200000/seeders_desc`,
+      `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
       `https://knaben.org/search/${q}/0/0/seeders_desc`,
     ];
     for (const url of urlsToTry) {
@@ -2392,7 +2389,46 @@
         }
       } catch (e) { console.warn(`[Knaben] ${url}:`, e.message); }
     }
+
+    // Method 2: Try Knaben JSON API (more reliable for some content)
+    try {
+      const apiUrl = `https://knaben.eu/api/v1/search`;
+      const body = JSON.stringify({ query: title, order_by: 'seeders', order_direction: 'desc', limit: maxResults });
+      for (const makeProxy of CORS_PROXIES) {
+        try {
+          const res = await fetch(makeProxy(apiUrl), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+            signal: AbortSignal.timeout(10000),
+          });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const hits = data.hits || data.results || data || [];
+          if (Array.isArray(hits) && hits.length > 0) {
+            console.log(`[Knaben API] ✅ ${hits.length} results`);
+            return hits.map(h => ({
+              title: h.title || h.name || 'Unknown',
+              size: h.size ? formatBytes(h.size) : '?',
+              seeds: h.seeders || h.seeds || 0,
+              magnet: h.magnet || (h.hash ? buildMagnet(h.hash, h.title) : null),
+              hash: h.hash || h.info_hash || extractHashFromMagnet(h.magnet || ''),
+              source: 'knaben',
+            })).slice(0, maxResults);
+          }
+        } catch {}
+      }
+    } catch (e) { console.warn('[Knaben API]', e.message); }
+
     return [];
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return '?';
+    const gb = bytes / (1024 * 1024 * 1024);
+    if (gb >= 1) return `${gb.toFixed(2)} GB`;
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(1)} MB`;
   }
 
   function parseKnabenHTML(html) {
@@ -2486,7 +2522,7 @@
   // ── 1337x ────────────────────────────────────────────────────────────
   async function search1337x(title) {
     const mirrors = ['https://1337x.to', 'https://1337x.st', 'https://1337x.is'];
-    const q = encodeURIComponent(title.replace(/\s+/g, '+'));
+    const q = encodeURIComponent(title);
     for (const mirror of mirrors) {
       try {
         const url     = `${mirror}/sort-search/${q}/seeders/desc/1/`;
@@ -2614,16 +2650,18 @@
       allResults = [...allResults, ...unique];
     }
 
-    // 1. Stremio Addons (parallel, fast — query first)
-    const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-    if (enabledAddons.length > 0 && imdbId) {
-      try {
-        const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
-        if (addonResults.length > 0) {
-          dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
-          onStatus('results', `⚡ ${allResults.length} results from addons — searching more…`, sortTorrentResults(allResults));
-        }
-      } catch (e) { console.warn('[search] Stremio addons:', e); }
+    // 1. Stremio Addons (skip in adult mode — no xxx support)
+    if (!isAdultMode) {
+      const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
+      if (enabledAddons.length > 0 && imdbId) {
+        try {
+          const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
+          if (addonResults.length > 0) {
+            dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
+            onStatus('results', `⚡ ${allResults.length} results from addons — searching more…`, sortTorrentResults(allResults));
+          }
+        } catch (e) { console.warn('[search] Stremio addons:', e); }
+      }
     }
 
     // 2. Knaben (primary traditional scraper)
@@ -2969,7 +3007,7 @@
 
   // Build the inline trigger widget embedded inside the detail view
   function buildTorrentSection(title, year, imdbId, mediaType) {
-    const searchQuery = year ? `${title} ${year}` : title;
+    const searchQuery = title; // Just title, no year appended
     const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     return `
 <div style="margin:1rem 0;">
@@ -3242,6 +3280,7 @@
       if (isDirect) {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
+        actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
         actions += `<button class="tor-action-btn ${inLibrary ? 'rd added' : 'ext'}" data-action="add-lib">${inLibrary ? '✅ In Library' : '📚 Add'}</button>`;
       } else {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play via RD</button>`;
@@ -3269,6 +3308,7 @@
           if (action === 'play')       handleTorrentPlay(torrent, row);
           else if (action === 'add-rd')  handleTorrentAddRD(torrent, row);
           else if (action === 'infuse')  handleTorrentInfuse(torrent, row);
+          else if (action === 'vlc')     handleTorrentVLC(torrent, row);
           else if (action === 'add-lib') handleAddToLibrary(torrent, btn);
         };
       });
@@ -3280,6 +3320,9 @@
     const statusEl = document.getElementById('torrent-overlay-status');
     const progBar  = rowEl.querySelector('.tor-row-progress');
     const progFill = rowEl.querySelector('.tor-row-progress-fill');
+
+    // Auto-add to library when playing
+    autoAddToLibrary(torrent, rowEl);
 
     // Direct stream — play immediately
     if (torrent._isDirect && torrent._directUrl) {
@@ -3392,8 +3435,38 @@
   // ── Open in Infuse ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
+    autoAddToLibrary(torrent, rowEl);
     const infuseUrl = `infuse://x-callback-url/play?url=${encodeURIComponent(torrent._directUrl)}`;
     window.location.href = infuseUrl;
+  }
+
+  function handleTorrentVLC(torrent, rowEl) {
+    const url = torrent._directUrl;
+    if (!url) return;
+    autoAddToLibrary(torrent, rowEl);
+    window.location.href = `vlc://${url}`;
+  }
+
+  // Auto-add torrent to library (called on play/infuse/vlc)
+  function autoAddToLibrary(torrent, rowEl) {
+    if (isInLocalLibrary(torrent)) return;
+    const lib = getLocalLibrary();
+    const key = torrent.hash || torrent.title;
+    lib.push({
+      key, title: torrent.title, size: torrent.size,
+      quality: torrent.quality || guessQuality(torrent.title),
+      source: torrent.source, directUrl: torrent._directUrl || null,
+      magnet: torrent.magnet || null, hash: torrent.hash || null,
+      addedAt: new Date().toISOString(), imdbId: currentImdbId || null,
+    });
+    saveLocalLibrary(lib);
+    // Update button if visible
+    const libBtn = rowEl?.querySelector('[data-action="add-lib"]');
+    if (libBtn) {
+      libBtn.classList.remove('ext');
+      libBtn.classList.add('rd', 'added');
+      libBtn.innerHTML = '✅ In Library';
+    }
   }
 
   // ── Local Library (📚) ──
@@ -3497,13 +3570,23 @@
       infuseBtn.textContent = '📺';
       linksEl.appendChild(infuseBtn);
 
+      // VLC button per quality
+      const vlcBtn = document.createElement('a');
+      vlcBtn.href = `vlc://${link.url}`;
+      vlcBtn.className = 'stream-ext-btn';
+      vlcBtn.style.cssText = 'border-color: rgba(255,136,0,0.4); color: #ff8800; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
+      vlcBtn.title = 'Open in VLC';
+      vlcBtn.textContent = '🎬';
+      linksEl.appendChild(vlcBtn);
+
       if (isFirst) { video.src = link.url; video.play().catch(() => {}); }
     });
 
     if (statusEl) {
       statusEl.innerHTML =
         `🎬 <b style="color:#fff">${links.length} stream${links.length !== 1 ? 's' : ''}</b> for <em>${title}</em>` +
-        ` · <span style="color:#ff9500;cursor:pointer;" onclick="openAllInInfuse()">📺 Open in Infuse</span>`;
+        ` · <span style="color:#ff9500;cursor:pointer;" onclick="openAllInInfuse()">📺 Infuse</span>` +
+        ` · <span style="color:#ff8800;cursor:pointer;" onclick="openAllInVLC()">🎬 VLC</span>`;
     }
   }
 
@@ -3512,6 +3595,13 @@
     const video = document.getElementById('rd-player');
     if (video?.src) {
       window.location.href = `infuse://x-callback-url/play?url=${encodeURIComponent(video.src)}`;
+    }
+  }
+
+  function openAllInVLC() {
+    const video = document.getElementById('rd-player');
+    if (video?.src) {
+      window.location.href = `vlc://${video.src}`;
     }
   }
 
@@ -3947,24 +4037,105 @@
     const favList = isAdultMode ? xxxFavorites : favorites;
     const section = document.getElementById(isAdultMode ? 'section-xxx-favorites' : 'section-favorites');
     if (!section) return;
-    const allFavorites = [...favList.movies, ...(isAdultMode ? [] : (favList.tv || [])), ...favList.actors];
-    if (allFavorites.length === 0) { section.style.display = 'none'; return; }
-    section.style.display = 'block';
-    const gridId    = isAdultMode ? 'xxx-favorites-grid' : 'favorites-grid';
-    const filterPfx = isAdultMode ? 'xxx-fav' : 'fav';
-    await renderVerticalGrid(gridId, allFavorites, true);
-    document.querySelectorAll(`[data-filter$="${filterPfx}"]`).forEach(btn => {
-      btn.onclick = async () => {
-        document.querySelectorAll(`[data-filter$="${filterPfx}"]`).forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const f = btn.dataset.filter;
-        const filtered = f === `all-${filterPfx}` ? allFavorites
-          : f === `movies-${filterPfx}` ? favList.movies
-          : f === `tv-${filterPfx}`     ? (favList.tv || [])
-          : favList.actors;
-        await renderVerticalGrid(gridId, filtered, f.includes('actors'));
-      };
-    });
+    // Hide inline favorites sections — now using dedicated page
+    section.style.display = 'none';
+  }
+
+  // ── Favorites Page ──
+  function openFavoritesPage() {
+    const page = document.getElementById('favorites-page');
+    if (!page) return;
+    page.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    renderFavoritesPage('all');
+  }
+  function closeFavoritesPage() {
+    const page = document.getElementById('favorites-page');
+    if (page) page.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  function setFavFilter(btn, filter) {
+    document.querySelectorAll('[data-fav-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderFavoritesPage(filter);
+  }
+  async function renderFavoritesPage(filter) {
+    const grid = document.getElementById('favorites-page-grid');
+    if (!grid) return;
+    const favList = isAdultMode ? xxxFavorites : favorites;
+    let items;
+    if (filter === 'movie')      items = favList.movies || [];
+    else if (filter === 'tv')    items = favList.tv || [];
+    else if (filter === 'person') items = favList.actors || [];
+    else items = [...(favList.movies || []), ...(favList.tv || []), ...(favList.actors || [])];
+    if (items.length === 0) {
+      grid.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.3);">No favorites yet. Add some from the detail view!</div>';
+      return;
+    }
+    await renderVerticalGrid('favorites-page-grid', items, filter === 'person');
+  }
+
+  // ── Import / Export Settings ──
+  function exportSettings() {
+    const data = {
+      version: 1,
+      exportDate: new Date().toISOString(),
+      appSettings,
+      favorites,
+      xxxFavorites,
+      watchHistory: {},
+      library: [],
+    };
+    // Gather watch history
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith('watched_')) data.watchHistory[key] = JSON.parse(localStorage.getItem(key));
+    }
+    // Gather library
+    try { data.library = JSON.parse(localStorage.getItem('watcher_library') || '[]'); } catch {}
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = `watcher-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  function importSettings(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.appSettings) {
+          Object.assign(appSettings, data.appSettings);
+          saveSettings();
+        }
+        if (data.favorites) {
+          favorites = data.favorites;
+          localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        if (data.xxxFavorites) {
+          xxxFavorites = data.xxxFavorites;
+          localStorage.setItem('xxxFavorites', JSON.stringify(xxxFavorites));
+        }
+        if (data.watchHistory) {
+          for (const [key, val] of Object.entries(data.watchHistory)) {
+            localStorage.setItem(key, JSON.stringify(val));
+          }
+        }
+        if (data.library) {
+          localStorage.setItem('watcher_library', JSON.stringify(data.library));
+        }
+        loadSettings();
+        alert('✅ Settings restored successfully! Reload for full effect.');
+      } catch (err) {
+        alert('❌ Failed to import: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = ''; // Reset input
   }
 
   async function loadHome() {
@@ -4013,6 +4184,7 @@
 
   async function openMovieDetail(movieId) {
     currentMovieId = movieId;
+    closeFavoritesPage(); // Close favorites overlay if open
     showLoading({ message: 'Loading movie details…' });
     try {
       const apiFunc = isAdultMode ? tmdbAdult : tmdb;
@@ -4153,6 +4325,7 @@
 
   async function openTVDetail(tvId) {
     currentMovieId = tvId;
+    closeFavoritesPage(); // Close favorites overlay if open
     showLoading({ message: 'Loading TV show details…' });
     try {
       const apiFunc = isAdultMode ? tmdbAdult : tmdb;
@@ -4218,7 +4391,7 @@
 
       // ★ Play button — shows next unwatched episode
       const nextEp = getNextUnwatched(tvId, seasons);
-      const tvSearchBase = year ? `${title} ${firstAirYear}` : title;
+      const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       if (nextEp) {
         const epLabel = `S${nextEp.season}E${nextEp.episode}`;
         const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
