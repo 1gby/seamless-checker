@@ -685,6 +685,38 @@
     }
     #settings-close:hover { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
 
+    /* ── Favorites Overlay (mirrors settings modal, purple theme) ── */
+    #favorites-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+      z-index: 1500; display: none; align-items: flex-start; justify-content: center;
+      padding: 1rem; padding-top: 3.5rem; overflow-y: auto;
+    }
+    #favorites-overlay.active { display: flex; }
+    #favorites-panel {
+      background: var(--modal-bg); border: 1.5px solid rgba(118,75,162,0.45);
+      border-radius: 20px; width: 100%; max-width: 620px;
+      overflow: hidden; box-shadow: 0 0 60px rgba(118,75,162,0.15);
+    }
+    #favorites-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      background: rgba(118,75,162,0.08);
+      border-bottom: 1px solid rgba(118,75,162,0.25);
+    }
+    #favorites-header h2 {
+      font-size: 1.6rem; margin: 0; color: #c084fc;
+      font-family: var(--ff-display); letter-spacing: 0.05em;
+    }
+    #favorites-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+      color: #fff; font-size: 1.3rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    #favorites-close:hover { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
+    #favorites-body { padding: 1.25rem; }
+
     #settings-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.75rem; }
 
     .settings-section { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -939,8 +971,8 @@
     .weather-temp         { font-size: 0.8rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; line-height: 1; }
     .weather-time         { font-size: 0.8rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; }
     .weather-divider      { color: rgba(255,255,255,0.2); font-weight: 300; }
-    .weather-condition    { font-size: 0.7rem; font-weight: 600; color: #764ba2; white-space: nowrap; text-align: center; line-height: 1.2; }
-    .weather-location     { font-size: 0.7rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; text-align: center; line-height: 1.2; }
+    .weather-condition    { font-size: 0.7rem; font-weight: 600; color: #764ba2; text-align: center; line-height: 1.2; }
+    .weather-location     { font-size: 0.7rem; font-weight: 600; color: var(--accent-green); text-align: center; line-height: 1.2; }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-21  FOOTER + EASTER EGG
@@ -1018,9 +1050,11 @@
          alt="Rudeboy" title="Click to refresh">
 
 <!-- Centered title -->
+
 <h1 class="title-text" id="app-title">Watcher</h1>
 
 <!-- Right cluster: favorites + adult indicator + settings gear -->
+
 <div class="header-right">
   <button id="favs-btn" title="Favorites" onclick="openFavoritesPage()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🔥</button>
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
@@ -1124,19 +1158,22 @@
      ══════════════════════════════════════════════════════════════════ -->
 
 <!-- FAVORITES PAGE OVERLAY -->
-<div id="favorites-page" style="position:fixed;inset:0;z-index:1050;background:var(--bg);display:none;overflow-y:auto;">
-  <div style="max-width:900px;margin:0 auto;padding:1rem;">
-    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-      <button onclick="closeFavoritesPage()" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(118,75,162,0.3);color:#fff;font-size:1.2rem;cursor:pointer;width:2.5rem;height:2.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">←</button>
-      <h2 style="margin:0;font-size:1.3rem;color:var(--accent-green);font-family:var(--ff-display);letter-spacing:0.05em;">🔥 MY FAVORITES</h2>
+
+<div id="favorites-overlay" onclick="if(event.target===this)closeFavoritesPage()">
+  <div id="favorites-panel">
+    <div id="favorites-header">
+      <h2>🔥 MY FAVORITES</h2>
+      <button id="favorites-close" onclick="closeFavoritesPage()">×</button>
     </div>
-    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
-      <button class="tor-filter-chip active" data-fav-filter="all" onclick="setFavFilter(this,'all')">All</button>
-      <button class="tor-filter-chip" data-fav-filter="movie" onclick="setFavFilter(this,'movie')">🎬 Movies</button>
-      <button class="tor-filter-chip" data-fav-filter="tv" onclick="setFavFilter(this,'tv')">📺 TV Shows</button>
-      <button class="tor-filter-chip" data-fav-filter="person" onclick="setFavFilter(this,'person')">🎭 Actors</button>
+    <div id="favorites-body">
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="tor-filter-chip active" data-fav-filter="all" onclick="setFavFilter(this,'all')">All</button>
+        <button class="tor-filter-chip" data-fav-filter="movie" onclick="setFavFilter(this,'movie')">🎬 Movies</button>
+        <button class="tor-filter-chip" data-fav-filter="tv" onclick="setFavFilter(this,'tv')">📺 TV Shows</button>
+        <button class="tor-filter-chip" data-fav-filter="person" onclick="setFavFilter(this,'person')">🎭 Actors</button>
+      </div>
+      <div id="favorites-page-grid"></div>
     </div>
-    <div id="favorites-page-grid"></div>
   </div>
 </div>
 
@@ -1155,6 +1192,7 @@
   <div id="torrent-overlay-inner">
 
 <!-- Header bar -->
+
 <div id="torrent-overlay-header">
   <button id="torrent-overlay-back" onclick="closeTorrentOverlay()" title="Back">←</button>
   <div style="flex:1;">
@@ -1164,6 +1202,7 @@
 </div>
 
 <!-- Live filter chips (multi-select) -->
+
 <div id="torrent-filter-bar">
   <button class="tor-filter-chip active" data-tor-filter="all"    onclick="toggleTorFilter(this,'all')">All</button>
   <button class="tor-filter-chip"        data-tor-filter="4k"     onclick="toggleTorFilter(this,'4k')">4K</button>
@@ -1178,6 +1217,7 @@
 </div>
 
 <!-- Re-search input (moved below filters) -->
+
 <div style="display:flex;gap:0.4rem;padding:0.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
     style="flex:1;padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
@@ -1188,12 +1228,15 @@
 </div>
 
 <!-- Status line -->
+
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
 
 <!-- Results list (populated by JS) -->
+
 <div id="torrent-overlay-results"></div>
 
 <!-- Stream player (shown after RD unrestrict) -->
+
 <div id="torrent-overlay-player">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;"></div>
@@ -1219,15 +1262,18 @@
   <div id="settings-panel">
 
 <!-- Header -->
+
 <div id="settings-header">
   <h2>⚙️ Settings</h2>
   <button id="settings-close" onclick="closeSettingsModal()">×</button>
 </div>
 
 <!-- Body -->
+
 <div id="settings-body">
 
   <!-- § Real-Debrid Token -->
+
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid API Token</div>
     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
@@ -1249,6 +1295,7 @@
   </div>
 
   <!-- § Torrent Sources -->
+
   <div class="settings-section">
     <div class="settings-section-title">Built-in Scrapers</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
@@ -1287,6 +1334,7 @@
   </div>
 
   <!-- § Quality Filters -->
+
   <div class="settings-section">
     <div class="settings-section-title">Quality Filters (include in results)</div>
     <div class="settings-checkbox-grid">
@@ -1301,6 +1349,7 @@
   </div>
 
   <!-- § Exclude Keywords -->
+
   <div class="settings-section">
     <div class="settings-section-title">Exclude from Results</div>
     <div class="settings-checkbox-grid">
@@ -1317,6 +1366,7 @@
   </div>
 
   <!-- § Search Options -->
+
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
     <div class="settings-row">
@@ -1334,6 +1384,7 @@
   </div>
 
   <!-- § Stremio Addons (Torrentio, Comet, etc.) -->
+
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
@@ -1370,6 +1421,7 @@
   </div>
 
   <!-- § RD Library -->
+
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid Library</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -1385,6 +1437,7 @@
   </div>
 
   <!-- § Import / Export Settings -->
+
   <div class="settings-section">
     <div class="settings-section-title">Backup & Restore</div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -1396,6 +1449,7 @@
   </div>
 
   <!-- § Disclaimer -->
+
   <div class="settings-section">
     <div class="settings-section-title">Legal Disclaimer</div>
     <div class="settings-disclaimer">
@@ -4115,15 +4169,12 @@
 
   // ── Favorites Page ──
   function openFavoritesPage() {
-    const page = document.getElementById('favorites-page');
-    if (!page) return;
-    page.style.display = 'block';
+    document.getElementById('favorites-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
     renderFavoritesPage('all');
   }
   function closeFavoritesPage() {
-    const page = document.getElementById('favorites-page');
-    if (page) page.style.display = 'none';
+    document.getElementById('favorites-overlay')?.classList.remove('active');
     document.body.style.overflow = '';
   }
   function setFavFilter(btn, filter) {
