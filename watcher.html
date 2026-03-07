@@ -2357,11 +2357,11 @@
         const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
         let manifestData;
         try {
-          const r = await fetch(manifestUrl, { signal: AbortSignal.timeout(8000) });
+          const r = await fetch(manifestUrl, { signal: AbortSignal.timeout(5000) });
           if (r.ok) manifestData = await r.json();
         } catch {}
         if (!manifestData) {
-          const r = await corsGet(manifestUrl, 8000);
+          const r = await corsGet(manifestUrl, 5000);
           manifestData = await r.json();
         }
         if (manifestData?.catalogs?.length) {
@@ -2412,11 +2412,11 @@
       const catalogUrl = `${baseUrl}/catalog/${entry.catalog.type}/${entry.catalog.id}.json`;
       let data;
       try {
-        const r = await fetch(catalogUrl, { signal: AbortSignal.timeout(10000) });
+        const r = await fetch(catalogUrl, { signal: AbortSignal.timeout(6000) });
         if (r.ok) data = await r.json();
       } catch {}
       if (!data) {
-        const r = await corsGet(catalogUrl, 10000);
+        const r = await corsGet(catalogUrl, 6000);
         data = await r.json();
       }
 
@@ -2692,10 +2692,7 @@
     const fullUrl = `${RD_API}${path}${sep}auth_token=${encodeURIComponent(token)}`;
 
     // Fetch options: no Authorization header, keep Content-Type simple
-    const fetchOpts = {
-      method,
-      signal: AbortSignal.timeout(20000),
-    };
+    const fetchOpts = { method };
     if (options.body) fetchOpts.body = options.body;
     if (options.headers) {
       const h = { ...options.headers };
@@ -2704,6 +2701,7 @@
     }
 
     // Parse response (handles 200, 201, 202, 204)
+    // Note: some proxies (allorigins, codetabs) always return 200, so we must check body for errors
     async function parseResponse(res) {
       console.log(`[rdFetch] ${method} ${path} → ${res.status}`);
       if (res.status === 401) {
@@ -2711,32 +2709,33 @@
         throw new Error('RD token invalid or expired — update it in Settings ⚙️');
       }
       if (res.status === 204 || res.status === 202) return null; // No content / action done
-      if (res.status === 201 || res.status === 200) {
+      if (res.ok) {
         const text = await res.text();
         if (!text || text.trim() === '') return null;
-        try { return JSON.parse(text); }
-        catch { console.warn('[rdFetch] Non-JSON response:', text.slice(0, 200)); return null; }
+        try {
+          const json = JSON.parse(text);
+          // Detect RD error responses proxied through as 200
+          if (json.error) {
+            if (json.error_code === 8) { clearRDToken(); updateRDStatusBadge(); throw new Error('RD token invalid or expired'); }
+            throw new Error(`RD: ${json.error} (code ${json.error_code || '?'})`);
+          }
+          return json;
+        }
+        catch (e) {
+          if (e.message.startsWith('RD:') || e.message.includes('token')) throw e;
+          console.warn('[rdFetch] Non-JSON response:', text.slice(0, 200));
+          return null;
+        }
       }
-      // Error responses
+      // Non-OK HTTP status
       let msg = `RD API error ${res.status}`;
       try { const e = await res.json(); msg = e.error || e.message || msg; } catch {}
       throw new Error(msg);
     }
 
-    // 1. Try direct fetch first (works if RD ever adds CORS support)
-    try {
-      const res = await fetch(fullUrl, fetchOpts);
-      return await parseResponse(res);
-    } catch (directErr) {
-      if (directErr.message.includes('token invalid') || directErr.message.includes('RD API error') || directErr.message.includes('RD token')) {
-        throw directErr;
-      }
-      console.warn('[rdFetch] Direct failed (expected - no CORS):', directErr.message);
-    }
-
-    // 2. CORS proxy fallback
-    // For POST requests: corsproxy.io supports POST with body forwarding
-    // For GET requests: all proxies work
+    // RD has NO CORS headers — go straight to proxies (no direct attempt)
+    // POST requests: corsproxy.io and corsfix forward POST bodies
+    // GET requests: all proxies work
     const postCapableProxies = [
       url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
       url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
@@ -2753,7 +2752,9 @@
     for (const makeProxy of proxiesToTry) {
       const proxyUrl = makeProxy(fullUrl);
       try {
-        const res = await fetch(proxyUrl, fetchOpts);
+        // Short timeout per proxy so we fail fast and try the next
+        const proxyOpts = { ...fetchOpts, signal: AbortSignal.timeout(12000) };
+        const res = await fetch(proxyUrl, proxyOpts);
         return await parseResponse(res);
       } catch (e) {
         lastErr = e;
@@ -3451,29 +3452,33 @@
     console.log(`[RD] Unrestricting ${toProcess.length} link(s)…`, toProcess[0]?.slice(0,60));
 
     const results = [];
-    // Process sequentially to avoid rate-limit issues
-    for (const link of toProcess) {
-      try {
+    // Process in parallel (RD allows 250 req/min, parallel is safe for <10 links)
+    const settled = await Promise.allSettled(
+      toProcess.map(async link => {
         const v = await rdFetch('/unrestrict/link', {
           method:  'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body:    new URLSearchParams({ link }),
         });
-        if (v?.download) {
-          const ext = (v.filename || '').split('.').pop().toLowerCase();
-          const isVideo = VIDEO_EXTS.has(ext);
-          results.push({
-            url:      v.download,
-            filename: v.filename || 'video',
-            filesize: v.filesize || 0,
-            quality:  guessQuality(v.filename || ''),
-            mimeType: v.mimeType || '',
-            isVideo,
-          });
-          console.log(`[RD] ✅ Unrestricted: ${v.filename} (${isVideo ? 'video' : ext})`);
-        }
-      } catch (e) {
-        console.warn(`[RD] ❌ Unrestrict failed for link:`, e.message);
+        return v;
+      })
+    );
+    for (const r of settled) {
+      if (r.status === 'fulfilled' && r.value?.download) {
+        const v = r.value;
+        const ext = (v.filename || '').split('.').pop().toLowerCase();
+        const isVideo = VIDEO_EXTS.has(ext);
+        results.push({
+          url:      v.download,
+          filename: v.filename || 'video',
+          filesize: v.filesize || 0,
+          quality:  guessQuality(v.filename || ''),
+          mimeType: v.mimeType || '',
+          isVideo,
+        });
+        console.log(`[RD] ✅ Unrestricted: ${v.filename} (${isVideo ? 'video' : ext})`);
+      } else if (r.status === 'rejected') {
+        console.warn(`[RD] ❌ Unrestrict failed:`, r.reason?.message);
       }
     }
 
