@@ -4278,13 +4278,18 @@
   // ── External App Return Tracking ──
   let _externalAppLaunch = null; // { time, torrent, app }
 
+  // Build Infuse URL with x-success callback so Infuse returns to Watcher after playback
+  function buildInfuseUrl(videoUrl) {
+    const returnUrl = window.location.href.split('#')[0].split('?')[0]; // clean URL
+    return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}&x-success=${encodeURIComponent(returnUrl)}`;
+  }
+
   // ── Open in Infuse ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
     autoAddToLibrary(torrent, rowEl);
     _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
-    const infuseUrl = `infuse://x-callback-url/play?url=${encodeURIComponent(torrent._directUrl)}`;
-    window.location.href = infuseUrl;
+    window.location.href = buildInfuseUrl(torrent._directUrl);
   }
 
   function handleTorrentVLC(torrent, rowEl) {
@@ -4611,7 +4616,7 @@
 
       // Infuse button per quality
       const infuseBtn = document.createElement('a');
-      infuseBtn.href = `infuse://x-callback-url/play?url=${encodeURIComponent(link.url)}`;
+      infuseBtn.href = buildInfuseUrl(link.url);
       infuseBtn.className = 'stream-ext-btn';
       infuseBtn.style.cssText = 'border-color: rgba(255,149,0,0.4); color: #ff9500; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       infuseBtn.title = 'Open in Infuse';
@@ -4652,7 +4657,7 @@
     const video = document.getElementById('rd-player');
     if (video?.src) {
       _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'Infuse' };
-      window.location.href = `infuse://x-callback-url/play?url=${encodeURIComponent(video.src)}`;
+      window.location.href = buildInfuseUrl(video.src);
     }
   }
 
@@ -5433,10 +5438,10 @@
       <div class="cache-popup-panel">
         <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="infuse://x-callback-url/play?url=${encodedUrl}" class="cache-popup-btn infuse" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             📺 Infuse
           </a>
-          <a href="vlc://${url.replace(/"/g, '%22')}" class="cache-popup-btn vlc" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="vlc://${url.replace(/"/g, '%22')}" class="cache-popup-btn vlc" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'VLC'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             🎬 VLC
           </a>
           <button class="cache-popup-btn browser" id="cache-browser-btn">🌐 Browser</button>
