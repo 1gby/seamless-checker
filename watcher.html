@@ -1578,15 +1578,14 @@
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
-      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong> and <strong style="color:#c084fc">Comet</strong> as extra stream sources.
-      These will appear alongside Knaben/YTS/1337x results. Configure your RD key in the addon URL for cached results.
+      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong>, <strong style="color:#c084fc">Comet</strong>, and <strong style="color:#c084fc">MediaFusion</strong> as extra stream sources.
+      These will appear alongside Knaben/YTS/1337x results. Configure your debrid key in the addon URL for cached results.
     </p>
     <div class="addon-quick-add">
       <button class="addon-quick-btn" onclick="quickAddAddon('torrentio')">+ Torrentio</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (with RD)</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('comet')">+ Comet</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('mediafusion')">+ MediaFusion</button>
-      <button class="addon-quick-btn" onclick="quickAddAddon('dmm')">+ DMM</button>
     </div>
     <div class="addon-custom-row">
       <input type="url" id="addon-custom-url" class="addon-custom-input"
@@ -1606,8 +1605,19 @@
       <div id="addon-catalog-status" style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0.4rem 0;"></div>
     </div>
     <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.5rem;">
-      💡 For Torrentio with RD caching: go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
+      💡 <strong style="color:#c084fc;">Torrentio</strong> — The most popular Stremio addon for torrent streams. Aggregates results from multiple torrent providers into one feed.
+      For RD caching: go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
       set your RD API key, then copy the manifest URL and paste above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">Comet</strong> — A fast, modern Stremio addon focused on debrid-cached torrents. Supports Real-Debrid, AllDebrid, Premiumize and more.
+      Click "+ Comet" to open the <a href="https://comet.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">configure page</a>,
+      connect your debrid account, customise your filters, then copy the manifest URL and paste it in the field above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">MediaFusion</strong> — A community-driven Stremio addon that indexes multiple torrent and streaming sources. Highly configurable with provider and quality filters.
+      Click "+ MediaFusion" to open the <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">configure page</a>,
+      set your preferences and debrid provider, then copy the manifest URL and paste it above.
     </p>
   </div>
 
@@ -1774,9 +1784,12 @@
 
   // CORS proxy chain — tried in order until one succeeds
   const CORS_PROXIES = [
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
     url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
+    url => `https://proxy.cors.sh/${url}`,
+    url => `https://thingproxy.freeboard.io/fetch/${url}`,
   ];
 
   // Tracker list appended to every constructed magnet link
@@ -2017,9 +2030,8 @@
   const ADDON_PRESETS = {
     'torrentio':    { name: 'Torrentio',           url: 'https://torrentio.strem.fun' },
     'torrentio-rd': { name: 'Torrentio (RD)',      url: null }, // user must configure
-    'comet':        { name: 'Comet',               url: 'https://comet.elfhosted.com' },
-    'mediafusion':  { name: 'MediaFusion',         url: 'https://mediafusion.elfhosted.com' },
-    'dmm':          { name: 'DMM (Debrid Media Manager)', url: null }, // user must configure
+    'comet':        { name: 'Comet',               url: null, configureUrl: 'https://comet.elfhosted.com/configure' },
+    'mediafusion':  { name: 'MediaFusion',         url: null, configureUrl: 'https://mediafusion.elfhosted.com/configure' },
   };
 
   function quickAddAddon(presetKey) {
@@ -2040,16 +2052,10 @@
       renderAddonList();
       return;
     }
-    if (presetKey === 'dmm') {
-      const url = prompt('Paste your DMM Stremio addon URL:\n\nExample: https://debridmediamanager.com/api/stremio/YOUR_ID/manifest.json\n\nGet it from debridmediamanager.com → Stremio addon page.');
-      if (!url?.trim()) return;
-      const cleanUrl = url.trim().replace(/\/manifest\.json\/?$/, '');
-      const existing = (appSettings.stremioAddons || []).find(a => a.url.includes('debridmediamanager'));
-      if (existing) { alert('DMM addon is already configured.'); return; }
-      appSettings.stremioAddons = appSettings.stremioAddons || [];
-      appSettings.stremioAddons.push({ name: 'DMM', url: cleanUrl, enabled: true });
-      saveSettings();
-      renderAddonList();
+    // Comet & MediaFusion — open configure page so user can customise + get their manifest URL
+    if (preset.configureUrl) {
+      window.open(preset.configureUrl, '_blank', 'noopener');
+      showToast(`${preset.name} configure page opened — copy your manifest URL and paste it below.`, 'info');
       return;
     }
     const existing = (appSettings.stremioAddons || []).find(a => a.url === preset.url);
@@ -2568,6 +2574,16 @@
   // CORS proxy — tries each proxy in order until one responds OK
   async function corsGet(targetUrl, timeoutMs = 9000) {
     let lastErr;
+    // Try direct fetch first (works for APIs with CORS headers like YTS)
+    try {
+      const res = await fetch(targetUrl, { signal: AbortSignal.timeout(timeoutMs) });
+      if (res.ok) return res;
+      lastErr = new Error(`HTTP ${res.status}`);
+    } catch (e) {
+      lastErr = e;
+      console.warn('[corsGet] Direct failed, trying proxies…', targetUrl.slice(0, 60));
+    }
+    // Fallback: CORS proxy chain
     for (const makeProxy of CORS_PROXIES) {
       const proxyUrl = makeProxy(targetUrl);
       try {
@@ -2576,7 +2592,7 @@
         lastErr = new Error(`HTTP ${res.status}`);
       } catch (e) {
         lastErr = e;
-        console.warn('[CORS proxy failed]', proxyUrl, e.message);
+        console.warn('[CORS proxy failed]', proxyUrl.slice(0, 80), e.message);
       }
     }
     throw lastErr || new Error('All CORS proxies failed');
@@ -2670,28 +2686,39 @@
   async function searchKnaben(title, maxResults = 100) {
     const q = encodeURIComponent(title);
 
-    // Method 1: Try Knaben HTML scraping (multiple URL patterns)
-    const urlsToTry = [
-      `https://knaben.eu/search/${q}/0/0/seeders_desc`,
-      `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
-      `https://knaben.org/search/${q}/0/0/seeders_desc`,
+    // Method 1: Try Knaben JSON API first (most reliable)
+    const apiUrls = [
+      'https://knaben.eu/api/v1/search',
+      'https://knaben.org/api/v1/search',
     ];
-    for (const url of urlsToTry) {
+    const body = JSON.stringify({ query: title, order_by: 'seeders', order_direction: 'desc', limit: maxResults });
+    for (const apiUrl of apiUrls) {
+      // Try direct POST first
       try {
-        const res     = await corsGet(url, 9000);
-        const html    = await res.text();
-        const results = parseKnabenHTML(html);
-        if (results.length > 0) {
-          console.log(`[Knaben] ✅ ${results.length} results via ${url}`);
-          return results.slice(0, maxResults);
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+          signal: AbortSignal.timeout(10000),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const hits = data.hits || data.results || data || [];
+          if (Array.isArray(hits) && hits.length > 0) {
+            console.log(`[Knaben API direct] ✅ ${hits.length} results`);
+            return hits.map(h => ({
+              title: h.title || h.name || 'Unknown',
+              size: h.size ? formatBytes(h.size) : '?',
+              seeds: h.seeders || h.seeds || 0,
+              magnet: h.magnet || (h.hash ? buildMagnet(h.hash, h.title) : null),
+              hash: h.hash || h.info_hash || extractHashFromMagnet(h.magnet || ''),
+              source: 'knaben',
+            })).slice(0, maxResults);
+          }
         }
-      } catch (e) { console.warn(`[Knaben] ${url}:`, e.message); }
-    }
+      } catch (e) { console.warn(`[Knaben API direct] ${apiUrl}:`, e.message); }
 
-    // Method 2: Try Knaben JSON API (more reliable for some content)
-    try {
-      const apiUrl = `https://knaben.eu/api/v1/search`;
-      const body = JSON.stringify({ query: title, order_by: 'seeders', order_direction: 'desc', limit: maxResults });
+      // Try through CORS proxies
       for (const makeProxy of CORS_PROXIES) {
         try {
           const res = await fetch(makeProxy(apiUrl), {
@@ -2704,7 +2731,7 @@
           const data = await res.json();
           const hits = data.hits || data.results || data || [];
           if (Array.isArray(hits) && hits.length > 0) {
-            console.log(`[Knaben API] ✅ ${hits.length} results`);
+            console.log(`[Knaben API proxy] ✅ ${hits.length} results`);
             return hits.map(h => ({
               title: h.title || h.name || 'Unknown',
               size: h.size ? formatBytes(h.size) : '?',
@@ -2716,7 +2743,25 @@
           }
         } catch {}
       }
-    } catch (e) { console.warn('[Knaben API]', e.message); }
+    }
+
+    // Method 2: Fallback to HTML scraping
+    const urlsToTry = [
+      `https://knaben.eu/search/${q}/0/0/seeders_desc`,
+      `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
+      `https://knaben.org/search/${q}/0/0/seeders_desc`,
+    ];
+    for (const url of urlsToTry) {
+      try {
+        const res     = await corsGet(url, 9000);
+        const html    = await res.text();
+        const results = parseKnabenHTML(html);
+        if (results.length > 0) {
+          console.log(`[Knaben HTML] ✅ ${results.length} results via ${url}`);
+          return results.slice(0, maxResults);
+        }
+      } catch (e) { console.warn(`[Knaben HTML] ${url}:`, e.message); }
+    }
 
     return [];
   }
@@ -2963,7 +3008,7 @@
         } else if (!imdbId) {
           onStatus('info', '⚠️ No IMDB ID — addons need an IMDB ID to search. Try the 🧲 Torrents tab instead.');
         } else if (enabledAddons.length === 0) {
-          onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or DMM in Settings ⚙️');
+          onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or MediaFusion in Settings ⚙️');
         }
       }
 
@@ -3512,7 +3557,7 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = overlayMode === 'streams' ? `⚡ ${displayTitle || searchQuery}` : `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, DMM…)' : 'Searching torrent sites…';
+    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion…)' : 'Searching torrent sites…';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Update mode toggle buttons
@@ -3561,7 +3606,7 @@
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     if (titleEl)    titleEl.textContent    = mode === 'streams' ? `⚡ ${torrentOverlayTitle}` : `🧲 ${torrentOverlayTitle}`;
-    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, DMM…)' : 'Searching torrent sites…';
+    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion…)' : 'Searching torrent sites…';
 
     // Show/hide magnet bar
     const magnetBar = document.getElementById('magnet-input-bar');
