@@ -1426,15 +1426,6 @@
           onclick="runTorrentOverlaySearch()">🔍</button>
 </div>
 
-<!-- Manual magnet input -->
-
-<div class="magnet-input-bar" id="magnet-input-bar">
-  <input id="magnet-url-input" type="text" placeholder="Paste magnet:?xt=urn:btih:… or magnet link"
-    onkeydown="if(event.key==='Enter')handleManualMagnet()">
-  <button class="settings-btn green" style="padding:0.4rem 0.7rem;font-size:0.78rem;"
-          onclick="handleManualMagnet()">⬇ Add</button>
-</div>
-
 <!-- Status line -->
 
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
@@ -3149,7 +3140,7 @@
       allResults = [...allResults, ...unique];
     }
 
-    // ═══ STREAMS MODE: Stremio Addons + RD Cache Lookup ═══
+    // ═══ STREAMS MODE: Stremio Addons only ═══
     if (mode === 'streams') {
       if (!isAdultMode) {
         const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
@@ -3162,55 +3153,17 @@
           } catch (e) { console.warn('[search] Stremio addons:', e); }
         } else if (!imdbId) {
           onStatus('info', '⚠️ No IMDB ID — addons need an IMDB ID to search. Try the 🧲 Torrents tab instead.');
-        }
-
-        // RD Cache Lookup: search scrapers for hashes, check which are already in RD
-        if (getRDToken() && rdTorrentCache?.size > 0) {
-          const addonCount = allResults.length;
-          onStatus('searching', '📦 Checking RD cache for instant streams…');
-          try {
-            // Quick scraper sweep for hashes
-            const scraperResults = [];
-            if (appSettings.srcApibay !== false) {
-              try { scraperResults.push(...await searchAPIBay(title, 40)); } catch {}
-            }
-            if (appSettings.srcYts !== false) {
-              try { scraperResults.push(...await searchYTS(title, 15)); } catch {}
-            }
-            // Check which hashes are already cached in RD
-            const rdHits = scraperResults.filter(r => {
-              const h = (r.hash || '').toLowerCase();
-              return h && rdTorrentCache.has(h);
-            }).map(r => {
-              const rdInfo = rdTorrentCache.get(r.hash.toLowerCase());
-              return {
-                ...r,
-                source: 'rd-cached',
-                sourceLabel: '📦 RD Cached',
-                _rdId: rdInfo?.id,
-                _rdStatus: rdInfo?.status,
-              };
-            });
-            if (rdHits.length > 0) {
-              dedupeAndMerge(applySettingsFilters(filterTorrentResults(rdHits)));
-              if (allResults.length > addonCount) {
-                onStatus('results', `⚡ ${allResults.length} streams (${allResults.length - addonCount} from RD cache)`, sortTorrentResults(allResults));
-              }
-            }
-          } catch (e) { console.warn('[search] RD cache lookup:', e); }
-        }
-
-        if (enabledAddons.length === 0 && allResults.length === 0) {
-          onStatus('info', '⚠️ No addons configured and no RD cached results. Add Torrentio, Comet, or MediaFusion in Settings ⚙️ or use the 🧲 Torrents tab.');
+        } else if (enabledAddons.length === 0) {
+          onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or MediaFusion in Settings ⚙️');
         }
       }
 
       if (allResults.length > 0) {
         const sorted = sortTorrentResults(allResults);
-        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''}`, sorted);
+        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} from addons`, sorted);
         return sorted;
       }
-      onStatus('empty', `😶 No streams found. Try the 🧲 Torrents tab or add more addons in Settings.`);
+      onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
       return [];
     }
 
@@ -3770,7 +3723,7 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = overlayMode === 'streams' ? `⚡ ${displayTitle || searchQuery}` : `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Stremio addons + RD cache' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
+    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Stremio addons (Torrentio, Comet, MediaFusion…)' : 'Torrent scrapers → Open in DMM';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Update mode toggle buttons
@@ -3780,8 +3733,6 @@
     if (btnTorrents) btnTorrents.classList.toggle('active', overlayMode === 'torrents');
 
     // Show/hide magnet bar (only in torrents mode)
-    const magnetBar = document.getElementById('magnet-input-bar');
-    if (magnetBar) magnetBar.classList.toggle('visible', overlayMode === 'torrents');
 
     // Reset state
     const resultsEl = document.getElementById('torrent-overlay-results');
@@ -3821,11 +3772,9 @@
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     if (titleEl)    titleEl.textContent    = mode === 'streams' ? `⚡ ${torrentOverlayTitle}` : `🧲 ${torrentOverlayTitle}`;
-    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Stremio addons + RD cache' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
+    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Stremio addons (Torrentio, Comet, MediaFusion…)' : 'Torrent scrapers → Open in DMM';
 
     // Show/hide magnet bar
-    const magnetBar = document.getElementById('magnet-input-bar');
-    if (magnetBar) magnetBar.classList.toggle('visible', mode === 'torrents');
 
     // Clear and re-search
     const resultsEl = document.getElementById('torrent-overlay-results');
@@ -3843,44 +3792,6 @@
 
     const q = document.getElementById('torrent-overlay-search-input')?.value?.trim() || torrentOverlayTitle;
     initTorrentSearch(q, torrentOverlayTitle);
-  }
-
-  // Manual magnet link handler
-  function handleManualMagnet() {
-    const inp = document.getElementById('magnet-url-input');
-    let magnet = (inp?.value || '').trim();
-    if (!magnet) { showToast('Paste a magnet link first', 'error'); return; }
-
-    // Accept bare info hash and build magnet
-    if (/^[a-f0-9]{40}$/i.test(magnet)) {
-      magnet = `magnet:?xt=urn:btih:${magnet}`;
-    }
-    if (!magnet.startsWith('magnet:?xt=urn:btih:')) {
-      showToast('Invalid magnet link format', 'error'); return;
-    }
-
-    // Extract hash
-    const hashMatch = magnet.match(/btih:([a-f0-9]{40})/i);
-    const hash = hashMatch ? hashMatch[1].toLowerCase() : null;
-    const statusEl = document.getElementById('torrent-overlay-status');
-
-    if (!getRDToken()) {
-      showToast('Add your RD API token in Settings first', 'error'); return;
-    }
-
-    if (statusEl) statusEl.innerHTML = '📡 Adding magnet to Real-Debrid…';
-    if (inp) inp.value = '';
-
-    addToRealDebrid(magnet, (type, msg, progress) => {
-      if (statusEl) statusEl.innerHTML = msg;
-    }).then(links => {
-      if (links?.length) {
-        renderStreamPlayer(links, 'Manual Magnet');
-        showToast('✅ Magnet added & ready to play', 'success');
-        // Update cache
-        if (hash) loadRDTorrentCache();
-      }
-    });
   }
 
   function closeTorrentOverlay() {
@@ -4182,20 +4093,14 @@
       const libClass = inRD ? 'rd added' : 'ext';
       let actions = '';
       if (isDirect) {
+        // Stremio addon direct streams — these have real playable URLs
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
-        actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
-      } else if (inRD) {
-        // Already in RD — can unrestrict and play/Infuse/VLC directly
-        actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
-        actions += `<button class="tor-action-btn infuse" data-action="play-infuse" style="border-color:rgba(255,149,0,0.4);color:#ff9500;">📺 Infuse</button>`;
-        actions += `<button class="tor-action-btn ext" data-action="play-vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
-        actions += `<button class="tor-action-btn rd added">✅ In RD</button>`;
       } else {
-        actions += `<button class="tor-action-btn play" data-action="play">▶ Play via RD</button>`;
-        if (hasRD) actions += `<button class="tor-action-btn rd" data-action="add-rd">⬇ Add to RD</button>`;
-        actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
+        // Raw torrent / addon hash — open in DMM to handle RD
+        actions += `<button class="tor-action-btn play" data-action="open-dmm" style="border-color:#00a0b0;color:#00a0b0;">🔗 Open in DMM</button>`;
+        if (torHash) actions += `<button class="tor-action-btn ext" data-action="copy-hash" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.6);">📋 Copy Hash</button>`;
       }
 
       row.innerHTML = `
@@ -4215,28 +4120,20 @@
         btn.onclick = (e) => {
           e.stopPropagation();
           const action = btn.dataset.action;
-          if (action === 'play')           handleTorrentPlay(torrent, row);
-          else if (action === 'add-rd')    handleTorrentAddRD(torrent, row);
-          else if (action === 'infuse')    handleTorrentInfuse(torrent, row);
-          else if (action === 'vlc')       handleTorrentVLC(torrent, row);
-          else if (action === 'play-infuse') handleRDCachedPlay(torrent, row, 'infuse');
-          else if (action === 'play-vlc')    handleRDCachedPlay(torrent, row, 'vlc');
-          else if (action === 'add-lib')   handleAddToLibrary(torrent, btn);
+          if (action === 'play')         handleTorrentPlay(torrent, row);
+          else if (action === 'infuse')  handleTorrentInfuse(torrent, row);
+          else if (action === 'vlc')     handleTorrentVLC(torrent, row);
+          else if (action === 'open-dmm') handleOpenInDMM(torrent);
+          else if (action === 'copy-hash') handleCopyHash(torrent, btn);
         };
       });
       return row;
   }
 
-  // ── Play action: Direct streams play immediately, RD cached unrestricts, others go through RD ──
+  // ── Play action: Direct streams only (from Stremio addons with playable URLs) ──
   async function handleTorrentPlay(torrent, rowEl) {
     const statusEl = document.getElementById('torrent-overlay-status');
-    const progBar  = rowEl.querySelector('.tor-row-progress');
-    const progFill = rowEl.querySelector('.tor-row-progress-fill');
 
-    // Auto-add to library when playing
-    autoAddToLibrary(torrent, rowEl);
-
-    // Direct stream — play immediately
     if (torrent._isDirect && torrent._directUrl) {
       if (statusEl) statusEl.innerHTML = '⚡ Loading direct stream…';
       const directLink = {
@@ -4251,173 +4148,53 @@
       return;
     }
 
-    // RD Cached shortcut — already in RD, just unrestrict
-    const torHash = (torrent.hash || '').toLowerCase();
-    const rdCacheEntry = torHash && rdTorrentCache?.get(torHash);
-    if (rdCacheEntry?.id) {
-      if (statusEl) statusEl.innerHTML = '📦 Unrestricting from RD cache…';
-      if (progBar) progBar.classList.add('visible');
-      if (progFill) progFill.style.width = '30%';
-      try {
-        const info = await rdFetch(`/torrents/info/${rdCacheEntry.id}`);
-        if (progFill) progFill.style.width = '60%';
-        if (info?.links?.length > 0) {
-          const streamLinks = await unrestrictVideoLinks(info.links);
-          if (progFill) progFill.style.width = '100%';
-          setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 800);
-          if (streamLinks.length > 0) {
-            renderStreamPlayer(streamLinks, torrentOverlayTitle || torrent.title);
-            return;
-          }
-        }
-        // If no links, fall through to magnet flow
-        if (statusEl) statusEl.innerHTML = '⚠️ No links in RD cache, trying magnet…';
-      } catch (e) {
-        console.warn('[RD cached play]', e.message);
-        if (statusEl) statusEl.innerHTML = '⚠️ RD cache failed, trying magnet…';
-      }
-      if (progBar) progBar.classList.remove('visible');
-    }
-
-    // Magnet-based — RD flow
-    let magnet = torrent.magnet;
-    if (torrent.source === '1337x' && !magnet && torrent._detailUrl) {
-      if (statusEl) statusEl.innerHTML = '🔗 Fetching magnet from 1337x…';
-      try { magnet = await fetch1337xMagnet(torrent._detailUrl); torrent.magnet = magnet; }
-      catch (e) { if (statusEl) statusEl.innerHTML = `❌ 1337x magnet fetch failed: ${e.message}`; return; }
-    }
-
-    if (!magnet) { if (statusEl) statusEl.innerHTML = '❌ No magnet link available'; return; }
-
-    // Show progress bar
-    if (progBar) { progBar.classList.add('visible'); }
-    if (progFill) progFill.style.width = '5%';
-
-    const streamLinks = await addToRealDebrid(magnet, (type, msg, rdProgress) => {
-      if (statusEl) statusEl.innerHTML = msg;
-      // Use real RD progress percentage
-      if (progFill && typeof rdProgress === 'number') {
-        // Map: 0-100 RD progress → 10-95% bar
-        const barPct = Math.max(10, Math.min(95, rdProgress * 0.85 + 10));
-        progFill.style.width = `${barPct}%`;
-        progFill.style.transition = 'width 0.5s ease';
-      }
-    });
-
-    if (progFill) progFill.style.width = '100%';
-    setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 800);
-
-    if (streamLinks?.length) {
-      rowEl.classList.add('added-to-rd');
-      renderStreamPlayer(streamLinks, torrentOverlayTitle || torrent.title);
-    }
+    // Non-direct: open in DMM instead
+    handleOpenInDMM(torrent);
   }
 
-  // ── Add to RD only (no play) ──
-  // Per RD API docs: POST /torrents/addMagnet → 201 {id, uri}
-  //                  GET  /torrents/info/{id}  → torrent details with status/files
-  //                  POST /torrents/selectFiles/{id} → 204 (starts download)
-  async function handleTorrentAddRD(torrent, rowEl) {
+  // ── Open in DMM (Debrid Media Manager) — DMM handles all RD interaction ──
+  function handleOpenInDMM(torrent) {
     const statusEl = document.getElementById('torrent-overlay-status');
-    const rdBtn    = rowEl.querySelector('.tor-action-btn.rd');
-    const progBar  = rowEl.querySelector('.tor-row-progress');
-    const progFill = rowEl.querySelector('.tor-row-progress-fill');
-
-    let magnet = torrent.magnet;
-    if (torrent.source === '1337x' && !magnet && torrent._detailUrl) {
-      if (statusEl) statusEl.innerHTML = '🔗 Fetching magnet…';
-      try { magnet = await fetch1337xMagnet(torrent._detailUrl); torrent.magnet = magnet; }
-      catch (e) { if (statusEl) statusEl.innerHTML = `❌ ${e.message}`; return; }
+    // Try IMDB-based DMM page first (best experience — DMM shows all available torrents)
+    if (currentImdbId) {
+      const type = currentMediaType === 'tv' ? 'show' : 'movie';
+      const dmmUrl = `https://debridmediamanager.com/${type}/${currentImdbId}`;
+      window.open(dmmUrl, '_blank', 'noopener');
+      if (statusEl) statusEl.innerHTML = `🔗 Opened in DMM — add torrents to RD from there`;
+      showToast('🔗 Opened in DMM', 'success');
+      return;
     }
-    if (!magnet) { if (statusEl) statusEl.innerHTML = '❌ No magnet link'; return; }
-
-    if (progBar) progBar.classList.add('visible');
-    if (progFill) progFill.style.width = '10%';
-
-    try {
-      // Step 1: POST /torrents/addMagnet — returns {id, uri}
-      if (statusEl) statusEl.innerHTML = '📡 Sending magnet to Real-Debrid…';
-      console.log('[RD addMagnet] magnet:', magnet.slice(0, 80));
-      const added = await rdFetch('/torrents/addMagnet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ magnet }),
-      });
-      console.log('[RD addMagnet] response:', JSON.stringify(added));
-      if (progFill) progFill.style.width = '25%';
-
-      const torrentId = added?.id;
-      if (!torrentId) {
-        throw new Error('RD did not return a torrent ID. Response: ' + JSON.stringify(added));
-      }
-      if (statusEl) statusEl.innerHTML = `📡 Torrent added (${torrentId}). Checking status…`;
-
-      // Step 2: Poll /torrents/info/{id} until we can select files
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, i === 0 ? 1000 : 2000));
-        const info = await rdFetch(`/torrents/info/${torrentId}`);
-        const status = info?.status;
-        console.log(`[RD poll #${i+1}] status=${status} files=${info?.files?.length} links=${info?.links?.length}`);
-        if (progFill) progFill.style.width = `${25 + i * 3}%`;
-
-        if (status === 'waiting_files_selection') {
-          // Step 3: POST /torrents/selectFiles/{id} — select video files
-          if (statusEl) statusEl.innerHTML = '📂 Selecting video files…';
-          let fileSelection = 'all';
-          if (info.files?.length > 1) {
-            const videoFiles = info.files.filter(f =>
-              VIDEO_EXTS.has((f.path || '').split('.').pop().toLowerCase())
-            ).sort((a, b) => (b.bytes || 0) - (a.bytes || 0));
-            if (videoFiles.length > 0) {
-              fileSelection = videoFiles.map(f => f.id).join(',');
-            }
-          }
-          console.log('[RD selectFiles] files:', fileSelection);
-          await rdFetch(`/torrents/selectFiles/${torrentId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ files: fileSelection }),
-          });
-          if (statusEl) statusEl.innerHTML = '⏳ Files selected, waiting for RD to process…';
-          continue; // keep polling for 'downloaded'
-        }
-
-        if (status === 'downloaded') {
-          // Already cached/complete
-          if (statusEl) statusEl.innerHTML = '✅ Torrent is ready in RD!';
-          break;
-        }
-
-        if (status === 'downloading') {
-          const pct = info.progress || 0;
-          const spd = info.speed ? `${(info.speed / 1e6).toFixed(1)} MB/s` : '';
-          if (statusEl) statusEl.innerHTML = `📥 Downloading ${pct}%${spd ? ' · ' + spd : ''}`;
-          if (progFill) progFill.style.width = `${25 + pct * 0.7}%`;
-        } else if (status === 'magnet_conversion') {
-          if (statusEl) statusEl.innerHTML = '🔄 Converting magnet…';
-        } else if (status === 'queued') {
-          if (statusEl) statusEl.innerHTML = '⏸ Queued in RD…';
-        } else if (['error', 'dead', 'virus', 'magnet_error'].includes(status)) {
-          throw new Error(`RD torrent failed: ${status}`);
-        } else {
-          if (statusEl) statusEl.innerHTML = `⏳ RD: ${status}…`;
-        }
-      }
-
-      if (progFill) progFill.style.width = '100%';
-      rowEl.classList.add('added-to-rd');
-      if (rdBtn) { rdBtn.classList.add('added'); rdBtn.innerHTML = '✅ In RD'; rdBtn.disabled = true; }
-      const libBtn = rowEl.querySelector('[data-action="add-lib"]');
-      if (libBtn) { libBtn.classList.remove('ext'); libBtn.classList.add('rd', 'added'); libBtn.innerHTML = '✅ In RD'; }
-      if (statusEl) statusEl.innerHTML = '✅ Added to Real-Debrid!';
-      showToast('✅ Added to RD', 'success');
-      loadRDTorrentCache();
-    } catch (e) {
-      console.error('[RD addTorrent error]', e);
-      if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
-      showToast(`❌ RD: ${e.message}`, 'error');
+    // Fallback: if we have a hash, build a search URL
+    if (torrent.hash) {
+      const dmmUrl = `https://debridmediamanager.com/search?query=${encodeURIComponent(torrent.hash)}`;
+      window.open(dmmUrl, '_blank', 'noopener');
+      if (statusEl) statusEl.innerHTML = '🔗 Opened DMM with hash search';
+      showToast('🔗 Opened in DMM', 'success');
+      return;
     }
-    setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 1000);
+    // Last resort: DMM homepage
+    window.open('https://debridmediamanager.com', '_blank', 'noopener');
+    showToast('🔗 Opened DMM — search for your content there', 'info');
+  }
+
+  // ── Copy torrent hash to clipboard ──
+  function handleCopyHash(torrent, btn) {
+    const hash = torrent.hash || '';
+    if (!hash) { showToast('No hash available', 'error'); return; }
+    navigator.clipboard.writeText(hash).then(() => {
+      btn.textContent = '✅ Copied';
+      setTimeout(() => { btn.textContent = '📋 Copy Hash'; }, 2000);
+      showToast('📋 Hash copied to clipboard', 'success');
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = hash; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      btn.textContent = '✅ Copied';
+      setTimeout(() => { btn.textContent = '📋 Copy Hash'; }, 2000);
+      showToast('📋 Hash copied', 'success');
+    });
   }
 
   // ── External App Return Tracking ──
@@ -4428,10 +4205,9 @@
     return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
   }
 
-  // ── Open in Infuse ──
+  // ── Open in Infuse (direct streams only) ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
-    autoAddToLibrary(torrent, rowEl);
     _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
     window.location.href = buildInfuseUrl(torrent._directUrl);
   }
@@ -4439,58 +4215,8 @@
   function handleTorrentVLC(torrent, rowEl) {
     const url = torrent._directUrl;
     if (!url) return;
-    autoAddToLibrary(torrent, rowEl);
     _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
     window.location.href = `vlc://${url}`;
-  }
-
-  // Unrestrict an RD cached torrent and open in Infuse/VLC/browser
-  async function handleRDCachedPlay(torrent, rowEl, target) {
-    const statusEl = document.getElementById('torrent-overlay-status');
-    const torHash = (torrent.hash || '').toLowerCase();
-    const rdEntry = torHash && rdTorrentCache?.get(torHash);
-    const rdId = torrent._rdId || rdEntry?.id;
-
-    if (!rdId) {
-      showToast('❌ No RD torrent ID found', 'error');
-      return;
-    }
-
-    if (statusEl) statusEl.innerHTML = `📦 Unrestricting for ${target === 'infuse' ? 'Infuse' : 'VLC'}…`;
-
-    try {
-      const info = await rdFetch(`/torrents/info/${rdId}`);
-      if (!info?.links?.length) {
-        if (statusEl) statusEl.innerHTML = '❌ No download links in RD for this torrent';
-        return;
-      }
-
-      const streamLinks = await unrestrictVideoLinks(info.links);
-      if (streamLinks.length === 0) {
-        if (statusEl) statusEl.innerHTML = '❌ No playable video files found';
-        return;
-      }
-
-      // Use the largest/best quality link
-      const best = streamLinks.sort((a, b) => (b.filesize || 0) - (a.filesize || 0))[0];
-      autoAddToLibrary(torrent, rowEl);
-
-      if (target === 'infuse') {
-        _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
-        window.location.href = buildInfuseUrl(best.url);
-        if (statusEl) statusEl.innerHTML = '📺 Opening in Infuse…';
-      } else if (target === 'vlc') {
-        _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
-        window.location.href = `vlc://${best.url}`;
-        if (statusEl) statusEl.innerHTML = '🎬 Opening in VLC…';
-      } else {
-        // Browser — render stream player with all links
-        renderStreamPlayer(streamLinks, torrentOverlayTitle || torrent.title);
-      }
-    } catch (e) {
-      if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
-      showToast(`❌ Failed to unrestrict: ${e.message}`, 'error');
-    }
   }
 
   // Listen for return from external app
