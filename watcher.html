@@ -2672,67 +2672,96 @@
   function getRDToken()   { return localStorage.getItem('rd_token') || ''; }
   function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); rdTorrentCache = new Map(); }
 
-  // Authenticated fetch wrapper for RD API — tries direct first, then CORS proxies
+  // Authenticated fetch wrapper for RD API
+  // Per official docs at https://api.real-debrid.com/:
+  //   Base URL: https://api.real-debrid.com/rest/1.0/
+  //   Auth: Authorization: Bearer token  OR  ?auth_token=token in URL
+  //   addMagnet → POST, returns 201 {id, uri}
+  //   selectFiles → POST, returns 204 no body
+  //   torrents/info → GET, returns JSON with files, links, status
+  //   unrestrict/link → POST, returns JSON with download URL
+  //   RD does NOT send CORS headers, so direct browser fetch fails.
+  //   We MUST use CORS proxies. corsproxy.io supports POST with body forwarding.
   async function rdFetch(path, options = {}) {
     const token = getRDToken();
     if (!token) throw new Error('No RD API token — open Settings ⚙️ to add one.');
-    const fullUrl = `${RD_API}${path}`;
-    const method  = (options.method || 'GET').toUpperCase();
+    const method = (options.method || 'GET').toUpperCase();
 
-    // Helper: make a single request attempt
-    async function attempt(url, opts) {
-      const res = await fetch(url, { ...opts, signal: AbortSignal.timeout(15000) });
+    // Build full URL with auth_token in query (avoids Authorization header = avoids OPTIONS preflight)
+    const sep = path.includes('?') ? '&' : '?';
+    const fullUrl = `${RD_API}${path}${sep}auth_token=${encodeURIComponent(token)}`;
+
+    // Fetch options: no Authorization header, keep Content-Type simple
+    const fetchOpts = {
+      method,
+      signal: AbortSignal.timeout(20000),
+    };
+    if (options.body) fetchOpts.body = options.body;
+    if (options.headers) {
+      const h = { ...options.headers };
+      delete h['Authorization']; // token is in URL
+      fetchOpts.headers = h;
+    }
+
+    // Parse response (handles 200, 201, 202, 204)
+    async function parseResponse(res) {
+      console.log(`[rdFetch] ${method} ${path} → ${res.status}`);
       if (res.status === 401) {
         clearRDToken(); updateRDStatusBadge();
-        throw new Error('RD token invalid or expired — open Settings ⚙️ to update it.');
+        throw new Error('RD token invalid or expired — update it in Settings ⚙️');
       }
-      // DELETE returns 204 no-content; proxies may return 200 with empty body
-      if (res.status === 204 || (method === 'DELETE' && res.ok)) return null;
-      if (!res.ok) {
-        let msg = `RD API error ${res.status}`;
-        try { const e = await res.json(); msg = e.error || e.message || msg; } catch {}
-        throw new Error(msg);
+      if (res.status === 204 || res.status === 202) return null; // No content / action done
+      if (res.status === 201 || res.status === 200) {
+        const text = await res.text();
+        if (!text || text.trim() === '') return null;
+        try { return JSON.parse(text); }
+        catch { console.warn('[rdFetch] Non-JSON response:', text.slice(0, 200)); return null; }
       }
-      const text = await res.text();
-      if (!text || text.trim() === '') return null;
-      try { return JSON.parse(text); } catch { return null; }
+      // Error responses
+      let msg = `RD API error ${res.status}`;
+      try { const e = await res.json(); msg = e.error || e.message || msg; } catch {}
+      throw new Error(msg);
     }
 
-    const directOpts = {
-      ...options,
-      headers: { 'Authorization': `Bearer ${token}`, ...(options.headers || {}) },
-    };
-
-    // 1. Try direct fetch
+    // 1. Try direct fetch first (works if RD ever adds CORS support)
     try {
-      return await attempt(fullUrl, directOpts);
+      const res = await fetch(fullUrl, fetchOpts);
+      return await parseResponse(res);
     } catch (directErr) {
-      // If it's an auth/API error (not network), don't retry through proxy
-      if (directErr.message.includes('token invalid') || directErr.message.includes('RD API error')) {
+      if (directErr.message.includes('token invalid') || directErr.message.includes('RD API error') || directErr.message.includes('RD token')) {
         throw directErr;
       }
-      console.warn('[rdFetch] Direct failed, trying CORS proxies…', directErr.message);
+      console.warn('[rdFetch] Direct failed (expected - no CORS):', directErr.message);
     }
 
-    // 2. Fallback: CORS proxy with auth_token as query param (works for GET and POST)
-    const sep = fullUrl.includes('?') ? '&' : '?';
-    const urlWithToken = `${fullUrl}${sep}auth_token=${encodeURIComponent(token)}`;
-    // Remove Authorization header for proxy — token is in URL
-    const proxyOpts = { ...options, headers: { ...(options.headers || {}) } };
-    delete proxyOpts.headers['Authorization'];
+    // 2. CORS proxy fallback
+    // For POST requests: corsproxy.io supports POST with body forwarding
+    // For GET requests: all proxies work
+    const postCapableProxies = [
+      url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+    ];
+    const getProxies = [
+      url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+      url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ];
+    const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
 
     let lastErr;
-    for (const makeProxy of CORS_PROXIES) {
-      const proxyUrl = makeProxy(urlWithToken);
+    for (const makeProxy of proxiesToTry) {
+      const proxyUrl = makeProxy(fullUrl);
       try {
-        return await attempt(proxyUrl, proxyOpts);
+        const res = await fetch(proxyUrl, fetchOpts);
+        return await parseResponse(res);
       } catch (e) {
         lastErr = e;
-        if (e.message.includes('token invalid') || e.message.includes('RD API error')) throw e;
-        console.warn('[rdFetch proxy failed]', e.message);
+        if (e.message.includes('token invalid') || e.message.includes('RD API error') || e.message.includes('RD token')) throw e;
+        console.warn('[rdFetch proxy]', proxyUrl.slice(0, 80), e.message);
       }
     }
-    throw lastErr || new Error('Could not reach Real-Debrid through any proxy.');
+    throw lastErr || new Error('Could not reach Real-Debrid. Check your internet connection and try again.');
   }
 
   // Magnet helpers
@@ -3318,7 +3347,7 @@
       });
 
       const torrentId = added?.id;
-      if (!torrentId) throw new Error('RD did not return a torrent ID.');
+      if (!torrentId) throw new Error('RD did not return a torrent ID. Check your RD token and premium status. Response: ' + JSON.stringify(added));
       console.log('[RD] torrentId:', torrentId);
 
       // ★ Go straight to poll — don't call info/selectFiles here
@@ -4280,6 +4309,9 @@
   }
 
   // ── Add to RD only (no play) ──
+  // Per RD API docs: POST /torrents/addMagnet → 201 {id, uri}
+  //                  GET  /torrents/info/{id}  → torrent details with status/files
+  //                  POST /torrents/selectFiles/{id} → 204 (starts download)
   async function handleTorrentAddRD(torrent, rowEl) {
     const statusEl = document.getElementById('torrent-overlay-status');
     const rdBtn    = rowEl.querySelector('.tor-action-btn.rd');
@@ -4298,40 +4330,72 @@
     if (progFill) progFill.style.width = '10%';
 
     try {
-      if (statusEl) statusEl.innerHTML = '📡 Adding to Real-Debrid…';
+      // Step 1: POST /torrents/addMagnet — returns {id, uri}
+      if (statusEl) statusEl.innerHTML = '📡 Sending magnet to Real-Debrid…';
+      console.log('[RD addMagnet] magnet:', magnet.slice(0, 80));
       const added = await rdFetch('/torrents/addMagnet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ magnet }),
       });
-      if (progFill) progFill.style.width = '30%';
+      console.log('[RD addMagnet] response:', JSON.stringify(added));
+      if (progFill) progFill.style.width = '25%';
 
       const torrentId = added?.id;
-      if (torrentId) {
-        // Poll until we can select files (magnet_conversion → waiting_files_selection)
-        let info;
-        for (let i = 0; i < 15; i++) {
-          await new Promise(r => setTimeout(r, i === 0 ? 800 : 2000));
-          info = await rdFetch(`/torrents/info/${torrentId}`);
-          if (statusEl) statusEl.innerHTML = `⏳ RD: ${info.status}… (${i + 1}s)`;
-          if (progFill) progFill.style.width = `${30 + i * 4}%`;
+      if (!torrentId) {
+        throw new Error('RD did not return a torrent ID. Response: ' + JSON.stringify(added));
+      }
+      if (statusEl) statusEl.innerHTML = `📡 Torrent added (${torrentId}). Checking status…`;
 
-          if (info.status === 'waiting_files_selection') {
-            let fileSelection = 'all';
-            if (info.files?.length > 1) {
-              const videoFiles = info.files.filter(f => VIDEO_EXTS.has((f.path||'').split('.').pop().toLowerCase()));
-              if (videoFiles.length > 0) fileSelection = videoFiles.map(f => f.id).join(',');
+      // Step 2: Poll /torrents/info/{id} until we can select files
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, i === 0 ? 1000 : 2000));
+        const info = await rdFetch(`/torrents/info/${torrentId}`);
+        const status = info?.status;
+        console.log(`[RD poll #${i+1}] status=${status} files=${info?.files?.length} links=${info?.links?.length}`);
+        if (progFill) progFill.style.width = `${25 + i * 3}%`;
+
+        if (status === 'waiting_files_selection') {
+          // Step 3: POST /torrents/selectFiles/{id} — select video files
+          if (statusEl) statusEl.innerHTML = '📂 Selecting video files…';
+          let fileSelection = 'all';
+          if (info.files?.length > 1) {
+            const videoFiles = info.files.filter(f =>
+              VIDEO_EXTS.has((f.path || '').split('.').pop().toLowerCase())
+            ).sort((a, b) => (b.bytes || 0) - (a.bytes || 0));
+            if (videoFiles.length > 0) {
+              fileSelection = videoFiles.map(f => f.id).join(',');
             }
-            await rdFetch(`/torrents/selectFiles/${torrentId}`, {
-              method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: new URLSearchParams({ files: fileSelection }),
-            });
-            break;
           }
-          if (info.status === 'downloaded') break; // already done (was cached)
-          if (['error','dead','virus','magnet_error'].includes(info.status)) {
-            throw new Error(`RD: ${info.status}`);
-          }
+          console.log('[RD selectFiles] files:', fileSelection);
+          await rdFetch(`/torrents/selectFiles/${torrentId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ files: fileSelection }),
+          });
+          if (statusEl) statusEl.innerHTML = '⏳ Files selected, waiting for RD to process…';
+          continue; // keep polling for 'downloaded'
+        }
+
+        if (status === 'downloaded') {
+          // Already cached/complete
+          if (statusEl) statusEl.innerHTML = '✅ Torrent is ready in RD!';
+          break;
+        }
+
+        if (status === 'downloading') {
+          const pct = info.progress || 0;
+          const spd = info.speed ? `${(info.speed / 1e6).toFixed(1)} MB/s` : '';
+          if (statusEl) statusEl.innerHTML = `📥 Downloading ${pct}%${spd ? ' · ' + spd : ''}`;
+          if (progFill) progFill.style.width = `${25 + pct * 0.7}%`;
+        } else if (status === 'magnet_conversion') {
+          if (statusEl) statusEl.innerHTML = '🔄 Converting magnet…';
+        } else if (status === 'queued') {
+          if (statusEl) statusEl.innerHTML = '⏸ Queued in RD…';
+        } else if (['error', 'dead', 'virus', 'magnet_error'].includes(status)) {
+          throw new Error(`RD torrent failed: ${status}`);
+        } else {
+          if (statusEl) statusEl.innerHTML = `⏳ RD: ${status}…`;
         }
       }
 
@@ -4340,11 +4404,13 @@
       if (rdBtn) { rdBtn.classList.add('added'); rdBtn.innerHTML = '✅ In RD'; rdBtn.disabled = true; }
       const libBtn = rowEl.querySelector('[data-action="add-lib"]');
       if (libBtn) { libBtn.classList.remove('ext'); libBtn.classList.add('rd', 'added'); libBtn.innerHTML = '✅ In RD'; }
-      if (statusEl) statusEl.innerHTML = `✅ Added to Real-Debrid!`;
+      if (statusEl) statusEl.innerHTML = '✅ Added to Real-Debrid!';
       showToast('✅ Added to RD', 'success');
       loadRDTorrentCache();
     } catch (e) {
+      console.error('[RD addTorrent error]', e);
       if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
+      showToast(`❌ RD: ${e.message}`, 'error');
     }
     setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 1000);
   }
