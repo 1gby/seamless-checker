@@ -280,6 +280,56 @@
     .year { font-size: 0.75rem; font-weight: 600; color: var(--accent-green); line-height: 1.2; }
     .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.6); }
 
+    /* Continue Watching progress badge */
+    .cw-badge {
+      position: absolute; bottom: 2.5rem; left: 0; right: 0;
+      background: linear-gradient(135deg, rgba(16,185,129,0.9), rgba(118,75,162,0.85));
+      color: #fff; font-size: 0.62rem; font-weight: 800; text-align: center;
+      padding: 0.2rem 0; letter-spacing: 0.04em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .cw-title {
+      font-size: 0.55rem; color: rgba(255,255,255,0.5); overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Episode completion popup */
+    .ep-complete-popup {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000;
+      background: linear-gradient(135deg, rgba(10,10,30,0.97), rgba(30,15,50,0.97));
+      border-top: 2px solid var(--accent-green);
+      padding: 1rem 1.2rem; backdrop-filter: blur(20px);
+      animation: slideUpPopup 0.3s ease-out;
+    }
+    @keyframes slideUpPopup {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .ep-complete-popup .ep-popup-title {
+      font-size: 0.85rem; font-weight: 700; color: var(--accent-green); margin-bottom: 0.5rem;
+    }
+    .ep-complete-popup .ep-popup-sub {
+      font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-bottom: 0.7rem;
+    }
+    .ep-complete-popup .ep-popup-btns {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .ep-popup-btn {
+      padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700;
+      border: 2px solid var(--accent-green); background: rgba(16,185,129,0.15);
+      color: var(--accent-green); cursor: pointer; transition: all 0.2s;
+    }
+    .ep-popup-btn:hover { background: rgba(16,185,129,0.3); }
+    .ep-popup-btn.secondary {
+      border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.6);
+    }
+    .ep-popup-btn.next {
+      border-color: var(--accent-purple); background: rgba(118,75,162,0.15);
+      color: var(--accent-purple);
+    }
+    .ep-popup-btn.next:hover { background: rgba(118,75,162,0.3); }
+
     /* Actor / Director name labels inside cards */
     .actor-info-stacked, .director-info-stacked {
       display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0 0.5rem;
@@ -1197,6 +1247,7 @@
      NORMAL MODE — HOME SECTIONS
      ══════════════════════════════════════════════════════════════════ -->
 
+<section id="section-continue-watching" style="display:none;"><h2>📺 Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>🔥 Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <h2>Airing Today</h2>              <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
@@ -3445,6 +3496,17 @@
     currentSeason  = season  || null;
     currentEpisode = episode || null;
 
+    // Track episode for completion prompt (TV episodes only)
+    if (mediaType === 'tv' && season && episode) {
+      epCompletionData = { tvId: null, season, episode, title: displayTitle || searchQuery };
+      // Try to get tvId from currentDetailItem
+      if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
+        epCompletionData.tvId = currentDetailItem.id;
+      }
+    } else {
+      epCompletionData = null;
+    }
+
     // Update overlay header
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
@@ -4230,6 +4292,13 @@
       if (isFirst) { video.src = link.url; video.play().catch(() => {}); }
     });
 
+    // Hook video ended event for episode completion prompt
+    video.onended = () => {
+      if (epCompletionData && currentMediaType === 'tv' && currentSeason && currentEpisode) {
+        showEpisodeCompletePopup();
+      }
+    };
+
     if (statusEl) {
       statusEl.innerHTML =
         `🎬 <b style="color:#fff">${links.length} stream${links.length !== 1 ? 's' : ''}</b> for <em>${title}</em>` +
@@ -4384,9 +4453,10 @@
       if (i > -1) favList.movies.splice(i, 1); else favList.movies.push({ ...item, media_type: 'movie' });
     }
     saveFavorites();
-    // Update "This Week" section if TV favorites changed
+    // Update "This Week" and "Continue Watching" sections if TV favorites changed
     if (type === 'tv' && !isAdultMode) {
       loadFavThisWeek();
+      loadContinueWatching();
     }
   }
 
@@ -4782,6 +4852,186 @@
     }
   }
 
+  // ── Continue Watching — shows favorited TV shows with episode progress ──
+  async function loadContinueWatching() {
+    const section = document.getElementById('section-continue-watching');
+    const grid    = document.getElementById('continue-watching-grid');
+    if (!section || !grid) return;
+
+    const favTv = (favorites.tv || []);
+    if (favTv.length === 0) { section.style.display = 'none'; return; }
+
+    // Find shows that have watch progress in localStorage
+    const showsWithProgress = [];
+    for (const show of favTv) {
+      const watched = getWatchedEpisodes(show.id);
+      const keys = Object.keys(watched);
+      if (keys.length === 0) continue; // No episodes watched
+
+      // Find highest watched episode for display
+      let maxSeason = 0, maxEp = 0, lastWatchedTs = 0;
+      for (const key of keys) {
+        const m = key.match(/^s(\d+)e(\d+)$/);
+        if (m) {
+          const s = parseInt(m[1]), e = parseInt(m[2]);
+          const ts = watched[key] || 0;
+          if (ts > lastWatchedTs) { lastWatchedTs = ts; }
+          if (s > maxSeason || (s === maxSeason && e > maxEp)) { maxSeason = s; maxEp = e; }
+        }
+      }
+      if (maxSeason > 0) {
+        showsWithProgress.push({ ...show, _maxSeason: maxSeason, _maxEp: maxEp, _lastTs: lastWatchedTs, _watchedCount: keys.length });
+      }
+    }
+
+    if (showsWithProgress.length === 0) { section.style.display = 'none'; return; }
+
+    // Sort by most recently watched
+    showsWithProgress.sort((a, b) => b._lastTs - a._lastTs);
+
+    // Fetch TMDB data in parallel (up to 15 shows) to get real next unwatched
+    const enriched = [];
+    const checks = showsWithProgress.slice(0, 15).map(async show => {
+      try {
+        const data = await tmdb(`/tv/${show.id}`);
+        const seasons = (data.seasons || []).filter(s => s.season_number > 0);
+        const nextEp = getNextUnwatched(show.id, seasons);
+
+        // If all watched, still show with "All caught up" label
+        enriched.push({
+          ...show,
+          _nextEp: nextEp,
+          _allCaughtUp: !nextEp,
+          _totalSeasons: seasons.length,
+          poster_path: data.poster_path || show.poster_path,
+        });
+      } catch {
+        // Fallback without TMDB: assume next episode is maxEp + 1
+        enriched.push({
+          ...show,
+          _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
+          _allCaughtUp: false,
+        });
+      }
+    });
+    await Promise.all(checks);
+
+    // Re-sort enriched by last watched, filter out "all caught up" (show at end)
+    const active   = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    const caughtUp = enriched.filter(s => s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    const ordered  = [...active, ...caughtUp];
+
+    if (ordered.length === 0) { section.style.display = 'none'; return; }
+
+    section.style.display = 'block';
+    grid.innerHTML = '';
+
+    for (const show of ordered) {
+      const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
+      if (!imgUrl) continue;
+
+      let epLabel, subLabel;
+      if (show._allCaughtUp) {
+        epLabel = '✅ Caught Up';
+        subLabel = `${show._watchedCount} episodes watched`;
+      } else {
+        const ne = show._nextEp;
+        epLabel = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
+        subLabel = `${show._watchedCount} watched`;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+        <div class="cw-badge">${epLabel}</div>
+        <div class="info">
+          <div class="cw-title">${show.name || show.original_name || ''}</div>
+          <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</div>
+        </div>`;
+      card.onclick = () => openTVDetail(show.id);
+      grid.appendChild(card);
+    }
+  }
+
+  // ── Episode Completion Popup ──
+  let epCompletionData = null; // stores { tvId, season, episode, title } when playing a TV episode
+
+  function showEpisodeCompletePopup() {
+    if (!epCompletionData || !epCompletionData.tvId) return;
+    const { tvId, season, episode, title } = epCompletionData;
+    const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
+
+    // Remove any existing popup
+    document.getElementById('ep-complete-popup')?.remove();
+
+    const popup = document.createElement('div');
+    popup.className = 'ep-complete-popup';
+    popup.id = 'ep-complete-popup';
+
+    const nextEpCode = `S${String(season).padStart(2,'0')}E${String(episode + 1).padStart(2,'0')}`;
+
+    popup.innerHTML = `
+      <div class="ep-popup-title">🎬 Episode finished!</div>
+      <div class="ep-popup-sub">${title} — ${epCode}</div>
+      <div class="ep-popup-btns">
+        <button class="ep-popup-btn" id="ep-mark-btn">✅ Mark ${epCode} Complete</button>
+        <button class="ep-popup-btn next" id="ep-next-btn">▶ Play Next (${nextEpCode})</button>
+        <button class="ep-popup-btn secondary" onclick="closeEpCompletePopup()">Dismiss</button>
+      </div>`;
+    document.body.appendChild(popup);
+
+    // Wire up mark complete
+    popup.querySelector('#ep-mark-btn').onclick = () => {
+      if (!tvId) { showToast('Cannot track — open the show detail first', 'error'); return; }
+      const wasWatched = isEpisodeWatched(tvId, season, episode);
+      if (!wasWatched) {
+        toggleEpisodeWatched(tvId, season, episode);
+        showToast(`✅ Marked ${epCode} watched`, 'success');
+      }
+      // Update button
+      const btn = popup.querySelector('#ep-mark-btn');
+      btn.textContent = '✅ Marked!';
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+      // Refresh continue watching in background
+      loadContinueWatching();
+    };
+
+    // Wire up play next
+    popup.querySelector('#ep-next-btn').onclick = async () => {
+      // Mark current as watched if not already
+      if (epCompletionData.tvId && !isEpisodeWatched(epCompletionData.tvId, season, episode)) {
+        toggleEpisodeWatched(epCompletionData.tvId, season, episode);
+      }
+
+      closeEpCompletePopup();
+      loadContinueWatching(); // refresh home section
+
+      // Try to find the real next unwatched episode via TMDB
+      let nextSeason = season, nextEpisode = episode + 1;
+      if (epCompletionData.tvId) {
+        try {
+          const data = await tmdb(`/tv/${epCompletionData.tvId}`);
+          const seasons = (data.seasons || []).filter(s => s.season_number > 0);
+          const realNext = getNextUnwatched(epCompletionData.tvId, seasons);
+          if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
+        } catch {}
+      }
+
+      const nextEpLabel = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
+      const nextSearch = `${title} ${nextEpLabel}`;
+      openTorrentOverlay(nextSearch, `${title} ${nextEpLabel}`, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
+    };
+
+    // Auto-dismiss after 30 seconds
+    setTimeout(() => { closeEpCompletePopup(); }, 30000);
+  }
+
+  function closeEpCompletePopup() {
+    document.getElementById('ep-complete-popup')?.remove();
+  }
+
   // ══════════════════════════════════════════════════════════════════
   // § RD PLAY FROM CACHE + ACCOUNT INFO
   // ══════════════════════════════════════════════════════════════════
@@ -4988,6 +5238,7 @@
     const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
     if (isAdultMode) {
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
+      document.getElementById('section-continue-watching').style.display = 'none';
       document.getElementById('section-favorites').style.display     = 'none';
       document.getElementById('section-xxx-favorites').style.display = 'none';
       adultSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
@@ -5006,10 +5257,12 @@
         loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': today,    'first_air_date.lte': monthFromNow },    'anticipated-tv-grid'),
         loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': today,  'primary_release_date.lte': monthFromNow }, 'anticipated-movies-grid'),
       ]);
-      loadFavThisWeek(); // non-blocking
     }
     await loadFavorites();
-    if (!isAdultMode) loadFavThisWeek(); // non-blocking
+    if (!isAdultMode) {
+      loadFavThisWeek(); // non-blocking
+      loadContinueWatching(); // non-blocking
+    }
     renderGenreButtons();
     hideLoading();
   }
