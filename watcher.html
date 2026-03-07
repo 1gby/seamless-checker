@@ -1583,13 +1583,15 @@
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
-      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong>, <strong style="color:#c084fc">Comet</strong>, and <strong style="color:#c084fc">MediaFusion</strong> as extra stream sources.
-      These will appear alongside Knaben/YTS/1337x results. Configure your debrid key in the addon URL for cached results.
+      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong>, <strong style="color:#c084fc">Comet</strong>, <strong style="color:#c084fc">MediaFusion</strong>, <strong style="color:#c084fc">Peerflix</strong>, and <strong style="color:#c084fc">TorrentsDB</strong> as stream sources.
+      More addons = more cached results. Configure your debrid key in each addon for best results.
     </p>
     <div class="addon-quick-add">
-      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (with RD)</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (RD)</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('comet')">+ Comet</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('mediafusion')">+ MediaFusion</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('peerflix')">+ Peerflix</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('torrentsdb')">+ TorrentsDB</button>
     </div>
     <div class="addon-custom-row">
       <input type="url" id="addon-custom-url" class="addon-custom-input"
@@ -1609,8 +1611,8 @@
       <div id="addon-catalog-status" style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0.4rem 0;"></div>
     </div>
     <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.5rem;">
-      💡 <strong style="color:#c084fc;">Torrentio</strong> — The most popular Stremio addon for torrent streams. Aggregates results from multiple torrent providers into one feed.
-      For RD caching: go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
+      💡 <strong style="color:#c084fc;">Torrentio (RD)</strong> — The most popular Stremio addon for torrent streams. Aggregates results from multiple torrent providers into one feed.
+      Go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
       set your RD API key, then copy the manifest URL and paste above.
     </p>
     <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
@@ -1622,6 +1624,16 @@
       💡 <strong style="color:#c084fc;">MediaFusion</strong> — A community-driven Stremio addon that indexes multiple torrent and streaming sources. Highly configurable with provider and quality filters.
       Go to <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>,
       set your preferences and debrid provider, then copy the manifest URL and paste it above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">Peerflix</strong> — A lightweight Stremio addon that finds cached torrents on your debrid service. Fast and efficient with minimal setup.
+      Go to <a href="https://peerflix-addon.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">peerflix-addon.elfhosted.com/configure</a>,
+      connect your debrid account, then copy the manifest URL and paste it above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">TorrentsDB</strong> — A torrent database addon that provides an extensive index of cached torrents from Real-Debrid and other debrid services.
+      Go to <a href="https://torrents-db.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrents-db.elfhosted.com/configure</a>,
+      set up your debrid provider, then copy the manifest URL and paste it above.
     </p>
   </div>
 
@@ -1785,16 +1797,28 @@
   const YT_EMBED   = 'https://www.youtube.com/embed/';
   const RD_API     = 'https://api.real-debrid.com/rest/1.0';
   const YTS_API    = 'https://yts.mx/api/v2/list_movies.json';
-  const APIBAY_API = 'https://apibay.org/q.php'; // The Pirate Bay API — CORS-enabled, no proxy needed
+  // TPB API mirrors — tried in order (JSON endpoints)
+  const APIBAY_MIRRORS = [
+    'https://apibay.org/q.php',
+    'https://tpb.party/apibay/q.php',
+    'https://piratebay.party/apibay/q.php',
+  ];
 
-  // CORS proxy chain — tried in order until one succeeds
+  // CORS proxy chain — tried in order until one succeeds (Updated March 2026)
+  // Note: corsproxy.io now uses ?url= format and ONLY allows JSON/CSV/XML (blocks HTML)
   const CORS_PROXIES = [
     url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
-    url => `https://proxy.cors.sh/${url}`,
-    url => `https://thingproxy.freeboard.io/fetch/${url}`,
+    url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+  ];
+
+  // JSON-only proxies (for API endpoints — corsproxy.io works great here)
+  const JSON_CORS_PROXIES = [
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
   ];
 
   // Tracker list appended to every constructed magnet link
@@ -2035,34 +2059,21 @@
 
   // ── Stremio Addon Management ──────────────────────────────────────
   const ADDON_PRESETS = {
-    'torrentio-rd': { name: 'Torrentio (RD)',      url: null }, // user must configure
-    'comet':        { name: 'Comet',               url: null, configureUrl: 'https://comet.feels.legal/configure' },
-    'mediafusion':  { name: 'MediaFusion',         url: null, configureUrl: 'https://mediafusion.elfhosted.com/configure' },
+    'torrentio-rd': { name: 'Torrentio (RD)',  url: null, configureUrl: 'https://torrentio.strem.fun/configure', matchWord: 'torrentio' },
+    'comet':        { name: 'Comet',           url: null, configureUrl: 'https://comet.feels.legal/configure',   matchWord: 'comet' },
+    'mediafusion':  { name: 'MediaFusion',     url: null, configureUrl: 'https://mediafusion.elfhosted.com/configure', matchWord: 'mediafusion' },
+    'peerflix':     { name: 'Peerflix',         url: null, configureUrl: 'https://peerflix-addon.elfhosted.com/configure', matchWord: 'peerflix' },
+    'torrentsdb':   { name: 'TorrentsDB',      url: null, configureUrl: 'https://torrents-db.elfhosted.com/configure', matchWord: 'torrents-db' },
   };
 
   function quickAddAddon(presetKey) {
     const preset = ADDON_PRESETS[presetKey];
     if (!preset) return;
-    if (presetKey === 'torrentio-rd') {
-      const rdToken = getRDToken();
-      if (!rdToken) {
-        alert('Save your RD API token first, then add Torrentio (with RD).');
-        return;
-      }
-      const url = `https://torrentio.strem.fun/realdebrid=${rdToken}`;
-      const existing = (appSettings.stremioAddons || []).find(a => a.url.includes('torrentio.strem.fun') && a.url.includes('realdebrid='));
-      if (existing) { alert('Torrentio with RD is already configured.'); return; }
-      appSettings.stremioAddons = appSettings.stremioAddons || [];
-      appSettings.stremioAddons.push({ name: 'Torrentio (RD)', url, enabled: true });
-      saveSettings();
-      renderAddonList();
-      return;
-    }
-    // Comet & MediaFusion — check if already configured, then open configure page
+
+    // All addons now use the same flow: check if configured → open configure page
     if (preset.configureUrl) {
       const addons = appSettings.stremioAddons || [];
-      const matchWord = presetKey === 'comet' ? 'comet' : 'mediafusion';
-      const existing = addons.find(a => a.url && a.url.toLowerCase().includes(matchWord));
+      const existing = addons.find(a => a.url && a.url.toLowerCase().includes(preset.matchWord));
       if (existing) {
         const reopen = confirm(`${preset.name} is already configured.\n\nWould you like to open the configure page to update it?`);
         if (reopen) window.open(preset.configureUrl, '_blank', 'noopener');
@@ -2072,12 +2083,6 @@
       showToast(`${preset.name} configure page opened — copy your manifest URL and paste it below.`, 'info');
       return;
     }
-    const existing = (appSettings.stremioAddons || []).find(a => a.url === preset.url);
-    if (existing) { alert(`${preset.name} is already added.`); return; }
-    appSettings.stremioAddons = appSettings.stremioAddons || [];
-    appSettings.stremioAddons.push({ name: preset.name, url: preset.url, enabled: true });
-    saveSettings();
-    renderAddonList();
   }
 
   function addCustomAddon() {
@@ -2097,6 +2102,8 @@
       if (host.includes('torrentio'))   name = 'Torrentio';
       else if (host.includes('comet'))  name = 'Comet';
       else if (host.includes('mediafusion')) name = 'MediaFusion';
+      else if (host.includes('peerflix')) name = 'Peerflix';
+      else if (host.includes('torrent') && host.includes('db')) name = 'TorrentsDB';
       else if (host.includes('debridmediamanager')) name = 'DMM';
       else name = host.split('.')[0];
       // Mark as RD-configured if URL contains debrid key
@@ -2732,8 +2739,8 @@
         }
       } catch (e) { console.warn(`[Knaben API direct] ${apiUrl}:`, e.message); }
 
-      // Try through CORS proxies
-      for (const makeProxy of CORS_PROXIES) {
+      // Try through JSON-specific CORS proxies (better for API endpoints)
+      for (const makeProxy of JSON_CORS_PROXIES) {
         try {
           const res = await fetch(makeProxy(apiUrl), {
             method: 'POST',
@@ -2929,16 +2936,12 @@
     return anchor.getAttribute('href') || anchor.href;
   }
 
-  // ── APIBAY (The Pirate Bay API) — CORS-enabled, no proxy needed ─────
+  // ── APIBAY (The Pirate Bay API) — tries direct + CORS proxied ─────
   async function searchAPIBay(title, maxResults = 60) {
-    const url = `${APIBAY_API}?q=${encodeURIComponent(title)}&cat=`;
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+    const q = encodeURIComponent(title);
+
+    function parseAPIBayResults(data) {
       if (!Array.isArray(data) || data.length === 0) return [];
-      // APIBAY returns [{id, name, info_hash, leechers, seeders, num_files, size, ...}]
-      // A single result with id "0" means no results
       if (data.length === 1 && data[0].id === '0') return [];
       return data
         .filter(t => t.info_hash && t.info_hash !== '0000000000000000000000000000000000000000')
@@ -2952,31 +2955,40 @@
         }))
         .sort((a, b) => b.seeds - a.seeds)
         .slice(0, maxResults);
-    } catch (e) {
-      console.warn('[APIBAY]', e.message);
-      // Fallback through CORS proxies if direct fails
+    }
+
+    // Try each mirror: direct first, then through CORS proxies
+    for (const mirror of APIBAY_MIRRORS) {
+      const url = `${mirror}?q=${q}&cat=`;
+      // Direct fetch
       try {
-        const res = await corsGet(url, 10000);
-        const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) return [];
-        if (data.length === 1 && data[0].id === '0') return [];
-        return data
-          .filter(t => t.info_hash && t.info_hash !== '0000000000000000000000000000000000000000')
-          .map(t => ({
-            title:  t.name || 'Unknown',
-            size:   t.size ? formatBytes(parseInt(t.size, 10)) : '?',
-            seeds:  parseInt(t.seeders, 10) || 0,
-            magnet: buildMagnet(t.info_hash.toLowerCase(), t.name),
-            hash:   t.info_hash.toLowerCase(),
-            source: 'apibay',
-          }))
-          .sort((a, b) => b.seeds - a.seeds)
-          .slice(0, maxResults);
-      } catch (e2) {
-        console.warn('[APIBAY proxy]', e2.message);
-        return [];
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        if (res.ok) {
+          const data = await res.json();
+          const results = parseAPIBayResults(data);
+          if (results.length > 0) {
+            console.log(`[APIBAY] ✅ ${results.length} results via ${mirror} (direct)`);
+            return results;
+          }
+        }
+      } catch (e) { console.warn(`[APIBAY direct] ${mirror}:`, e.message); }
+
+      // JSON-specific CORS proxy fallback for this mirror
+      for (const makeProxy of JSON_CORS_PROXIES) {
+        try {
+          const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const results = parseAPIBayResults(data);
+          if (results.length > 0) {
+            console.log(`[APIBAY] ✅ ${results.length} results via ${mirror} (proxied)`);
+            return results;
+          }
+        } catch {}
       }
     }
+    console.warn('[APIBAY] All mirrors exhausted');
+    return [];
   }
 
   // ── Content filtering ────────────────────────────────────────────────
@@ -3085,11 +3097,11 @@
       return [];
     }
 
-    // ═══ TORRENTS MODE: Only scrapers (APIBAY, Knaben, YTS, 1337x) ═══
+    // ═══ TORRENTS MODE: Scrapers + Addon hashes as fallback ═══
     // 0. APIBAY (The Pirate Bay API — most reliable, no CORS proxy needed)
     if (appSettings.srcApibay !== false) {
       try {
-        onStatus('searching', `🔍 Searching APIBAY for "${title}"…`);
+        onStatus('searching', `🏴‍☠️ Searching APIBAY for "${title}"…`);
         const raw     = await searchAPIBay(title, 60);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
@@ -3098,7 +3110,6 @@
         }
       } catch (e) {
         console.warn('[search] APIBAY:', e);
-        onStatus('info', `⚠️ APIBAY: ${e.message}`);
       }
     }
 
@@ -3144,13 +3155,34 @@
       } catch (e) { console.warn('[search] 1337x:', e); }
     }
 
+    // 4. Stremio Addon fallback — query addons for torrent hashes even in torrent mode
+    //    This ensures results even when CORS proxies are dead for scrapers
+    if (!isAdultMode && imdbId) {
+      const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
+      if (enabledAddons.length > 0) {
+        try {
+          const scraperCount = allResults.length;
+          onStatus('searching', `🧩 Querying ${enabledAddons.length} addon${enabledAddons.length > 1 ? 's' : ''} for torrent hashes…`);
+          const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
+          // Only keep results that have a magnet/hash (actual torrent data)
+          const torrentable = addonResults.filter(r => r.hash || r.magnet);
+          if (torrentable.length > 0) {
+            dedupeAndMerge(applySettingsFilters(filterTorrentResults(torrentable)));
+            if (allResults.length > scraperCount) {
+              onStatus('results', `✅ ${allResults.length} total (${allResults.length - scraperCount} from addons)`, sortTorrentResults(allResults));
+            }
+          }
+        } catch (e) { console.warn('[search] Addon fallback in torrent mode:', e); }
+      }
+    }
+
     if (allResults.length > 0) {
       const sorted = sortTorrentResults(allResults);
       onStatus('results', `✅ ${sorted.length} results`, sorted);
       return sorted;
     }
 
-    onStatus('empty', `😶 No torrents found for "${title}" on any source.`);
+    onStatus('empty', `😶 No torrents found for "${title}". Try refining your search or switch to ⚡ Streams mode — addons often find cached results directly.`);
     return [];
   }
 
@@ -3637,7 +3669,7 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = overlayMode === 'streams' ? `⚡ ${displayTitle || searchQuery}` : `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion…)' : 'Searching torrent sites…';
+    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Scrapers + addon torrent hashes…';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Update mode toggle buttons
@@ -3686,7 +3718,7 @@
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     if (titleEl)    titleEl.textContent    = mode === 'streams' ? `⚡ ${torrentOverlayTitle}` : `🧲 ${torrentOverlayTitle}`;
-    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion…)' : 'Searching torrent sites…';
+    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Scrapers + addon torrent hashes…';
 
     // Show/hide magnet bar
     const magnetBar = document.getElementById('magnet-input-bar');
