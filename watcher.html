@@ -3119,7 +3119,7 @@
       allResults = [...allResults, ...unique];
     }
 
-    // ═══ STREAMS MODE: Only Stremio Addons ═══
+    // ═══ STREAMS MODE: Stremio Addons + RD Cache Lookup ═══
     if (mode === 'streams') {
       if (!isAdultMode) {
         const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
@@ -3132,21 +3132,59 @@
           } catch (e) { console.warn('[search] Stremio addons:', e); }
         } else if (!imdbId) {
           onStatus('info', '⚠️ No IMDB ID — addons need an IMDB ID to search. Try the 🧲 Torrents tab instead.');
-        } else if (enabledAddons.length === 0) {
-          onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or MediaFusion in Settings ⚙️');
+        }
+
+        // RD Cache Lookup: search scrapers for hashes, check which are already in RD
+        if (getRDToken() && rdTorrentCache?.size > 0) {
+          const addonCount = allResults.length;
+          onStatus('searching', '📦 Checking RD cache for instant streams…');
+          try {
+            // Quick scraper sweep for hashes
+            const scraperResults = [];
+            if (appSettings.srcApibay !== false) {
+              try { scraperResults.push(...await searchAPIBay(title, 40)); } catch {}
+            }
+            if (appSettings.srcYts !== false) {
+              try { scraperResults.push(...await searchYTS(title, 15)); } catch {}
+            }
+            // Check which hashes are already cached in RD
+            const rdHits = scraperResults.filter(r => {
+              const h = (r.hash || '').toLowerCase();
+              return h && rdTorrentCache.has(h);
+            }).map(r => {
+              const rdInfo = rdTorrentCache.get(r.hash.toLowerCase());
+              return {
+                ...r,
+                source: 'rd-cached',
+                sourceLabel: '📦 RD Cached',
+                _rdId: rdInfo?.id,
+                _rdStatus: rdInfo?.status,
+              };
+            });
+            if (rdHits.length > 0) {
+              dedupeAndMerge(applySettingsFilters(filterTorrentResults(rdHits)));
+              if (allResults.length > addonCount) {
+                onStatus('results', `⚡ ${allResults.length} streams (${allResults.length - addonCount} from RD cache)`, sortTorrentResults(allResults));
+              }
+            }
+          } catch (e) { console.warn('[search] RD cache lookup:', e); }
+        }
+
+        if (enabledAddons.length === 0 && allResults.length === 0) {
+          onStatus('info', '⚠️ No addons configured and no RD cached results. Add Torrentio, Comet, or MediaFusion in Settings ⚙️ or use the 🧲 Torrents tab.');
         }
       }
 
       if (allResults.length > 0) {
         const sorted = sortTorrentResults(allResults);
-        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} from addons`, sorted);
+        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''}`, sorted);
         return sorted;
       }
-      onStatus('empty', `😶 No addon streams found. Try the 🧲 Torrents tab or add more addons in Settings.`);
+      onStatus('empty', `😶 No streams found. Try the 🧲 Torrents tab or add more addons in Settings.`);
       return [];
     }
 
-    // ═══ TORRENTS MODE: Scrapers + Addon hashes as fallback ═══
+    // ═══ TORRENTS MODE: Scrapers only (APIBAY, Knaben, YTS, 1337x) ═══
     // 0. APIBAY (The Pirate Bay API — most reliable, no CORS proxy needed)
     if (appSettings.srcApibay !== false) {
       try {
@@ -3698,7 +3736,7 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = overlayMode === 'streams' ? `⚡ ${displayTitle || searchQuery}` : `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
+    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Stremio addons + RD cache' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Update mode toggle buttons
@@ -3749,7 +3787,7 @@
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     if (titleEl)    titleEl.textContent    = mode === 'streams' ? `⚡ ${torrentOverlayTitle}` : `🧲 ${torrentOverlayTitle}`;
-    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
+    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Stremio addons + RD cache' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
 
     // Show/hide magnet bar
     const magnetBar = document.getElementById('magnet-input-bar');
@@ -4079,7 +4117,7 @@
   function buildTorrentRow(torrent, idx) {
       const seedColor = torrent.seeds > 100 ? '#10b981' : torrent.seeds > 20 ? '#f59e0b' : '#ef4444';
       const sourceLabel = torrent.sourceLabel
-        || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x', apibay: '🏴‍☠️ APIBAY' }[torrent.source]
+        || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x', apibay: '🏴‍☠️ APIBAY', 'rd-cached': '📦 RD Cached' }[torrent.source]
         || `🧩 ${torrent.source}`;
       const qual       = torrent.quality || guessQuality(torrent.title);
       const is3d       = /\b3d\b/i.test(torrent.title);
@@ -4278,10 +4316,9 @@
   // ── External App Return Tracking ──
   let _externalAppLaunch = null; // { time, torrent, app }
 
-  // Build Infuse URL with x-success callback so Infuse returns to Watcher after playback
+  // Build Infuse URL for playback
   function buildInfuseUrl(videoUrl) {
-    const returnUrl = window.location.href.split('#')[0].split('?')[0]; // clean URL
-    return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}&x-success=${encodeURIComponent(returnUrl)}`;
+    return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
   }
 
   // ── Open in Infuse ──
