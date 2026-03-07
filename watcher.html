@@ -4152,6 +4152,12 @@
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
         actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
+      } else if (inRD) {
+        // Already in RD — can unrestrict and play/Infuse/VLC directly
+        actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
+        actions += `<button class="tor-action-btn infuse" data-action="play-infuse" style="border-color:rgba(255,149,0,0.4);color:#ff9500;">📺 Infuse</button>`;
+        actions += `<button class="tor-action-btn ext" data-action="play-vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
+        actions += `<button class="tor-action-btn rd added">✅ In RD</button>`;
       } else {
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play via RD</button>`;
         if (hasRD) actions += `<button class="tor-action-btn rd" data-action="add-rd">⬇ Add to RD</button>`;
@@ -4175,17 +4181,19 @@
         btn.onclick = (e) => {
           e.stopPropagation();
           const action = btn.dataset.action;
-          if (action === 'play')       handleTorrentPlay(torrent, row);
-          else if (action === 'add-rd')  handleTorrentAddRD(torrent, row);
-          else if (action === 'infuse')  handleTorrentInfuse(torrent, row);
-          else if (action === 'vlc')     handleTorrentVLC(torrent, row);
-          else if (action === 'add-lib') handleAddToLibrary(torrent, btn);
+          if (action === 'play')           handleTorrentPlay(torrent, row);
+          else if (action === 'add-rd')    handleTorrentAddRD(torrent, row);
+          else if (action === 'infuse')    handleTorrentInfuse(torrent, row);
+          else if (action === 'vlc')       handleTorrentVLC(torrent, row);
+          else if (action === 'play-infuse') handleRDCachedPlay(torrent, row, 'infuse');
+          else if (action === 'play-vlc')    handleRDCachedPlay(torrent, row, 'vlc');
+          else if (action === 'add-lib')   handleAddToLibrary(torrent, btn);
         };
       });
       return row;
   }
 
-  // ── Play action: Direct streams play immediately, others go through RD ──
+  // ── Play action: Direct streams play immediately, RD cached unrestricts, others go through RD ──
   async function handleTorrentPlay(torrent, rowEl) {
     const statusEl = document.getElementById('torrent-overlay-status');
     const progBar  = rowEl.querySelector('.tor-row-progress');
@@ -4207,6 +4215,34 @@
       } catch {}
       renderStreamPlayer([directLink], torrentOverlayTitle || torrent.title);
       return;
+    }
+
+    // RD Cached shortcut — already in RD, just unrestrict
+    const torHash = (torrent.hash || '').toLowerCase();
+    const rdCacheEntry = torHash && rdTorrentCache?.get(torHash);
+    if (rdCacheEntry?.id) {
+      if (statusEl) statusEl.innerHTML = '📦 Unrestricting from RD cache…';
+      if (progBar) progBar.classList.add('visible');
+      if (progFill) progFill.style.width = '30%';
+      try {
+        const info = await rdFetch(`/torrents/info/${rdCacheEntry.id}`);
+        if (progFill) progFill.style.width = '60%';
+        if (info?.links?.length > 0) {
+          const streamLinks = await unrestrictVideoLinks(info.links);
+          if (progFill) progFill.style.width = '100%';
+          setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 800);
+          if (streamLinks.length > 0) {
+            renderStreamPlayer(streamLinks, torrentOverlayTitle || torrent.title);
+            return;
+          }
+        }
+        // If no links, fall through to magnet flow
+        if (statusEl) statusEl.innerHTML = '⚠️ No links in RD cache, trying magnet…';
+      } catch (e) {
+        console.warn('[RD cached play]', e.message);
+        if (statusEl) statusEl.innerHTML = '⚠️ RD cache failed, trying magnet…';
+      }
+      if (progBar) progBar.classList.remove('visible');
     }
 
     // Magnet-based — RD flow
@@ -4335,6 +4371,55 @@
     autoAddToLibrary(torrent, rowEl);
     _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
     window.location.href = `vlc://${url}`;
+  }
+
+  // Unrestrict an RD cached torrent and open in Infuse/VLC/browser
+  async function handleRDCachedPlay(torrent, rowEl, target) {
+    const statusEl = document.getElementById('torrent-overlay-status');
+    const torHash = (torrent.hash || '').toLowerCase();
+    const rdEntry = torHash && rdTorrentCache?.get(torHash);
+    const rdId = torrent._rdId || rdEntry?.id;
+
+    if (!rdId) {
+      showToast('❌ No RD torrent ID found', 'error');
+      return;
+    }
+
+    if (statusEl) statusEl.innerHTML = `📦 Unrestricting for ${target === 'infuse' ? 'Infuse' : 'VLC'}…`;
+
+    try {
+      const info = await rdFetch(`/torrents/info/${rdId}`);
+      if (!info?.links?.length) {
+        if (statusEl) statusEl.innerHTML = '❌ No download links in RD for this torrent';
+        return;
+      }
+
+      const streamLinks = await unrestrictVideoLinks(info.links);
+      if (streamLinks.length === 0) {
+        if (statusEl) statusEl.innerHTML = '❌ No playable video files found';
+        return;
+      }
+
+      // Use the largest/best quality link
+      const best = streamLinks.sort((a, b) => (b.filesize || 0) - (a.filesize || 0))[0];
+      autoAddToLibrary(torrent, rowEl);
+
+      if (target === 'infuse') {
+        _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
+        window.location.href = buildInfuseUrl(best.url);
+        if (statusEl) statusEl.innerHTML = '📺 Opening in Infuse…';
+      } else if (target === 'vlc') {
+        _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
+        window.location.href = `vlc://${best.url}`;
+        if (statusEl) statusEl.innerHTML = '🎬 Opening in VLC…';
+      } else {
+        // Browser — render stream player with all links
+        renderStreamPlayer(streamLinks, torrentOverlayTitle || torrent.title);
+      }
+    } catch (e) {
+      if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
+      showToast(`❌ Failed to unrestrict: ${e.message}`, 'error');
+    }
   }
 
   // Listen for return from external app
