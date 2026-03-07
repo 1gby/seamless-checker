@@ -1577,11 +1577,38 @@
 
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
-    <div style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.5rem;display:flex;flex-direction:column;gap:0.35rem;">
-      <p>💡 <strong style="color:var(--accent-green);">Torrentio</strong> — Configure with RD at <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>, then copy the manifest URL and paste above.</p>
-      <p>💡 <strong style="color:#c084fc;">Comet</strong> — Configure with your debrid credentials at <a href="https://comet.elfhosted.com/configure" target="_blank" rel="noopener" style="color:#c084fc;">comet.elfhosted.com/configure</a>, then copy the manifest URL and paste above.</p>
-      <p>💡 <strong style="color:#ffa500;">MediaFusion</strong> — Configure at <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:#ffa500;">mediafusion.elfhosted.com/configure</a>, then copy the addon URL and paste above.</p>
+    <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
+      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong> and <strong style="color:#c084fc">Comet</strong> as extra stream sources.
+      These will appear alongside Knaben/YTS/1337x results. Configure your RD key in the addon URL for cached results.
+    </p>
+    <div class="addon-quick-add">
+      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio')">+ Torrentio</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (with RD)</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('comet')">+ Comet</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('mediafusion')">+ MediaFusion</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('dmm')">+ DMM</button>
     </div>
+    <div class="addon-custom-row">
+      <input type="url" id="addon-custom-url" class="addon-custom-input"
+             placeholder="https://torrentio.strem.fun/manifest.json"
+             onkeydown="if(event.key==='Enter')addCustomAddon()">
+      <button class="settings-btn green" onclick="addCustomAddon()">Add</button>
+    </div>
+    <div class="addon-list" id="addon-list">
+      <!-- Populated by JS -->
+    </div>
+    <div style="margin-top:0.6rem;">
+      <button class="settings-btn purple" onclick="browseAddonCatalogs()" id="btn-browse-catalogs" style="font-size:0.75rem;">🗂 Browse Addon Catalogs</button>
+    </div>
+    <div id="addon-catalog-panel" style="display:none;margin-top:0.6rem;">
+      <div id="addon-catalog-tabs" style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
+      <div id="addon-catalog-results" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:0.5rem;max-height:50vh;overflow-y:auto;"></div>
+      <div id="addon-catalog-status" style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0.4rem 0;"></div>
+    </div>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.5rem;">
+      💡 For Torrentio with RD caching: go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
+      set your RD API key, then copy the manifest URL and paste above.
+    </p>
   </div>
 
   <!-- § RD Library -->
@@ -1990,8 +2017,9 @@
   const ADDON_PRESETS = {
     'torrentio':    { name: 'Torrentio',           url: 'https://torrentio.strem.fun' },
     'torrentio-rd': { name: 'Torrentio (RD)',      url: null }, // user must configure
-    'comet':        { name: 'Comet',               url: null }, // configure at comet.elfhosted.com/configure
-    'mediafusion':  { name: 'MediaFusion',         url: null }, // configure at mediafusion.elfhosted.com/configure
+    'comet':        { name: 'Comet',               url: 'https://comet.elfhosted.com' },
+    'mediafusion':  { name: 'MediaFusion',         url: 'https://mediafusion.elfhosted.com' },
+    'dmm':          { name: 'DMM (Debrid Media Manager)', url: null }, // user must configure
   };
 
   function quickAddAddon(presetKey) {
@@ -2012,16 +2040,12 @@
       renderAddonList();
       return;
     }
-    if (presetKey === 'comet') {
-      window.open('https://comet.elfhosted.com/configure', '_blank');
-      alert('Configure Comet with your Real-Debrid credentials on the page that just opened.\n\nOnce configured, copy the manifest URL and paste it into the custom URL field below.');
-      return;
-    }
-    if (presetKey === 'mediafusion') {
-      window.open('https://mediafusion.elfhosted.com/configure', '_blank');
-      alert('Configure MediaFusion with your preferences and debrid credentials on the page that just opened.\n\nOnce configured, copy the manifest/addon URL and paste it into the custom URL field below.');
-      return;
-    }
+    if (presetKey === 'dmm') {
+      const url = prompt('Paste your DMM Stremio addon URL:\n\nExample: https://debridmediamanager.com/api/stremio/YOUR_ID/manifest.json\n\nGet it from debridmediamanager.com → Stremio addon page.');
+      if (!url?.trim()) return;
+      const cleanUrl = url.trim().replace(/\/manifest\.json\/?$/, '');
+      const existing = (appSettings.stremioAddons || []).find(a => a.url.includes('debridmediamanager'));
+      if (existing) { alert('DMM addon is already configured.'); return; }
       appSettings.stremioAddons = appSettings.stremioAddons || [];
       appSettings.stremioAddons.push({ name: 'DMM', url: cleanUrl, enabled: true });
       saveSettings();
