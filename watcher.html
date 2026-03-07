@@ -2726,6 +2726,7 @@
 
     // RD has NO CORS headers — go straight to proxies (no direct attempt)
     // POST requests: corsproxy.io and corsfix forward POST bodies
+    // DELETE: try direct first (auth in URL = no custom headers = no preflight), then proxy
     // GET requests: all proxies work
     const postCapableProxies = [
       url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
@@ -2737,6 +2738,17 @@
       url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
       url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     ];
+
+    // For DELETE: try direct fetch first (auth_token is in URL, no custom headers = no preflight)
+    if (method === 'DELETE') {
+      try {
+        const res = await fetch(fullUrl, { method: 'DELETE', signal: AbortSignal.timeout(10000) });
+        if (res.ok || res.status === 204 || res.status === 202) return await parseResponse(res);
+      } catch (e) {
+        console.warn('[rdFetch] DELETE direct failed, trying proxies:', e.message);
+      }
+    }
+
     const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
 
     let lastErr;
