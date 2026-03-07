@@ -1588,12 +1588,20 @@
       <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
     </div>
     <div class="settings-row">
-      <label>Max results — Knaben</label>
-      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="200" value="50" onchange="saveSettings()">
+      <label>Max results — APIBAY (200)</label>
+      <input type="number" id="sf-max-apibay" class="settings-number-input" min="1" max="200" value="100" onchange="saveSettings()">
     </div>
     <div class="settings-row">
-      <label>Max results — YTS</label>
-      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="20" onchange="saveSettings()">
+      <label>Max results — Knaben (300)</label>
+      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="300" value="100" onchange="saveSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Max results — YTS (50)</label>
+      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="30" onchange="saveSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Max results — 1337x (50)</label>
+      <input type="number" id="sf-max-1337x" class="settings-number-input" min="1" max="50" value="25" onchange="saveSettings()">
     </div>
   </div>
 
@@ -1682,6 +1690,22 @@
       <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importSettings(event)">
     </div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">Exports all settings, favorites, watch history, and library as JSON.</p>
+  </div>
+
+  <!-- § Clear Cache -->
+
+  <div class="settings-section">
+    <div class="settings-section-title">Clear Cache</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">
+      Clear cached data to fix stale results or free up storage. Your settings, favorites, and watch history are preserved unless you choose "Reset Everything".
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Torrent Cache</button>
+      <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Image Cache</button>
+      <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches</button>
+      <button class="settings-btn red" onclick="resetEverything()">💣 Reset Everything</button>
+    </div>
+    <p id="cache-status-msg" style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.3rem;"></p>
   </div>
 
   <!-- § Disclaimer -->
@@ -1938,7 +1962,7 @@
     // Provider filter (addon results) — empty = show all
     excludedProviders: [],
     // Search limits
-    minSeeds: 0, maxKnaben: 100, maxYts: 20,
+    minSeeds: 0, maxApibay: 100, maxKnaben: 100, maxYts: 30, max1337x: 25,
     // Stremio Addons — array of { name, url, enabled }
     stremioAddons: [],
   };
@@ -1965,8 +1989,10 @@
     set('se-hdr',          appSettings.seHdr);
     set('se-exclude-keywords', appSettings.excludeKeywords || '');
     set('sf-min-seeds',    appSettings.minSeeds);
+    set('sf-max-apibay',   appSettings.maxApibay);
     set('sf-max-knaben',   appSettings.maxKnaben);
     set('sf-max-yts',      appSettings.maxYts);
+    set('sf-max-1337x',    appSettings.max1337x);
     // Render source toggle cards
     updateSourceCard('apibay', appSettings.srcApibay !== false);
     updateSourceCard('knaben', appSettings.srcKnaben !== false);
@@ -2004,8 +2030,10 @@
       src1337x:   appSettings.src1337x  !== false,
       excludedProviders: appSettings.excludedProviders || [],
       minSeeds:   parseInt(gb('sf-min-seeds'))  || 0,
-      maxKnaben:  parseInt(gb('sf-max-knaben')) || 50,
-      maxYts:     parseInt(gb('sf-max-yts'))    || 20,
+      maxApibay:  parseInt(gb('sf-max-apibay')) || 100,
+      maxKnaben:  parseInt(gb('sf-max-knaben')) || 100,
+      maxYts:     parseInt(gb('sf-max-yts'))    || 30,
+      max1337x:   parseInt(gb('sf-max-1337x'))  || 25,
       stremioAddons: appSettings.stremioAddons || [],
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
@@ -2903,7 +2931,7 @@
   }
 
   // ── 1337x ────────────────────────────────────────────────────────────
-  async function search1337x(title) {
+  async function search1337x(title, maxResults = 25) {
     const mirrors = ['https://1337x.to', 'https://1337x.st', 'https://1337x.is'];
     const q = encodeURIComponent(title);
     for (const mirror of mirrors) {
@@ -2911,7 +2939,7 @@
         const url     = `${mirror}/sort-search/${q}/seeders/desc/1/`;
         const res     = await corsGet(url, 9000);
         const html    = await res.text();
-        const results = parse1337xHTML(html, mirror);
+        const results = parse1337xHTML(html, mirror, maxResults);
         if (results.length > 0) {
           console.log(`[1337x] ✅ ${results.length} via ${mirror}`);
           return results;
@@ -2921,7 +2949,7 @@
     return [];
   }
 
-  function parse1337xHTML(html, mirror) {
+  function parse1337xHTML(html, mirror, maxResults = 25) {
     const doc     = new DOMParser().parseFromString(html, 'text/html');
     const rows    = doc.querySelectorAll('table.table-list tbody tr');
     const results = [];
@@ -2942,7 +2970,7 @@
         });
       } catch {}
     }
-    return results.sort((a, b) => b.seeds - a.seeds).slice(0, 15);
+    return results.sort((a, b) => b.seeds - a.seeds).slice(0, maxResults);
   }
 
   // Lazy magnet fetch for 1337x — only called when user clicks a card
@@ -2956,7 +2984,7 @@
   }
 
   // ── APIBAY (The Pirate Bay API) — tries direct + CORS proxied ─────
-  async function searchAPIBay(title, maxResults = 60) {
+  async function searchAPIBay(title, maxResults = 100) {
     const q = encodeURIComponent(title);
 
     function parseAPIBayResults(data) {
@@ -3121,7 +3149,7 @@
     if (appSettings.srcApibay !== false) {
       try {
         onStatus('searching', `🏴‍☠️ Searching APIBAY for "${title}"…`);
-        const raw     = await searchAPIBay(title, 60);
+        const raw     = await searchAPIBay(title, appSettings.maxApibay || 100);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
         if (allResults.length > 0) {
@@ -3152,7 +3180,7 @@
     if (!isAdultMode && appSettings.srcYts !== false) {
       try {
         onStatus('searching', `🍿 Searching YTS for "${title}"…`);
-        const raw     = await searchYTS(title, appSettings.maxYts || 20);
+        const raw     = await searchYTS(title, appSettings.maxYts || 30);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
         if (allResults.length > 0) {
@@ -3165,7 +3193,7 @@
     if (appSettings.src1337x !== false) {
       try {
         onStatus('searching', `🔎 Searching 1337x for "${title}"…`);
-        const raw     = await search1337x(title);
+        const raw     = await search1337x(title, appSettings.max1337x || 25);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
         if (allResults.length > 0) {
@@ -4191,7 +4219,7 @@
     if (!magnet) { if (statusEl) statusEl.innerHTML = '❌ No magnet link'; return; }
 
     if (progBar) progBar.classList.add('visible');
-    if (progFill) progFill.style.width = '20%';
+    if (progFill) progFill.style.width = '10%';
 
     try {
       if (statusEl) statusEl.innerHTML = '📡 Adding to Real-Debrid…';
@@ -4200,34 +4228,44 @@
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ magnet }),
       });
-      if (progFill) progFill.style.width = '60%';
+      if (progFill) progFill.style.width = '30%';
 
       const torrentId = added?.id;
       if (torrentId) {
-        // Select files
-        const info = await rdFetch(`/torrents/info/${torrentId}`);
-        if (info.status === 'waiting_files_selection') {
-          let fileSelection = 'all';
-          if (info.files?.length > 1) {
-            const videoFiles = info.files.filter(f => VIDEO_EXTS.has((f.path||'').split('.').pop().toLowerCase()));
-            if (videoFiles.length > 0) fileSelection = videoFiles.map(f => f.id).join(',');
+        // Poll until we can select files (magnet_conversion → waiting_files_selection)
+        let info;
+        for (let i = 0; i < 15; i++) {
+          await new Promise(r => setTimeout(r, i === 0 ? 800 : 2000));
+          info = await rdFetch(`/torrents/info/${torrentId}`);
+          if (statusEl) statusEl.innerHTML = `⏳ RD: ${info.status}… (${i + 1}s)`;
+          if (progFill) progFill.style.width = `${30 + i * 4}%`;
+
+          if (info.status === 'waiting_files_selection') {
+            let fileSelection = 'all';
+            if (info.files?.length > 1) {
+              const videoFiles = info.files.filter(f => VIDEO_EXTS.has((f.path||'').split('.').pop().toLowerCase()));
+              if (videoFiles.length > 0) fileSelection = videoFiles.map(f => f.id).join(',');
+            }
+            await rdFetch(`/torrents/selectFiles/${torrentId}`, {
+              method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: new URLSearchParams({ files: fileSelection }),
+            });
+            break;
           }
-          await rdFetch(`/torrents/selectFiles/${torrentId}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ files: fileSelection }),
-          });
+          if (info.status === 'downloaded') break; // already done (was cached)
+          if (['error','dead','virus','magnet_error'].includes(info.status)) {
+            throw new Error(`RD: ${info.status}`);
+          }
         }
       }
 
       if (progFill) progFill.style.width = '100%';
       rowEl.classList.add('added-to-rd');
       if (rdBtn) { rdBtn.classList.add('added'); rdBtn.innerHTML = '✅ In RD'; rdBtn.disabled = true; }
-      // Also update the library button on this row
       const libBtn = rowEl.querySelector('[data-action="add-lib"]');
       if (libBtn) { libBtn.classList.remove('ext'); libBtn.classList.add('rd', 'added'); libBtn.innerHTML = '✅ In RD'; }
       if (statusEl) statusEl.innerHTML = `✅ Added to Real-Debrid!`;
       showToast('✅ Added to RD', 'success');
-      // Refresh cache so removal works
       loadRDTorrentCache();
     } catch (e) {
       if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
@@ -4633,14 +4671,17 @@
   function handleToggleWatched(tvId, season, episode) {
     toggleEpisodeWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    loadContinueWatching();
   }
   function handleMarkPrevious(tvId, season, episode) {
     markPreviousWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    loadContinueWatching();
   }
   function handleUnmarkFrom(tvId, season, episode) {
     unmarkFromEpisode(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    loadContinueWatching();
   }
   function markAllSeason(tvId, season, count, mark) {
     const d = getWatchedEpisodes(tvId);
@@ -4651,6 +4692,7 @@
     }
     saveWatchedEpisodes(tvId, d);
     refreshEpisodeUI(tvId, season);
+    loadContinueWatching();
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -5458,6 +5500,56 @@
     };
     reader.readAsText(file);
     event.target.value = ''; // Reset input
+  }
+
+  // ── Clear Cache Functions ───────────────────────────────────────────
+  function clearRDCache() {
+    localStorage.removeItem('rd_torrent_cache');
+    localStorage.removeItem('rd_torrent_cache_ts');
+    rdTorrentCache = new Map();
+    showToast('🗑 RD torrent cache cleared', 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = '✅ RD cache cleared.';
+  }
+
+  function clearTMDBCache() {
+    // Clear any TMDB-related caches
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('tmdb_') || key.startsWith('img_cache_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    showToast(`🗑 Cleared ${keysToRemove.length} TMDB cache entries`, 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = `✅ ${keysToRemove.length} TMDB cache entries cleared.`;
+  }
+
+  function clearAllCaches() {
+    clearRDCache();
+    clearTMDBCache();
+    // Clear addon catalog cache too
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('addon_') || key.startsWith('catalog_') || key.startsWith('search_cache_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    showToast('🗑 All caches cleared', 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = '✅ All caches cleared.';
+  }
+
+  function resetEverything() {
+    if (!confirm('⚠️ This will delete ALL data: settings, favorites, watch history, library, and caches.\n\nAre you sure?')) return;
+    if (!confirm('⚠️ FINAL WARNING: This cannot be undone. Continue?')) return;
+    localStorage.clear();
+    showToast('💣 Everything reset. Reloading…', 'info');
+    setTimeout(() => location.reload(), 1000);
   }
 
   async function loadHome() {
