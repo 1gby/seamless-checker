@@ -319,6 +319,17 @@
     .toast.info    { background:rgba(118,75,162,0.92); }
     @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     @keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateY(-10px)} }
+
+    /* Popcorn loading spinner */
+    .stream-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem 1rem; gap:0.8rem; }
+    .popcorn-spinner { font-size:2.5rem; animation:popcornBounce 1s ease-in-out infinite; }
+    .stream-loading > div:last-child { font-size:0.8rem; color:rgba(255,255,255,0.5); font-weight:500; letter-spacing:0.03em; }
+    @keyframes popcornBounce {
+      0%,100% { transform:translateY(0) rotate(0deg); }
+      25% { transform:translateY(-12px) rotate(-8deg); }
+      50% { transform:translateY(0) rotate(0deg); }
+      75% { transform:translateY(-8px) rotate(6deg); }
+    }
     #detail-view.active { display: block; }
 
     #detail-content {
@@ -1846,10 +1857,12 @@
   function saveRDToken() {
     const inp = document.getElementById('settings-token-input');
     const val = inp?.value?.trim();
-    if (!val) { alert('Please paste your Real-Debrid API token first.'); return; }
+    if (!val) { showToast('Paste your RD API token first', 'error'); return; }
     localStorage.setItem('rd_token', val);
     updateRDStatusBadge();
-    alert('✅ Token saved!');
+    showToast('✅ Token saved! Syncing library…', 'success');
+    // Immediately sync RD library into cache
+    refreshRDCache();
   }
 
   async function testRDToken() {
@@ -2442,7 +2455,7 @@
 
   // Token management
   function getRDToken()   { return localStorage.getItem('rd_token') || ''; }
-  function clearRDToken() { localStorage.removeItem('rd_token'); }
+  function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); rdTorrentCache = new Map(); }
 
   // Authenticated fetch wrapper for RD API — tries direct first, then CORS proxies
   async function rdFetch(path, options = {}) {
@@ -3178,9 +3191,9 @@
       if (row) row.remove();
       showToast('🗑 Deleted from RD', 'success');
 
-      // Update rdTorrentCache
+      // Update rdTorrentCache + persist
       const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) rdTorrentCache.delete(h);
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
 
       // Also remove from local library if present
       if (h) {
@@ -3195,7 +3208,7 @@
       // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
       if (row) row.remove();
       const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) rdTorrentCache.delete(h);
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
       refreshLibraryButtons();
       showToast('Deleted (may take a moment to sync)', 'info');
       console.warn('[RD] Delete response error (likely still succeeded):', e.message);
@@ -3253,8 +3266,36 @@
   }
 
   // Open the torrent overlay and kick off the search
-  // Load user's full RD torrent library into cache
-  async function loadRDTorrentCache() {
+  // ── RD Library Cache (localStorage-backed, survives page reloads) ──
+  const RD_CACHE_KEY = 'rd_torrent_cache';
+  const RD_CACHE_TTL = 2 * 60 * 1000; // 2 minutes before background refresh
+
+  // Load RD cache from localStorage instantly (no network)
+  function loadRDCacheFromStorage() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(RD_CACHE_KEY) || 'null');
+      if (stored?.data) {
+        rdTorrentCache = new Map(Object.entries(stored.data));
+        console.log(`[RD] Cache loaded from storage: ${rdTorrentCache.size} torrents`);
+        return stored.ts || 0;
+      }
+    } catch {}
+    rdTorrentCache = new Map();
+    return 0;
+  }
+
+  // Save RD cache to localStorage
+  function saveRDCacheToStorage() {
+    if (!rdTorrentCache) return;
+    try {
+      const obj = {};
+      rdTorrentCache.forEach((v, k) => obj[k] = v);
+      localStorage.setItem(RD_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: obj }));
+    } catch {}
+  }
+
+  // Refresh RD cache from API (background, non-blocking)
+  async function refreshRDCache() {
     if (!getRDToken()) { rdTorrentCache = new Map(); return; }
     try {
       const torrents = await rdFetch('/torrents?limit=2500');
@@ -3262,14 +3303,30 @@
       for (const t of (torrents || [])) {
         if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
       }
-      console.log(`[RD] Library synced: ${rdTorrentCache.size} torrents`);
+      saveRDCacheToStorage();
+      console.log(`[RD] Library synced from API: ${rdTorrentCache.size} torrents`);
+      // Sweep-update any visible buttons
+      refreshLibraryButtons();
     } catch (e) {
-      console.warn('[RD] Could not load torrent list:', e.message);
-      rdTorrentCache = rdTorrentCache || new Map();
+      console.warn('[RD] Sync failed:', e.message);
     }
   }
 
-  async function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode) {
+  // Smart load: instant from storage, then background refresh if stale
+  function ensureRDCache() {
+    const lastTs = loadRDCacheFromStorage();
+    const stale = Date.now() - lastTs > RD_CACHE_TTL;
+    if (stale && getRDToken()) {
+      refreshRDCache(); // fire-and-forget, updates buttons when done
+    }
+  }
+
+  // For add/remove — force immediate refresh
+  async function loadRDTorrentCache() {
+    await refreshRDCache();
+  }
+
+  function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode) {
     torrentOverlayTitle   = displayTitle || searchQuery || '';
     torrentOverlayResults = [];
     activeFilters.clear();
@@ -3285,16 +3342,16 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = getRDToken() ? 'Syncing RD library…' : 'Searching…';
+    if (subtitleEl) subtitleEl.textContent = 'Searching for streams…';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Reset state
     const resultsEl = document.getElementById('torrent-overlay-results');
     const playerEl  = document.getElementById('torrent-overlay-player');
     const statusEl  = document.getElementById('torrent-overlay-status');
-    if (resultsEl) resultsEl.innerHTML = '';
+    if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
     if (playerEl)  playerEl.style.display = 'none';
-    if (statusEl)  statusEl.textContent   = '🔍 Loading…';
+    if (statusEl)  statusEl.textContent   = '';
 
     // Reset filter chips
     document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.torFilter === 'all'));
@@ -3303,13 +3360,10 @@
     document.getElementById('torrent-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // AWAIT RD library sync BEFORE any rows render — this is the key fix
-    await loadRDTorrentCache();
+    // Load RD cache instantly from localStorage, refresh in background if stale
+    ensureRDCache();
 
-    if (subtitleEl) subtitleEl.textContent = 'Searching for torrents…';
-    if (statusEl)  statusEl.textContent   = '🔍 Searching…';
-
-    // Now search — all rows will render with accurate RD state
+    // Start search immediately — no waiting
     initTorrentSearch(searchQuery, displayTitle);
   }
 
@@ -3329,8 +3383,9 @@
     const q   = inp?.value?.trim() || torrentOverlayTitle;
     if (!q) return;
     const statusEl = document.getElementById('torrent-overlay-status');
-    if (statusEl) statusEl.textContent = '🔍 Searching…';
-    document.getElementById('torrent-overlay-results').innerHTML = '';
+    if (statusEl) statusEl.textContent = '';
+    const resultsEl = document.getElementById('torrent-overlay-results');
+    if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
     document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
@@ -3803,8 +3858,9 @@
             showToast('🗑 Removed from RD', 'success');
           }
 
-          // Update cache
+          // Update cache + persist
           rdTorrentCache?.delete(torHash);
+          saveRDCacheToStorage();
 
           // Also clean local library
           const lib = getLocalLibrary();
@@ -3815,6 +3871,7 @@
           console.warn('[RD] Remove error:', e.message);
           // DELETE likely succeeded (204 parsed wrong) — remove from cache anyway
           rdTorrentCache?.delete(torHash);
+          saveRDCacheToStorage();
           showToast('Removed (syncing…)', 'info');
         }
         btn.style.opacity = '';
@@ -4601,39 +4658,54 @@
   }
 
   // ── Catalog play from cache (for addon catalog items) ──
-  // Simple flow: query addon → get stream URL → show Infuse/VLC popup
-  // The addon (Torrentio) handles all RD resolution server-side
+  // Play from catalog: try RD library first (instant), then addon streams, then torrent search
   async function playCatalogFromCache(imdbId, name, catType) {
     closeSettingsModal();
+    showToast('🔍 Finding stream…', 'info');
 
     const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-    if (addons.length === 0 && !getRDToken()) {
-      const mediaType = catType === 'series' ? 'tv' : 'movie';
-      openTorrentOverlay(name, name, imdbId, mediaType);
-      return;
-    }
 
-    const type = catType === 'series' ? 'series' : 'movie';
+    // Method 1: Query addon for a direct stream URL (Torrentio handles RD resolution)
+    if (addons.length > 0) {
+      const type = catType === 'series' ? 'series' : 'movie';
+      for (const addon of addons) {
+        try {
+          const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
+          if (!streams?.length) continue;
 
-    // Query each addon for streams — find one with a playable URL
-    for (const addon of addons) {
-      try {
-        const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
-        if (!streams?.length) continue;
+          // Pick the best direct URL (already resolved through RD by the addon)
+          const direct = streams.find(s => s._isDirect && s._directUrl);
+          if (direct) {
+            console.log('[catalog] Stream from', addon.name, direct._directUrl?.slice(0, 80));
+            showPlayFromCachePopup(direct._directUrl, direct.title || name);
+            return;
+          }
 
-        // Pick the best stream with a direct URL (Torrentio proxy URL)
-        const direct = streams.find(s => s._isDirect && s._directUrl);
-        if (direct) {
-          console.log('[catalog] Found stream URL from', addon.name, direct._directUrl?.slice(0, 80));
-          showPlayFromCachePopup(direct._directUrl, direct.title || name);
-          return;
+          // If no direct URL but has hash that's in our RD library, unrestrict it
+          for (const s of streams) {
+            const h = (s.hash || '').toLowerCase();
+            if (h && rdTorrentCache?.has(h)) {
+              const rdEntry = rdTorrentCache.get(h);
+              try {
+                const info = await rdFetch(`/torrents/info/${rdEntry.id}`);
+                if (info.links?.length) {
+                  const links = await unrestrictVideoLinks(info.links);
+                  if (links.length) {
+                    showPlayFromCachePopup(links[0].url, links[0].filename || name);
+                    return;
+                  }
+                }
+              } catch (e) { console.warn('[catalog] RD unrestrict failed:', e.message); }
+            }
+          }
+        } catch (e) {
+          console.warn(`[catalog] ${addon.name} failed:`, e.message);
         }
-      } catch (e) {
-        console.warn(`[catalog] ${addon.name} failed:`, e.message);
       }
     }
 
-    // No addon stream found — fall back to torrent search
+    // Method 2: Fall back to torrent search overlay
+    showToast('Opening torrent search…', 'info');
     const mediaType = catType === 'series' ? 'tv' : 'movie';
     openTorrentOverlay(name, name, imdbId, mediaType);
   }
@@ -5634,6 +5706,9 @@
 
   // Load settings from localStorage into Settings panel
   loadSettings();
+
+  // Pre-load RD library cache from localStorage (instant), refresh in background
+  ensureRDCache();
 
   // Kick off home page load
   loadHome();
