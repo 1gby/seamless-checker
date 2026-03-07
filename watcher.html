@@ -3870,7 +3870,7 @@
       if (activeFilters.has('seeds'))  conditions.push(r => r.seeds >= 50);
       if (activeFilters.has('no3d'))   conditions.push(r => !/\b3d\b/i.test(r.title));
       if (activeFilters.has('eng'))    conditions.push(r => !/french|german|spanish|italian|portuguese|arabic|hindi|korean|japanese|chinese/i.test(r.title));
-      if (activeFilters.has('addon'))  conditions.push(r => !['knaben','yts','1337x'].includes(r.source));
+      if (activeFilters.has('addon'))  conditions.push(r => !['knaben','yts','1337x','apibay'].includes(r.source));
       if (activeFilters.has('direct')) conditions.push(r => !!r._isDirect);
 
       filtered = filtered.filter(r => {
@@ -3907,7 +3907,7 @@
     // Status bar
     const direct  = results.filter(r => !!r._isDirect).length;
     const inRDCnt = results.filter(r => !r._isDirect && (r.hash||'').toLowerCase() && rdTorrentCache?.has((r.hash||'').toLowerCase())).length;
-    const addons  = results.filter(r => !r._isDirect && !['knaben','yts','1337x'].includes(r.source)).length - inRDCnt;
+    const addons  = results.filter(r => !r._isDirect && !['knaben','yts','1337x','apibay'].includes(r.source)).length - inRDCnt;
     const raw     = results.length - direct - inRDCnt - Math.max(0, addons);
     if (statusEl) {
       let parts = [`✅ <b style="color:#fff">${results.length}</b> results`];
@@ -3977,18 +3977,22 @@
   function buildTorrentRow(torrent, idx) {
       const seedColor = torrent.seeds > 100 ? '#10b981' : torrent.seeds > 20 ? '#f59e0b' : '#ef4444';
       const sourceLabel = torrent.sourceLabel
-        || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x' }[torrent.source]
+        || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x', apibay: '🏴‍☠️ APIBAY' }[torrent.source]
         || `🧩 ${torrent.source}`;
       const qual       = torrent.quality || guessQuality(torrent.title);
       const is3d       = /\b3d\b/i.test(torrent.title);
       const isCached   = torrent.seeds > 50;
       const isDirect   = !!torrent._isDirect;
-      const isAddon    = !['knaben','yts','1337x'].includes(torrent.source);
+      const isAddon    = !['knaben','yts','1337x','apibay'].includes(torrent.source);
       const hasRD      = !!getRDToken();
 
       const row = document.createElement('div');
       row.className = 'tor-result-row';
       row.dataset.idx = idx;
+
+      // Compute RD cache status (needed for badges and actions)
+      const torHash = (torrent.hash || '').toLowerCase();
+      const inRD = torHash && rdTorrentCache?.has(torHash);
 
       // Badge HTML
       let badges = '';
@@ -4000,8 +4004,6 @@
       badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}">${sourceLabel}</span>`;
 
       // Action buttons HTML
-      const torHash = (torrent.hash || '').toLowerCase();
-      const inRD = torHash && rdTorrentCache?.has(torHash);
       const libLabel = inRD ? '✅ In RD' : '📚 Add';
       const libClass = inRD ? 'rd added' : 'ext';
       let actions = '';
