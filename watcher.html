@@ -1699,11 +1699,11 @@
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">
       Clear cached data to fix stale results or free up storage. Your settings, favorites, and watch history are preserved unless you choose "Reset Everything".
     </p>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Torrent Cache</button>
-      <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Image Cache</button>
-      <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches</button>
-      <button class="settings-btn red" onclick="resetEverything()">💣 Reset Everything</button>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="cache-buttons">
+      <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Cache <span id="cache-size-rd" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Cache <span id="cache-size-tmdb" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches <span id="cache-size-all" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn red" onclick="resetEverything()">💣 Reset Everything <span id="cache-size-total" style="opacity:0.5;font-size:0.65rem;"></span></button>
     </div>
     <p id="cache-status-msg" style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.3rem;"></p>
   </div>
@@ -1899,6 +1899,7 @@
   let currentMediaType  = null;   // 'movie' or 'tv'
   let currentSeason     = null;   // Current season number (TV)
   let currentEpisode    = null;   // Current episode number (TV)
+  let currentTVSeasons  = [];    // Seasons array for current TV detail (for stream button refresh)
   let searchTimeout     = null;   // debounce timer for search input
 
   // Active torrent search state (for the overlay)
@@ -2042,6 +2043,7 @@
   function openSettingsModal() {
     loadSettings();
     document.getElementById('settings-overlay').classList.add('active');
+    updateCacheSizeBadges();
   }
   function closeSettingsModal() {
     saveSettings();
@@ -4273,10 +4275,14 @@
     setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 1000);
   }
 
+  // ── External App Return Tracking ──
+  let _externalAppLaunch = null; // { time, torrent, app }
+
   // ── Open in Infuse ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
     autoAddToLibrary(torrent, rowEl);
+    _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
     const infuseUrl = `infuse://x-callback-url/play?url=${encodeURIComponent(torrent._directUrl)}`;
     window.location.href = infuseUrl;
   }
@@ -4285,7 +4291,70 @@
     const url = torrent._directUrl;
     if (!url) return;
     autoAddToLibrary(torrent, rowEl);
+    _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
     window.location.href = `vlc://${url}`;
+  }
+
+  // Listen for return from external app
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !_externalAppLaunch) return;
+    const elapsed = Date.now() - _externalAppLaunch.time;
+    // Only show if they were gone for at least 10 seconds (actually watched something)
+    if (elapsed < 10000) { _externalAppLaunch = null; return; }
+    const { torrent, app } = _externalAppLaunch;
+    _externalAppLaunch = null;
+    showExternalReturnPopup(torrent, app);
+  });
+
+  function showExternalReturnPopup(torrent, appName) {
+    // Remove any existing popup
+    document.getElementById('external-return-popup')?.remove();
+
+    const isTV = epCompletionData && epCompletionData.tvId;
+    const epCode = isTV ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}` : '';
+    const titleText = isTV ? `${epCompletionData.title || torrent.title} ${epCode}` : (torrent.title || 'this content');
+
+    const popup = document.createElement('div');
+    popup.id = 'external-return-popup';
+    popup.style.cssText = `position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      display:flex;align-items:center;justify-content:center;padding:1.5rem;`;
+    popup.innerHTML = `
+      <div style="background:rgba(10,10,30,0.98);border:1.5px solid var(--accent-green);border-radius:16px;
+        padding:1.5rem;max-width:360px;width:100%;text-align:center;box-shadow:0 0 40px rgba(16,185,129,0.2);">
+        <div style="font-size:1.8rem;margin-bottom:0.5rem;">🎬</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--accent-green);letter-spacing:1px;margin-bottom:0.3rem;">
+          Back from ${appName}
+        </div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:1.2rem;">
+          Did you finish watching<br><strong style="color:#fff;">${titleText}</strong>?
+        </div>
+        <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
+          <button class="ep-popup-btn" id="ext-return-done" style="flex:1;min-width:100px;">✅ Finished</button>
+          <button class="ep-popup-btn secondary" id="ext-return-dismiss" style="flex:1;min-width:100px;">⏸ Not yet</button>
+        </div>
+      </div>`;
+    document.body.appendChild(popup);
+
+    popup.querySelector('#ext-return-done').onclick = () => {
+      if (isTV && epCompletionData.tvId) {
+        toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
+        refreshEpisodeUI(epCompletionData.tvId, epCompletionData.season);
+        refreshTVStreamButton();
+        loadContinueWatching();
+        showToast(`✅ Marked ${epCode} watched`, 'success');
+      } else {
+        showToast('✅ Marked as finished', 'success');
+      }
+      popup.remove();
+    };
+
+    popup.querySelector('#ext-return-dismiss').onclick = () => {
+      popup.remove();
+    };
+
+    // Close on backdrop click
+    popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
   }
 
   // Auto-add torrent to library (called on play/infuse/vlc)
@@ -4547,6 +4616,7 @@
       infuseBtn.style.cssText = 'border-color: rgba(255,149,0,0.4); color: #ff9500; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       infuseBtn.title = 'Open in Infuse';
       infuseBtn.textContent = '📺';
+      infuseBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'Infuse' }; };
       linksEl.appendChild(infuseBtn);
 
       // VLC button per quality
@@ -4556,6 +4626,7 @@
       vlcBtn.style.cssText = 'border-color: rgba(255,136,0,0.4); color: #ff8800; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       vlcBtn.title = 'Open in VLC';
       vlcBtn.textContent = '🎬';
+      vlcBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'VLC' }; };
       linksEl.appendChild(vlcBtn);
 
       if (isFirst) { video.src = link.url; video.play().catch(() => {}); }
@@ -4580,6 +4651,7 @@
   function openAllInInfuse() {
     const video = document.getElementById('rd-player');
     if (video?.src) {
+      _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'Infuse' };
       window.location.href = `infuse://x-callback-url/play?url=${encodeURIComponent(video.src)}`;
     }
   }
@@ -4587,6 +4659,7 @@
   function openAllInVLC() {
     const video = document.getElementById('rd-player');
     if (video?.src) {
+      _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'VLC' };
       window.location.href = `vlc://${video.src}`;
     }
   }
@@ -4671,16 +4744,19 @@
   function handleToggleWatched(tvId, season, episode) {
     toggleEpisodeWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
     loadContinueWatching();
   }
   function handleMarkPrevious(tvId, season, episode) {
     markPreviousWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
     loadContinueWatching();
   }
   function handleUnmarkFrom(tvId, season, episode) {
     unmarkFromEpisode(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
     loadContinueWatching();
   }
   function markAllSeason(tvId, season, count, mark) {
@@ -4692,7 +4768,38 @@
     }
     saveWatchedEpisodes(tvId, d);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
     loadContinueWatching();
+  }
+
+  // Live-update the Stream button in TV detail view to reflect next unwatched episode
+  function refreshTVStreamButton() {
+    const container = document.getElementById('tv-stream-btn-container');
+    if (!container) return;
+    const tvId  = container.dataset.tvId;
+    const title = container.dataset.title;
+    const imdbId = container.dataset.imdb;
+    const year  = container.dataset.year;
+    if (!tvId || !title) return;
+
+    const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const nextEp = getNextUnwatched(parseInt(tvId), currentTVSeasons);
+
+    if (nextEp) {
+      const epLabel = `S${nextEp.season}E${nextEp.episode}`;
+      const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
+      container.innerHTML = `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+        <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'streams')">
+          <span class="play-icon">⚡</span> Stream ${epLabel}
+        </button>
+        <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+          <span class="play-icon">🧲</span> Search ${epLabel}
+        </button>
+        <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
+      </div>`;
+    } else {
+      container.innerHTML = buildTorrentSection(title, year, imdbId, 'tv');
+    }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -5267,7 +5374,8 @@
       btn.textContent = '✅ Marked!';
       btn.style.opacity = '0.5';
       btn.style.pointerEvents = 'none';
-      // Refresh continue watching in background
+      // Refresh continue watching and stream button in background
+      refreshTVStreamButton();
       loadContinueWatching();
     };
 
@@ -5279,6 +5387,7 @@
       }
 
       closeEpCompletePopup();
+      refreshTVStreamButton();
       loadContinueWatching(); // refresh home section
 
       // Try to find the real next unwatched episode via TMDB
@@ -5503,6 +5612,39 @@
   }
 
   // ── Clear Cache Functions ───────────────────────────────────────────
+  function formatCacheSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function getCacheSizes() {
+    let rdSize = 0, tmdbSize = 0, otherCacheSize = 0, totalSize = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      const val = localStorage.getItem(key) || '';
+      const size = (key.length + val.length) * 2; // UTF-16 = 2 bytes per char
+      totalSize += size;
+      if (key === 'rd_torrent_cache' || key === 'rd_torrent_cache_ts') rdSize += size;
+      else if (key.startsWith('tmdb_') || key.startsWith('img_cache_')) tmdbSize += size;
+      else if (key.startsWith('addon_') || key.startsWith('catalog_') || key.startsWith('search_cache_')) otherCacheSize += size;
+    }
+    return { rdSize, tmdbSize, allCacheSize: rdSize + tmdbSize + otherCacheSize, totalSize };
+  }
+
+  function updateCacheSizeBadges() {
+    const sizes = getCacheSizes();
+    const rdEl   = document.getElementById('cache-size-rd');
+    const tmdbEl = document.getElementById('cache-size-tmdb');
+    const allEl  = document.getElementById('cache-size-all');
+    const totEl  = document.getElementById('cache-size-total');
+    if (rdEl)   rdEl.textContent   = `(${formatCacheSize(sizes.rdSize)})`;
+    if (tmdbEl) tmdbEl.textContent = `(${formatCacheSize(sizes.tmdbSize)})`;
+    if (allEl)  allEl.textContent  = `(${formatCacheSize(sizes.allCacheSize)})`;
+    if (totEl)  totEl.textContent  = `(${formatCacheSize(sizes.totalSize)})`;
+  }
+
   function clearRDCache() {
     localStorage.removeItem('rd_torrent_cache');
     localStorage.removeItem('rd_torrent_cache_ts');
@@ -5510,10 +5652,10 @@
     showToast('🗑 RD torrent cache cleared', 'success');
     const msg = document.getElementById('cache-status-msg');
     if (msg) msg.textContent = '✅ RD cache cleared.';
+    updateCacheSizeBadges();
   }
 
   function clearTMDBCache() {
-    // Clear any TMDB-related caches
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -5525,12 +5667,12 @@
     showToast(`🗑 Cleared ${keysToRemove.length} TMDB cache entries`, 'success');
     const msg = document.getElementById('cache-status-msg');
     if (msg) msg.textContent = `✅ ${keysToRemove.length} TMDB cache entries cleared.`;
+    updateCacheSizeBadges();
   }
 
   function clearAllCaches() {
     clearRDCache();
     clearTMDBCache();
-    // Clear addon catalog cache too
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -5542,6 +5684,7 @@
     showToast('🗑 All caches cleared', 'success');
     const msg = document.getElementById('cache-status-msg');
     if (msg) msg.textContent = '✅ All caches cleared.';
+    updateCacheSizeBadges();
   }
 
   function resetEverything() {
@@ -5762,6 +5905,7 @@
       const cast         = data.credits?.cast || [];
       const crew         = data.credits?.crew || [];
       const seasons      = data.seasons || [];
+      currentTVSeasons   = seasons; // Store for stream button refresh
       const posters      = data.images?.posters || [];
       const backdrops    = data.images?.backdrops || [];
       let   recs         = [...(data.recommendations?.results || []), ...(data.similar?.results || [])]
@@ -5811,6 +5955,7 @@
       // ★ Play button — shows next unwatched episode
       const nextEp = getNextUnwatched(tvId, seasons);
       const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      html += `<div id="tv-stream-btn-container" data-tv-id="${tvId}" data-title="${safe(title)}" data-imdb="${safe(currentImdbId || '')}" data-year="${firstAirYear}">`;
       if (nextEp) {
         const epLabel = `S${nextEp.season}E${nextEp.episode}`;
         const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
@@ -5818,10 +5963,21 @@
           <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'streams')">
             <span class="play-icon">⚡</span> Stream ${epLabel}
           </button>
+          <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+            <span class="play-icon">🧲</span> Search ${epLabel}
+          </button>
           <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
         </div>`;
       } else {
         html += buildTorrentSection(title, firstAirYear, currentImdbId, 'tv');
+      }
+      html += `</div>`;
+
+      // Seasons — right under stream button for easy access
+      if (seasons.length > 0) {
+        html += '<h3>Seasons</h3><div class="season-selector-container"><select id="season-selector" class="season-dropdown"><option value="">Select a season…</option>';
+        seasons.forEach(s => { html += `<option value="${s.season_number}">${s.name} (${s.episode_count} episodes)</option>`; });
+        html += '</select></div><div id="episodes-container" style="margin-top:1rem;"></div>';
       }
 
       if (trailers.length > 0) {
@@ -5833,11 +5989,6 @@
       }
 
       if (cast.length > 0)    html += '<h3>Cast</h3><div class="cast-scroll" id="cast-scroll"></div>';
-      if (seasons.length > 0) {
-        html += '<h3>Seasons</h3><div class="season-selector-container"><select id="season-selector" class="season-dropdown"><option value="">Select a season…</option>';
-        seasons.forEach(s => { html += `<option value="${s.season_number}">${s.name} (${s.episode_count} episodes)</option>`; });
-        html += '</select></div><div id="episodes-container" style="margin-top:1rem;"></div>';
-      }
       if (recs.length > 0)    html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
 
       if (posters.length || backdrops.length) {
