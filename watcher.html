@@ -2661,7 +2661,7 @@
 
   // Token management
   function getRDToken()   { return localStorage.getItem('rd_token') || ''; }
-  function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); rdTorrentCache = new Map(); }
+  function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); clearDeletedHashes(); rdTorrentCache = new Map(); }
 
   // Authenticated fetch wrapper for RD API
   // Per official docs at https://api.real-debrid.com/:
@@ -3554,9 +3554,12 @@
       if (row) row.remove();
       showToast('🗑 Deleted from RD', 'success');
 
-      // Update rdTorrentCache + persist
+      // Update rdTorrentCache + persist + blocklist so it never comes back on refresh
       const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      if (h) {
+        markHashDeleted(h);
+        if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      }
 
       // Also remove from local library if present
       if (h) {
@@ -3571,7 +3574,10 @@
       // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
       if (row) row.remove();
       const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      if (h) {
+        markHashDeleted(h);
+        if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      }
       refreshLibraryButtons();
       showToast('Deleted (may take a moment to sync)', 'info');
       console.warn('[RD] Delete response error (likely still succeeded):', e.message);
@@ -3633,8 +3639,26 @@
 
   // Open the torrent overlay and kick off the search
   // ── RD Library Cache (localStorage-backed, survives page reloads) ──
-  const RD_CACHE_KEY = 'rd_torrent_cache';
-  const RD_CACHE_TTL = 2 * 60 * 1000; // 2 minutes before background refresh
+  const RD_CACHE_KEY    = 'rd_torrent_cache';
+  const RD_DELETED_KEY  = 'rd_deleted_hashes';  // Persist deleted hashes so they don't re-appear after API re-sync
+  const RD_CACHE_TTL    = 2 * 60 * 1000; // 2 minutes before background refresh
+
+  // Load set of hashes the user has explicitly deleted
+  function loadDeletedHashes() {
+    try { return new Set(JSON.parse(localStorage.getItem(RD_DELETED_KEY) || '[]')); }
+    catch { return new Set(); }
+  }
+  // Add a hash to the deleted blocklist
+  function markHashDeleted(h) {
+    if (!h) return;
+    const set = loadDeletedHashes();
+    set.add(h.toLowerCase());
+    try { localStorage.setItem(RD_DELETED_KEY, JSON.stringify([...set])); } catch {}
+  }
+  // Clear the deleted blocklist (e.g. when user re-adds something or clears token)
+  function clearDeletedHashes() {
+    try { localStorage.removeItem(RD_DELETED_KEY); } catch {}
+  }
 
   // Load RD cache from localStorage instantly (no network)
   function loadRDCacheFromStorage() {
@@ -3665,9 +3689,12 @@
     if (!getRDToken()) { rdTorrentCache = new Map(); return; }
     try {
       const torrents = await rdFetch('/torrents?limit=2500');
+      const deletedSet = loadDeletedHashes();
       rdTorrentCache = new Map();
       for (const t of (torrents || [])) {
-        if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
+        if (t.hash && !deletedSet.has(t.hash.toLowerCase())) {
+          rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
+        }
       }
       saveRDCacheToStorage();
       console.log(`[RD] Library synced from API: ${rdTorrentCache.size} torrents`);
