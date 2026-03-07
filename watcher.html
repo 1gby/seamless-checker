@@ -641,6 +641,23 @@
       color: var(--accent-green); box-shadow: 0 0 10px rgba(16,185,129,0.3);
     }
 
+    /* Source filter chips — separate row with per-source colors */
+    .tor-source-chip {
+      padding: 0.3rem 0.7rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+      border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .tor-source-chip:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+    .tor-source-chip.active {
+      background: rgba(118,75,162,0.25); border-color: #c084fc;
+      color: #c084fc; box-shadow: 0 0 8px rgba(118,75,162,0.3);
+    }
+    .tor-source-chip .src-count {
+      background: rgba(255,255,255,0.12); padding: 0.1rem 0.35rem;
+      border-radius: 999px; font-size: 0.6rem;
+    }
+
     /* Status bar */
     #torrent-overlay-status {
       padding: 0.5rem 1.2rem; font-size: 0.75rem;
@@ -1392,8 +1409,10 @@
   <button class="tor-filter-chip"        data-tor-filter="seeds"  onclick="toggleTorFilter(this,'seeds')">Min 50 Seeds</button>
   <button class="tor-filter-chip"        data-tor-filter="no3d"   onclick="toggleTorFilter(this,'no3d')">Hide 3D</button>
   <button class="tor-filter-chip"        data-tor-filter="eng"    onclick="toggleTorFilter(this,'eng')">English Only</button>
-  <button class="tor-filter-chip"        data-tor-filter="addon"  onclick="toggleTorFilter(this,'addon')">🧩 Addons</button>
   <button class="tor-filter-chip"        data-tor-filter="direct" onclick="toggleTorFilter(this,'direct')">⚡ Direct</button>
+</div>
+<div id="torrent-source-bar" style="display:flex;gap:0.4rem;flex-wrap:wrap;padding:0.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.04);">
+  <!-- Dynamic source chips injected by JS -->
 </div>
 
 <!-- Re-search input (moved below filters) -->
@@ -3155,27 +3174,6 @@
       } catch (e) { console.warn('[search] 1337x:', e); }
     }
 
-    // 4. Stremio Addon fallback — query addons for torrent hashes even in torrent mode
-    //    This ensures results even when CORS proxies are dead for scrapers
-    if (!isAdultMode && imdbId) {
-      const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-      if (enabledAddons.length > 0) {
-        try {
-          const scraperCount = allResults.length;
-          onStatus('searching', `🧩 Querying ${enabledAddons.length} addon${enabledAddons.length > 1 ? 's' : ''} for torrent hashes…`);
-          const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
-          // Only keep results that have a magnet/hash (actual torrent data)
-          const torrentable = addonResults.filter(r => r.hash || r.magnet);
-          if (torrentable.length > 0) {
-            dedupeAndMerge(applySettingsFilters(filterTorrentResults(torrentable)));
-            if (allResults.length > scraperCount) {
-              onStatus('results', `✅ ${allResults.length} total (${allResults.length - scraperCount} from addons)`, sortTorrentResults(allResults));
-            }
-          }
-        } catch (e) { console.warn('[search] Addon fallback in torrent mode:', e); }
-      }
-    }
-
     if (allResults.length > 0) {
       const sorted = sortTorrentResults(allResults);
       onStatus('results', `✅ ${sorted.length} results`, sorted);
@@ -3645,6 +3643,7 @@
     torrentOverlayTitle   = displayTitle || searchQuery || '';
     torrentOverlayResults = [];
     activeFilters.clear();
+    activeSourceFilters.clear();
     overlayMode = mode || 'streams';
 
     // Store IMDB ID and episode info for addon queries
@@ -3669,7 +3668,7 @@
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
     if (titleEl)    titleEl.textContent    = overlayMode === 'streams' ? `⚡ ${displayTitle || searchQuery}` : `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Scrapers + addon torrent hashes…';
+    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
     if (searchInp)  searchInp.value        = searchQuery || '';
 
     // Update mode toggle buttons
@@ -3692,6 +3691,8 @@
 
     // Reset filter chips
     document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.torFilter === 'all'));
+    const srcBar = document.getElementById('torrent-source-bar');
+    if (srcBar) srcBar.innerHTML = '';
 
     // Show overlay
     document.getElementById('torrent-overlay').classList.add('active');
@@ -3718,7 +3719,7 @@
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     if (titleEl)    titleEl.textContent    = mode === 'streams' ? `⚡ ${torrentOverlayTitle}` : `🧲 ${torrentOverlayTitle}`;
-    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Scrapers + addon torrent hashes…';
+    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Addon streams (Torrentio, Comet, MediaFusion, Peerflix, TorrentsDB…)' : 'Torrent scrapers (APIBAY, Knaben, YTS, 1337x)';
 
     // Show/hide magnet bar
     const magnetBar = document.getElementById('magnet-input-bar');
@@ -3733,7 +3734,10 @@
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
     activeFilters.clear();
+    activeSourceFilters.clear();
     document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.torFilter === 'all'));
+    const srcBar2 = document.getElementById('torrent-source-bar');
+    if (srcBar2) srcBar2.innerHTML = '';
 
     const q = document.getElementById('torrent-overlay-search-input')?.value?.trim() || torrentOverlayTitle;
     initTorrentSearch(q, torrentOverlayTitle);
@@ -3799,6 +3803,9 @@
     document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
+    activeSourceFilters.clear();
+    const srcBar3 = document.getElementById('torrent-source-bar');
+    if (srcBar3) srcBar3.innerHTML = '';
     initTorrentSearch(q, torrentOverlayTitle);
   }
 
@@ -3810,6 +3817,7 @@
 
       if (type === 'results' && data?.length > 0) {
         torrentOverlayResults = data;
+        buildSourceChips();
         applyTorFilter();
       }
       if (type === 'empty' || type === 'error') {
@@ -3831,7 +3839,9 @@
     if (filter === 'all') {
       // Clear all filters
       activeFilters.clear();
+      activeSourceFilters.clear();
       document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tor-source-chip').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
     } else {
       // Toggle this filter
@@ -3853,11 +3863,74 @@
     applyTorFilter();
   }
 
+  // Source filter state (separate from quality/condition filters)
+  let activeSourceFilters = new Set(); // empty = show all sources
+
+  // Build dynamic source chips from current results
+  function buildSourceChips() {
+    const bar = document.getElementById('torrent-source-bar');
+    if (!bar) return;
+    bar.innerHTML = '';
+    if (torrentOverlayResults.length === 0) return;
+
+    // Count per source
+    const sourceCounts = {};
+    const sourceLabels = {};
+    const SCRAPER_ICONS = { knaben: '🔍', yts: '🍿', '1337x': '📂', apibay: '🏴‍☠️' };
+    for (const r of torrentOverlayResults) {
+      const src = r.sourceLabel || r.source || 'unknown';
+      const key = src.toLowerCase().replace(/[^a-z0-9]/g, '');
+      sourceCounts[key] = (sourceCounts[key] || 0) + 1;
+      if (!sourceLabels[key]) {
+        sourceLabels[key] = SCRAPER_ICONS[r.source]
+          ? `${SCRAPER_ICONS[r.source]} ${r.source.charAt(0).toUpperCase() + r.source.slice(1)}`
+          : `🧩 ${src}`;
+      }
+    }
+
+    // Only show source chips if there's more than 1 source
+    const keys = Object.keys(sourceCounts);
+    if (keys.length <= 1) return;
+
+    keys.forEach(key => {
+      const chip = document.createElement('button');
+      chip.className = 'tor-source-chip' + (activeSourceFilters.has(key) ? ' active' : '');
+      chip.dataset.srcKey = key;
+      chip.innerHTML = `${sourceLabels[key]} <span class="src-count">${sourceCounts[key]}</span>`;
+      chip.onclick = () => {
+        if (activeSourceFilters.has(key)) {
+          activeSourceFilters.delete(key);
+          chip.classList.remove('active');
+        } else {
+          activeSourceFilters.add(key);
+          chip.classList.add('active');
+        }
+        // Update "All" button state
+        const allBtn = document.querySelector('.tor-filter-chip[data-tor-filter="all"]');
+        if (activeSourceFilters.size === 0 && activeFilters.size === 0) {
+          if (allBtn) allBtn.classList.add('active');
+        } else {
+          if (allBtn) allBtn.classList.remove('active');
+        }
+        applyTorFilter();
+      };
+      bar.appendChild(chip);
+    });
+  }
+
   function applyTorFilter() {
     let filtered = torrentOverlayResults;
-    if (activeFilters.size === 0) {
-      // "All" — no filtering
-    } else {
+
+    // Source filter: if any source chips are active, only show those sources (OR logic)
+    if (activeSourceFilters.size > 0) {
+      filtered = filtered.filter(r => {
+        const src = r.sourceLabel || r.source || 'unknown';
+        const key = src.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return activeSourceFilters.has(key);
+      });
+    }
+
+    if (activeFilters.size > 0) {
       // Quality filters: if any quality is selected, result must match at least one
       const quals = [];
       if (activeFilters.has('4k'))    quals.push(r => /2160|4k|uhd/i.test(r.title));
@@ -3870,7 +3943,6 @@
       if (activeFilters.has('seeds'))  conditions.push(r => r.seeds >= 50);
       if (activeFilters.has('no3d'))   conditions.push(r => !/\b3d\b/i.test(r.title));
       if (activeFilters.has('eng'))    conditions.push(r => !/french|german|spanish|italian|portuguese|arabic|hindi|korean|japanese|chinese/i.test(r.title));
-      if (activeFilters.has('addon'))  conditions.push(r => !['knaben','yts','1337x','apibay'].includes(r.source));
       if (activeFilters.has('direct')) conditions.push(r => !!r._isDirect);
 
       filtered = filtered.filter(r => {
