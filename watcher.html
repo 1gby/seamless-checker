@@ -2725,8 +2725,8 @@
     }
 
     // RD has NO CORS headers — go straight to proxies (no direct attempt)
-    // POST requests: corsproxy.io and corsfix forward POST bodies
-    // DELETE: try direct first (auth in URL = no custom headers = no preflight), then proxy
+    // RD API supports X-HTTP-Verb header override (per official docs) for clients that can't send DELETE.
+    // For DELETE: send as POST with X-HTTP-Verb: DELETE header — corsproxy.io forwards custom headers on POST.
     // GET requests: all proxies work
     const postCapableProxies = [
       url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
@@ -2739,14 +2739,31 @@
       url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     ];
 
-    // For DELETE: try direct fetch first (auth_token is in URL, no custom headers = no preflight)
+    // For DELETE: use RD's official X-HTTP-Verb override — send as POST with the header set.
+    // This is the documented way for clients that can't send DELETE directly.
     if (method === 'DELETE') {
-      try {
-        const res = await fetch(fullUrl, { method: 'DELETE', signal: AbortSignal.timeout(10000) });
-        if (res.ok || res.status === 204 || res.status === 202) return await parseResponse(res);
-      } catch (e) {
-        console.warn('[rdFetch] DELETE direct failed, trying proxies:', e.message);
+      const deleteProxies = [
+        url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+        url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+      ];
+      let lastDeleteErr;
+      for (const makeProxy of deleteProxies) {
+        const proxyUrl = makeProxy(fullUrl);
+        try {
+          const res = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: { 'X-HTTP-Verb': 'DELETE' },
+            signal: AbortSignal.timeout(12000),
+          });
+          console.log(`[rdFetch] DELETE via X-HTTP-Verb → ${res.status}`);
+          return await parseResponse(res);
+        } catch (e) {
+          lastDeleteErr = e;
+          if (e.message.includes('token invalid') || e.message.includes('RD token')) throw e;
+          console.warn('[rdFetch DELETE proxy]', proxyUrl.slice(0, 80), e.message);
+        }
       }
+      throw lastDeleteErr || new Error('Could not delete from Real-Debrid.');
     }
 
     const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
