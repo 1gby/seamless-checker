@@ -1247,8 +1247,8 @@
      NORMAL MODE — HOME SECTIONS
      ══════════════════════════════════════════════════════════════════ -->
 
-<section id="section-continue-watching" style="display:none;"><h2>📺 Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
-<section id="section-fav-this-week" style="display:none;"><h2>🔥 Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
+<section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
+<section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <h2>Airing Today</h2>              <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
 <section id="section-trending-tv">     <h2>Trending TV</h2>               <div class="horizontal-scroll" id="trending-tv-grid"></div></section>
@@ -1490,6 +1490,11 @@
     <div class="settings-section-title">Built-in Scrapers</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
     <div class="source-toggle-grid">
+      <div class="source-toggle-card active" id="src-apibay" onclick="toggleSource('apibay')">
+        <div class="stc-check">✓</div>
+        <div class="stc-icon">🏴‍☠️</div>
+        <div class="stc-label">APIBAY</div>
+      </div>
       <div class="source-toggle-card active" id="src-knaben" onclick="toggleSource('knaben')">
         <div class="stc-check">✓</div>
         <div class="stc-icon">🔍</div>
@@ -1582,7 +1587,6 @@
       These will appear alongside Knaben/YTS/1337x results. Configure your debrid key in the addon URL for cached results.
     </p>
     <div class="addon-quick-add">
-      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio')">+ Torrentio</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (with RD)</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('comet')">+ Comet</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('mediafusion')">+ MediaFusion</button>
@@ -1611,12 +1615,12 @@
     </p>
     <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
       💡 <strong style="color:#c084fc;">Comet</strong> — A fast, modern Stremio addon focused on debrid-cached torrents. Supports Real-Debrid, AllDebrid, Premiumize and more.
-      Click "+ Comet" to open the <a href="https://comet.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">configure page</a>,
+      Go to <a href="https://comet.feels.legal/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">comet.feels.legal/configure</a>,
       connect your debrid account, customise your filters, then copy the manifest URL and paste it in the field above.
     </p>
     <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
       💡 <strong style="color:#c084fc;">MediaFusion</strong> — A community-driven Stremio addon that indexes multiple torrent and streaming sources. Highly configurable with provider and quality filters.
-      Click "+ MediaFusion" to open the <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">configure page</a>,
+      Go to <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>,
       set your preferences and debrid provider, then copy the manifest URL and paste it above.
     </p>
   </div>
@@ -1658,7 +1662,7 @@
       Only stream content you own or have the legal right to access.
       <br><br>
       <strong>Real-Debrid</strong> is a third-party paid service — Watcher has no affiliation with them.
-      Torrent indexers (Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
+      Torrent indexers (APIBAY, Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
       <br><br>
       Downloading or streaming copyrighted material without authorisation may be illegal in your region.
       Use responsibly and in accordance with your local laws.
@@ -1781,6 +1785,7 @@
   const YT_EMBED   = 'https://www.youtube.com/embed/';
   const RD_API     = 'https://api.real-debrid.com/rest/1.0';
   const YTS_API    = 'https://yts.mx/api/v2/list_movies.json';
+  const APIBAY_API = 'https://apibay.org/q.php'; // The Pirate Bay API — CORS-enabled, no proxy needed
 
   // CORS proxy chain — tried in order until one succeeds
   const CORS_PROXIES = [
@@ -1886,7 +1891,7 @@
     // Exclude uploaders/groups (comma-separated string)
     excludeKeywords: '',
     // Torrent sources (all enabled by default)
-    srcKnaben: true, srcYts: true, src1337x: true,
+    srcKnaben: true, srcYts: true, src1337x: true, srcApibay: true,
     // Provider filter (addon results) — empty = show all
     excludedProviders: [],
     // Search limits
@@ -1920,6 +1925,7 @@
     set('sf-max-knaben',   appSettings.maxKnaben);
     set('sf-max-yts',      appSettings.maxYts);
     // Render source toggle cards
+    updateSourceCard('apibay', appSettings.srcApibay !== false);
     updateSourceCard('knaben', appSettings.srcKnaben !== false);
     updateSourceCard('yts',    appSettings.srcYts    !== false);
     updateSourceCard('1337x',  appSettings.src1337x  !== false);
@@ -1949,6 +1955,7 @@
       seSubbed:   !!gb('se-subbed'),
       seHdr:      !!gb('se-hdr'),
       excludeKeywords: gb('se-exclude-keywords') || '',
+      srcApibay:  appSettings.srcApibay  !== false,
       srcKnaben:  appSettings.srcKnaben !== false,
       srcYts:     appSettings.srcYts    !== false,
       src1337x:   appSettings.src1337x  !== false,
@@ -2028,9 +2035,8 @@
 
   // ── Stremio Addon Management ──────────────────────────────────────
   const ADDON_PRESETS = {
-    'torrentio':    { name: 'Torrentio',           url: 'https://torrentio.strem.fun' },
     'torrentio-rd': { name: 'Torrentio (RD)',      url: null }, // user must configure
-    'comet':        { name: 'Comet',               url: null, configureUrl: 'https://comet.elfhosted.com/configure' },
+    'comet':        { name: 'Comet',               url: null, configureUrl: 'https://comet.feels.legal/configure' },
     'mediafusion':  { name: 'MediaFusion',         url: null, configureUrl: 'https://mediafusion.elfhosted.com/configure' },
   };
 
@@ -2052,8 +2058,16 @@
       renderAddonList();
       return;
     }
-    // Comet & MediaFusion — open configure page so user can customise + get their manifest URL
+    // Comet & MediaFusion — check if already configured, then open configure page
     if (preset.configureUrl) {
+      const addons = appSettings.stremioAddons || [];
+      const matchWord = presetKey === 'comet' ? 'comet' : 'mediafusion';
+      const existing = addons.find(a => a.url && a.url.toLowerCase().includes(matchWord));
+      if (existing) {
+        const reopen = confirm(`${preset.name} is already configured.\n\nWould you like to open the configure page to update it?`);
+        if (reopen) window.open(preset.configureUrl, '_blank', 'noopener');
+        return;
+      }
       window.open(preset.configureUrl, '_blank', 'noopener');
       showToast(`${preset.name} configure page opened — copy your manifest URL and paste it below.`, 'info');
       return;
@@ -2915,6 +2929,56 @@
     return anchor.getAttribute('href') || anchor.href;
   }
 
+  // ── APIBAY (The Pirate Bay API) — CORS-enabled, no proxy needed ─────
+  async function searchAPIBay(title, maxResults = 60) {
+    const url = `${APIBAY_API}?q=${encodeURIComponent(title)}&cat=`;
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) return [];
+      // APIBAY returns [{id, name, info_hash, leechers, seeders, num_files, size, ...}]
+      // A single result with id "0" means no results
+      if (data.length === 1 && data[0].id === '0') return [];
+      return data
+        .filter(t => t.info_hash && t.info_hash !== '0000000000000000000000000000000000000000')
+        .map(t => ({
+          title:  t.name || 'Unknown',
+          size:   t.size ? formatBytes(parseInt(t.size, 10)) : '?',
+          seeds:  parseInt(t.seeders, 10) || 0,
+          magnet: buildMagnet(t.info_hash.toLowerCase(), t.name),
+          hash:   t.info_hash.toLowerCase(),
+          source: 'apibay',
+        }))
+        .sort((a, b) => b.seeds - a.seeds)
+        .slice(0, maxResults);
+    } catch (e) {
+      console.warn('[APIBAY]', e.message);
+      // Fallback through CORS proxies if direct fails
+      try {
+        const res = await corsGet(url, 10000);
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) return [];
+        if (data.length === 1 && data[0].id === '0') return [];
+        return data
+          .filter(t => t.info_hash && t.info_hash !== '0000000000000000000000000000000000000000')
+          .map(t => ({
+            title:  t.name || 'Unknown',
+            size:   t.size ? formatBytes(parseInt(t.size, 10)) : '?',
+            seeds:  parseInt(t.seeders, 10) || 0,
+            magnet: buildMagnet(t.info_hash.toLowerCase(), t.name),
+            hash:   t.info_hash.toLowerCase(),
+            source: 'apibay',
+          }))
+          .sort((a, b) => b.seeds - a.seeds)
+          .slice(0, maxResults);
+      } catch (e2) {
+        console.warn('[APIBAY proxy]', e2.message);
+        return [];
+      }
+    }
+  }
+
   // ── Content filtering ────────────────────────────────────────────────
   function filterTorrentResults(results) {
     if (isAdultMode) {
@@ -3021,7 +3085,23 @@
       return [];
     }
 
-    // ═══ TORRENTS MODE: Only scrapers (Knaben, YTS, 1337x) ═══
+    // ═══ TORRENTS MODE: Only scrapers (APIBAY, Knaben, YTS, 1337x) ═══
+    // 0. APIBAY (The Pirate Bay API — most reliable, no CORS proxy needed)
+    if (appSettings.srcApibay !== false) {
+      try {
+        onStatus('searching', `🔍 Searching APIBAY for "${title}"…`);
+        const raw     = await searchAPIBay(title, 60);
+        const filtered = applySettingsFilters(filterTorrentResults(raw));
+        dedupeAndMerge(filtered);
+        if (allResults.length > 0) {
+          onStatus('results', `✅ ${allResults.length} results — still searching…`, sortTorrentResults(allResults));
+        }
+      } catch (e) {
+        console.warn('[search] APIBAY:', e);
+        onStatus('info', `⚠️ APIBAY: ${e.message}`);
+      }
+    }
+
     // 1. Knaben
     if (appSettings.srcKnaben !== false) {
       onStatus('searching', `🔍 Searching Knaben for "${title}"…`);
@@ -3092,7 +3172,7 @@
       if (r._isDirect) return 4;                                           // ⚡ Direct play
       const h = (r.hash || '').toLowerCase();
       if (h && rdTorrentCache?.has(h)) return 3;                          // 📦 In RD library
-      if (!['knaben','yts','1337x'].includes(r.source)) return 2;        // 🧩 Addon (not yet cached)
+      if (!['knaben','yts','1337x','apibay'].includes(r.source)) return 2;        // 🧩 Addon (not yet cached)
       return 1;                                                            // 🔍 Raw torrent
     };
 
