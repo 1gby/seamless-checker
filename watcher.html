@@ -2731,9 +2731,31 @@
       throw new Error(msg);
     }
 
-    // RD has NO CORS headers — go straight to proxies (no direct attempt)
-    // POST requests: corsproxy.io and corsfix forward POST bodies
-    // GET requests: all proxies work
+    // Strategy 1: Our own Vercel proxy (/api/rd) — same-origin, works on iOS Safari PWA
+    // Strategy 2: Third-party CORS proxies (fallback for non-Vercel environments)
+    try {
+      const rdProxyRes = await fetch('/api/rd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path,
+          method,
+          token,
+          body: fetchOpts.body || null,
+        }),
+        signal: safeFetchSignal(15000),
+      });
+      return await parseResponse(rdProxyRes);
+    } catch (e) {
+      // /api/rd not available (local dev or non-Vercel) — fall through to CORS proxies
+      if (!e.message.includes('token invalid') && !e.message.includes('RD token')) {
+        console.warn('[rdFetch] /api/rd failed, trying CORS proxies:', e.message);
+      } else {
+        throw e;
+      }
+    }
+
+    // Fallback: third-party CORS proxies
     const postCapableProxies = [
       url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
       url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
@@ -2744,7 +2766,6 @@
       url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
       url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     ];
-    // corsproxy.io supports all HTTP methods including DELETE — send directly
     const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
 
     let lastErr;
