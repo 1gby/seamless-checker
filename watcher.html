@@ -2685,8 +2685,8 @@
                      (window.location.protocol === 'https:' && !window.location.hostname.includes('localhost'));
 
     if (onVercel) {
-      const sep = path.includes('?') ? '&' : '?';
-      const proxyUrl = `/api/rd?path=${encodeURIComponent(path)}${sep}auth_token=${encodeURIComponent(token)}`;
+      // Always use & since we're already appending to /api/rd?path=...
+      const proxyUrl = `/api/rd?path=${encodeURIComponent(path)}&auth_token=${encodeURIComponent(token)}`;
       const fetchOpts = { method };
       if (options.body) {
         fetchOpts.body = options.body;
