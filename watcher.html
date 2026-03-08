@@ -3554,43 +3554,42 @@
     btn.textContent = '⏳';
 
     const token = getRDToken();
-    const url = `${RD_API}/torrents/delete/${torrentId}?auth_token=${encodeURIComponent(token)}`;
+    // RD officially supports X-HTTP-Verb header to override the HTTP method.
+    // So we send POST (which CORS proxies handle fine on Safari) with X-HTTP-Verb: DELETE.
+    // auth_token in URL avoids Authorization header which would trigger preflight.
+    const rdUrl = `${RD_API}/torrents/delete/${torrentId}?auth_token=${encodeURIComponent(token)}`;
 
-    // Use XHR for DELETE — Safari handles it more reliably than fetch for non-GET methods
-    // Try direct first (RD has no CORS headers so this will fail), then proxies
     const proxies = [
-      `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+      `https://corsproxy.io/?url=${encodeURIComponent(rdUrl)}`,
+      `https://proxy.corsfix.com/?${encodeURIComponent(rdUrl)}`,
     ];
-
-    function tryXHR(targetUrl) {
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('DELETE', targetUrl, true);
-        xhr.timeout = 12000;
-        xhr.onload = () => {
-          console.log('[RD delete XHR]', targetUrl.slice(0, 80), xhr.status);
-          if (xhr.status === 204 || xhr.status === 202 || xhr.status === 200) resolve();
-          else reject(new Error(`HTTP ${xhr.status}`));
-        };
-        xhr.onerror = () => reject(new Error('Network error'));
-        xhr.ontimeout = () => reject(new Error('Timeout'));
-        xhr.send();
-      });
-    }
 
     let succeeded = false;
     for (const proxyUrl of proxies) {
       try {
-        await tryXHR(proxyUrl);
-        succeeded = true;
-        break;
+        const res = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: { 'X-HTTP-Verb': 'DELETE' },
+          signal: safeFetchSignal(12000),
+        });
+        console.log('[RD delete]', proxyUrl.slice(0, 80), res.status);
+        if (res.status === 204 || res.status === 202 || res.status === 200) {
+          succeeded = true;
+          break;
+        }
       } catch (e) {
-        console.warn('[RD delete] proxy failed:', e.message);
+        console.warn('[RD delete] proxy failed:', proxyUrl.slice(0, 60), e.message);
       }
     }
 
-    // Remove row and update cache regardless — if RD got the request it's gone
+    if (!succeeded) {
+      // Reset UI and bail — don't silently pretend it worked
+      if (row) { row.style.opacity = ''; }
+      btn.textContent = '🗑';
+      showToast('❌ Delete failed — check console', 'error');
+      return;
+    }
+
     if (row) row.remove();
     const h = (hash || '').toLowerCase();
     if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
@@ -3600,7 +3599,7 @@
       if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
     }
     refreshLibraryButtons();
-    showToast(succeeded ? '🗑 Deleted from RD' : 'Deleted (may take a moment to sync)', succeeded ? 'success' : 'info');
+    showToast('🗑 Deleted from RD', 'success');
   }
   async function streamRDLibraryItem(torrent, rowEl) {
     const statEl = document.getElementById('rd-library-status');
@@ -4414,7 +4413,19 @@
           }
 
           if (rdId) {
-            await rdFetch(`/torrents/delete/${rdId}`, { method: 'DELETE' });
+            // Use POST + X-HTTP-Verb: DELETE (official RD workaround for Safari CORS issues)
+            const token = getRDToken();
+            const rdDelUrl = `${RD_API}/torrents/delete/${rdId}?auth_token=${encodeURIComponent(token)}`;
+            const delProxies = [
+              `https://corsproxy.io/?url=${encodeURIComponent(rdDelUrl)}`,
+              `https://proxy.corsfix.com/?${encodeURIComponent(rdDelUrl)}`,
+            ];
+            for (const p of delProxies) {
+              try {
+                const r = await fetch(p, { method: 'POST', headers: { 'X-HTTP-Verb': 'DELETE' }, signal: safeFetchSignal(12000) });
+                if (r.status === 204 || r.status === 202 || r.status === 200) break;
+              } catch {}
+            }
             showToast('🗑 Removed from RD', 'success');
           }
 
