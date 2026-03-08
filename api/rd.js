@@ -33,7 +33,6 @@ fetchOpts.body = postBody;
 fetchOpts.headers = { ‘Content-Type’: ‘application/x-www-form-urlencoded’ };
 }
 
-```
 const rdRes = await fetch(targetUrl, fetchOpts);
 
 if (rdRes.status === 204 || rdRes.status === 202) {
@@ -42,7 +41,6 @@ if (rdRes.status === 204 || rdRes.status === 202) {
 
 const text = await rdRes.text();
 return res.status(rdRes.status).send(text);
-```
 
 } catch (e) {
 return res.status(502).json({ error: ’Proxy error: ’ + e.message });
