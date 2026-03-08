@@ -2685,51 +2685,7 @@
     if (!token) throw new Error('No RD API token — open Settings ⚙️ to add one.');
     const method = (options.method || 'GET').toUpperCase();
 
-    // ── Route through our own Vercel /api/rd proxy (server-side, supports all methods including DELETE) ──
-    // Falls back to CORS proxies if not running on Vercel (e.g. local file open)
-    const onVercel = window.location.hostname.includes('vercel.app') ||
-                     window.location.hostname.includes('rud3boy') ||
-                     (window.location.protocol === 'https:' && !window.location.hostname.includes('localhost'));
-
-    if (onVercel) {
-      // Always use & since we're already appending to /api/rd?path=...
-      const proxyUrl = `/api/rd?path=${encodeURIComponent(path)}&auth_token=${encodeURIComponent(token)}`;
-      const fetchOpts = { method };
-      if (options.body) {
-        fetchOpts.body = options.body;
-        fetchOpts.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      }
-      try {
-        const res = await fetch(proxyUrl, { ...fetchOpts, signal: safeFetchSignal(15000) });
-        console.log(`[rdFetch /api/rd] ${method} ${path} → ${res.status}`);
-        if (res.status === 401) { clearRDToken(); updateRDStatusBadge(); throw new Error('RD token invalid or expired — update it in Settings ⚙️'); }
-        if (res.status === 204 || res.status === 202) return null;
-        if (res.ok) {
-          const text = await res.text();
-          if (!text || text.trim() === '') return null;
-          try {
-            const json = JSON.parse(text);
-            if (json.error) {
-              if (json.error_code === 8) { clearRDToken(); updateRDStatusBadge(); throw new Error('RD token invalid or expired'); }
-              throw new Error(`RD: ${json.error} (code ${json.error_code || '?'})`);
-            }
-            return json;
-          } catch (e) {
-            if (e.message.startsWith('RD:') || e.message.includes('token')) throw e;
-            return null;
-          }
-        }
-        let msg = `RD API error ${res.status}`;
-        try { const e = await res.json(); msg = e.error || e.message || msg; } catch {}
-        throw new Error(msg);
-      } catch (e) {
-        if (e.message.includes('token') || e.message.startsWith('RD:')) throw e;
-        console.warn('[rdFetch /api/rd failed, falling through to CORS proxies]', e.message);
-        // fall through to CORS proxy below
-      }
-    }
-
-    // ── Fallback: CORS proxy chain (for local dev / non-Vercel hosting) ──
+    // ── CORS proxy chain ──
     // Build full URL with auth_token in query (avoids Authorization header = avoids OPTIONS preflight)
     const sep = path.includes('?') ? '&' : '?';
     const fullUrl = `${RD_API}${path}${sep}auth_token=${encodeURIComponent(token)}`;
@@ -3634,10 +3590,8 @@
 
     const rdPath = `/torrents/delete/${torrentId}`;
     const directRdUrl = `https://api.real-debrid.com/rest/1.0${rdPath}?auth_token=${encodeURIComponent(token)}`;
-    const vercelUrl = `/api/rd?path=${encodeURIComponent(rdPath)}&auth_token=${encodeURIComponent(token)}`;
-    const corsProxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(directRdUrl)}`;
 
-    // XHR works more reliably than fetch on iOS Safari PWA for non-GET methods
+    // XHR is more reliable than fetch on iOS Safari PWA for non-GET requests
     function xhrRequest(url, method, extraHeaders) {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -3654,10 +3608,11 @@
       });
     }
 
-    // Try in order: Vercel proxy DELETE → corsproxy POST+X-HTTP-Verb
+    // Try multiple proxies with X-HTTP-Verb: DELETE (official RD API override)
     const attempts = [
-      () => xhrRequest(vercelUrl, 'DELETE'),
-      () => xhrRequest(corsProxyUrl, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
+      () => xhrRequest(`https://corsproxy.io/?url=${encodeURIComponent(directRdUrl)}`, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
+      () => xhrRequest(`https://proxy.corsfix.com/?${encodeURIComponent(directRdUrl)}`, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
+      () => xhrRequest(`https://api.allorigins.win/raw?url=${encodeURIComponent(directRdUrl)}`, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
     ];
 
     let lastErr;
