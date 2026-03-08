@@ -1896,6 +1896,7 @@
   // Active torrent search state (for the overlay)
   let torrentOverlayResults   = [];  // raw results from last search
   let rdTorrentCache = null;         // Map<hash, {id, status}> — fetched once per overlay open
+  const deletedRDIds = new Set();    // IDs deleted this session — filter from library even if RD API still returns them
   let torrentOverlayDisplayed = [];  // filtered subset currently rendered
   let torrentOverlayFilter    = 'all'; // legacy — now using activeFilters Set
   let activeFilters = new Set(); // multi-select filter set
@@ -3489,7 +3490,7 @@
       }
       if (statEl) statEl.textContent = `📂 ${torrents.length} torrent(s) in your library:`;
 
-      torrents.forEach(t => {
+      torrents.filter(t => !deletedRDIds.has(t.id)).forEach(t => {
         const isReady = t.status === 'downloaded';
         const row     = document.createElement('div');
         row.className = 'rd-lib-item';
@@ -3577,6 +3578,7 @@
     }
 
     if (row) row.remove();
+    deletedRDIds.add(torrentId);
     const h = (hash || '').toLowerCase();
     if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
     if (h) {
