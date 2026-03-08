@@ -3586,8 +3586,8 @@
     }
     refreshLibraryButtons();
     showToast('🗑 Deleted from RD', 'success');
-    // Sync cache from API so library is accurate on next open
-    refreshRDCache();
+    // Wait 5s for RD API to reflect deletion, then re-fetch library
+    setTimeout(() => openRDLibrary(), 5000);
   }
   async function streamRDLibraryItem(torrent, rowEl) {
     const statEl = document.getElementById('rd-library-status');
