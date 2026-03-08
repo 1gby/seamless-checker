@@ -3688,12 +3688,9 @@
     if (!getRDToken()) { rdTorrentCache = new Map(); return; }
     try {
       const torrents = await rdFetch('/torrents?limit=2500');
-      const deletedSet = loadDeletedHashes();
       rdTorrentCache = new Map();
       for (const t of (torrents || [])) {
-        if (t.hash && !deletedSet.has(t.hash.toLowerCase())) {
-          rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
-        }
+        if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
       }
       saveRDCacheToStorage();
       console.log(`[RD] Library synced from API: ${rdTorrentCache.size} torrents`);
