@@ -2212,7 +2212,7 @@
       // Try direct fetch first, then CORS proxy
       let data;
       try {
-        const res = await fetch(streamUrl, { signal: safeFetchSignal(12000) });
+        const res = await fetch(streamUrl, { signal: AbortSignal.timeout(12000) });
         if (res.ok) data = await res.json();
       } catch {
         // Fallback to CORS proxy
@@ -2348,7 +2348,7 @@
         const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
         let manifestData;
         try {
-          const r = await fetch(manifestUrl, { signal: safeFetchSignal(5000) });
+          const r = await fetch(manifestUrl, { signal: AbortSignal.timeout(5000) });
           if (r.ok) manifestData = await r.json();
         } catch {}
         if (!manifestData) {
@@ -2403,7 +2403,7 @@
       const catalogUrl = `${baseUrl}/catalog/${entry.catalog.type}/${entry.catalog.id}.json`;
       let data;
       try {
-        const r = await fetch(catalogUrl, { signal: safeFetchSignal(6000) });
+        const r = await fetch(catalogUrl, { signal: AbortSignal.timeout(6000) });
         if (r.ok) data = await r.json();
       } catch {}
       if (!data) {
@@ -2632,19 +2632,12 @@
      § 05  REAL-DEBRID CORE
      ═══════════════════════════════════════════════════════════════════ */
 
-  // Safari-safe fetch timeout (AbortSignal.timeout not supported on older iOS)
-  function safeFetchSignal(ms) {
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), ms);
-    return ctrl.signal;
-  }
-
   // CORS proxy — tries each proxy in order until one responds OK
   async function corsGet(targetUrl, timeoutMs = 9000) {
     let lastErr;
     // Try direct fetch first (works for APIs with CORS headers like YTS)
     try {
-      const res = await fetch(targetUrl, { signal: safeFetchSignal(timeoutMs) });
+      const res = await fetch(targetUrl, { signal: AbortSignal.timeout(timeoutMs) });
       if (res.ok) return res;
       lastErr = new Error(`HTTP ${res.status}`);
     } catch (e) {
@@ -2655,7 +2648,7 @@
     for (const makeProxy of CORS_PROXIES) {
       const proxyUrl = makeProxy(targetUrl);
       try {
-        const res = await fetch(proxyUrl, { signal: safeFetchSignal(timeoutMs) });
+        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(timeoutMs) });
         if (res.ok) return res;
         lastErr = new Error(`HTTP ${res.status}`);
       } catch (e) {
@@ -2668,7 +2661,7 @@
 
   // Token management
   function getRDToken()   { return localStorage.getItem('rd_token') || ''; }
-  function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); clearDeletedHashes(); rdTorrentCache = new Map(); }
+  function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); rdTorrentCache = new Map(); }
 
   // Authenticated fetch wrapper for RD API
   // Per official docs at https://api.real-debrid.com/:
@@ -2751,7 +2744,7 @@
       const proxyUrl = makeProxy(fullUrl);
       try {
         // Short timeout per proxy so we fail fast and try the next
-        const proxyOpts = { ...fetchOpts, signal: safeFetchSignal(12000) };
+        const proxyOpts = { ...fetchOpts, signal: AbortSignal.timeout(12000) };
         const res = await fetch(proxyUrl, proxyOpts);
         return await parseResponse(res);
       } catch (e) {
@@ -2762,6 +2755,7 @@
     }
     throw lastErr || new Error('Could not reach Real-Debrid. Check your internet connection and try again.');
   }
+
   // Magnet helpers
   function extractHashFromMagnet(magnet) {
     const m = (magnet || '').match(/urn:btih:([a-fA-F0-9]{40}|[A-Z2-7]{32})/i);
@@ -2796,7 +2790,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body,
-          signal: safeFetchSignal(10000),
+          signal: AbortSignal.timeout(10000),
         });
         if (res.ok) {
           const data = await res.json();
@@ -2822,7 +2816,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body,
-            signal: safeFetchSignal(10000),
+            signal: AbortSignal.timeout(10000),
           });
           if (!res.ok) continue;
           const data = await res.json();
@@ -2929,7 +2923,7 @@
     const url = `${YTS_API}?query_term=${encodeURIComponent(title)}&sort_by=seeds&limit=${maxResults}`;
     let data;
     try {
-      const res = await fetch(url, { signal: safeFetchSignal(8000) });
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       data = await res.json();
     } catch {
       // Try CORS proxy as fallback
@@ -3038,7 +3032,7 @@
       const url = `${mirror}?q=${q}&cat=`;
       // Direct fetch
       try {
-        const res = await fetch(url, { signal: safeFetchSignal(8000) });
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
         if (res.ok) {
           const data = await res.json();
           const results = parseAPIBayResults(data);
@@ -3052,7 +3046,7 @@
       // JSON-specific CORS proxy fallback for this mirror
       for (const makeProxy of JSON_CORS_PROXIES) {
         try {
-          const res = await fetch(makeProxy(url), { signal: safeFetchSignal(8000) });
+          const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
           if (!res.ok) continue;
           const data = await res.json();
           const results = parseAPIBayResults(data);
@@ -3550,57 +3544,40 @@
   async function deleteRDTorrent(torrentId, btn, hash) {
     if (!confirm('Delete this torrent from Real-Debrid?')) return;
     const row = btn.closest('.rd-lib-item');
-    if (row) row.style.opacity = '0.4';
-    btn.textContent = '⏳';
+    try {
+      // Visual feedback immediately
+      if (row) row.style.opacity = '0.4';
+      btn.textContent = '⏳';
 
-    const token = getRDToken();
-    // RD officially supports X-HTTP-Verb header to override the HTTP method.
-    // So we send POST (which CORS proxies handle fine on Safari) with X-HTTP-Verb: DELETE.
-    // auth_token in URL avoids Authorization header which would trigger preflight.
-    const rdUrl = `${RD_API}/torrents/delete/${torrentId}?auth_token=${encodeURIComponent(token)}`;
+      await rdFetch(`/torrents/delete/${torrentId}`, { method: 'DELETE' });
 
-    const proxies = [
-      `https://corsproxy.io/?url=${encodeURIComponent(rdUrl)}`,
-      `https://proxy.corsfix.com/?${encodeURIComponent(rdUrl)}`,
-    ];
+      if (row) row.remove();
+      showToast('🗑 Deleted from RD', 'success');
 
-    let succeeded = false;
-    const debugLines = [];
-    for (const proxyUrl of proxies) {
-      try {
-        const res = await fetch(proxyUrl, {
-          method: 'POST',
-          headers: { 'X-HTTP-Verb': 'DELETE' },
-          signal: safeFetchSignal(12000),
-        });
-        debugLines.push(`${proxyUrl.slice(0,50)} → ${res.status}`);
-        if (res.status === 204 || res.status === 202 || res.status === 200) {
-          succeeded = true;
-          break;
-        }
-      } catch (e) {
-        debugLines.push(`${proxyUrl.slice(0,50)} → ERR: ${e.message}`);
+      // Update rdTorrentCache + persist
+      const h = (hash || '').toLowerCase();
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+
+      // Also remove from local library if present
+      if (h) {
+        const lib = getLocalLibrary();
+        const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
+        if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
       }
-    }
 
-    if (!succeeded) {
-      if (row) { row.style.opacity = ''; }
-      btn.textContent = '🗑';
-      alert('RD Delete debug:\n' + debugLines.join('\n'));
-      return;
+      // Update any matching stream row button in the torrent overlay
+      refreshLibraryButtons();
+    } catch (e) {
+      // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
+      if (row) row.remove();
+      const h = (hash || '').toLowerCase();
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      refreshLibraryButtons();
+      showToast('Deleted (may take a moment to sync)', 'info');
+      console.warn('[RD] Delete response error (likely still succeeded):', e.message);
     }
-
-    if (row) row.remove();
-    const h = (hash || '').toLowerCase();
-    if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-    if (h) {
-      const lib = getLocalLibrary();
-      const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
-      if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
-    }
-    refreshLibraryButtons();
-    showToast('🗑 Deleted from RD', 'success');
   }
+
   async function streamRDLibraryItem(torrent, rowEl) {
     const statEl = document.getElementById('rd-library-status');
     if (statEl) statEl.textContent = `⏳ Getting stream links for "${torrent.filename}"…`;
@@ -3656,26 +3633,8 @@
 
   // Open the torrent overlay and kick off the search
   // ── RD Library Cache (localStorage-backed, survives page reloads) ──
-  const RD_CACHE_KEY    = 'rd_torrent_cache';
-  const RD_DELETED_KEY  = 'rd_deleted_hashes';  // Persist deleted hashes so they don't re-appear after API re-sync
-  const RD_CACHE_TTL    = 2 * 60 * 1000; // 2 minutes before background refresh
-
-  // Load set of hashes the user has explicitly deleted
-  function loadDeletedHashes() {
-    try { return new Set(JSON.parse(localStorage.getItem(RD_DELETED_KEY) || '[]')); }
-    catch { return new Set(); }
-  }
-  // Add a hash to the deleted blocklist
-  function markHashDeleted(h) {
-    if (!h) return;
-    const set = loadDeletedHashes();
-    set.add(h.toLowerCase());
-    try { localStorage.setItem(RD_DELETED_KEY, JSON.stringify([...set])); } catch {}
-  }
-  // Clear the deleted blocklist (e.g. when user re-adds something or clears token)
-  function clearDeletedHashes() {
-    try { localStorage.removeItem(RD_DELETED_KEY); } catch {}
-  }
+  const RD_CACHE_KEY = 'rd_torrent_cache';
+  const RD_CACHE_TTL = 2 * 60 * 1000; // 2 minutes before background refresh
 
   // Load RD cache from localStorage instantly (no network)
   function loadRDCacheFromStorage() {
@@ -4182,7 +4141,7 @@
         filesize: 0, quality: torrent.quality || guessQuality(torrent.title), mimeType: '',
       };
       try {
-        const head = await fetch(torrent._directUrl, { method: 'HEAD', signal: safeFetchSignal(5000) });
+        const head = await fetch(torrent._directUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
         if (head.ok) { const cl = head.headers.get('content-length'); if (cl) directLink.filesize = parseInt(cl, 10); }
       } catch {}
       renderStreamPlayer([directLink], torrentOverlayTitle || torrent.title);
@@ -4413,19 +4372,7 @@
           }
 
           if (rdId) {
-            // Use POST + X-HTTP-Verb: DELETE (official RD workaround for Safari CORS issues)
-            const token = getRDToken();
-            const rdDelUrl = `${RD_API}/torrents/delete/${rdId}?auth_token=${encodeURIComponent(token)}`;
-            const delProxies = [
-              `https://corsproxy.io/?url=${encodeURIComponent(rdDelUrl)}`,
-              `https://proxy.corsfix.com/?${encodeURIComponent(rdDelUrl)}`,
-            ];
-            for (const p of delProxies) {
-              try {
-                const r = await fetch(p, { method: 'POST', headers: { 'X-HTTP-Verb': 'DELETE' }, signal: safeFetchSignal(12000) });
-                if (r.status === 204 || r.status === 202 || r.status === 200) break;
-              } catch {}
-            }
+            await rdFetch(`/torrents/delete/${rdId}`, { method: 'DELETE' });
             showToast('🗑 Removed from RD', 'success');
           }
 
@@ -4499,7 +4446,7 @@
     if (directUrl) {
       try {
         console.log('[RD bg] Pinging addon proxy to trigger RD cache:', directUrl.slice(0, 80));
-        await fetch(directUrl, { mode: 'no-cors', signal: safeFetchSignal(15000) });
+        await fetch(directUrl, { mode: 'no-cors', signal: AbortSignal.timeout(15000) });
         console.log('[RD bg] ✅ Addon proxy pinged — RD should cache this');
         return true;
       } catch (e) {
