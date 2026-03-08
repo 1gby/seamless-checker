@@ -280,6 +280,56 @@
     .year { font-size: 0.75rem; font-weight: 600; color: var(--accent-green); line-height: 1.2; }
     .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.6); }
 
+    /* Continue Watching progress badge */
+    .cw-badge {
+      position: absolute; bottom: 2.5rem; left: 0; right: 0;
+      background: linear-gradient(135deg, rgba(16,185,129,0.9), rgba(118,75,162,0.85));
+      color: #fff; font-size: 0.62rem; font-weight: 800; text-align: center;
+      padding: 0.2rem 0; letter-spacing: 0.04em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .cw-title {
+      font-size: 0.55rem; color: rgba(255,255,255,0.5); overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Episode completion popup */
+    .ep-complete-popup {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000;
+      background: linear-gradient(135deg, rgba(10,10,30,0.97), rgba(30,15,50,0.97));
+      border-top: 2px solid var(--accent-green);
+      padding: 1rem 1.2rem; backdrop-filter: blur(20px);
+      animation: slideUpPopup 0.3s ease-out;
+    }
+    @keyframes slideUpPopup {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .ep-complete-popup .ep-popup-title {
+      font-size: 0.85rem; font-weight: 700; color: var(--accent-green); margin-bottom: 0.5rem;
+    }
+    .ep-complete-popup .ep-popup-sub {
+      font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-bottom: 0.7rem;
+    }
+    .ep-complete-popup .ep-popup-btns {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .ep-popup-btn {
+      padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700;
+      border: 2px solid var(--accent-green); background: rgba(16,185,129,0.15);
+      color: var(--accent-green); cursor: pointer; transition: all 0.2s;
+    }
+    .ep-popup-btn:hover { background: rgba(16,185,129,0.3); }
+    .ep-popup-btn.secondary {
+      border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.6);
+    }
+    .ep-popup-btn.next {
+      border-color: var(--accent-purple); background: rgba(118,75,162,0.15);
+      color: var(--accent-purple);
+    }
+    .ep-popup-btn.next:hover { background: rgba(118,75,162,0.3); }
+
     /* Actor / Director name labels inside cards */
     .actor-info-stacked, .director-info-stacked {
       display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0 0.5rem;
@@ -319,6 +369,17 @@
     .toast.info    { background:rgba(118,75,162,0.92); }
     @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     @keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateY(-10px)} }
+
+    /* Popcorn loading spinner */
+    .stream-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem 1rem; gap:0.8rem; }
+    .popcorn-spinner { font-size:2.5rem; animation:popcornBounce 1s ease-in-out infinite; }
+    .stream-loading > div:last-child { font-size:0.8rem; color:rgba(255,255,255,0.5); font-weight:500; letter-spacing:0.03em; }
+    @keyframes popcornBounce {
+      0%,100% { transform:translateY(0) rotate(0deg); }
+      25% { transform:translateY(-12px) rotate(-8deg); }
+      50% { transform:translateY(0) rotate(0deg); }
+      75% { transform:translateY(-8px) rotate(6deg); }
+    }
     #detail-view.active { display: block; }
 
     #detail-content {
@@ -413,6 +474,7 @@
     .ep-action-btn.mark:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
 
     /* Simple play button in detail view */
+    .detail-btn-row { display: flex; gap: 0.6rem; margin: 1rem 0; flex-wrap: wrap; }
     .detail-play-btn {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.65rem 1.4rem; border-radius: 12px; font-size: 0.95rem; font-weight: 700;
@@ -422,6 +484,46 @@
     }
     .detail-play-btn:hover { background: rgba(16,185,129,0.3); transform: scale(1.02); }
     .detail-play-btn .play-icon { font-size: 1.2rem; }
+    .detail-play-btn.search-btn {
+      background: linear-gradient(135deg, rgba(118,75,162,0.2), rgba(16,185,129,0.1));
+      border-color: var(--accent-purple); color: var(--accent-purple);
+    }
+    .detail-play-btn.search-btn:hover { background: rgba(118,75,162,0.3); }
+
+    /* Overlay mode toggle (Streams / Torrents) */
+    .overlay-mode-bar {
+      display: flex; gap: 0; padding: 0.5rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .overlay-mode-btn {
+      flex: 1; padding: 0.5rem 0.6rem; font-size: 0.82rem; font-weight: 700;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.45); cursor: pointer; transition: all 0.2s;
+      text-align: center;
+    }
+    .overlay-mode-btn:first-child { border-radius: 10px 0 0 10px; }
+    .overlay-mode-btn:last-child  { border-radius: 0 10px 10px 0; }
+    .overlay-mode-btn.active {
+      background: rgba(16,185,129,0.15); border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    .overlay-mode-btn.active.purple-mode {
+      background: rgba(118,75,162,0.15); border-color: var(--accent-purple);
+      color: var(--accent-purple);
+    }
+
+    /* Magnet input bar */
+    .magnet-input-bar {
+      display: none; padding: 0.5rem 1.2rem; gap: 0.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .magnet-input-bar.visible { display: flex; }
+    .magnet-input-bar input {
+      flex: 1; padding: 0.4rem 0.8rem; border-radius: 20px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(118,75,162,0.4);
+      color: #fff; font-size: 0.78rem; min-width: 0;
+    }
+    .magnet-input-bar input::placeholder { color: rgba(255,255,255,0.3); }
 
     .season-selector-container { margin: 1rem 0; }
     .season-dropdown {
@@ -537,6 +639,23 @@
     .tor-filter-chip.active {
       background: rgba(16,185,129,0.18); border-color: var(--accent-green);
       color: var(--accent-green); box-shadow: 0 0 10px rgba(16,185,129,0.3);
+    }
+
+    /* Source filter chips — separate row with per-source colors */
+    .tor-source-chip {
+      padding: 0.3rem 0.7rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+      border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .tor-source-chip:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+    .tor-source-chip.active {
+      background: rgba(118,75,162,0.25); border-color: #c084fc;
+      color: #c084fc; box-shadow: 0 0 8px rgba(118,75,162,0.3);
+    }
+    .tor-source-chip .src-count {
+      background: rgba(255,255,255,0.12); padding: 0.1rem 0.35rem;
+      border-radius: 999px; font-size: 0.6rem;
     }
 
     /* Status bar */
@@ -1077,6 +1196,12 @@
       .ep-action-btn       { font-size: 0.6rem; padding: 0.2rem 0.45rem; }
       #torrent-overlay-header { padding: 0.85rem 1rem; }
       #torrent-filter-bar  { padding: 0.6rem 1rem; }
+      .overlay-mode-bar    { padding: 0.4rem 1rem; }
+      .overlay-mode-btn    { font-size: 0.75rem; padding: 0.4rem 0.4rem; }
+      .magnet-input-bar    { padding: 0.4rem 1rem; }
+      .detail-btn-row      { gap: 0.4rem; }
+      .detail-play-btn     { padding: 0.5rem 1rem; font-size: 0.85rem; }
+      #torrent-filter-bar  { padding: 0.6rem 1rem; }
       .tor-result-row      { padding: 0.65rem 0.75rem; }
       .tor-row-title       { font-size: 0.72rem; }
       .tor-action-btn      { font-size: 0.62rem; padding: 0.22rem 0.5rem; }
@@ -1139,7 +1264,8 @@
      NORMAL MODE — HOME SECTIONS
      ══════════════════════════════════════════════════════════════════ -->
 
-<section id="section-fav-this-week" style="display:none;"><h2>🔥 Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
+<section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
+<section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <h2>Airing Today</h2>              <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
 <section id="section-trending-tv">     <h2>Trending TV</h2>               <div class="horizontal-scroll" id="trending-tv-grid"></div></section>
@@ -1265,6 +1391,13 @@
   </div>
 </div>
 
+<!-- Mode toggle (Streams / Torrents) -->
+
+<div class="overlay-mode-bar">
+  <button class="overlay-mode-btn active" id="mode-btn-streams" onclick="switchOverlayMode('streams')">⚡ Streams</button>
+  <button class="overlay-mode-btn purple-mode" id="mode-btn-torrents" onclick="switchOverlayMode('torrents')">🧲 Torrents</button>
+</div>
+
 <!-- Live filter chips (multi-select) -->
 
 <div id="torrent-filter-bar">
@@ -1276,8 +1409,10 @@
   <button class="tor-filter-chip"        data-tor-filter="seeds"  onclick="toggleTorFilter(this,'seeds')">Min 50 Seeds</button>
   <button class="tor-filter-chip"        data-tor-filter="no3d"   onclick="toggleTorFilter(this,'no3d')">Hide 3D</button>
   <button class="tor-filter-chip"        data-tor-filter="eng"    onclick="toggleTorFilter(this,'eng')">English Only</button>
-  <button class="tor-filter-chip"        data-tor-filter="addon"  onclick="toggleTorFilter(this,'addon')">🧩 Addons</button>
   <button class="tor-filter-chip"        data-tor-filter="direct" onclick="toggleTorFilter(this,'direct')">⚡ Direct</button>
+</div>
+<div id="torrent-source-bar" style="display:flex;gap:0.4rem;flex-wrap:wrap;padding:0.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.04);">
+  <!-- Dynamic source chips injected by JS -->
 </div>
 
 <!-- Re-search input (moved below filters) -->
@@ -1365,6 +1500,11 @@
     <div class="settings-section-title">Built-in Scrapers</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
     <div class="source-toggle-grid">
+      <div class="source-toggle-card active" id="src-apibay" onclick="toggleSource('apibay')">
+        <div class="stc-check">✓</div>
+        <div class="stc-icon">🏴‍☠️</div>
+        <div class="stc-label">APIBAY</div>
+      </div>
       <div class="source-toggle-card active" id="src-knaben" onclick="toggleSource('knaben')">
         <div class="stc-check">✓</div>
         <div class="stc-icon">🔍</div>
@@ -1439,12 +1579,20 @@
       <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
     </div>
     <div class="settings-row">
-      <label>Max results — Knaben</label>
-      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="200" value="50" onchange="saveSettings()">
+      <label>Max results — APIBAY (200)</label>
+      <input type="number" id="sf-max-apibay" class="settings-number-input" min="1" max="200" value="100" onchange="saveSettings()">
     </div>
     <div class="settings-row">
-      <label>Max results — YTS</label>
-      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="20" onchange="saveSettings()">
+      <label>Max results — Knaben (300)</label>
+      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="300" value="100" onchange="saveSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Max results — YTS (50)</label>
+      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="30" onchange="saveSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Max results — 1337x (50)</label>
+      <input type="number" id="sf-max-1337x" class="settings-number-input" min="1" max="50" value="25" onchange="saveSettings()">
     </div>
   </div>
 
@@ -1453,14 +1601,15 @@
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
-      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong> and <strong style="color:#c084fc">Comet</strong> as extra stream sources.
-      These will appear alongside Knaben/YTS/1337x results. Configure your RD key in the addon URL for cached results.
+      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong>, <strong style="color:#c084fc">Comet</strong>, <strong style="color:#c084fc">MediaFusion</strong>, <strong style="color:#c084fc">Peerflix</strong>, and <strong style="color:#c084fc">TorrentsDB</strong> as stream sources.
+      More addons = more cached results. Configure your debrid key in each addon for best results.
     </p>
     <div class="addon-quick-add">
-      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio')">+ Torrentio</button>
-      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (with RD)</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (RD)</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('comet')">+ Comet</button>
       <button class="addon-quick-btn" onclick="quickAddAddon('mediafusion')">+ MediaFusion</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('peerflix')">+ Peerflix</button>
+      <button class="addon-quick-btn" onclick="quickAddAddon('torrentsdb')">+ TorrentsDB</button>
     </div>
     <div class="addon-custom-row">
       <input type="url" id="addon-custom-url" class="addon-custom-input"
@@ -1480,8 +1629,29 @@
       <div id="addon-catalog-status" style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0.4rem 0;"></div>
     </div>
     <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.5rem;">
-      💡 For Torrentio with RD caching: go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
+      💡 <strong style="color:#c084fc;">Torrentio (RD)</strong> — The most popular Stremio addon for torrent streams. Aggregates results from multiple torrent providers into one feed.
+      Go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
       set your RD API key, then copy the manifest URL and paste above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">Comet</strong> — A fast, modern Stremio addon focused on debrid-cached torrents. Supports Real-Debrid, AllDebrid, Premiumize and more.
+      Go to <a href="https://comet.feels.legal/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">comet.feels.legal/configure</a>,
+      connect your debrid account, customise your filters, then copy the manifest URL and paste it in the field above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">MediaFusion</strong> — A community-driven Stremio addon that indexes multiple torrent and streaming sources. Highly configurable with provider and quality filters.
+      Go to <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>,
+      set your preferences and debrid provider, then copy the manifest URL and paste it above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">Peerflix</strong> — A lightweight Stremio addon that finds cached torrents on your debrid service. Fast and efficient with minimal setup.
+      Go to <a href="https://peerflix-addon.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">peerflix-addon.elfhosted.com/configure</a>,
+      connect your debrid account, then copy the manifest URL and paste it above.
+    </p>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
+      💡 <strong style="color:#c084fc;">TorrentsDB</strong> — A torrent database addon that provides an extensive index of cached torrents from Real-Debrid and other debrid services.
+      Go to <a href="https://torrents-db.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrents-db.elfhosted.com/configure</a>,
+      set up your debrid provider, then copy the manifest URL and paste it above.
     </p>
   </div>
 
@@ -1513,6 +1683,22 @@
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">Exports all settings, favorites, watch history, and library as JSON.</p>
   </div>
 
+  <!-- § Clear Cache -->
+
+  <div class="settings-section">
+    <div class="settings-section-title">Clear Cache</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">
+      Clear cached data to fix stale results or free up storage. Your settings, favorites, and watch history are preserved unless you choose "Reset Everything".
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="cache-buttons">
+      <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Cache <span id="cache-size-rd" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Cache <span id="cache-size-tmdb" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches <span id="cache-size-all" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn red" onclick="resetEverything()">💣 Reset Everything <span id="cache-size-total" style="opacity:0.5;font-size:0.65rem;"></span></button>
+    </div>
+    <p id="cache-status-msg" style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.3rem;"></p>
+  </div>
+
   <!-- § Disclaimer -->
 
   <div class="settings-section">
@@ -1522,7 +1708,7 @@
       Only stream content you own or have the legal right to access.
       <br><br>
       <strong>Real-Debrid</strong> is a third-party paid service — Watcher has no affiliation with them.
-      Torrent indexers (Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
+      Torrent indexers (APIBAY, Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
       <br><br>
       Downloading or streaming copyrighted material without authorisation may be illegal in your region.
       Use responsibly and in accordance with your local laws.
@@ -1645,11 +1831,27 @@
   const YT_EMBED   = 'https://www.youtube.com/embed/';
   const RD_API     = 'https://api.real-debrid.com/rest/1.0';
   const YTS_API    = 'https://yts.mx/api/v2/list_movies.json';
+  // TPB API mirrors — tried in order (JSON endpoints)
+  const APIBAY_MIRRORS = [
+    'https://apibay.org/q.php',
+    'https://tpb.party/apibay/q.php',
+    'https://piratebay.party/apibay/q.php',
+  ];
 
-  // CORS proxy chain — tried in order until one succeeds
+  // CORS proxy chain — tried in order until one succeeds (Updated March 2026)
+  // Note: corsproxy.io now uses ?url= format and ONLY allows JSON/CSV/XML (blocks HTML)
   const CORS_PROXIES = [
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
     url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+  ];
+
+  // JSON-only proxies (for API endpoints — corsproxy.io works great here)
+  const JSON_CORS_PROXIES = [
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
   ];
 
@@ -1688,6 +1890,7 @@
   let currentMediaType  = null;   // 'movie' or 'tv'
   let currentSeason     = null;   // Current season number (TV)
   let currentEpisode    = null;   // Current episode number (TV)
+  let currentTVSeasons  = [];    // Seasons array for current TV detail (for stream button refresh)
   let searchTimeout     = null;   // debounce timer for search input
 
   // Active torrent search state (for the overlay)
@@ -1747,11 +1950,11 @@
     // Exclude uploaders/groups (comma-separated string)
     excludeKeywords: '',
     // Torrent sources (all enabled by default)
-    srcKnaben: true, srcYts: true, src1337x: true,
+    srcKnaben: true, srcYts: true, src1337x: true, srcApibay: true,
     // Provider filter (addon results) — empty = show all
     excludedProviders: [],
     // Search limits
-    minSeeds: 0, maxKnaben: 100, maxYts: 20,
+    minSeeds: 0, maxApibay: 100, maxKnaben: 100, maxYts: 30, max1337x: 25,
     // Stremio Addons — array of { name, url, enabled }
     stremioAddons: [],
   };
@@ -1778,9 +1981,12 @@
     set('se-hdr',          appSettings.seHdr);
     set('se-exclude-keywords', appSettings.excludeKeywords || '');
     set('sf-min-seeds',    appSettings.minSeeds);
+    set('sf-max-apibay',   appSettings.maxApibay);
     set('sf-max-knaben',   appSettings.maxKnaben);
     set('sf-max-yts',      appSettings.maxYts);
+    set('sf-max-1337x',    appSettings.max1337x);
     // Render source toggle cards
+    updateSourceCard('apibay', appSettings.srcApibay !== false);
     updateSourceCard('knaben', appSettings.srcKnaben !== false);
     updateSourceCard('yts',    appSettings.srcYts    !== false);
     updateSourceCard('1337x',  appSettings.src1337x  !== false);
@@ -1810,13 +2016,16 @@
       seSubbed:   !!gb('se-subbed'),
       seHdr:      !!gb('se-hdr'),
       excludeKeywords: gb('se-exclude-keywords') || '',
+      srcApibay:  appSettings.srcApibay  !== false,
       srcKnaben:  appSettings.srcKnaben !== false,
       srcYts:     appSettings.srcYts    !== false,
       src1337x:   appSettings.src1337x  !== false,
       excludedProviders: appSettings.excludedProviders || [],
       minSeeds:   parseInt(gb('sf-min-seeds'))  || 0,
-      maxKnaben:  parseInt(gb('sf-max-knaben')) || 50,
-      maxYts:     parseInt(gb('sf-max-yts'))    || 20,
+      maxApibay:  parseInt(gb('sf-max-apibay')) || 100,
+      maxKnaben:  parseInt(gb('sf-max-knaben')) || 100,
+      maxYts:     parseInt(gb('sf-max-yts'))    || 30,
+      max1337x:   parseInt(gb('sf-max-1337x'))  || 25,
       stremioAddons: appSettings.stremioAddons || [],
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
@@ -1825,6 +2034,7 @@
   function openSettingsModal() {
     loadSettings();
     document.getElementById('settings-overlay').classList.add('active');
+    updateCacheSizeBadges();
   }
   function closeSettingsModal() {
     saveSettings();
@@ -1846,10 +2056,12 @@
   function saveRDToken() {
     const inp = document.getElementById('settings-token-input');
     const val = inp?.value?.trim();
-    if (!val) { alert('Please paste your Real-Debrid API token first.'); return; }
+    if (!val) { showToast('Paste your RD API token first', 'error'); return; }
     localStorage.setItem('rd_token', val);
     updateRDStatusBadge();
-    alert('✅ Token saved!');
+    showToast('✅ Token saved! Syncing library…', 'success');
+    // Immediately sync RD library into cache
+    refreshRDCache();
   }
 
   async function testRDToken() {
@@ -1887,36 +2099,30 @@
 
   // ── Stremio Addon Management ──────────────────────────────────────
   const ADDON_PRESETS = {
-    'torrentio':    { name: 'Torrentio',           url: 'https://torrentio.strem.fun' },
-    'torrentio-rd': { name: 'Torrentio (RD)',      url: null }, // user must configure
-    'comet':        { name: 'Comet',               url: 'https://comet.elfhosted.com' },
-    'mediafusion':  { name: 'MediaFusion',         url: 'https://mediafusion.elfhosted.com' },
+    'torrentio-rd': { name: 'Torrentio (RD)',  url: null, configureUrl: 'https://torrentio.strem.fun/configure', matchWord: 'torrentio' },
+    'comet':        { name: 'Comet',           url: null, configureUrl: 'https://comet.feels.legal/configure',   matchWord: 'comet' },
+    'mediafusion':  { name: 'MediaFusion',     url: null, configureUrl: 'https://mediafusion.elfhosted.com/configure', matchWord: 'mediafusion' },
+    'peerflix':     { name: 'Peerflix',         url: null, configureUrl: 'https://peerflix-addon.elfhosted.com/configure', matchWord: 'peerflix' },
+    'torrentsdb':   { name: 'TorrentsDB',      url: null, configureUrl: 'https://torrents-db.elfhosted.com/configure', matchWord: 'torrents-db' },
   };
 
   function quickAddAddon(presetKey) {
     const preset = ADDON_PRESETS[presetKey];
     if (!preset) return;
-    if (presetKey === 'torrentio-rd') {
-      const rdToken = getRDToken();
-      if (!rdToken) {
-        alert('Save your RD API token first, then add Torrentio (with RD).');
+
+    // All addons now use the same flow: check if configured → open configure page
+    if (preset.configureUrl) {
+      const addons = appSettings.stremioAddons || [];
+      const existing = addons.find(a => a.url && a.url.toLowerCase().includes(preset.matchWord));
+      if (existing) {
+        const reopen = confirm(`${preset.name} is already configured.\n\nWould you like to open the configure page to update it?`);
+        if (reopen) window.open(preset.configureUrl, '_blank', 'noopener');
         return;
       }
-      const url = `https://torrentio.strem.fun/realdebrid=${rdToken}`;
-      const existing = (appSettings.stremioAddons || []).find(a => a.url.includes('torrentio.strem.fun') && a.url.includes('realdebrid='));
-      if (existing) { alert('Torrentio with RD is already configured.'); return; }
-      appSettings.stremioAddons = appSettings.stremioAddons || [];
-      appSettings.stremioAddons.push({ name: 'Torrentio (RD)', url, enabled: true });
-      saveSettings();
-      renderAddonList();
+      window.open(preset.configureUrl, '_blank', 'noopener');
+      showToast(`${preset.name} configure page opened — copy your manifest URL and paste it below.`, 'info');
       return;
     }
-    const existing = (appSettings.stremioAddons || []).find(a => a.url === preset.url);
-    if (existing) { alert(`${preset.name} is already added.`); return; }
-    appSettings.stremioAddons = appSettings.stremioAddons || [];
-    appSettings.stremioAddons.push({ name: preset.name, url: preset.url, enabled: true });
-    saveSettings();
-    renderAddonList();
   }
 
   function addCustomAddon() {
@@ -1936,6 +2142,9 @@
       if (host.includes('torrentio'))   name = 'Torrentio';
       else if (host.includes('comet'))  name = 'Comet';
       else if (host.includes('mediafusion')) name = 'MediaFusion';
+      else if (host.includes('peerflix')) name = 'Peerflix';
+      else if (host.includes('torrent') && host.includes('db')) name = 'TorrentsDB';
+      else if (host.includes('debridmediamanager')) name = 'DMM';
       else name = host.split('.')[0];
       // Mark as RD-configured if URL contains debrid key
       if (url.includes('realdebrid=') || url.includes('debridApiKey'))
@@ -2003,7 +2212,7 @@
       // Try direct fetch first, then CORS proxy
       let data;
       try {
-        const res = await fetch(streamUrl, { signal: AbortSignal.timeout(12000) });
+        const res = await fetch(streamUrl, { signal: safeFetchSignal(12000) });
         if (res.ok) data = await res.json();
       } catch {
         // Fallback to CORS proxy
@@ -2139,11 +2348,11 @@
         const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
         let manifestData;
         try {
-          const r = await fetch(manifestUrl, { signal: AbortSignal.timeout(8000) });
+          const r = await fetch(manifestUrl, { signal: safeFetchSignal(5000) });
           if (r.ok) manifestData = await r.json();
         } catch {}
         if (!manifestData) {
-          const r = await corsGet(manifestUrl, 8000);
+          const r = await corsGet(manifestUrl, 5000);
           manifestData = await r.json();
         }
         if (manifestData?.catalogs?.length) {
@@ -2194,11 +2403,11 @@
       const catalogUrl = `${baseUrl}/catalog/${entry.catalog.type}/${entry.catalog.id}.json`;
       let data;
       try {
-        const r = await fetch(catalogUrl, { signal: AbortSignal.timeout(10000) });
+        const r = await fetch(catalogUrl, { signal: safeFetchSignal(6000) });
         if (r.ok) data = await r.json();
       } catch {}
       if (!data) {
-        const r = await corsGet(catalogUrl, 10000);
+        const r = await corsGet(catalogUrl, 6000);
         data = await r.json();
       }
 
@@ -2423,18 +2632,35 @@
      § 05  REAL-DEBRID CORE
      ═══════════════════════════════════════════════════════════════════ */
 
+  // Safari-safe fetch timeout (AbortSignal.timeout not supported on older iOS)
+  function safeFetchSignal(ms) {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), ms);
+    return ctrl.signal;
+  }
+
   // CORS proxy — tries each proxy in order until one responds OK
   async function corsGet(targetUrl, timeoutMs = 9000) {
     let lastErr;
+    // Try direct fetch first (works for APIs with CORS headers like YTS)
+    try {
+      const res = await fetch(targetUrl, { signal: safeFetchSignal(timeoutMs) });
+      if (res.ok) return res;
+      lastErr = new Error(`HTTP ${res.status}`);
+    } catch (e) {
+      lastErr = e;
+      console.warn('[corsGet] Direct failed, trying proxies…', targetUrl.slice(0, 60));
+    }
+    // Fallback: CORS proxy chain
     for (const makeProxy of CORS_PROXIES) {
       const proxyUrl = makeProxy(targetUrl);
       try {
-        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(timeoutMs) });
+        const res = await fetch(proxyUrl, { signal: safeFetchSignal(timeoutMs) });
         if (res.ok) return res;
         lastErr = new Error(`HTTP ${res.status}`);
       } catch (e) {
         lastErr = e;
-        console.warn('[CORS proxy failed]', proxyUrl, e.message);
+        console.warn('[CORS proxy failed]', proxyUrl.slice(0, 80), e.message);
       }
     }
     throw lastErr || new Error('All CORS proxies failed');
@@ -2442,71 +2668,100 @@
 
   // Token management
   function getRDToken()   { return localStorage.getItem('rd_token') || ''; }
-  function clearRDToken() { localStorage.removeItem('rd_token'); }
+  function clearRDToken() { localStorage.removeItem('rd_token'); localStorage.removeItem('rd_torrent_cache'); clearDeletedHashes(); rdTorrentCache = new Map(); }
 
-  // Authenticated fetch wrapper for RD API — tries direct first, then CORS proxies
+  // Authenticated fetch wrapper for RD API
+  // Per official docs at https://api.real-debrid.com/:
+  //   Base URL: https://api.real-debrid.com/rest/1.0/
+  //   Auth: Authorization: Bearer token  OR  ?auth_token=token in URL
+  //   addMagnet → POST, returns 201 {id, uri}
+  //   selectFiles → POST, returns 204 no body
+  //   torrents/info → GET, returns JSON with files, links, status
+  //   unrestrict/link → POST, returns JSON with download URL
+  //   RD does NOT send CORS headers, so direct browser fetch fails.
+  //   We MUST use CORS proxies. corsproxy.io supports POST with body forwarding.
   async function rdFetch(path, options = {}) {
     const token = getRDToken();
     if (!token) throw new Error('No RD API token — open Settings ⚙️ to add one.');
-    const fullUrl = `${RD_API}${path}`;
-    const method  = (options.method || 'GET').toUpperCase();
+    const method = (options.method || 'GET').toUpperCase();
 
-    // Helper: make a single request attempt
-    async function attempt(url, opts) {
-      const res = await fetch(url, { ...opts, signal: AbortSignal.timeout(15000) });
+    // Build full URL with auth_token in query (avoids Authorization header = avoids OPTIONS preflight)
+    const sep = path.includes('?') ? '&' : '?';
+    const fullUrl = `${RD_API}${path}${sep}auth_token=${encodeURIComponent(token)}`;
+
+    // Fetch options: no Authorization header, keep Content-Type simple
+    const fetchOpts = { method };
+    if (options.body) fetchOpts.body = options.body;
+    if (options.headers) {
+      const h = { ...options.headers };
+      delete h['Authorization']; // token is in URL
+      fetchOpts.headers = h;
+    }
+
+    // Parse response (handles 200, 201, 202, 204)
+    // Note: some proxies (allorigins, codetabs) always return 200, so we must check body for errors
+    async function parseResponse(res) {
+      console.log(`[rdFetch] ${method} ${path} → ${res.status}`);
       if (res.status === 401) {
         clearRDToken(); updateRDStatusBadge();
-        throw new Error('RD token invalid or expired — open Settings ⚙️ to update it.');
+        throw new Error('RD token invalid or expired — update it in Settings ⚙️');
       }
-      // DELETE returns 204 no-content; proxies may return 200 with empty body
-      if (res.status === 204 || (method === 'DELETE' && res.ok)) return null;
-      if (!res.ok) {
-        let msg = `RD API error ${res.status}`;
-        try { const e = await res.json(); msg = e.error || e.message || msg; } catch {}
-        throw new Error(msg);
+      if (res.status === 204 || res.status === 202) return null; // No content / action done
+      if (res.ok) {
+        const text = await res.text();
+        if (!text || text.trim() === '') return null;
+        try {
+          const json = JSON.parse(text);
+          // Detect RD error responses proxied through as 200
+          if (json.error) {
+            if (json.error_code === 8) { clearRDToken(); updateRDStatusBadge(); throw new Error('RD token invalid or expired'); }
+            throw new Error(`RD: ${json.error} (code ${json.error_code || '?'})`);
+          }
+          return json;
+        }
+        catch (e) {
+          if (e.message.startsWith('RD:') || e.message.includes('token')) throw e;
+          console.warn('[rdFetch] Non-JSON response:', text.slice(0, 200));
+          return null;
+        }
       }
-      const text = await res.text();
-      if (!text || text.trim() === '') return null;
-      try { return JSON.parse(text); } catch { return null; }
+      // Non-OK HTTP status
+      let msg = `RD API error ${res.status}`;
+      try { const e = await res.json(); msg = e.error || e.message || msg; } catch {}
+      throw new Error(msg);
     }
 
-    const directOpts = {
-      ...options,
-      headers: { 'Authorization': `Bearer ${token}`, ...(options.headers || {}) },
-    };
-
-    // 1. Try direct fetch
-    try {
-      return await attempt(fullUrl, directOpts);
-    } catch (directErr) {
-      // If it's an auth/API error (not network), don't retry through proxy
-      if (directErr.message.includes('token invalid') || directErr.message.includes('RD API error')) {
-        throw directErr;
-      }
-      console.warn('[rdFetch] Direct failed, trying CORS proxies…', directErr.message);
-    }
-
-    // 2. Fallback: CORS proxy with auth_token as query param (works for GET and POST)
-    const sep = fullUrl.includes('?') ? '&' : '?';
-    const urlWithToken = `${fullUrl}${sep}auth_token=${encodeURIComponent(token)}`;
-    // Remove Authorization header for proxy — token is in URL
-    const proxyOpts = { ...options, headers: { ...(options.headers || {}) } };
-    delete proxyOpts.headers['Authorization'];
+    // RD has NO CORS headers — go straight to proxies (no direct attempt)
+    // POST requests: corsproxy.io and corsfix forward POST bodies
+    // GET requests: all proxies work
+    const postCapableProxies = [
+      url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+    ];
+    const getProxies = [
+      url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+      url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    ];
+    const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
 
     let lastErr;
-    for (const makeProxy of CORS_PROXIES) {
-      const proxyUrl = makeProxy(urlWithToken);
+    for (const makeProxy of proxiesToTry) {
+      const proxyUrl = makeProxy(fullUrl);
       try {
-        return await attempt(proxyUrl, proxyOpts);
+        // Short timeout per proxy so we fail fast and try the next
+        const proxyOpts = { ...fetchOpts, signal: safeFetchSignal(12000) };
+        const res = await fetch(proxyUrl, proxyOpts);
+        return await parseResponse(res);
       } catch (e) {
         lastErr = e;
-        if (e.message.includes('token invalid') || e.message.includes('RD API error')) throw e;
-        console.warn('[rdFetch proxy failed]', e.message);
+        if (e.message.includes('token invalid') || e.message.includes('RD API error') || e.message.includes('RD token')) throw e;
+        console.warn('[rdFetch proxy]', proxyUrl.slice(0, 80), e.message);
       }
     }
-    throw lastErr || new Error('Could not reach Real-Debrid through any proxy.');
+    throw lastErr || new Error('Could not reach Real-Debrid. Check your internet connection and try again.');
   }
-
   // Magnet helpers
   function extractHashFromMagnet(magnet) {
     const m = (magnet || '').match(/urn:btih:([a-fA-F0-9]{40}|[A-Z2-7]{32})/i);
@@ -2528,41 +2783,52 @@
   async function searchKnaben(title, maxResults = 100) {
     const q = encodeURIComponent(title);
 
-    // Method 1: Try Knaben HTML scraping (multiple URL patterns)
-    const urlsToTry = [
-      `https://knaben.eu/search/${q}/0/0/seeders_desc`,
-      `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
-      `https://knaben.org/search/${q}/0/0/seeders_desc`,
+    // Method 1: Try Knaben JSON API first (most reliable)
+    const apiUrls = [
+      'https://knaben.eu/api/v1/search',
+      'https://knaben.org/api/v1/search',
     ];
-    for (const url of urlsToTry) {
+    const body = JSON.stringify({ query: title, order_by: 'seeders', order_direction: 'desc', limit: maxResults });
+    for (const apiUrl of apiUrls) {
+      // Try direct POST first
       try {
-        const res     = await corsGet(url, 9000);
-        const html    = await res.text();
-        const results = parseKnabenHTML(html);
-        if (results.length > 0) {
-          console.log(`[Knaben] ✅ ${results.length} results via ${url}`);
-          return results.slice(0, maxResults);
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+          signal: safeFetchSignal(10000),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const hits = data.hits || data.results || data || [];
+          if (Array.isArray(hits) && hits.length > 0) {
+            console.log(`[Knaben API direct] ✅ ${hits.length} results`);
+            return hits.map(h => ({
+              title: h.title || h.name || 'Unknown',
+              size: h.size ? formatBytes(h.size) : '?',
+              seeds: h.seeders || h.seeds || 0,
+              magnet: h.magnet || (h.hash ? buildMagnet(h.hash, h.title) : null),
+              hash: h.hash || h.info_hash || extractHashFromMagnet(h.magnet || ''),
+              source: 'knaben',
+            })).slice(0, maxResults);
+          }
         }
-      } catch (e) { console.warn(`[Knaben] ${url}:`, e.message); }
-    }
+      } catch (e) { console.warn(`[Knaben API direct] ${apiUrl}:`, e.message); }
 
-    // Method 2: Try Knaben JSON API (more reliable for some content)
-    try {
-      const apiUrl = `https://knaben.eu/api/v1/search`;
-      const body = JSON.stringify({ query: title, order_by: 'seeders', order_direction: 'desc', limit: maxResults });
-      for (const makeProxy of CORS_PROXIES) {
+      // Try through JSON-specific CORS proxies (better for API endpoints)
+      for (const makeProxy of JSON_CORS_PROXIES) {
         try {
           const res = await fetch(makeProxy(apiUrl), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body,
-            signal: AbortSignal.timeout(10000),
+            signal: safeFetchSignal(10000),
           });
           if (!res.ok) continue;
           const data = await res.json();
           const hits = data.hits || data.results || data || [];
           if (Array.isArray(hits) && hits.length > 0) {
-            console.log(`[Knaben API] ✅ ${hits.length} results`);
+            console.log(`[Knaben API proxy] ✅ ${hits.length} results`);
             return hits.map(h => ({
               title: h.title || h.name || 'Unknown',
               size: h.size ? formatBytes(h.size) : '?',
@@ -2574,7 +2840,25 @@
           }
         } catch {}
       }
-    } catch (e) { console.warn('[Knaben API]', e.message); }
+    }
+
+    // Method 2: Fallback to HTML scraping
+    const urlsToTry = [
+      `https://knaben.eu/search/${q}/0/0/seeders_desc`,
+      `https://knaben.eu/search/${q}/0/200000/seeders_desc`,
+      `https://knaben.org/search/${q}/0/0/seeders_desc`,
+    ];
+    for (const url of urlsToTry) {
+      try {
+        const res     = await corsGet(url, 9000);
+        const html    = await res.text();
+        const results = parseKnabenHTML(html);
+        if (results.length > 0) {
+          console.log(`[Knaben HTML] ✅ ${results.length} results via ${url}`);
+          return results.slice(0, maxResults);
+        }
+      } catch (e) { console.warn(`[Knaben HTML] ${url}:`, e.message); }
+    }
 
     return [];
   }
@@ -2645,7 +2929,7 @@
     const url = `${YTS_API}?query_term=${encodeURIComponent(title)}&sort_by=seeds&limit=${maxResults}`;
     let data;
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      const res = await fetch(url, { signal: safeFetchSignal(8000) });
       data = await res.json();
     } catch {
       // Try CORS proxy as fallback
@@ -2676,7 +2960,7 @@
   }
 
   // ── 1337x ────────────────────────────────────────────────────────────
-  async function search1337x(title) {
+  async function search1337x(title, maxResults = 25) {
     const mirrors = ['https://1337x.to', 'https://1337x.st', 'https://1337x.is'];
     const q = encodeURIComponent(title);
     for (const mirror of mirrors) {
@@ -2684,7 +2968,7 @@
         const url     = `${mirror}/sort-search/${q}/seeders/desc/1/`;
         const res     = await corsGet(url, 9000);
         const html    = await res.text();
-        const results = parse1337xHTML(html, mirror);
+        const results = parse1337xHTML(html, mirror, maxResults);
         if (results.length > 0) {
           console.log(`[1337x] ✅ ${results.length} via ${mirror}`);
           return results;
@@ -2694,7 +2978,7 @@
     return [];
   }
 
-  function parse1337xHTML(html, mirror) {
+  function parse1337xHTML(html, mirror, maxResults = 25) {
     const doc     = new DOMParser().parseFromString(html, 'text/html');
     const rows    = doc.querySelectorAll('table.table-list tbody tr');
     const results = [];
@@ -2715,7 +2999,7 @@
         });
       } catch {}
     }
-    return results.sort((a, b) => b.seeds - a.seeds).slice(0, 15);
+    return results.sort((a, b) => b.seeds - a.seeds).slice(0, maxResults);
   }
 
   // Lazy magnet fetch for 1337x — only called when user clicks a card
@@ -2726,6 +3010,61 @@
     const anchor = doc.querySelector('a[href^="magnet:"]');
     if (!anchor) throw new Error('No magnet found on 1337x detail page');
     return anchor.getAttribute('href') || anchor.href;
+  }
+
+  // ── APIBAY (The Pirate Bay API) — tries direct + CORS proxied ─────
+  async function searchAPIBay(title, maxResults = 100) {
+    const q = encodeURIComponent(title);
+
+    function parseAPIBayResults(data) {
+      if (!Array.isArray(data) || data.length === 0) return [];
+      if (data.length === 1 && data[0].id === '0') return [];
+      return data
+        .filter(t => t.info_hash && t.info_hash !== '0000000000000000000000000000000000000000')
+        .map(t => ({
+          title:  t.name || 'Unknown',
+          size:   t.size ? formatBytes(parseInt(t.size, 10)) : '?',
+          seeds:  parseInt(t.seeders, 10) || 0,
+          magnet: buildMagnet(t.info_hash.toLowerCase(), t.name),
+          hash:   t.info_hash.toLowerCase(),
+          source: 'apibay',
+        }))
+        .sort((a, b) => b.seeds - a.seeds)
+        .slice(0, maxResults);
+    }
+
+    // Try each mirror: direct first, then through CORS proxies
+    for (const mirror of APIBAY_MIRRORS) {
+      const url = `${mirror}?q=${q}&cat=`;
+      // Direct fetch
+      try {
+        const res = await fetch(url, { signal: safeFetchSignal(8000) });
+        if (res.ok) {
+          const data = await res.json();
+          const results = parseAPIBayResults(data);
+          if (results.length > 0) {
+            console.log(`[APIBAY] ✅ ${results.length} results via ${mirror} (direct)`);
+            return results;
+          }
+        }
+      } catch (e) { console.warn(`[APIBAY direct] ${mirror}:`, e.message); }
+
+      // JSON-specific CORS proxy fallback for this mirror
+      for (const makeProxy of JSON_CORS_PROXIES) {
+        try {
+          const res = await fetch(makeProxy(url), { signal: safeFetchSignal(8000) });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const results = parseAPIBayResults(data);
+          if (results.length > 0) {
+            console.log(`[APIBAY] ✅ ${results.length} results via ${mirror} (proxied)`);
+            return results;
+          }
+        } catch {}
+      }
+    }
+    console.warn('[APIBAY] All mirrors exhausted');
+    return [];
   }
 
   // ── Content filtering ────────────────────────────────────────────────
@@ -2796,6 +3135,7 @@
   async function searchTorrents(title, onStatus, imdbId, mediaType, season, episode) {
     let allResults = [];
     const existingHashes = new Set();
+    const mode = overlayMode || 'streams';
 
     function dedupeAndMerge(newResults) {
       const unique = newResults.filter(r => {
@@ -2806,21 +3146,50 @@
       allResults = [...allResults, ...unique];
     }
 
-    // 1. Stremio Addons (skip in adult mode — no xxx support)
-    if (!isAdultMode) {
-      const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-      if (enabledAddons.length > 0 && imdbId) {
-        try {
-          const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
-          if (addonResults.length > 0) {
-            dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
-            onStatus('results', `⚡ ${allResults.length} results from addons — searching more…`, sortTorrentResults(allResults));
-          }
-        } catch (e) { console.warn('[search] Stremio addons:', e); }
+    // ═══ STREAMS MODE: Stremio Addons only ═══
+    if (mode === 'streams') {
+      if (!isAdultMode) {
+        const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
+        if (enabledAddons.length > 0 && imdbId) {
+          try {
+            const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
+            if (addonResults.length > 0) {
+              dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
+            }
+          } catch (e) { console.warn('[search] Stremio addons:', e); }
+        } else if (!imdbId) {
+          onStatus('info', '⚠️ No IMDB ID — addons need an IMDB ID to search. Try the 🧲 Torrents tab instead.');
+        } else if (enabledAddons.length === 0) {
+          onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or MediaFusion in Settings ⚙️');
+        }
+      }
+
+      if (allResults.length > 0) {
+        const sorted = sortTorrentResults(allResults);
+        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} from addons`, sorted);
+        return sorted;
+      }
+      onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
+      return [];
+    }
+
+    // ═══ TORRENTS MODE: Scrapers only (APIBAY, Knaben, YTS, 1337x) ═══
+    // 0. APIBAY (The Pirate Bay API — most reliable, no CORS proxy needed)
+    if (appSettings.srcApibay !== false) {
+      try {
+        onStatus('searching', `🏴‍☠️ Searching APIBAY for "${title}"…`);
+        const raw     = await searchAPIBay(title, appSettings.maxApibay || 100);
+        const filtered = applySettingsFilters(filterTorrentResults(raw));
+        dedupeAndMerge(filtered);
+        if (allResults.length > 0) {
+          onStatus('results', `✅ ${allResults.length} results — still searching…`, sortTorrentResults(allResults));
+        }
+      } catch (e) {
+        console.warn('[search] APIBAY:', e);
       }
     }
 
-    // 2. Knaben (primary traditional scraper)
+    // 1. Knaben
     if (appSettings.srcKnaben !== false) {
       onStatus('searching', `🔍 Searching Knaben for "${title}"…`);
       try {
@@ -2836,11 +3205,11 @@
       }
     }
 
-    // 3. YTS (skip in adult mode — adult content not on YTS)
+    // 2. YTS (skip in adult mode)
     if (!isAdultMode && appSettings.srcYts !== false) {
       try {
         onStatus('searching', `🍿 Searching YTS for "${title}"…`);
-        const raw     = await searchYTS(title, appSettings.maxYts || 20);
+        const raw     = await searchYTS(title, appSettings.maxYts || 30);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
         if (allResults.length > 0) {
@@ -2849,11 +3218,11 @@
       } catch (e) { console.warn('[search] YTS:', e); }
     }
 
-    // 4. 1337x
+    // 3. 1337x
     if (appSettings.src1337x !== false) {
       try {
         onStatus('searching', `🔎 Searching 1337x for "${title}"…`);
-        const raw     = await search1337x(title);
+        const raw     = await search1337x(title, appSettings.max1337x || 25);
         const filtered = applySettingsFilters(filterTorrentResults(raw));
         dedupeAndMerge(filtered);
         if (allResults.length > 0) {
@@ -2868,11 +3237,11 @@
       return sorted;
     }
 
-    onStatus('empty', `😶 No torrents found for "${title}" on any source.`);
+    onStatus('empty', `😶 No torrents found for "${title}". Try refining your search or switch to ⚡ Streams mode — addons often find cached results directly.`);
     return [];
   }
 
-  // Smart sort: best streams at top
+  // Smart sort: instant streams first, then by quality + seeds
   function sortTorrentResults(results) {
     const qualityRank = (title) => {
       const t = title.toLowerCase();
@@ -2885,10 +3254,19 @@
       return 1.5;
     };
 
+    // Source-type grouping: direct > RD cached > addon > raw torrent
+    const sourceGroup = (r) => {
+      if (r._isDirect) return 4;                                           // ⚡ Direct play
+      const h = (r.hash || '').toLowerCase();
+      if (h && rdTorrentCache?.has(h)) return 3;                          // 📦 In RD library
+      if (!['knaben','yts','1337x','apibay'].includes(r.source)) return 2;        // 🧩 Addon (not yet cached)
+      return 1;                                                            // 🔍 Raw torrent
+    };
+
     return [...results].sort((a, b) => {
-      // Direct streams first
-      const da = a._isDirect ? 1 : 0, db = b._isDirect ? 1 : 0;
-      if (da !== db) return db - da;
+      // First: source group priority
+      const ga = sourceGroup(a), gb = sourceGroup(b);
+      if (ga !== gb) return gb - ga;
       // Then by quality rank
       const qa = qualityRank(a.title), qb = qualityRank(b.title);
       if (qa !== qb) return qb - qa;
@@ -2929,7 +3307,7 @@
       });
 
       const torrentId = added?.id;
-      if (!torrentId) throw new Error('RD did not return a torrent ID.');
+      if (!torrentId) throw new Error('RD did not return a torrent ID. Check your RD token and premium status. Response: ' + JSON.stringify(added));
       console.log('[RD] torrentId:', torrentId);
 
       // ★ Go straight to poll — don't call info/selectFiles here
@@ -3033,29 +3411,33 @@
     console.log(`[RD] Unrestricting ${toProcess.length} link(s)…`, toProcess[0]?.slice(0,60));
 
     const results = [];
-    // Process sequentially to avoid rate-limit issues
-    for (const link of toProcess) {
-      try {
+    // Process in parallel (RD allows 250 req/min, parallel is safe for <10 links)
+    const settled = await Promise.allSettled(
+      toProcess.map(async link => {
         const v = await rdFetch('/unrestrict/link', {
           method:  'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body:    new URLSearchParams({ link }),
         });
-        if (v?.download) {
-          const ext = (v.filename || '').split('.').pop().toLowerCase();
-          const isVideo = VIDEO_EXTS.has(ext);
-          results.push({
-            url:      v.download,
-            filename: v.filename || 'video',
-            filesize: v.filesize || 0,
-            quality:  guessQuality(v.filename || ''),
-            mimeType: v.mimeType || '',
-            isVideo,
-          });
-          console.log(`[RD] ✅ Unrestricted: ${v.filename} (${isVideo ? 'video' : ext})`);
-        }
-      } catch (e) {
-        console.warn(`[RD] ❌ Unrestrict failed for link:`, e.message);
+        return v;
+      })
+    );
+    for (const r of settled) {
+      if (r.status === 'fulfilled' && r.value?.download) {
+        const v = r.value;
+        const ext = (v.filename || '').split('.').pop().toLowerCase();
+        const isVideo = VIDEO_EXTS.has(ext);
+        results.push({
+          url:      v.download,
+          filename: v.filename || 'video',
+          filesize: v.filesize || 0,
+          quality:  guessQuality(v.filename || ''),
+          mimeType: v.mimeType || '',
+          isVideo,
+        });
+        console.log(`[RD] ✅ Unrestricted: ${v.filename} (${isVideo ? 'video' : ext})`);
+      } else if (r.status === 'rejected') {
+        console.warn(`[RD] ❌ Unrestrict failed:`, r.reason?.message);
       }
     }
 
@@ -3178,9 +3560,9 @@
       if (row) row.remove();
       showToast('🗑 Deleted from RD', 'success');
 
-      // Update rdTorrentCache
+      // Update rdTorrentCache + persist
       const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) rdTorrentCache.delete(h);
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
 
       // Also remove from local library if present
       if (h) {
@@ -3195,13 +3577,12 @@
       // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
       if (row) row.remove();
       const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) rdTorrentCache.delete(h);
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
       refreshLibraryButtons();
       showToast('Deleted (may take a moment to sync)', 'info');
       console.warn('[RD] Delete response error (likely still succeeded):', e.message);
     }
   }
-
   async function streamRDLibraryItem(torrent, rowEl) {
     const statEl = document.getElementById('rd-library-status');
     if (statEl) statEl.textContent = `⏳ Getting stream links for "${torrent.filename}"…`;
@@ -3210,7 +3591,7 @@
       const links = await unrestrictVideoLinks(info.links || []);
       if (!links.length) throw new Error('No playable video files found.');
       closeSettingsModal();
-      openTorrentOverlay(torrent.filename, torrent.filename);
+      openTorrentOverlay(torrent.filename, torrent.filename, null, null, null, null, 'streams');
       document.getElementById('torrent-overlay-results').innerHTML = '';
       document.getElementById('torrent-overlay-status').textContent = `▶ Playing from your RD Library: ${torrent.filename}`;
       renderStreamPlayer(links, torrent.filename);
@@ -3245,18 +3626,106 @@
     const searchQuery = title; // Just title, no year appended
     const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     return `
-<div style="margin:1rem 0;">
-  <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}')">
-    <span class="play-icon">▶</span> Play
+<div class="detail-btn-row">
+  <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}',null,null,'streams')">
+    <span class="play-icon">⚡</span> Stream
+  </button>
+  <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}',null,null,'torrents')">
+    <span class="play-icon">🧲</span> Search
   </button>
 </div>`;
   }
 
   // Open the torrent overlay and kick off the search
-  function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode) {
+  // ── RD Library Cache (localStorage-backed, survives page reloads) ──
+  const RD_CACHE_KEY    = 'rd_torrent_cache';
+  const RD_DELETED_KEY  = 'rd_deleted_hashes';  // Persist deleted hashes so they don't re-appear after API re-sync
+  const RD_CACHE_TTL    = 2 * 60 * 1000; // 2 minutes before background refresh
+
+  // Load set of hashes the user has explicitly deleted
+  function loadDeletedHashes() {
+    try { return new Set(JSON.parse(localStorage.getItem(RD_DELETED_KEY) || '[]')); }
+    catch { return new Set(); }
+  }
+  // Add a hash to the deleted blocklist
+  function markHashDeleted(h) {
+    if (!h) return;
+    const set = loadDeletedHashes();
+    set.add(h.toLowerCase());
+    try { localStorage.setItem(RD_DELETED_KEY, JSON.stringify([...set])); } catch {}
+  }
+  // Clear the deleted blocklist (e.g. when user re-adds something or clears token)
+  function clearDeletedHashes() {
+    try { localStorage.removeItem(RD_DELETED_KEY); } catch {}
+  }
+
+  // Load RD cache from localStorage instantly (no network)
+  function loadRDCacheFromStorage() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(RD_CACHE_KEY) || 'null');
+      if (stored?.data) {
+        rdTorrentCache = new Map(Object.entries(stored.data));
+        console.log(`[RD] Cache loaded from storage: ${rdTorrentCache.size} torrents`);
+        return stored.ts || 0;
+      }
+    } catch {}
+    rdTorrentCache = new Map();
+    return 0;
+  }
+
+  // Save RD cache to localStorage
+  function saveRDCacheToStorage() {
+    if (!rdTorrentCache) return;
+    try {
+      const obj = {};
+      rdTorrentCache.forEach((v, k) => obj[k] = v);
+      localStorage.setItem(RD_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: obj }));
+    } catch {}
+  }
+
+  // Refresh RD cache from API (background, non-blocking)
+  async function refreshRDCache() {
+    if (!getRDToken()) { rdTorrentCache = new Map(); return; }
+    try {
+      const torrents = await rdFetch('/torrents?limit=2500');
+      const deletedSet = loadDeletedHashes();
+      rdTorrentCache = new Map();
+      for (const t of (torrents || [])) {
+        if (t.hash && !deletedSet.has(t.hash.toLowerCase())) {
+          rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
+        }
+      }
+      saveRDCacheToStorage();
+      console.log(`[RD] Library synced from API: ${rdTorrentCache.size} torrents`);
+      // Sweep-update any visible buttons
+      refreshLibraryButtons();
+    } catch (e) {
+      console.warn('[RD] Sync failed:', e.message);
+    }
+  }
+
+  // Smart load: instant from storage, then background refresh if stale
+  function ensureRDCache() {
+    const lastTs = loadRDCacheFromStorage();
+    const stale = Date.now() - lastTs > RD_CACHE_TTL;
+    if (stale && getRDToken()) {
+      refreshRDCache(); // fire-and-forget, updates buttons when done
+    }
+  }
+
+  // For add/remove — force immediate refresh
+  async function loadRDTorrentCache() {
+    await refreshRDCache();
+  }
+
+  let overlayMode = 'streams'; // 'streams' or 'torrents'
+
+  function openTorrentOverlay(searchQuery, displayTitle, imdbId, mediaType, season, episode, mode) {
     torrentOverlayTitle   = displayTitle || searchQuery || '';
     torrentOverlayResults = [];
     activeFilters.clear();
+    activeSourceFilters.clear();
+    overlayMode = mode || 'streams';
 
     // Store IMDB ID and episode info for addon queries
     if (imdbId) currentImdbId = imdbId;
@@ -3264,45 +3733,91 @@
     currentSeason  = season  || null;
     currentEpisode = episode || null;
 
+    // Track episode for completion prompt (TV episodes only)
+    if (mediaType === 'tv' && season && episode) {
+      epCompletionData = { tvId: null, season, episode, title: displayTitle || searchQuery };
+      // Try to get tvId from currentDetailItem
+      if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
+        epCompletionData.tvId = currentDetailItem.id;
+      }
+    } else {
+      epCompletionData = null;
+    }
+
     // Update overlay header
     const titleEl    = document.getElementById('torrent-overlay-title-text');
     const subtitleEl = document.getElementById('torrent-overlay-subtitle');
     const searchInp  = document.getElementById('torrent-overlay-search-input');
-    if (titleEl)    titleEl.textContent    = `🧲 ${displayTitle || searchQuery}`;
-    if (subtitleEl) subtitleEl.textContent = 'Searching for torrents…';
+    if (titleEl)    titleEl.textContent    = overlayMode === 'streams' ? `⚡ ${displayTitle || searchQuery}` : `🧲 ${displayTitle || searchQuery}`;
+    if (subtitleEl) subtitleEl.textContent = overlayMode === 'streams' ? 'Stremio addons (Torrentio, Comet, MediaFusion…)' : 'Torrent scrapers → Open in DMM';
     if (searchInp)  searchInp.value        = searchQuery || '';
+
+    // Update mode toggle buttons
+    const btnStreams  = document.getElementById('mode-btn-streams');
+    const btnTorrents = document.getElementById('mode-btn-torrents');
+    if (btnStreams)  btnStreams.classList.toggle('active', overlayMode === 'streams');
+    if (btnTorrents) btnTorrents.classList.toggle('active', overlayMode === 'torrents');
+
+    // Show/hide magnet bar (only in torrents mode)
 
     // Reset state
     const resultsEl = document.getElementById('torrent-overlay-results');
     const playerEl  = document.getElementById('torrent-overlay-player');
     const statusEl  = document.getElementById('torrent-overlay-status');
-    if (resultsEl) resultsEl.innerHTML = '';
+    if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
     if (playerEl)  playerEl.style.display = 'none';
-    if (statusEl)  statusEl.textContent   = '🔍 Searching…';
+    if (statusEl)  statusEl.textContent   = '';
 
     // Reset filter chips
     document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.torFilter === 'all'));
+    const srcBar = document.getElementById('torrent-source-bar');
+    if (srcBar) srcBar.innerHTML = '';
 
     // Show overlay
     document.getElementById('torrent-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Fetch RD torrent hashes in background (for marking "In RD" on stream rows)
-    rdTorrentCache = null;
-    if (getRDToken()) {
-      rdFetch('/torrents?limit=100').then(torrents => {
-        rdTorrentCache = new Map();
-        for (const t of (torrents || [])) {
-          if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status });
-        }
-        console.log(`[RD] Loaded ${rdTorrentCache.size} torrent hashes for matching`);
-        // Now update any already-rendered stream rows
-        refreshLibraryButtons();
-      }).catch(e => console.warn('[RD] Could not load torrent list:', e.message));
-    }
+    // Load RD cache instantly from localStorage, refresh in background if stale
+    ensureRDCache();
 
-    // Run search
+    // Start search immediately — no waiting
     initTorrentSearch(searchQuery, displayTitle);
+  }
+
+  function switchOverlayMode(mode) {
+    if (mode === overlayMode) return;
+    overlayMode = mode;
+
+    // Update toggle buttons
+    const btnStreams  = document.getElementById('mode-btn-streams');
+    const btnTorrents = document.getElementById('mode-btn-torrents');
+    if (btnStreams)  btnStreams.classList.toggle('active', mode === 'streams');
+    if (btnTorrents) btnTorrents.classList.toggle('active', mode === 'torrents');
+
+    // Update header
+    const titleEl    = document.getElementById('torrent-overlay-title-text');
+    const subtitleEl = document.getElementById('torrent-overlay-subtitle');
+    if (titleEl)    titleEl.textContent    = mode === 'streams' ? `⚡ ${torrentOverlayTitle}` : `🧲 ${torrentOverlayTitle}`;
+    if (subtitleEl) subtitleEl.textContent = mode === 'streams' ? 'Stremio addons (Torrentio, Comet, MediaFusion…)' : 'Torrent scrapers → Open in DMM';
+
+    // Show/hide magnet bar
+
+    // Clear and re-search
+    const resultsEl = document.getElementById('torrent-overlay-results');
+    if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
+    const statusEl = document.getElementById('torrent-overlay-status');
+    if (statusEl) statusEl.textContent = '';
+    document.getElementById('torrent-overlay-player').style.display = 'none';
+    torrentOverlayResults   = [];
+    torrentOverlayDisplayed = [];
+    activeFilters.clear();
+    activeSourceFilters.clear();
+    document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.torFilter === 'all'));
+    const srcBar2 = document.getElementById('torrent-source-bar');
+    if (srcBar2) srcBar2.innerHTML = '';
+
+    const q = document.getElementById('torrent-overlay-search-input')?.value?.trim() || torrentOverlayTitle;
+    initTorrentSearch(q, torrentOverlayTitle);
   }
 
   function closeTorrentOverlay() {
@@ -3321,11 +3836,15 @@
     const q   = inp?.value?.trim() || torrentOverlayTitle;
     if (!q) return;
     const statusEl = document.getElementById('torrent-overlay-status');
-    if (statusEl) statusEl.textContent = '🔍 Searching…';
-    document.getElementById('torrent-overlay-results').innerHTML = '';
+    if (statusEl) statusEl.textContent = '';
+    const resultsEl = document.getElementById('torrent-overlay-results');
+    if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
     document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
+    activeSourceFilters.clear();
+    const srcBar3 = document.getElementById('torrent-source-bar');
+    if (srcBar3) srcBar3.innerHTML = '';
     initTorrentSearch(q, torrentOverlayTitle);
   }
 
@@ -3337,6 +3856,7 @@
 
       if (type === 'results' && data?.length > 0) {
         torrentOverlayResults = data;
+        buildSourceChips();
         applyTorFilter();
       }
       if (type === 'empty' || type === 'error') {
@@ -3358,7 +3878,9 @@
     if (filter === 'all') {
       // Clear all filters
       activeFilters.clear();
+      activeSourceFilters.clear();
       document.querySelectorAll('.tor-filter-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tor-source-chip').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
     } else {
       // Toggle this filter
@@ -3380,11 +3902,74 @@
     applyTorFilter();
   }
 
+  // Source filter state (separate from quality/condition filters)
+  let activeSourceFilters = new Set(); // empty = show all sources
+
+  // Build dynamic source chips from current results
+  function buildSourceChips() {
+    const bar = document.getElementById('torrent-source-bar');
+    if (!bar) return;
+    bar.innerHTML = '';
+    if (torrentOverlayResults.length === 0) return;
+
+    // Count per source
+    const sourceCounts = {};
+    const sourceLabels = {};
+    const SCRAPER_ICONS = { knaben: '🔍', yts: '🍿', '1337x': '📂', apibay: '🏴‍☠️' };
+    for (const r of torrentOverlayResults) {
+      const src = r.sourceLabel || r.source || 'unknown';
+      const key = src.toLowerCase().replace(/[^a-z0-9]/g, '');
+      sourceCounts[key] = (sourceCounts[key] || 0) + 1;
+      if (!sourceLabels[key]) {
+        sourceLabels[key] = SCRAPER_ICONS[r.source]
+          ? `${SCRAPER_ICONS[r.source]} ${r.source.charAt(0).toUpperCase() + r.source.slice(1)}`
+          : `🧩 ${src}`;
+      }
+    }
+
+    // Only show source chips if there's more than 1 source
+    const keys = Object.keys(sourceCounts);
+    if (keys.length <= 1) return;
+
+    keys.forEach(key => {
+      const chip = document.createElement('button');
+      chip.className = 'tor-source-chip' + (activeSourceFilters.has(key) ? ' active' : '');
+      chip.dataset.srcKey = key;
+      chip.innerHTML = `${sourceLabels[key]} <span class="src-count">${sourceCounts[key]}</span>`;
+      chip.onclick = () => {
+        if (activeSourceFilters.has(key)) {
+          activeSourceFilters.delete(key);
+          chip.classList.remove('active');
+        } else {
+          activeSourceFilters.add(key);
+          chip.classList.add('active');
+        }
+        // Update "All" button state
+        const allBtn = document.querySelector('.tor-filter-chip[data-tor-filter="all"]');
+        if (activeSourceFilters.size === 0 && activeFilters.size === 0) {
+          if (allBtn) allBtn.classList.add('active');
+        } else {
+          if (allBtn) allBtn.classList.remove('active');
+        }
+        applyTorFilter();
+      };
+      bar.appendChild(chip);
+    });
+  }
+
   function applyTorFilter() {
     let filtered = torrentOverlayResults;
-    if (activeFilters.size === 0) {
-      // "All" — no filtering
-    } else {
+
+    // Source filter: if any source chips are active, only show those sources (OR logic)
+    if (activeSourceFilters.size > 0) {
+      filtered = filtered.filter(r => {
+        const src = r.sourceLabel || r.source || 'unknown';
+        const key = src.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return activeSourceFilters.has(key);
+      });
+    }
+
+    if (activeFilters.size > 0) {
       // Quality filters: if any quality is selected, result must match at least one
       const quals = [];
       if (activeFilters.has('4k'))    quals.push(r => /2160|4k|uhd/i.test(r.title));
@@ -3397,7 +3982,6 @@
       if (activeFilters.has('seeds'))  conditions.push(r => r.seeds >= 50);
       if (activeFilters.has('no3d'))   conditions.push(r => !/\b3d\b/i.test(r.title));
       if (activeFilters.has('eng'))    conditions.push(r => !/french|german|spanish|italian|portuguese|arabic|hindi|korean|japanese|chinese/i.test(r.title));
-      if (activeFilters.has('addon'))  conditions.push(r => !['knaben','yts','1337x'].includes(r.source));
       if (activeFilters.has('direct')) conditions.push(r => !!r._isDirect);
 
       filtered = filtered.filter(r => {
@@ -3432,14 +4016,16 @@
     }
 
     // Status bar
-    const cached  = results.filter(r => r.seeds > 50).length;
     const direct  = results.filter(r => !!r._isDirect).length;
-    const addons  = results.filter(r => !['knaben','yts','1337x'].includes(r.source)).length;
+    const inRDCnt = results.filter(r => !r._isDirect && (r.hash||'').toLowerCase() && rdTorrentCache?.has((r.hash||'').toLowerCase())).length;
+    const addons  = results.filter(r => !r._isDirect && !['knaben','yts','1337x','apibay'].includes(r.source)).length - inRDCnt;
+    const raw     = results.length - direct - inRDCnt - Math.max(0, addons);
     if (statusEl) {
       let parts = [`✅ <b style="color:#fff">${results.length}</b> results`];
       if (direct > 0) parts.push(`<span style="color:var(--accent-green)">⚡${direct} direct</span>`);
+      if (inRDCnt > 0) parts.push(`<span style="color:#60a5fa">📦${inRDCnt} in RD</span>`);
       if (addons > 0) parts.push(`<span style="color:#ffa500">🧩${addons} addon</span>`);
-      if (cached > 0 && direct === 0) parts.push(`<span style="color:var(--accent-green)">⚡${cached} cached</span>`);
+      if (raw > 0) parts.push(`<span style="color:rgba(255,255,255,0.45)">🔍${raw} torrent</span>`);
       statusEl.innerHTML = parts.join(' · ');
     }
 
@@ -3502,44 +4088,45 @@
   function buildTorrentRow(torrent, idx) {
       const seedColor = torrent.seeds > 100 ? '#10b981' : torrent.seeds > 20 ? '#f59e0b' : '#ef4444';
       const sourceLabel = torrent.sourceLabel
-        || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x' }[torrent.source]
+        || { knaben: '🔍 Knaben', yts: '🍿 YTS', '1337x': '📂 1337x', apibay: '🏴‍☠️ APIBAY', 'rd-cached': '📦 RD Cached' }[torrent.source]
         || `🧩 ${torrent.source}`;
       const qual       = torrent.quality || guessQuality(torrent.title);
       const is3d       = /\b3d\b/i.test(torrent.title);
       const isCached   = torrent.seeds > 50;
       const isDirect   = !!torrent._isDirect;
-      const isAddon    = !['knaben','yts','1337x'].includes(torrent.source);
+      const isAddon    = !['knaben','yts','1337x','apibay'].includes(torrent.source);
       const hasRD      = !!getRDToken();
 
       const row = document.createElement('div');
       row.className = 'tor-result-row';
       row.dataset.idx = idx;
 
+      // Compute RD cache status (needed for badges and actions)
+      const torHash = (torrent.hash || '').toLowerCase();
+      const inRD = torHash && rdTorrentCache?.has(torHash);
+
       // Badge HTML
       let badges = '';
       if (qual)     badges += `<span class="tor-badge tor-badge-quality">${qual}</span>`;
       if (is3d)     badges += `<span class="tor-badge tor-badge-3d">3D</span>`;
       if (isDirect) badges += `<span class="tor-badge tor-badge-direct">⚡ Direct</span>`;
+      else if (inRD)  badges += `<span class="tor-badge tor-badge-direct">📦 In RD</span>`;
       else if (isCached) badges += `<span class="tor-badge tor-badge-cached">⚡ Cached</span>`;
       badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}">${sourceLabel}</span>`;
 
       // Action buttons HTML
-      const inLibrary = isInLocalLibrary(torrent);
-      const torHash = (torrent.hash || '').toLowerCase();
-      const inRD = torHash && rdTorrentCache?.has(torHash);
-      const libState = inRD ? 'rd' : inLibrary ? 'local' : 'none';
-      const libLabel = inRD ? '✅ In RD' : inLibrary ? '✅ In Library' : '📚 Add';
-      const libClass = libState !== 'none' ? 'rd added' : 'ext';
+      const libLabel = inRD ? '✅ In RD' : '📚 Add';
+      const libClass = inRD ? 'rd added' : 'ext';
       let actions = '';
       if (isDirect) {
+        // Stremio addon direct streams — these have real playable URLs
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
-        actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
       } else {
-        actions += `<button class="tor-action-btn play" data-action="play">▶ Play via RD</button>`;
-        if (hasRD) actions += `<button class="tor-action-btn rd" data-action="add-rd">⬇ Add to RD</button>`;
-        actions += `<button class="tor-action-btn ${libClass}" data-action="add-lib" data-hash="${torHash}">${libLabel}</button>`;
+        // Raw torrent / addon hash — open in DMM to handle RD
+        actions += `<button class="tor-action-btn play" data-action="open-dmm" style="border-color:#00a0b0;color:#00a0b0;">🔗 Open in DMM</button>`;
+        if (torHash) actions += `<button class="tor-action-btn ext" data-action="copy-hash" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.6);">📋 Copy Hash</button>`;
       }
 
       row.innerHTML = `
@@ -3559,26 +4146,20 @@
         btn.onclick = (e) => {
           e.stopPropagation();
           const action = btn.dataset.action;
-          if (action === 'play')       handleTorrentPlay(torrent, row);
-          else if (action === 'add-rd')  handleTorrentAddRD(torrent, row);
+          if (action === 'play')         handleTorrentPlay(torrent, row);
           else if (action === 'infuse')  handleTorrentInfuse(torrent, row);
           else if (action === 'vlc')     handleTorrentVLC(torrent, row);
-          else if (action === 'add-lib') handleAddToLibrary(torrent, btn);
+          else if (action === 'open-dmm') handleOpenInDMM(torrent);
+          else if (action === 'copy-hash') handleCopyHash(torrent, btn);
         };
       });
       return row;
   }
 
-  // ── Play action: Direct streams play immediately, others go through RD ──
+  // ── Play action: Direct streams only (from Stremio addons with playable URLs) ──
   async function handleTorrentPlay(torrent, rowEl) {
     const statusEl = document.getElementById('torrent-overlay-status');
-    const progBar  = rowEl.querySelector('.tor-row-progress');
-    const progFill = rowEl.querySelector('.tor-row-progress-fill');
 
-    // Auto-add to library when playing
-    autoAddToLibrary(torrent, rowEl);
-
-    // Direct stream — play immediately
     if (torrent._isDirect && torrent._directUrl) {
       if (statusEl) statusEl.innerHTML = '⚡ Loading direct stream…';
       const directLink = {
@@ -3586,119 +4167,153 @@
         filesize: 0, quality: torrent.quality || guessQuality(torrent.title), mimeType: '',
       };
       try {
-        const head = await fetch(torrent._directUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        const head = await fetch(torrent._directUrl, { method: 'HEAD', signal: safeFetchSignal(5000) });
         if (head.ok) { const cl = head.headers.get('content-length'); if (cl) directLink.filesize = parseInt(cl, 10); }
       } catch {}
       renderStreamPlayer([directLink], torrentOverlayTitle || torrent.title);
       return;
     }
 
-    // Magnet-based — RD flow
-    let magnet = torrent.magnet;
-    if (torrent.source === '1337x' && !magnet && torrent._detailUrl) {
-      if (statusEl) statusEl.innerHTML = '🔗 Fetching magnet from 1337x…';
-      try { magnet = await fetch1337xMagnet(torrent._detailUrl); torrent.magnet = magnet; }
-      catch (e) { if (statusEl) statusEl.innerHTML = `❌ 1337x magnet fetch failed: ${e.message}`; return; }
-    }
-
-    if (!magnet) { if (statusEl) statusEl.innerHTML = '❌ No magnet link available'; return; }
-
-    // Show progress bar
-    if (progBar) { progBar.classList.add('visible'); }
-    if (progFill) progFill.style.width = '5%';
-
-    const streamLinks = await addToRealDebrid(magnet, (type, msg, rdProgress) => {
-      if (statusEl) statusEl.innerHTML = msg;
-      // Use real RD progress percentage
-      if (progFill && typeof rdProgress === 'number') {
-        // Map: 0-100 RD progress → 10-95% bar
-        const barPct = Math.max(10, Math.min(95, rdProgress * 0.85 + 10));
-        progFill.style.width = `${barPct}%`;
-        progFill.style.transition = 'width 0.5s ease';
-      }
-    });
-
-    if (progFill) progFill.style.width = '100%';
-    setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 800);
-
-    if (streamLinks?.length) {
-      rowEl.classList.add('added-to-rd');
-      renderStreamPlayer(streamLinks, torrentOverlayTitle || torrent.title);
-    }
+    // Non-direct: open in DMM instead
+    handleOpenInDMM(torrent);
   }
 
-  // ── Add to RD only (no play) ──
-  async function handleTorrentAddRD(torrent, rowEl) {
+  // ── Open in DMM (Debrid Media Manager) — DMM handles all RD interaction ──
+  function handleOpenInDMM(torrent) {
     const statusEl = document.getElementById('torrent-overlay-status');
-    const rdBtn    = rowEl.querySelector('.tor-action-btn.rd');
-    const progBar  = rowEl.querySelector('.tor-row-progress');
-    const progFill = rowEl.querySelector('.tor-row-progress-fill');
-
-    let magnet = torrent.magnet;
-    if (torrent.source === '1337x' && !magnet && torrent._detailUrl) {
-      if (statusEl) statusEl.innerHTML = '🔗 Fetching magnet…';
-      try { magnet = await fetch1337xMagnet(torrent._detailUrl); torrent.magnet = magnet; }
-      catch (e) { if (statusEl) statusEl.innerHTML = `❌ ${e.message}`; return; }
+    // Try IMDB-based DMM page first (best experience — DMM shows all available torrents)
+    if (currentImdbId) {
+      const type = currentMediaType === 'tv' ? 'show' : 'movie';
+      const dmmUrl = `https://debridmediamanager.com/${type}/${currentImdbId}`;
+      window.open(dmmUrl, '_blank', 'noopener');
+      if (statusEl) statusEl.innerHTML = `🔗 Opened in DMM — add torrents to RD from there`;
+      showToast('🔗 Opened in DMM', 'success');
+      return;
     }
-    if (!magnet) { if (statusEl) statusEl.innerHTML = '❌ No magnet link'; return; }
-
-    if (progBar) progBar.classList.add('visible');
-    if (progFill) progFill.style.width = '20%';
-
-    try {
-      if (statusEl) statusEl.innerHTML = '📡 Adding to Real-Debrid…';
-      const added = await rdFetch('/torrents/addMagnet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ magnet }),
-      });
-      if (progFill) progFill.style.width = '60%';
-
-      const torrentId = added?.id;
-      if (torrentId) {
-        // Select files
-        const info = await rdFetch(`/torrents/info/${torrentId}`);
-        if (info.status === 'waiting_files_selection') {
-          let fileSelection = 'all';
-          if (info.files?.length > 1) {
-            const videoFiles = info.files.filter(f => VIDEO_EXTS.has((f.path||'').split('.').pop().toLowerCase()));
-            if (videoFiles.length > 0) fileSelection = videoFiles.map(f => f.id).join(',');
-          }
-          await rdFetch(`/torrents/selectFiles/${torrentId}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ files: fileSelection }),
-          });
-        }
-      }
-
-      if (progFill) progFill.style.width = '100%';
-      rowEl.classList.add('added-to-rd');
-      if (rdBtn) { rdBtn.classList.add('added'); rdBtn.innerHTML = '✅ In RD'; rdBtn.disabled = true; }
-      if (statusEl) statusEl.innerHTML = `✅ Added to Real-Debrid! It will download in the background.`;
-    } catch (e) {
-      if (statusEl) statusEl.innerHTML = `❌ ${e.message}`;
+    // Fallback: if we have a hash, build a search URL
+    if (torrent.hash) {
+      const dmmUrl = `https://debridmediamanager.com/search?query=${encodeURIComponent(torrent.hash)}`;
+      window.open(dmmUrl, '_blank', 'noopener');
+      if (statusEl) statusEl.innerHTML = '🔗 Opened DMM with hash search';
+      showToast('🔗 Opened in DMM', 'success');
+      return;
     }
-    setTimeout(() => { if (progBar) progBar.classList.remove('visible'); }, 1000);
+    // Last resort: DMM homepage
+    window.open('https://debridmediamanager.com', '_blank', 'noopener');
+    showToast('🔗 Opened DMM — search for your content there', 'info');
   }
 
-  // ── Open in Infuse ──
+  // ── Copy torrent hash to clipboard ──
+  function handleCopyHash(torrent, btn) {
+    const hash = torrent.hash || '';
+    if (!hash) { showToast('No hash available', 'error'); return; }
+    navigator.clipboard.writeText(hash).then(() => {
+      btn.textContent = '✅ Copied';
+      setTimeout(() => { btn.textContent = '📋 Copy Hash'; }, 2000);
+      showToast('📋 Hash copied to clipboard', 'success');
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = hash; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      btn.textContent = '✅ Copied';
+      setTimeout(() => { btn.textContent = '📋 Copy Hash'; }, 2000);
+      showToast('📋 Hash copied', 'success');
+    });
+  }
+
+  // ── External App Return Tracking ──
+  let _externalAppLaunch = null; // { time, torrent, app }
+
+  // Build Infuse URL for playback
+  function buildInfuseUrl(videoUrl) {
+    return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
+  }
+
+  // ── Open in Infuse (direct streams only) ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
-    autoAddToLibrary(torrent, rowEl);
-    const infuseUrl = `infuse://x-callback-url/play?url=${encodeURIComponent(torrent._directUrl)}`;
-    window.location.href = infuseUrl;
+    _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
+    window.location.href = buildInfuseUrl(torrent._directUrl);
   }
 
   function handleTorrentVLC(torrent, rowEl) {
     const url = torrent._directUrl;
     if (!url) return;
-    autoAddToLibrary(torrent, rowEl);
+    _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
     window.location.href = `vlc://${url}`;
+  }
+
+  // Listen for return from external app
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !_externalAppLaunch) return;
+    const elapsed = Date.now() - _externalAppLaunch.time;
+    // Only show if they were gone for at least 10 seconds (actually watched something)
+    if (elapsed < 10000) { _externalAppLaunch = null; return; }
+    const { torrent, app } = _externalAppLaunch;
+    _externalAppLaunch = null;
+    showExternalReturnPopup(torrent, app);
+  });
+
+  function showExternalReturnPopup(torrent, appName) {
+    // Remove any existing popup
+    document.getElementById('external-return-popup')?.remove();
+
+    const isTV = epCompletionData && epCompletionData.tvId;
+    const epCode = isTV ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}` : '';
+    const titleText = isTV ? `${epCompletionData.title || torrent.title} ${epCode}` : (torrent.title || 'this content');
+
+    const popup = document.createElement('div');
+    popup.id = 'external-return-popup';
+    popup.style.cssText = `position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      display:flex;align-items:center;justify-content:center;padding:1.5rem;`;
+    popup.innerHTML = `
+      <div style="background:rgba(10,10,30,0.98);border:1.5px solid var(--accent-green);border-radius:16px;
+        padding:1.5rem;max-width:360px;width:100%;text-align:center;box-shadow:0 0 40px rgba(16,185,129,0.2);">
+        <div style="font-size:1.8rem;margin-bottom:0.5rem;">🎬</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--accent-green);letter-spacing:1px;margin-bottom:0.3rem;">
+          Back from ${appName}
+        </div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:1.2rem;">
+          Did you finish watching<br><strong style="color:#fff;">${titleText}</strong>?
+        </div>
+        <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">
+          <button class="ep-popup-btn" id="ext-return-done" style="flex:1;min-width:100px;">✅ Finished</button>
+          <button class="ep-popup-btn secondary" id="ext-return-dismiss" style="flex:1;min-width:100px;">⏸ Not yet</button>
+        </div>
+      </div>`;
+    document.body.appendChild(popup);
+
+    popup.querySelector('#ext-return-done').onclick = () => {
+      if (isTV && epCompletionData.tvId) {
+        toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
+        refreshEpisodeUI(epCompletionData.tvId, epCompletionData.season);
+        refreshTVStreamButton();
+        loadContinueWatching();
+        showToast(`✅ Marked ${epCode} watched`, 'success');
+      } else {
+        showToast('✅ Marked as finished', 'success');
+      }
+      popup.remove();
+    };
+
+    popup.querySelector('#ext-return-dismiss').onclick = () => {
+      popup.remove();
+    };
+
+    // Close on backdrop click
+    popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
   }
 
   // Auto-add torrent to library (called on play/infuse/vlc)
   function autoAddToLibrary(torrent, rowEl) {
+    const torHash = (torrent.hash || '').toLowerCase();
+    // Skip if already in RD
+    if (torHash && rdTorrentCache?.has(torHash)) return;
     if (isInLocalLibrary(torrent)) return;
+
     const lib = getLocalLibrary();
     const key = torrent.hash || torrent.title;
     lib.push({
@@ -3714,13 +4329,16 @@
     if (libBtn) {
       libBtn.classList.remove('ext');
       libBtn.classList.add('rd', 'added');
-      libBtn.innerHTML = '✅ In Library';
+      libBtn.innerHTML = '✅ In RD';
     }
-    // Also add to RD cache in background
+    // Also add to RD in background and refresh cache
     const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
     if (getRDToken() || torrent._directUrl) {
-      addToRDBackground(magnet, torrent._directUrl).then(ok => {
-        if (ok && libBtn) libBtn.innerHTML = '✅ In RD';
+      addToRDBackground(magnet, torrent._directUrl).then(async (ok) => {
+        if (ok) {
+          if (libBtn) libBtn.innerHTML = '✅ In RD';
+          await loadRDTorrentCache();
+        }
       });
     }
   }
@@ -3740,19 +4358,15 @@
     return lib.some(item => item.key === key || (h && item.key === h) || (h && item.hash?.toLowerCase() === h));
   }
 
-  // Sweep all visible library buttons and update labels based on RD cache + local library
+  // Sweep all visible library buttons — only two states: "📚 Add" or "✅ In RD"
   function refreshLibraryButtons() {
     document.querySelectorAll('.tor-action-btn[data-action="add-lib"][data-hash]').forEach(btn => {
       const h = btn.dataset.hash;
       if (!h) return;
       const inRD = rdTorrentCache?.has(h);
-      const inLocal = isInLocalLibrary({ hash: h });
       if (inRD) {
         btn.classList.remove('ext'); btn.classList.add('rd', 'added');
         btn.innerHTML = '✅ In RD';
-      } else if (inLocal) {
-        btn.classList.remove('ext'); btn.classList.add('rd', 'added');
-        btn.innerHTML = '✅ In Library';
       } else {
         btn.classList.remove('rd', 'added'); btn.classList.add('ext');
         btn.innerHTML = '📚 Add';
@@ -3760,87 +4374,91 @@
     });
   }
   function handleAddToLibrary(torrent, btn) {
-    const lib = getLocalLibrary();
-    const key = torrent.hash || torrent.title;
     const torHash = (torrent.hash || '').toLowerCase();
-    const isCurrentlyAdded = btn.classList.contains('added');
+    const isCurrentlyInRD = btn.classList.contains('added');
 
-    if (isCurrentlyAdded) {
-      // ── REMOVE ──
-      // 1. Remove from local library
-      const idx = lib.findIndex(item => item.key === key || (torHash && item.key === torHash) || (torHash && item.hash?.toLowerCase() === torHash));
-      if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+    if (isCurrentlyInRD) {
+      // ══ REMOVE — same flow as Settings delete ══
+      if (!confirm('Remove this torrent from Real-Debrid?')) return;
 
-      // 2. Remove from RD
-      if (torHash && rdTorrentCache?.has(torHash) && getRDToken()) {
-        const rdEntry = rdTorrentCache.get(torHash);
-        btn.innerHTML = '🗑 Removing…';
-        (async () => {
-          try {
-            let realId = rdEntry.id;
-            // If ID is 'pending', look up the real one
-            if (realId === 'pending') {
-              const torrents = await rdFetch('/torrents?limit=100');
-              const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
-              if (found) realId = found.id;
-            }
-            if (realId && realId !== 'pending') {
-              await rdFetch(`/torrents/delete/${realId}`, { method: 'DELETE' });
-              showToast('🗑 Removed from RD', 'success');
-            }
-            rdTorrentCache.delete(torHash);
-          } catch (e) {
-            console.warn('[RD] Delete failed:', e.message);
-            showToast('Removed locally (RD delete may be delayed)', 'info');
-            rdTorrentCache.delete(torHash);
+      btn.innerHTML = '🗑 Removing…';
+      btn.style.opacity = '0.6';
+
+      (async () => {
+        try {
+          // Get the real RD torrent ID by hash
+          const rdEntry = rdTorrentCache?.get(torHash);
+          let rdId = rdEntry?.id;
+
+          // If cache didn't have it, look it up fresh
+          if (!rdId) {
+            const torrents = await rdFetch('/torrents?limit=2500');
+            const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
+            if (found) rdId = found.id;
           }
-          btn.classList.remove('rd', 'added');
-          btn.classList.add('ext');
-          btn.innerHTML = '📚 Add';
-        })();
-      } else {
-        // Just local removal
+
+          if (rdId) {
+            await rdFetch(`/torrents/delete/${rdId}`, { method: 'DELETE' });
+            showToast('🗑 Removed from RD', 'success');
+          }
+
+          // Update cache + persist
+          rdTorrentCache?.delete(torHash);
+          saveRDCacheToStorage();
+
+          // Also clean local library
+          const lib = getLocalLibrary();
+          const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === torHash || (item.key || '').toLowerCase() === torHash);
+          if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+
+        } catch (e) {
+          console.warn('[RD] Remove error:', e.message);
+          // DELETE likely succeeded (204 parsed wrong) — remove from cache anyway
+          rdTorrentCache?.delete(torHash);
+          saveRDCacheToStorage();
+          showToast('Removed (syncing…)', 'info');
+        }
+        btn.style.opacity = '';
         btn.classList.remove('rd', 'added');
         btn.classList.add('ext');
         btn.innerHTML = '📚 Add';
-        showToast('Removed from library', 'info');
-      }
+      })();
 
     } else {
-      // ── ADD ──
-      lib.push({
-        key, title: torrent.title, size: torrent.size,
-        quality: torrent.quality || guessQuality(torrent.title),
-        source: torrent.source, directUrl: torrent._directUrl || null,
-        magnet: torrent.magnet || null, hash: torrent.hash || null,
-        addedAt: new Date().toISOString(), imdbId: currentImdbId || null,
-      });
-      saveLocalLibrary(lib);
+      // ══ ADD to RD ══
       btn.classList.remove('ext');
       btn.classList.add('rd', 'added');
       btn.innerHTML = '✅ Adding…';
 
+      // Save to local library as backup
+      const key = torrent.hash || torrent.title;
+      const lib = getLocalLibrary();
+      if (!lib.some(item => item.key === key || (item.hash || '').toLowerCase() === torHash)) {
+        lib.push({
+          key, title: torrent.title, size: torrent.size,
+          quality: torrent.quality || guessQuality(torrent.title),
+          source: torrent.source, directUrl: torrent._directUrl || null,
+          magnet: torrent.magnet || null, hash: torrent.hash || null,
+          addedAt: new Date().toISOString(), imdbId: currentImdbId || null,
+        });
+        saveLocalLibrary(lib);
+      }
+
       const magnet = torrent.magnet || (torrent.hash ? buildMagnet(torrent.hash, torrent.title) : null);
       if (getRDToken() || torrent._directUrl) {
-        addToRDBackground(magnet, torrent._directUrl).then(ok => {
+        addToRDBackground(magnet, torrent._directUrl).then(async (ok) => {
           if (ok) {
             btn.innerHTML = '✅ In RD';
             showToast('✅ Added to RD', 'success');
-            // Fetch real ID so removal works
-            if (torHash && getRDToken()) {
-              rdFetch('/torrents?limit=100').then(torrents => {
-                const found = (torrents || []).find(t => (t.hash || '').toLowerCase() === torHash);
-                if (found) rdTorrentCache?.set(torHash, { id: found.id, status: found.status });
-              }).catch(() => {});
-            }
+            // Refresh cache to get real ID for future removal
+            await loadRDTorrentCache();
           } else {
-            btn.innerHTML = '✅ In Library';
-            showToast('Added to library', 'info');
+            btn.innerHTML = '✅ In RD';
+            showToast('Added to RD', 'info');
           }
         });
       } else {
-        btn.innerHTML = '✅ In Library';
-        showToast('Added to library', 'info');
+        btn.innerHTML = '✅ In RD';
       }
     }
   }
@@ -3854,7 +4472,7 @@
     if (directUrl) {
       try {
         console.log('[RD bg] Pinging addon proxy to trigger RD cache:', directUrl.slice(0, 80));
-        await fetch(directUrl, { mode: 'no-cors', signal: AbortSignal.timeout(15000) });
+        await fetch(directUrl, { mode: 'no-cors', signal: safeFetchSignal(15000) });
         console.log('[RD bg] ✅ Addon proxy pinged — RD should cache this');
         return true;
       } catch (e) {
@@ -3943,11 +4561,12 @@
 
       // Infuse button per quality
       const infuseBtn = document.createElement('a');
-      infuseBtn.href = `infuse://x-callback-url/play?url=${encodeURIComponent(link.url)}`;
+      infuseBtn.href = buildInfuseUrl(link.url);
       infuseBtn.className = 'stream-ext-btn';
       infuseBtn.style.cssText = 'border-color: rgba(255,149,0,0.4); color: #ff9500; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       infuseBtn.title = 'Open in Infuse';
       infuseBtn.textContent = '📺';
+      infuseBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'Infuse' }; };
       linksEl.appendChild(infuseBtn);
 
       // VLC button per quality
@@ -3957,10 +4576,18 @@
       vlcBtn.style.cssText = 'border-color: rgba(255,136,0,0.4); color: #ff8800; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       vlcBtn.title = 'Open in VLC';
       vlcBtn.textContent = '🎬';
+      vlcBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'VLC' }; };
       linksEl.appendChild(vlcBtn);
 
       if (isFirst) { video.src = link.url; video.play().catch(() => {}); }
     });
+
+    // Hook video ended event for episode completion prompt
+    video.onended = () => {
+      if (epCompletionData && currentMediaType === 'tv' && currentSeason && currentEpisode) {
+        showEpisodeCompletePopup();
+      }
+    };
 
     if (statusEl) {
       statusEl.innerHTML =
@@ -3974,13 +4601,15 @@
   function openAllInInfuse() {
     const video = document.getElementById('rd-player');
     if (video?.src) {
-      window.location.href = `infuse://x-callback-url/play?url=${encodeURIComponent(video.src)}`;
+      _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'Infuse' };
+      window.location.href = buildInfuseUrl(video.src);
     }
   }
 
   function openAllInVLC() {
     const video = document.getElementById('rd-player');
     if (video?.src) {
+      _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'VLC' };
       window.location.href = `vlc://${video.src}`;
     }
   }
@@ -4065,14 +4694,20 @@
   function handleToggleWatched(tvId, season, episode) {
     toggleEpisodeWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
+    loadContinueWatching();
   }
   function handleMarkPrevious(tvId, season, episode) {
     markPreviousWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
+    loadContinueWatching();
   }
   function handleUnmarkFrom(tvId, season, episode) {
     unmarkFromEpisode(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
+    loadContinueWatching();
   }
   function markAllSeason(tvId, season, count, mark) {
     const d = getWatchedEpisodes(tvId);
@@ -4083,6 +4718,38 @@
     }
     saveWatchedEpisodes(tvId, d);
     refreshEpisodeUI(tvId, season);
+    refreshTVStreamButton();
+    loadContinueWatching();
+  }
+
+  // Live-update the Stream button in TV detail view to reflect next unwatched episode
+  function refreshTVStreamButton() {
+    const container = document.getElementById('tv-stream-btn-container');
+    if (!container) return;
+    const tvId  = container.dataset.tvId;
+    const title = container.dataset.title;
+    const imdbId = container.dataset.imdb;
+    const year  = container.dataset.year;
+    if (!tvId || !title) return;
+
+    const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const nextEp = getNextUnwatched(parseInt(tvId), currentTVSeasons);
+
+    if (nextEp) {
+      const epLabel = `S${nextEp.season}E${nextEp.episode}`;
+      const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
+      container.innerHTML = `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+        <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'streams')">
+          <span class="play-icon">⚡</span> Stream ${epLabel}
+        </button>
+        <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+          <span class="play-icon">🧲</span> Search ${epLabel}
+        </button>
+        <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
+      </div>`;
+    } else {
+      container.innerHTML = buildTorrentSection(title, year, imdbId, 'tv');
+    }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -4116,9 +4783,10 @@
       if (i > -1) favList.movies.splice(i, 1); else favList.movies.push({ ...item, media_type: 'movie' });
     }
     saveFavorites();
-    // Update "This Week" section if TV favorites changed
+    // Update "This Week" and "Continue Watching" sections if TV favorites changed
     if (type === 'tv' && !isAdultMode) {
       loadFavThisWeek();
+      loadContinueWatching();
     }
   }
 
@@ -4514,6 +5182,188 @@
     }
   }
 
+  // ── Continue Watching — shows favorited TV shows with episode progress ──
+  async function loadContinueWatching() {
+    const section = document.getElementById('section-continue-watching');
+    const grid    = document.getElementById('continue-watching-grid');
+    if (!section || !grid) return;
+
+    const favTv = (favorites.tv || []);
+    if (favTv.length === 0) { section.style.display = 'none'; return; }
+
+    // Find shows that have watch progress in localStorage
+    const showsWithProgress = [];
+    for (const show of favTv) {
+      const watched = getWatchedEpisodes(show.id);
+      const keys = Object.keys(watched);
+      if (keys.length === 0) continue; // No episodes watched
+
+      // Find highest watched episode for display
+      let maxSeason = 0, maxEp = 0, lastWatchedTs = 0;
+      for (const key of keys) {
+        const m = key.match(/^s(\d+)e(\d+)$/);
+        if (m) {
+          const s = parseInt(m[1]), e = parseInt(m[2]);
+          const ts = watched[key] || 0;
+          if (ts > lastWatchedTs) { lastWatchedTs = ts; }
+          if (s > maxSeason || (s === maxSeason && e > maxEp)) { maxSeason = s; maxEp = e; }
+        }
+      }
+      if (maxSeason > 0) {
+        showsWithProgress.push({ ...show, _maxSeason: maxSeason, _maxEp: maxEp, _lastTs: lastWatchedTs, _watchedCount: keys.length });
+      }
+    }
+
+    if (showsWithProgress.length === 0) { section.style.display = 'none'; return; }
+
+    // Sort by most recently watched
+    showsWithProgress.sort((a, b) => b._lastTs - a._lastTs);
+
+    // Fetch TMDB data in parallel (up to 15 shows) to get real next unwatched
+    const enriched = [];
+    const checks = showsWithProgress.slice(0, 15).map(async show => {
+      try {
+        const data = await tmdb(`/tv/${show.id}`);
+        const seasons = (data.seasons || []).filter(s => s.season_number > 0);
+        const nextEp = getNextUnwatched(show.id, seasons);
+
+        // If all watched, still show with "All caught up" label
+        enriched.push({
+          ...show,
+          _nextEp: nextEp,
+          _allCaughtUp: !nextEp,
+          _totalSeasons: seasons.length,
+          poster_path: data.poster_path || show.poster_path,
+        });
+      } catch {
+        // Fallback without TMDB: assume next episode is maxEp + 1
+        enriched.push({
+          ...show,
+          _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
+          _allCaughtUp: false,
+        });
+      }
+    });
+    await Promise.all(checks);
+
+    // Re-sort enriched by last watched, filter out "all caught up" (show at end)
+    const active   = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    const caughtUp = enriched.filter(s => s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    const ordered  = [...active, ...caughtUp];
+
+    if (ordered.length === 0) { section.style.display = 'none'; return; }
+
+    section.style.display = 'block';
+    grid.innerHTML = '';
+
+    for (const show of ordered) {
+      const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
+      if (!imgUrl) continue;
+
+      let epLabel, subLabel;
+      if (show._allCaughtUp) {
+        epLabel = '✅ Caught Up';
+        subLabel = `${show._watchedCount} episodes watched`;
+      } else {
+        const ne = show._nextEp;
+        epLabel = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
+        subLabel = `${show._watchedCount} watched`;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+        <div class="cw-badge">${epLabel}</div>
+        <div class="info">
+          <div class="cw-title">${show.name || show.original_name || ''}</div>
+          <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</div>
+        </div>`;
+      card.onclick = () => openTVDetail(show.id);
+      grid.appendChild(card);
+    }
+  }
+
+  // ── Episode Completion Popup ──
+  let epCompletionData = null; // stores { tvId, season, episode, title } when playing a TV episode
+
+  function showEpisodeCompletePopup() {
+    if (!epCompletionData || !epCompletionData.tvId) return;
+    const { tvId, season, episode, title } = epCompletionData;
+    const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
+
+    // Remove any existing popup
+    document.getElementById('ep-complete-popup')?.remove();
+
+    const popup = document.createElement('div');
+    popup.className = 'ep-complete-popup';
+    popup.id = 'ep-complete-popup';
+
+    const nextEpCode = `S${String(season).padStart(2,'0')}E${String(episode + 1).padStart(2,'0')}`;
+
+    popup.innerHTML = `
+      <div class="ep-popup-title">🎬 Episode finished!</div>
+      <div class="ep-popup-sub">${title} — ${epCode}</div>
+      <div class="ep-popup-btns">
+        <button class="ep-popup-btn" id="ep-mark-btn">✅ Mark ${epCode} Complete</button>
+        <button class="ep-popup-btn next" id="ep-next-btn">▶ Play Next (${nextEpCode})</button>
+        <button class="ep-popup-btn secondary" onclick="closeEpCompletePopup()">Dismiss</button>
+      </div>`;
+    document.body.appendChild(popup);
+
+    // Wire up mark complete
+    popup.querySelector('#ep-mark-btn').onclick = () => {
+      if (!tvId) { showToast('Cannot track — open the show detail first', 'error'); return; }
+      const wasWatched = isEpisodeWatched(tvId, season, episode);
+      if (!wasWatched) {
+        toggleEpisodeWatched(tvId, season, episode);
+        showToast(`✅ Marked ${epCode} watched`, 'success');
+      }
+      // Update button
+      const btn = popup.querySelector('#ep-mark-btn');
+      btn.textContent = '✅ Marked!';
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+      // Refresh continue watching and stream button in background
+      refreshTVStreamButton();
+      loadContinueWatching();
+    };
+
+    // Wire up play next
+    popup.querySelector('#ep-next-btn').onclick = async () => {
+      // Mark current as watched if not already
+      if (epCompletionData.tvId && !isEpisodeWatched(epCompletionData.tvId, season, episode)) {
+        toggleEpisodeWatched(epCompletionData.tvId, season, episode);
+      }
+
+      closeEpCompletePopup();
+      refreshTVStreamButton();
+      loadContinueWatching(); // refresh home section
+
+      // Try to find the real next unwatched episode via TMDB
+      let nextSeason = season, nextEpisode = episode + 1;
+      if (epCompletionData.tvId) {
+        try {
+          const data = await tmdb(`/tv/${epCompletionData.tvId}`);
+          const seasons = (data.seasons || []).filter(s => s.season_number > 0);
+          const realNext = getNextUnwatched(epCompletionData.tvId, seasons);
+          if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
+        } catch {}
+      }
+
+      const nextEpLabel = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
+      const nextSearch = `${title} ${nextEpLabel}`;
+      openTorrentOverlay(nextSearch, `${title} ${nextEpLabel}`, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
+    };
+
+    // Auto-dismiss after 30 seconds
+    setTimeout(() => { closeEpCompletePopup(); }, 30000);
+  }
+
+  function closeEpCompletePopup() {
+    document.getElementById('ep-complete-popup')?.remove();
+  }
+
   // ══════════════════════════════════════════════════════════════════
   // § RD PLAY FROM CACHE + ACCOUNT INFO
   // ══════════════════════════════════════════════════════════════════
@@ -4533,10 +5383,10 @@
       <div class="cache-popup-panel">
         <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="infuse://x-callback-url/play?url=${encodedUrl}" class="cache-popup-btn infuse" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             📺 Infuse
           </a>
-          <a href="vlc://${url.replace(/"/g, '%22')}" class="cache-popup-btn vlc" onclick="setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="vlc://${url.replace(/"/g, '%22')}" class="cache-popup-btn vlc" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'VLC'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             🎬 VLC
           </a>
           <button class="cache-popup-btn browser" id="cache-browser-btn">🌐 Browser</button>
@@ -4584,41 +5434,56 @@
   }
 
   // ── Catalog play from cache (for addon catalog items) ──
-  // Simple flow: query addon → get stream URL → show Infuse/VLC popup
-  // The addon (Torrentio) handles all RD resolution server-side
+  // Play from catalog: try RD library first (instant), then addon streams, then torrent search
   async function playCatalogFromCache(imdbId, name, catType) {
     closeSettingsModal();
+    showToast('🔍 Finding stream…', 'info');
 
     const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-    if (addons.length === 0 && !getRDToken()) {
-      const mediaType = catType === 'series' ? 'tv' : 'movie';
-      openTorrentOverlay(name, name, imdbId, mediaType);
-      return;
-    }
 
-    const type = catType === 'series' ? 'series' : 'movie';
+    // Method 1: Query addon for a direct stream URL (Torrentio handles RD resolution)
+    if (addons.length > 0) {
+      const type = catType === 'series' ? 'series' : 'movie';
+      for (const addon of addons) {
+        try {
+          const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
+          if (!streams?.length) continue;
 
-    // Query each addon for streams — find one with a playable URL
-    for (const addon of addons) {
-      try {
-        const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
-        if (!streams?.length) continue;
+          // Pick the best direct URL (already resolved through RD by the addon)
+          const direct = streams.find(s => s._isDirect && s._directUrl);
+          if (direct) {
+            console.log('[catalog] Stream from', addon.name, direct._directUrl?.slice(0, 80));
+            showPlayFromCachePopup(direct._directUrl, direct.title || name);
+            return;
+          }
 
-        // Pick the best stream with a direct URL (Torrentio proxy URL)
-        const direct = streams.find(s => s._isDirect && s._directUrl);
-        if (direct) {
-          console.log('[catalog] Found stream URL from', addon.name, direct._directUrl?.slice(0, 80));
-          showPlayFromCachePopup(direct._directUrl, direct.title || name);
-          return;
+          // If no direct URL but has hash that's in our RD library, unrestrict it
+          for (const s of streams) {
+            const h = (s.hash || '').toLowerCase();
+            if (h && rdTorrentCache?.has(h)) {
+              const rdEntry = rdTorrentCache.get(h);
+              try {
+                const info = await rdFetch(`/torrents/info/${rdEntry.id}`);
+                if (info.links?.length) {
+                  const links = await unrestrictVideoLinks(info.links);
+                  if (links.length) {
+                    showPlayFromCachePopup(links[0].url, links[0].filename || name);
+                    return;
+                  }
+                }
+              } catch (e) { console.warn('[catalog] RD unrestrict failed:', e.message); }
+            }
+          }
+        } catch (e) {
+          console.warn(`[catalog] ${addon.name} failed:`, e.message);
         }
-      } catch (e) {
-        console.warn(`[catalog] ${addon.name} failed:`, e.message);
       }
     }
 
-    // No addon stream found — fall back to torrent search
+    // Method 2: Fall back to torrent search overlay
+    showToast('Opening torrent search…', 'info');
     const mediaType = catType === 'series' ? 'tv' : 'movie';
-    openTorrentOverlay(name, name, imdbId, mediaType);
+    openTorrentOverlay(name, name, imdbId, mediaType, null, null, 'streams');
   }
   function exportSettings() {
     // Slim favorites: only keep essential fields for restore
@@ -4696,6 +5561,90 @@
     event.target.value = ''; // Reset input
   }
 
+  // ── Clear Cache Functions ───────────────────────────────────────────
+  function formatCacheSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function getCacheSizes() {
+    let rdSize = 0, tmdbSize = 0, otherCacheSize = 0, totalSize = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      const val = localStorage.getItem(key) || '';
+      const size = (key.length + val.length) * 2; // UTF-16 = 2 bytes per char
+      totalSize += size;
+      if (key === 'rd_torrent_cache' || key === 'rd_torrent_cache_ts') rdSize += size;
+      else if (key.startsWith('tmdb_') || key.startsWith('img_cache_')) tmdbSize += size;
+      else if (key.startsWith('addon_') || key.startsWith('catalog_') || key.startsWith('search_cache_')) otherCacheSize += size;
+    }
+    return { rdSize, tmdbSize, allCacheSize: rdSize + tmdbSize + otherCacheSize, totalSize };
+  }
+
+  function updateCacheSizeBadges() {
+    const sizes = getCacheSizes();
+    const rdEl   = document.getElementById('cache-size-rd');
+    const tmdbEl = document.getElementById('cache-size-tmdb');
+    const allEl  = document.getElementById('cache-size-all');
+    const totEl  = document.getElementById('cache-size-total');
+    if (rdEl)   rdEl.textContent   = `(${formatCacheSize(sizes.rdSize)})`;
+    if (tmdbEl) tmdbEl.textContent = `(${formatCacheSize(sizes.tmdbSize)})`;
+    if (allEl)  allEl.textContent  = `(${formatCacheSize(sizes.allCacheSize)})`;
+    if (totEl)  totEl.textContent  = `(${formatCacheSize(sizes.totalSize)})`;
+  }
+
+  function clearRDCache() {
+    localStorage.removeItem('rd_torrent_cache');
+    localStorage.removeItem('rd_torrent_cache_ts');
+    rdTorrentCache = new Map();
+    showToast('🗑 RD torrent cache cleared', 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = '✅ RD cache cleared.';
+    updateCacheSizeBadges();
+  }
+
+  function clearTMDBCache() {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('tmdb_') || key.startsWith('img_cache_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    showToast(`🗑 Cleared ${keysToRemove.length} TMDB cache entries`, 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = `✅ ${keysToRemove.length} TMDB cache entries cleared.`;
+    updateCacheSizeBadges();
+  }
+
+  function clearAllCaches() {
+    clearRDCache();
+    clearTMDBCache();
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('addon_') || key.startsWith('catalog_') || key.startsWith('search_cache_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    showToast('🗑 All caches cleared', 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = '✅ All caches cleared.';
+    updateCacheSizeBadges();
+  }
+
+  function resetEverything() {
+    if (!confirm('⚠️ This will delete ALL data: settings, favorites, watch history, library, and caches.\n\nAre you sure?')) return;
+    if (!confirm('⚠️ FINAL WARNING: This cannot be undone. Continue?')) return;
+    localStorage.clear();
+    showToast('💣 Everything reset. Reloading…', 'info');
+    setTimeout(() => location.reload(), 1000);
+  }
+
   async function loadHome() {
     showLoading({ message: 'Loading Watcher…' });
     const today        = new Date().toISOString().split('T')[0];
@@ -4705,6 +5654,7 @@
     const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
     if (isAdultMode) {
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
+      document.getElementById('section-continue-watching').style.display = 'none';
       document.getElementById('section-favorites').style.display     = 'none';
       document.getElementById('section-xxx-favorites').style.display = 'none';
       adultSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
@@ -4723,10 +5673,12 @@
         loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': today,    'first_air_date.lte': monthFromNow },    'anticipated-tv-grid'),
         loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': today,  'primary_release_date.lte': monthFromNow }, 'anticipated-movies-grid'),
       ]);
-      loadFavThisWeek(); // non-blocking
     }
     await loadFavorites();
-    if (!isAdultMode) loadFavThisWeek(); // non-blocking
+    if (!isAdultMode) {
+      loadFavThisWeek(); // non-blocking
+      loadContinueWatching(); // non-blocking
+    }
     renderGenreButtons();
     hideLoading();
   }
@@ -4903,6 +5855,7 @@
       const cast         = data.credits?.cast || [];
       const crew         = data.credits?.crew || [];
       const seasons      = data.seasons || [];
+      currentTVSeasons   = seasons; // Store for stream button refresh
       const posters      = data.images?.posters || [];
       const backdrops    = data.images?.backdrops || [];
       let   recs         = [...(data.recommendations?.results || []), ...(data.similar?.results || [])]
@@ -4952,17 +5905,29 @@
       // ★ Play button — shows next unwatched episode
       const nextEp = getNextUnwatched(tvId, seasons);
       const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      html += `<div id="tv-stream-btn-container" data-tv-id="${tvId}" data-title="${safe(title)}" data-imdb="${safe(currentImdbId || '')}" data-year="${firstAirYear}">`;
       if (nextEp) {
         const epLabel = `S${nextEp.season}E${nextEp.episode}`;
         const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
         html += `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-          <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode})">
-            <span class="play-icon">▶</span> Play ${epLabel}
+          <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'streams')">
+            <span class="play-icon">⚡</span> Stream ${epLabel}
+          </button>
+          <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+            <span class="play-icon">🧲</span> Search ${epLabel}
           </button>
           <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
         </div>`;
       } else {
         html += buildTorrentSection(title, firstAirYear, currentImdbId, 'tv');
+      }
+      html += `</div>`;
+
+      // Seasons — right under stream button for easy access
+      if (seasons.length > 0) {
+        html += '<h3>Seasons</h3><div class="season-selector-container"><select id="season-selector" class="season-dropdown"><option value="">Select a season…</option>';
+        seasons.forEach(s => { html += `<option value="${s.season_number}">${s.name} (${s.episode_count} episodes)</option>`; });
+        html += '</select></div><div id="episodes-container" style="margin-top:1rem;"></div>';
       }
 
       if (trailers.length > 0) {
@@ -4974,11 +5939,6 @@
       }
 
       if (cast.length > 0)    html += '<h3>Cast</h3><div class="cast-scroll" id="cast-scroll"></div>';
-      if (seasons.length > 0) {
-        html += '<h3>Seasons</h3><div class="season-selector-container"><select id="season-selector" class="season-dropdown"><option value="">Select a season…</option>';
-        seasons.forEach(s => { html += `<option value="${s.season_number}">${s.name} (${s.episode_count} episodes)</option>`; });
-        html += '</select></div><div id="episodes-container" style="margin-top:1rem;"></div>';
-      }
       if (recs.length > 0)    html += '<h3>You Might Also Like</h3><div class="recommendations-scroll" id="recommendations-scroll"></div>';
 
       if (posters.length || backdrops.length) {
@@ -5045,7 +6005,7 @@
                   <div class="episode-overview">${ep.overview||'No description.'}</div>
                   <div class="episode-air-date">Aired: ${airDate}</div>
                   <div class="episode-actions">
-                    <button class="ep-action-btn play" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epCode}','${safe(currentImdbId||'')}','tv',${num},${ep.episode_number})">▶ Play ${epCode}</button>
+                    <button class="ep-action-btn play" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epCode}','${safe(currentImdbId||'')}','tv',${num},${ep.episode_number},'streams')">⚡ Stream ${epCode}</button>
                     <button class="ep-action-btn watch ep-watch-btn ${watched?'is-watched':''}" onclick="handleToggleWatched(${tvId},${num},${ep.episode_number})">${watched?'✅ Watched':'👁 Watch'}</button>
                     <button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">⬆ Mark prev</button>
                     <button class="ep-action-btn mark" onclick="handleUnmarkFrom(${tvId},${num},${ep.episode_number})">⬇ Unmark from here</button>
@@ -5617,6 +6577,9 @@
 
   // Load settings from localStorage into Settings panel
   loadSettings();
+
+  // Pre-load RD library cache from localStorage (instant), refresh in background
+  ensureRDCache();
 
   // Kick off home page load
   loadHome();
