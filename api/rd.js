@@ -1,51 +1,49 @@
-// /api/rd.js  — Vercel serverless proxy for Real-Debrid API
-// Forwards any HTTP method (GET, POST, DELETE, PUT) to RD server-side, bypassing CORS entirely.
+// /api/rd.js — Vercel serverless proxy for Real-Debrid API
+// Runs server-side, so no CORS issues. Supports GET, POST, PUT, DELETE.
 //
-// Usage from client:
-//   fetch(’/api/rd?path=/torrents/delete/ABC123&auth_token=TOKEN’, { method: ‘DELETE’ })
-//
-// The client passes:
-//   ?path=   — the RD API path (e.g. /torrents/delete/ABC123)
-//   All other query params are forwarded to RD as-is (e.g. auth_token)
+// Client calls:  fetch(’/api/rd?path=/torrents/delete/ABC123&auth_token=TOKEN’, { method: ‘DELETE’ })
+//   ?path       = RD API path, e.g. /torrents/delete/ABC123
+//   &auth_token = RD API token (passed through to RD)
+//   Any other query params are also forwarded to RD.
 
 const RD_BASE = ‘https://api.real-debrid.com/rest/1.0’;
 
-export default async function handler(req, res) {
-// Allow all origins (this is your own proxy, running server-side)
+module.exports = async function handler(req, res) {
+// CORS headers so the browser can call this freely
 res.setHeader(‘Access-Control-Allow-Origin’, ‘*’);
 res.setHeader(‘Access-Control-Allow-Methods’, ‘GET, POST, PUT, DELETE, OPTIONS’);
-res.setHeader(‘Access-Control-Allow-Headers’, ‘Content-Type, Authorization’);
+res.setHeader(‘Access-Control-Allow-Headers’, ‘Content-Type’);
 
-// Handle preflight
-if (req.method === ‘OPTIONS’) {
-return res.status(204).end();
-}
+if (req.method === ‘OPTIONS’) return res.status(204).end();
 
-// Extract the RD path from query, pass the rest of the params through
 const { path, …rest } = req.query;
-if (!path) {
-return res.status(400).json({ error: ‘Missing ?path= parameter’ });
-}
+if (!path) return res.status(400).json({ error: ‘Missing ?path= parameter’ });
 
-// Rebuild query string without “path”
-const qs = new URLSearchParams(rest).toString();
-const rdUrl = `${RD_BASE}${path}${qs ? '?' + qs : ''}`;
+// path may itself contain a query string (e.g. /torrents?limit=50)
+// Split it so we can merge all params cleanly
+const [rdPath, rdPathQs] = path.split(’?’);
+const mergedParams = new URLSearchParams(rdPathQs || ‘’);
+for (const [k, v] of Object.entries(rest)) mergedParams.set(k, v);
+
+const qs = mergedParams.toString();
+const rdUrl = `${RD_BASE}${rdPath}${qs ? '?' + qs : ''}`;
 
 try {
-const fetchOpts = {
-method: req.method,
-headers: { ‘User-Agent’: ‘Watcher/1.0’ },
-};
+const fetchOpts = { method: req.method };
 
 ```
 // Forward body for POST/PUT
 if (req.method === 'POST' || req.method === 'PUT') {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  const body = Buffer.concat(chunks).toString();
+  const body = await new Promise((resolve) => {
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString()));
+  });
   if (body) {
     fetchOpts.body = body;
-    fetchOpts.headers['Content-Type'] = req.headers['content-type'] || 'application/x-www-form-urlencoded';
+    fetchOpts.headers = {
+      'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded',
+    };
   }
 }
 
@@ -57,12 +55,11 @@ if (rdRes.status === 204 || rdRes.status === 202) {
 }
 
 const text = await rdRes.text();
-res.status(rdRes.status);
 res.setHeader('Content-Type', 'application/json');
-return res.send(text);
+return res.status(rdRes.status).send(text);
 ```
 
 } catch (err) {
 return res.status(500).json({ error: err.message });
 }
-}
+};
