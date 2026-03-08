@@ -3627,30 +3627,63 @@
     const row = btn.closest('.rd-lib-item');
     if (row) row.style.opacity = '0.4';
     btn.textContent = '⏳';
+    showToast('⏳ Contacting RD…', 'info');
 
-    try {
-      showToast('⏳ Contacting RD…', 'info');
-      await rdFetch(`/torrents/delete/${torrentId}`, { method: 'DELETE' });
+    const token = getRDToken();
+    if (!token) { showToast('❌ No RD token', 'error'); return; }
 
-      if (row) row.remove();
-      showToast('🗑 Deleted from RD!', 'success');
+    const rdPath = `/torrents/delete/${torrentId}`;
+    const directRdUrl = `https://api.real-debrid.com/rest/1.0${rdPath}?auth_token=${encodeURIComponent(token)}`;
+    const vercelUrl = `/api/rd?path=${encodeURIComponent(rdPath)}&auth_token=${encodeURIComponent(token)}`;
+    const corsProxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(directRdUrl)}`;
 
-      const h = (hash || '').toLowerCase();
-      if (h) {
-        markHashDeleted(h);
-        if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-        const lib = getLocalLibrary();
-        const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
-        if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
-      }
-      refreshLibraryButtons();
-    } catch (e) {
-      // Restore so user can retry
+    // XHR works more reliably than fetch on iOS Safari PWA for non-GET methods
+    function xhrRequest(url, method, extraHeaders) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url, true);
+        xhr.timeout = 15000;
+        if (extraHeaders) Object.entries(extraHeaders).forEach(([k,v]) => xhr.setRequestHeader(k, v));
+        xhr.onload = () => {
+          if ([200, 202, 204].includes(xhr.status)) resolve(xhr.status);
+          else reject(new Error('HTTP ' + xhr.status + ': ' + xhr.responseText.slice(0, 80)));
+        };
+        xhr.onerror   = () => reject(new Error('Network error'));
+        xhr.ontimeout = () => reject(new Error('Timed out'));
+        xhr.send();
+      });
+    }
+
+    // Try in order: Vercel proxy DELETE → corsproxy POST+X-HTTP-Verb
+    const attempts = [
+      () => xhrRequest(vercelUrl, 'DELETE'),
+      () => xhrRequest(corsProxyUrl, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
+    ];
+
+    let lastErr;
+    for (const attempt of attempts) {
+      try { await attempt(); lastErr = null; break; }
+      catch (e) { lastErr = e; }
+    }
+
+    if (lastErr) {
       if (row) row.style.opacity = '1';
       btn.textContent = '🗑';
-      // Show the REAL error on screen so we can see what is happening
-      showToast('❌ Delete failed: ' + e.message, 'error');
+      showToast('❌ Delete failed: ' + lastErr.message, 'error');
+      return;
     }
+
+    if (row) row.remove();
+    showToast('🗑 Deleted from RD!', 'success');
+    const h = (hash || '').toLowerCase();
+    if (h) {
+      markHashDeleted(h);
+      if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      const lib = getLocalLibrary();
+      const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
+      if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+    }
+    refreshLibraryButtons();
   }
 
   async function streamRDLibraryItem(torrent, rowEl) {
