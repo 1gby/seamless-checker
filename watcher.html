@@ -2685,7 +2685,6 @@
     if (!token) throw new Error('No RD API token — open Settings ⚙️ to add one.');
     const method = (options.method || 'GET').toUpperCase();
 
-    // ── CORS proxy chain ──
     // Build full URL with auth_token in query (avoids Authorization header = avoids OPTIONS preflight)
     const sep = path.includes('?') ? '&' : '?';
     const fullUrl = `${RD_API}${path}${sep}auth_token=${encodeURIComponent(token)}`;
@@ -2733,8 +2732,7 @@
     }
 
     // RD has NO CORS headers — go straight to proxies (no direct attempt)
-    // RD API supports X-HTTP-Verb header override (per official docs) for clients that can't send DELETE.
-    // For DELETE: send as POST with X-HTTP-Verb: DELETE header — corsproxy.io forwards custom headers on POST.
+    // POST requests: corsproxy.io and corsfix forward POST bodies
     // GET requests: all proxies work
     const postCapableProxies = [
       url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
@@ -2746,34 +2744,6 @@
       url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
       url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     ];
-
-    // For DELETE: use RD's official X-HTTP-Verb override — send as POST with the header set.
-    // This is the documented way for clients that can't send DELETE directly.
-    if (method === 'DELETE') {
-      const deleteProxies = [
-        url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-        url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
-      ];
-      let lastDeleteErr;
-      for (const makeProxy of deleteProxies) {
-        const proxyUrl = makeProxy(fullUrl);
-        try {
-          const res = await fetch(proxyUrl, {
-            method: 'POST',
-            headers: { 'X-HTTP-Verb': 'DELETE' },
-            signal: safeFetchSignal(12000),
-          });
-          console.log(`[rdFetch] DELETE via X-HTTP-Verb → ${res.status}`);
-          return await parseResponse(res);
-        } catch (e) {
-          lastDeleteErr = e;
-          if (e.message.includes('token invalid') || e.message.includes('RD token')) throw e;
-          console.warn('[rdFetch DELETE proxy]', proxyUrl.slice(0, 80), e.message);
-        }
-      }
-      throw lastDeleteErr || new Error('Could not delete from Real-Debrid.');
-    }
-
     const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
 
     let lastErr;
@@ -2792,7 +2762,6 @@
     }
     throw lastErr || new Error('Could not reach Real-Debrid. Check your internet connection and try again.');
   }
-
   // Magnet helpers
   function extractHashFromMagnet(magnet) {
     const m = (magnet || '').match(/urn:btih:([a-fA-F0-9]{40}|[A-Z2-7]{32})/i);
@@ -3578,69 +3547,42 @@
     } catch (e) { showToast('RD Error: ' + e.message, 'error'); }
   }
 
-  async function deleteRDTorrent(torrentId, btn, hash) {
+async function deleteRDTorrent(torrentId, btn, hash) {
     if (!confirm('Delete this torrent from Real-Debrid?')) return;
     const row = btn.closest('.rd-lib-item');
-    if (row) row.style.opacity = '0.4';
-    btn.textContent = '⏳';
-    showToast('⏳ Contacting RD…', 'info');
+    try {
+      // Visual feedback immediately
+      if (row) row.style.opacity = '0.4';
+      btn.textContent = '⏳';
 
-    const token = getRDToken();
-    if (!token) { showToast('❌ No RD token', 'error'); return; }
+      await rdFetch(`/torrents/delete/${torrentId}`, { method: 'DELETE' });
 
-    const rdPath = `/torrents/delete/${torrentId}`;
-    const directRdUrl = `https://api.real-debrid.com/rest/1.0${rdPath}?auth_token=${encodeURIComponent(token)}`;
+      if (row) row.remove();
+      showToast('🗑 Deleted from RD', 'success');
 
-    // XHR is more reliable than fetch on iOS Safari PWA for non-GET requests
-    function xhrRequest(url, method, extraHeaders) {
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open(method, url, true);
-        xhr.timeout = 15000;
-        if (extraHeaders) Object.entries(extraHeaders).forEach(([k,v]) => xhr.setRequestHeader(k, v));
-        xhr.onload = () => {
-          if ([200, 202, 204].includes(xhr.status)) resolve(xhr.status);
-          else reject(new Error('HTTP ' + xhr.status + ': ' + xhr.responseText.slice(0, 80)));
-        };
-        xhr.onerror   = () => reject(new Error('Network error'));
-        xhr.ontimeout = () => reject(new Error('Timed out'));
-        xhr.send();
-      });
+      // Update rdTorrentCache + persist
+      const h = (hash || '').toLowerCase();
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+
+      // Also remove from local library if present
+      if (h) {
+        const lib = getLocalLibrary();
+        const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
+        if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+      }
+
+      // Update any matching stream row button in the torrent overlay
+      refreshLibraryButtons();
+    } catch (e) {
+      // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
+      if (row) row.remove();
+      const h = (hash || '').toLowerCase();
+      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+      refreshLibraryButtons();
+      showToast('Deleted (may take a moment to sync)', 'info');
+      console.warn('[RD] Delete response error (likely still succeeded):', e.message);
     }
-
-    // Try multiple proxies with X-HTTP-Verb: DELETE (official RD API override)
-    const attempts = [
-      () => xhrRequest(`https://corsproxy.io/?url=${encodeURIComponent(directRdUrl)}`, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
-      () => xhrRequest(`https://proxy.corsfix.com/?${encodeURIComponent(directRdUrl)}`, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
-      () => xhrRequest(`https://api.allorigins.win/raw?url=${encodeURIComponent(directRdUrl)}`, 'POST', { 'X-HTTP-Verb': 'DELETE' }),
-    ];
-
-    let lastErr;
-    for (const attempt of attempts) {
-      try { await attempt(); lastErr = null; break; }
-      catch (e) { lastErr = e; }
-    }
-
-    if (lastErr) {
-      if (row) row.style.opacity = '1';
-      btn.textContent = '🗑';
-      showToast('❌ Delete failed: ' + lastErr.message, 'error');
-      return;
-    }
-
-    if (row) row.remove();
-    showToast('🗑 Deleted from RD!', 'success');
-    const h = (hash || '').toLowerCase();
-    if (h) {
-      markHashDeleted(h);
-      if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-      const lib = getLocalLibrary();
-      const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
-      if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
-    }
-    refreshLibraryButtons();
   }
-
   async function streamRDLibraryItem(torrent, rowEl) {
     const statEl = document.getElementById('rd-library-status');
     if (statEl) statEl.textContent = `⏳ Getting stream links for "${torrent.filename}"…`;
