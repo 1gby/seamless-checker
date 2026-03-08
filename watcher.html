@@ -3554,39 +3554,25 @@
     btn.textContent = '⏳';
 
     const token = getRDToken();
-    // RD officially supports X-HTTP-Verb header to override the HTTP method.
-    // So we send POST (which CORS proxies handle fine on Safari) with X-HTTP-Verb: DELETE.
-    // auth_token in URL avoids Authorization header which would trigger preflight.
-    const rdUrl = `${RD_API}/torrents/delete/${torrentId}?auth_token=${encodeURIComponent(token)}`;
-
-    const proxies = [
-      `https://corsproxy.io/?url=${encodeURIComponent(rdUrl)}`,
-      `https://proxy.corsfix.com/?${encodeURIComponent(rdUrl)}`,
-    ];
 
     let succeeded = false;
-    const debugLines = [];
-    for (const proxyUrl of proxies) {
-      try {
-        const res = await fetch(proxyUrl, {
-          method: 'POST',
-          headers: { 'X-HTTP-Verb': 'DELETE' },
-          signal: safeFetchSignal(12000),
-        });
-        debugLines.push(`${proxyUrl.slice(0,50)} → ${res.status}`);
-        if (res.status === 204 || res.status === 202 || res.status === 200) {
-          succeeded = true;
-          break;
-        }
-      } catch (e) {
-        debugLines.push(`${proxyUrl.slice(0,50)} → ERR: ${e.message}`);
-      }
+    try {
+      // Use same-origin Vercel proxy — no CORS issues on Safari
+      const res = await fetch('/api/rd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: `/torrents/delete/${torrentId}`, method: 'DELETE', token }),
+        signal: safeFetchSignal(15000),
+      });
+      succeeded = res.status === 204 || res.status === 202 || res.status === 200;
+    } catch (e) {
+      console.warn('[RD delete] proxy error:', e.message);
     }
 
     if (!succeeded) {
       if (row) { row.style.opacity = ''; }
       btn.textContent = '🗑';
-      alert('RD Delete debug:\n' + debugLines.join('\n'));
+      showToast('❌ Delete failed — try again', 'error');
       return;
     }
 
@@ -4413,19 +4399,15 @@
           }
 
           if (rdId) {
-            // Use POST + X-HTTP-Verb: DELETE (official RD workaround for Safari CORS issues)
             const token = getRDToken();
-            const rdDelUrl = `${RD_API}/torrents/delete/${rdId}?auth_token=${encodeURIComponent(token)}`;
-            const delProxies = [
-              `https://corsproxy.io/?url=${encodeURIComponent(rdDelUrl)}`,
-              `https://proxy.corsfix.com/?${encodeURIComponent(rdDelUrl)}`,
-            ];
-            for (const p of delProxies) {
-              try {
-                const r = await fetch(p, { method: 'POST', headers: { 'X-HTTP-Verb': 'DELETE' }, signal: safeFetchSignal(12000) });
-                if (r.status === 204 || r.status === 202 || r.status === 200) break;
-              } catch {}
-            }
+            try {
+              await fetch('/api/rd', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: `/torrents/delete/${rdId}`, method: 'DELETE', token }),
+                signal: safeFetchSignal(15000),
+              });
+            } catch {}
             showToast('🗑 Removed from RD', 'success');
           }
 
