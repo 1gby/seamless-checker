@@ -3618,43 +3618,31 @@
   async function deleteRDTorrent(torrentId, btn, hash) {
     if (!confirm('Delete this torrent from Real-Debrid?')) return;
     const row = btn.closest('.rd-lib-item');
-    try {
-      // Visual feedback immediately
-      if (row) row.style.opacity = '0.4';
-      btn.textContent = '⏳';
+    if (row) row.style.opacity = '0.4';
+    btn.textContent = '⏳';
 
+    try {
+      showToast('⏳ Contacting RD…', 'info');
       await rdFetch(`/torrents/delete/${torrentId}`, { method: 'DELETE' });
 
       if (row) row.remove();
-      showToast('🗑 Deleted from RD', 'success');
+      showToast('🗑 Deleted from RD!', 'success');
 
-      // Update rdTorrentCache + persist + blocklist so it never comes back on refresh
       const h = (hash || '').toLowerCase();
       if (h) {
         markHashDeleted(h);
         if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-      }
-
-      // Also remove from local library if present
-      if (h) {
         const lib = getLocalLibrary();
         const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
         if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
       }
-
-      // Update any matching stream row button in the torrent overlay
       refreshLibraryButtons();
     } catch (e) {
-      // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
-      if (row) row.remove();
-      const h = (hash || '').toLowerCase();
-      if (h) {
-        markHashDeleted(h);
-        if (rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-      }
-      refreshLibraryButtons();
-      showToast('Deleted (may take a moment to sync)', 'info');
-      console.warn('[RD] Delete response error (likely still succeeded):', e.message);
+      // Restore so user can retry
+      if (row) row.style.opacity = '1';
+      btn.textContent = '🗑';
+      // Show the REAL error on screen so we can see what is happening
+      showToast('❌ Delete failed: ' + e.message, 'error');
     }
   }
 
