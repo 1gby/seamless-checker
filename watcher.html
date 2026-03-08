@@ -2746,17 +2746,25 @@
     ];
     const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
 
+    // DELETE: proxies don't forward DELETE — send as POST with X-HTTP-Method-Override
+    // RD's API officially supports this override header
+    const isDelete = method === 'DELETE';
+    const effectiveFetchOpts = isDelete
+      ? { method: 'POST', headers: { 'X-HTTP-Method-Override': 'DELETE' } }
+      : fetchOpts;
+
     let lastErr;
     for (const makeProxy of proxiesToTry) {
       const proxyUrl = makeProxy(fullUrl);
       try {
         // Short timeout per proxy so we fail fast and try the next
-        const proxyOpts = { ...fetchOpts, signal: safeFetchSignal(12000) };
+        const proxyOpts = { ...effectiveFetchOpts, signal: safeFetchSignal(12000) };
         const res = await fetch(proxyUrl, proxyOpts);
         return await parseResponse(res);
       } catch (e) {
         lastErr = e;
-        if (e.message.includes('token invalid') || e.message.includes('RD API error') || e.message.includes('RD token')) throw e;
+        // Only bail early on auth errors — let other errors try next proxy
+        if (e.message.includes('token invalid') || e.message.includes('RD token')) throw e;
         console.warn('[rdFetch proxy]', proxyUrl.slice(0, 80), e.message);
       }
     }
