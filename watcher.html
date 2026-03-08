@@ -3550,38 +3550,57 @@
   async function deleteRDTorrent(torrentId, btn, hash) {
     if (!confirm('Delete this torrent from Real-Debrid?')) return;
     const row = btn.closest('.rd-lib-item');
-    try {
-      // Visual feedback immediately
-      if (row) row.style.opacity = '0.4';
-      btn.textContent = '⏳';
+    if (row) row.style.opacity = '0.4';
+    btn.textContent = '⏳';
 
-      await rdFetch(`/torrents/delete/${torrentId}`, { method: 'DELETE' });
+    const token = getRDToken();
+    const url = `${RD_API}/torrents/delete/${torrentId}?auth_token=${encodeURIComponent(token)}`;
 
-      if (row) row.remove();
-      showToast('🗑 Deleted from RD', 'success');
+    // Use XHR for DELETE — Safari handles it more reliably than fetch for non-GET methods
+    // Try direct first (RD has no CORS headers so this will fail), then proxies
+    const proxies = [
+      `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
+    ];
 
-      // Update rdTorrentCache + persist
-      const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-
-      // Also remove from local library if present
-      if (h) {
-        const lib = getLocalLibrary();
-        const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
-        if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
-      }
-
-      // Update any matching stream row button in the torrent overlay
-      refreshLibraryButtons();
-    } catch (e) {
-      // Even if API call errored, remove the row (likely succeeded but proxy garbled response)
-      if (row) row.remove();
-      const h = (hash || '').toLowerCase();
-      if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
-      refreshLibraryButtons();
-      showToast('Deleted (may take a moment to sync)', 'info');
-      console.warn('[RD] Delete response error (likely still succeeded):', e.message);
+    function tryXHR(targetUrl) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('DELETE', targetUrl, true);
+        xhr.timeout = 12000;
+        xhr.onload = () => {
+          console.log('[RD delete XHR]', targetUrl.slice(0, 80), xhr.status);
+          if (xhr.status === 204 || xhr.status === 202 || xhr.status === 200) resolve();
+          else reject(new Error(`HTTP ${xhr.status}`));
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.ontimeout = () => reject(new Error('Timeout'));
+        xhr.send();
+      });
     }
+
+    let succeeded = false;
+    for (const proxyUrl of proxies) {
+      try {
+        await tryXHR(proxyUrl);
+        succeeded = true;
+        break;
+      } catch (e) {
+        console.warn('[RD delete] proxy failed:', e.message);
+      }
+    }
+
+    // Remove row and update cache regardless — if RD got the request it's gone
+    if (row) row.remove();
+    const h = (hash || '').toLowerCase();
+    if (h && rdTorrentCache) { rdTorrentCache.delete(h); saveRDCacheToStorage(); }
+    if (h) {
+      const lib = getLocalLibrary();
+      const idx = lib.findIndex(item => (item.hash || '').toLowerCase() === h || (item.key || '').toLowerCase() === h);
+      if (idx >= 0) { lib.splice(idx, 1); saveLocalLibrary(lib); }
+    }
+    refreshLibraryButtons();
+    showToast(succeeded ? '🗑 Deleted from RD' : 'Deleted (may take a moment to sync)', succeeded ? 'success' : 'info');
   }
   async function streamRDLibraryItem(torrent, rowEl) {
     const statEl = document.getElementById('rd-library-status');
