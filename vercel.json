@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "api/tmdb.js": { "runtime": "nodejs20.x" },
+    "api/rd.js": { "runtime": "nodejs20.x" }
+  },
   "cleanUrls": true,
   "rewrites": [
     {
