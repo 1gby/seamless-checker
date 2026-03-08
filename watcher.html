@@ -3565,6 +3565,7 @@
     ];
 
     let succeeded = false;
+    const debugLines = [];
     for (const proxyUrl of proxies) {
       try {
         const res = await fetch(proxyUrl, {
@@ -3572,21 +3573,20 @@
           headers: { 'X-HTTP-Verb': 'DELETE' },
           signal: safeFetchSignal(12000),
         });
-        console.log('[RD delete]', proxyUrl.slice(0, 80), res.status);
+        debugLines.push(`${proxyUrl.slice(0,50)} → ${res.status}`);
         if (res.status === 204 || res.status === 202 || res.status === 200) {
           succeeded = true;
           break;
         }
       } catch (e) {
-        console.warn('[RD delete] proxy failed:', proxyUrl.slice(0, 60), e.message);
+        debugLines.push(`${proxyUrl.slice(0,50)} → ERR: ${e.message}`);
       }
     }
 
     if (!succeeded) {
-      // Reset UI and bail — don't silently pretend it worked
       if (row) { row.style.opacity = ''; }
       btn.textContent = '🗑';
-      showToast('❌ Delete failed — check console', 'error');
+      alert('RD Delete debug:\n' + debugLines.join('\n'));
       return;
     }
 
