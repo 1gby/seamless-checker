@@ -1208,6 +1208,8 @@
     }
   </style>
 
+  <!-- HLS.js for .m3u8 stream support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 </head>
 <body>
 
@@ -1381,6 +1383,24 @@
 <div id="torrent-overlay">
   <div id="torrent-overlay-inner">
 
+<!-- Stream player (shown after RD unrestrict) — at top so it's immediately visible -->
+<div id="torrent-overlay-player" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.2rem 0.5rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);">
+    <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
+    <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
+  </div>
+  <div style="padding:0.75rem 1.2rem 0.5rem;">
+    <video id="rd-player" controls playsinline preload="auto"
+      style="width:100%;display:block;background:#000;border-radius:14px;aspect-ratio:16/9;box-shadow:0 8px 40px rgba(0,0,0,0.7);margin-bottom:0.75rem;">
+      Your browser does not support HTML5 video.
+    </video>
+    <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
+      💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
+    </p>
+  </div>
+</div>
+
 <!-- Header bar -->
 
 <div id="torrent-overlay-header">
@@ -1434,21 +1454,7 @@
 
 <div id="torrent-overlay-results"></div>
 
-<!-- Stream player (shown after RD unrestrict) -->
 
-<div id="torrent-overlay-player">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
-    <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;"></div>
-    <button class="settings-btn purple" onclick="hideTorrentPlayer()">↑ Back to results</button>
-  </div>
-  <div id="torrent-overlay-stream-links"></div>
-  <video id="rd-player" controls playsinline preload="metadata">
-    Your browser does not support HTML5 video.
-  </video>
-  <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.5rem;">
-    💡 If video won't load inline, use ↗ to open in VLC / IINA / external player.
-  </p>
-</div>
 
   </div><!-- /torrent-overlay-inner -->
 </div><!-- /torrent-overlay -->
@@ -4247,7 +4253,7 @@
     const url = torrent._directUrl;
     if (!url) return;
     _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
-    window.location.href = `vlc://${url}`;
+    window.location.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(url)}`;
   }
 
   // Listen for return from external app
@@ -4530,6 +4536,57 @@
      Renders quality selector buttons + embedded <video> player inside
      the torrent results overlay.
      ═══════════════════════════════════════════════════════════════════ */
+  // Smart player source setter — handles HLS (.m3u8) and regular video
+  function setPlayerSource(video, url) {
+    // Destroy any existing HLS instance
+    if (video._hls) { video._hls.destroy(); video._hls = null; }
+
+    const isHLS = url.includes('.m3u8') || url.includes('manifest');
+
+    if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
+      const hls = new Hls({ enableWorker: true, lowLatencyMode: false });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.muted = false;
+        video.volume = 1;
+      });
+      hls.on(Hls.Events.ERROR, (e, data) => { if (data.fatal) console.warn('[HLS] Fatal error:', data); });
+      video._hls = hls;
+    } else {
+      // Native playback (mp4, mkv via browser, or Safari native HLS)
+      video.src = url;
+      video.muted = false;
+      video.volume = 1;
+    }
+    // Don't autoplay — let user tap play so audio works on iOS
+    video.load();
+  }
+
+  // Sets video source — handles mp4, mkv, avi directly; m3u8 via HLS if available
+  function setPlayerSource(video, url) {
+    if (!video || !url) return;
+    const ext = url.split('?')[0].split('.').pop().toLowerCase();
+    if (ext === 'm3u8') {
+      // HLS stream — use hls.js if available, else native (Safari supports natively)
+      if (window.Hls && Hls.isSupported()) {
+        if (video._hls) { video._hls.destroy(); }
+        const hls = new Hls();
+        video._hls = hls;
+        hls.loadSource(url);
+        hls.attachMedia(video);
+      } else {
+        // Safari native HLS
+        video.src = url;
+        video.load();
+      }
+    } else {
+      if (video._hls) { video._hls.destroy(); video._hls = null; }
+      video.src = url;
+      video.load();
+    }
+  }
+
   function renderStreamPlayer(links, title) {
     const playerEl   = document.getElementById('torrent-overlay-player');
     const linksEl    = document.getElementById('torrent-overlay-stream-links');
@@ -4540,7 +4597,11 @@
 
     linksEl.innerHTML = '';
     playerEl.style.display = 'block';
-    playerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Scroll overlay to top so player is visible
+    const overlayInner = document.getElementById('torrent-overlay-inner');
+    if (overlayInner) {
+      overlayInner.scrollTop = 0;
+    }
 
     if (playingEl) playingEl.textContent = `▶ Now Playing: ${title}`;
 
@@ -4556,8 +4617,7 @@
       qBtn.onclick    = () => {
         document.querySelectorAll('.stream-quality-btn').forEach(b => b.classList.remove('active'));
         qBtn.classList.add('active');
-        video.src = link.url;
-        video.play().catch(() => {});
+        setPlayerSource(video, link.url);
       };
 
       const extBtn  = document.createElement('a');
@@ -4584,7 +4644,7 @@
 
       // VLC button per quality
       const vlcBtn = document.createElement('a');
-      vlcBtn.href = `vlc://${link.url}`;
+      vlcBtn.href = `vlc://x-callback-url/stream?url=${encodeURIComponent(link.url)}`;
       vlcBtn.className = 'stream-ext-btn';
       vlcBtn.style.cssText = 'border-color: rgba(255,136,0,0.4); color: #ff8800; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       vlcBtn.title = 'Open in VLC';
@@ -4592,7 +4652,9 @@
       vlcBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'VLC' }; };
       linksEl.appendChild(vlcBtn);
 
-      if (isFirst) { video.src = link.url; video.play().catch(() => {}); }
+      if (isFirst) {
+        setPlayerSource(video, link.url);
+      }
     });
 
     // Hook video ended event for episode completion prompt
@@ -4623,7 +4685,7 @@
     const video = document.getElementById('rd-player');
     if (video?.src) {
       _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'VLC' };
-      window.location.href = `vlc://${video.src}`;
+      window.location.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(video.src)}`;
     }
   }
 
@@ -5399,7 +5461,7 @@
           <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             📺 Infuse
           </a>
-          <a href="vlc://${url.replace(/"/g, '%22')}" class="cache-popup-btn vlc" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'VLC'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'VLC'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
             🎬 VLC
           </a>
           <button class="cache-popup-btn browser" id="cache-browser-btn">🌐 Browser</button>
