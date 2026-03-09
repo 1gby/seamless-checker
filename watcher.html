@@ -1390,7 +1390,7 @@
     <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
   </div>
   <div style="padding:0.75rem 1.2rem 0.5rem;">
-    <video id="rd-player" controls playsinline preload="auto"
+    <video id="rd-player" controls playsinline preload="metadata" x-webkit-airplay="allow" webkit-playsinline
       style="width:100%;display:block;background:#000;border-radius:14px;aspect-ratio:16/9;box-shadow:0 8px 40px rgba(0,0,0,0.7);margin-bottom:0.75rem;">
       Your browser does not support HTML5 video.
     </video>
@@ -4253,7 +4253,9 @@
     const url = torrent._directUrl;
     if (!url) return;
     _externalAppLaunch = { time: Date.now(), torrent, app: 'VLC' };
-    window.location.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(url)}`;
+    const a = document.createElement('a');
+    a.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(url)}`;
+    a.click();
   }
 
   // Listen for return from external app
@@ -4644,13 +4646,29 @@
 
       // VLC button per quality
       const vlcBtn = document.createElement('a');
-      vlcBtn.href = `vlc://x-callback-url/stream?url=${encodeURIComponent(link.url)}`;
+      vlcBtn.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(link.url)}`;
       vlcBtn.className = 'stream-ext-btn';
       vlcBtn.style.cssText = 'border-color: rgba(255,136,0,0.4); color: #ff8800; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       vlcBtn.title = 'Open in VLC';
       vlcBtn.textContent = '🎬';
-      vlcBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'VLC' }; };
+      vlcBtn.onclick = (e) => {
+        e.preventDefault();
+        _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'VLC' };
+        window.open(`vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(link.url)}`, '_blank');
+      };
       linksEl.appendChild(vlcBtn);
+
+      // Download button
+      const dlBtn = document.createElement('a');
+      dlBtn.href = link.url;
+      dlBtn.download = link.filename || title || 'video';
+      dlBtn.className = 'stream-ext-btn';
+      dlBtn.style.cssText = 'border-color: rgba(59,130,246,0.4); color: #60a5fa; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
+      dlBtn.title = 'Download';
+      dlBtn.textContent = '⬇️';
+      dlBtn.target = '_blank';
+      dlBtn.rel = 'noopener';
+      linksEl.appendChild(dlBtn);
 
       if (isFirst) {
         setPlayerSource(video, link.url);
@@ -4685,7 +4703,9 @@
     const video = document.getElementById('rd-player');
     if (video?.src) {
       _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'VLC' };
-      window.location.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(video.src)}`;
+      const a = document.createElement('a');
+      a.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(video.src)}`;
+      a.click();
     }
   }
 
