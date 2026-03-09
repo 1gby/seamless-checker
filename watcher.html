@@ -1212,6 +1212,25 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
 
+  <script src="https://cdn.plyr.io/3.8.4/plyr.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.8.4/plyr.css">
+  <style>
+    /* Plyr dark theme overrides */
+    :root {
+      --plyr-color-main: #10b981;
+      --plyr-video-background: #000;
+      --plyr-range-fill-background: #10b981;
+      --plyr-video-control-color: #fff;
+      --plyr-video-control-color-hover: #10b981;
+      --plyr-font-size-base: 14px;
+      --plyr-border-radius: 14px;
+    }
+    .plyr { border-radius: 14px; overflow: hidden; width: 100%; aspect-ratio: 16/9; }
+    .plyr--video { background: #000; box-shadow: 0 8px 40px rgba(0,0,0,0.7); margin-bottom: 0.75rem; }
+    .plyr__control--overlaid { background: rgba(16,185,129,0.85) !important; }
+    .plyr__control--overlaid:hover { background: #10b981 !important; }
+  </style>
 </head>
 <body>
 
@@ -1393,9 +1412,7 @@
     <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
   </div>
   <div style="padding:0.75rem 1.2rem 0.5rem;">
-    <video id="rd-player" controls playsinline preload="metadata" x-webkit-airplay="allow" webkit-playsinline
-      style="width:100%;display:block;background:#000;border-radius:14px;aspect-ratio:16/9;box-shadow:0 8px 40px rgba(0,0,0,0.7);margin-bottom:0.75rem;">
-      Your browser does not support HTML5 video.
+    <video id="rd-player" playsinline>
     </video>
     <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
@@ -4135,6 +4152,7 @@
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
+        actions += `<a class="tor-action-btn ext" href="${torrent._directUrl}" download target="_blank" rel="noopener" style="border-color:rgba(59,130,246,0.5);color:#60a5fa;text-decoration:none;">⬇ Save</a>`;
       } else {
         // Raw torrent / addon hash — open in DMM to handle RD
         actions += `<button class="tor-action-btn play" data-action="open-dmm" style="border-color:#00a0b0;color:#00a0b0;">🔗 Open in DMM</button>`;
@@ -4178,10 +4196,6 @@
         url: torrent._directUrl, filename: torrent.title || 'stream',
         filesize: 0, quality: torrent.quality || guessQuality(torrent.title), mimeType: '',
       };
-      try {
-        const head = await fetch(torrent._directUrl, { method: 'HEAD', signal: safeFetchSignal(5000) });
-        if (head.ok) { const cl = head.headers.get('content-length'); if (cl) directLink.filesize = parseInt(cl, 10); }
-      } catch {}
       renderStreamPlayer([directLink], torrentOverlayTitle || torrent.title);
       return;
     }
@@ -4566,27 +4580,50 @@
     video.load();
   }
 
-  // Sets video source — handles mp4, mkv, avi directly; m3u8 via HLS if available
+  // Plyr instance — initialized once, reused
+  let _plyr = null;
+
+  function getPlyr() {
+    if (_plyr) return _plyr;
+    const video = document.getElementById('rd-player');
+    if (!video) return null;
+    _plyr = new Plyr(video, {
+      controls: ['play-large','play','progress','current-time','mute','volume','captions','fullscreen'],
+      settings: ['quality','speed'],
+      playsinline: true,
+      invertTime: false,
+      tooltips: { controls: false, seek: true },
+      iconUrl: 'https://cdn.plyr.io/3.8.4/plyr.svg',
+    });
+    return _plyr;
+  }
+
+  // Sets video source — handles mp4, mkv, m3u8 via HLS
   function setPlayerSource(video, url) {
-    if (!video || !url) return;
-    const ext = url.split('?')[0].split('.').pop().toLowerCase();
+    if (!url) return;
+    const ext = (url.split('?')[0].split('.').pop() || '').toLowerCase();
+    const plyr = getPlyr();
+
     if (ext === 'm3u8') {
-      // HLS stream — use hls.js if available, else native (Safari supports natively)
       if (window.Hls && Hls.isSupported()) {
         if (video._hls) { video._hls.destroy(); }
         const hls = new Hls();
         video._hls = hls;
         hls.loadSource(url);
         hls.attachMedia(video);
+        if (plyr) plyr.media = video;
       } else {
-        // Safari native HLS
-        video.src = url;
-        video.load();
+        // Safari handles HLS natively
+        if (plyr) { plyr.source = { type: 'video', sources: [{ src: url, type: 'application/x-mpegURL' }] }; }
+        else { video.src = url; video.load(); }
       }
     } else {
       if (video._hls) { video._hls.destroy(); video._hls = null; }
-      video.src = url;
-      video.load();
+      if (plyr) {
+        plyr.source = { type: 'video', sources: [{ src: url, type: 'video/mp4' }] };
+      } else {
+        video.src = url; video.load();
+      }
     }
   }
 
@@ -4713,8 +4750,9 @@
   function hideTorrentPlayer() {
     const playerEl = document.getElementById('torrent-overlay-player');
     if (playerEl) playerEl.style.display = 'none';
+    if (_plyr) { _plyr.pause(); _plyr.source = { type: 'video', sources: [] }; }
     const video = document.getElementById('rd-player');
-    if (video) { video.pause(); video.src = ''; }
+    if (video?._hls) { video._hls.destroy(); video._hls = null; }
     document.querySelectorAll('.tor-result-row').forEach(r => { r.classList.remove('selected'); r.classList.remove('dimmed'); });
   }
 
