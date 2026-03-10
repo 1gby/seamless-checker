@@ -3431,22 +3431,30 @@
   // Unrestrict RD links and filter to video files
   async function unrestrictVideoLinks(links) {
     if (!links?.length) return [];
-    // Try all links (up to 10) — don't pre-filter by extension since RD links are hoster URLs
     const toProcess = links.slice(0, 10);
-    console.log(`[RD] Unrestricting ${toProcess.length} link(s)…`, toProcess[0]?.slice(0,60));
+    const token = getRDToken();
+    console.log(`[RD] Unrestricting ${toProcess.length} link(s) via /api/rd…`);
 
     const results = [];
-    // Process in parallel (RD allows 250 req/min, parallel is safe for <10 links)
     const settled = await Promise.allSettled(
       toProcess.map(async link => {
-        const v = await rdFetch('/unrestrict/link', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body:    new URLSearchParams({ link }),
+        // Route through our own Vercel proxy — same-origin, no CORS, works on iOS Safari
+        const res = await fetch('/api/rd', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            path: '/unrestrict/link',
+            method: 'POST',
+            postBody: new URLSearchParams({ link }).toString(),
+            token,
+          }),
+          signal: safeFetchSignal(15000),
         });
-        return v;
+        if (!res.ok) throw new Error(`Unrestrict HTTP ${res.status}`);
+        return await res.json();
       })
     );
+
     for (const r of settled) {
       if (r.status === 'fulfilled' && r.value?.download) {
         const v = r.value;
@@ -3466,10 +3474,8 @@
       }
     }
 
-    // Prefer video files, but return all if no videos found
     const videos = results.filter(r => r.isVideo);
     const final = videos.length > 0 ? videos : results;
-    // Largest file first (usually highest quality)
     return final.sort((a, b) => b.filesize - a.filesize);
   }
 
@@ -3531,7 +3537,15 @@
           </div>`;
         // Play button → popup with Infuse/VLC/Browser
         const playBtn = row.querySelector('.rd-lib-btn.play');
-        if (playBtn) playBtn.onclick = (e) => { e.stopPropagation(); playRDTorrent(t.id); };
+        if (playBtn) playBtn.onclick = (e) => {
+          e.stopPropagation();
+          playBtn.textContent = '⏳';
+          playBtn.disabled = true;
+          playRDTorrent(t.id).finally(() => {
+            playBtn.textContent = '▶';
+            playBtn.disabled = false;
+          });
+        };
         // Delete button
         const delBtn = row.querySelector('.rd-lib-btn.delete');
         if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteRDTorrent(t.id, delBtn, t.hash); };
@@ -3543,33 +3557,76 @@
   }
 
   async function playRDTorrent(torrentId) {
+    const statEl = document.getElementById('rd-library-status');
+    if (statEl) statEl.textContent = '⏳ Loading stream…';
     try {
       const info = await rdFetch(`/torrents/info/${torrentId}`);
       if (!info) { showToast('Could not load torrent info', 'error'); return; }
 
-      // Method 1: Unrestrict the links
+      const title = info.filename || 'stream';
+
+      // Unrestrict links to get direct playable URLs
       if (info.links?.length) {
         const links = await unrestrictVideoLinks(info.links);
         if (links.length > 0) {
-          showPlayFromCachePopup(links[0].url, links[0].filename || info.filename || 'stream');
+          if (statEl) statEl.textContent = `✅ Ready — choose how to play`;
+          // Show popup for each link, or if multiple, use first (usually best quality)
+          // Show all as options in popup
+          showRDLibraryPlayPopup(links, title);
           return;
         }
       }
 
-      // Method 2: If unrestrict failed, try /streaming/transcode for a direct link
-      try {
-        const streams = await rdFetch(`/streaming/transcode/${torrentId}`);
-        // RD returns qualities like { apple: {}, dash: {}, liveMP4: {}, h264WebM: {} }
-        const mp4 = streams?.apple?.full ||
-                     Object.values(streams || {}).find(q => q?.full)?.full;
-        if (mp4) {
-          showPlayFromCachePopup(mp4, info.filename || 'stream');
-          return;
-        }
-      } catch (e) { console.warn('[RD] Transcode fallback failed:', e.message); }
+      if (statEl) statEl.textContent = '❌ No playable links found';
+      showToast('No playable links found', 'error');
+    } catch (e) {
+      if (statEl) statEl.textContent = '❌ ' + e.message;
+      showToast('RD Error: ' + e.message, 'error');
+    }
+  }
 
-      showToast('No playable files — try real-debrid.com', 'error');
-    } catch (e) { showToast('RD Error: ' + e.message, 'error'); }
+  function showRDLibraryPlayPopup(links, title) {
+    document.getElementById('rd-lib-play-popup')?.remove();
+
+    const safeTitle = (title || 'stream').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const displayTitle = safeTitle.length > 55 ? safeTitle.slice(0,55)+'…' : safeTitle;
+
+    const popup = document.createElement('div');
+    popup.id = 'rd-lib-play-popup';
+
+    // Build quality buttons — one set of Infuse/VLC/Browser per link
+    let qualityRows = '';
+    links.forEach((link, i) => {
+      const label = link.quality || `File ${i+1}`;
+      const enc = encodeURIComponent(link.url);
+      const infuseUrl = buildInfuseUrl(link.url);
+      const vlcUrl = `vlc-x-callback://x-callback-url/stream?url=${enc}`;
+      qualityRows += `
+        <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);min-width:52px;">${label}</span>
+          <a href="${infuseUrl}" class="cache-popup-btn infuse" style="flex:1;text-align:center;text-decoration:none;"
+            onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('rd-lib-play-popup')?.remove(),300)">
+            📺 Infuse
+          </a>
+          <a class="cache-popup-btn vlc" style="flex:1;text-align:center;text-decoration:none;"
+            onclick="event.preventDefault();_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\'")}'},app:'VLC'};const a=document.createElement('a');a.href='${vlcUrl}';a.click();setTimeout(()=>document.getElementById('rd-lib-play-popup')?.remove(),300)">
+            🎬 VLC
+          </a>
+          <a href="${link.url}" target="_blank" rel="noopener" class="cache-popup-btn browser" style="flex:1;text-align:center;text-decoration:none;"
+            onclick="setTimeout(()=>document.getElementById('rd-lib-play-popup')?.remove(),300)">
+            🌐 Browser
+          </a>
+        </div>`;
+    });
+
+    popup.innerHTML = `
+      <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
+      <div class="cache-popup-panel" style="max-width:360px;">
+        <div class="cache-popup-title">${displayTitle}</div>
+        <div style="margin:0.5rem 0;">${qualityRows}</div>
+        <button class="cache-popup-close" onclick="this.closest('#rd-lib-play-popup').remove()">Cancel</button>
+      </div>`;
+    document.body.appendChild(popup);
   }
 
   async function deleteRDTorrent(torrentId, btn, hash) {
