@@ -78,11 +78,17 @@ text-transform:uppercase;
 /* ==================== SETTINGS ==================== */
 #header{justify-content:space-between;}
 #settings-btn{
-background:none;border:1px solid rgba(16,185,129,0.4);border-radius:8px;
-color:#10b981;font-size:1.2rem;padding:0.3rem 0.6rem;cursor:pointer;
+background:none;border:1px solid rgba(16,185,129,0.4);border-radius:10px;
+color:#10b981;font-size:1.3rem;
+padding:0.5rem 0.75rem;
+min-width:44px;min-height:44px;
+cursor:pointer;
+display:flex;align-items:center;justify-content:center;
 transition:background 0.2s,border-color 0.2s;line-height:1;
+flex-shrink:0;
 }
 #settings-btn:hover{background:rgba(16,185,129,0.15);border-color:#10b981;}
+#settings-btn:active{background:rgba(16,185,129,0.25);}
 
 #settings-overlay{
 position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;
@@ -713,7 +719,12 @@ font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;font-family:in
 
 /* ==================== RESPONSIVE ==================== */
 @media(max-width:768px){
-#header{padding:1rem}
+#header{
+padding:0.8rem 1rem;
+padding-top:calc(0.8rem + env(safe-area-inset-top));
+padding-left:calc(1rem + env(safe-area-inset-left));
+padding-right:calc(1rem + env(safe-area-inset-right));
+}
 .title{font-size:1.2rem}
 #main-content{padding:1rem 0.75rem}
 .weather-widget{flex-wrap:wrap;gap:0.4rem}
