@@ -5600,9 +5600,13 @@ function closeSettings(){
   document.getElementById('settings-overlay').style.display='none';
 }
 // Close on overlay click
-document.getElementById('settings-overlay').addEventListener('click',function(e){
-  if(e.target===this) closeSettings();
-});
+function initSettingsOverlay(){
+  const overlay = document.getElementById('settings-overlay');
+  if(overlay) overlay.addEventListener('click',function(e){
+    if(e.target===this) closeSettings();
+  });
+}
+document.addEventListener('DOMContentLoaded', initSettingsOverlay);
 
 /* ── Internet Archive login ── */
 function iaRefreshUI(){
