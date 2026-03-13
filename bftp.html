@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Blast from the Past">
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png">
-<script src="https://www.youtube.com/iframe_api"></script>
+<script src="https://www.youtube.com/iframe_api" async></script>
 <title>BLAST FROM THE PAST</title>
 <style>
 /* ==================== ROOT & RESET ==================== */
@@ -5701,22 +5701,27 @@ function iaLogout(){
 
 async function iaTestLogin(){
   const btn = document.getElementById('ia-test-btn');
-  const msg = document.getElementById('ia-msg');
   btn.textContent = '🔍 Testing…'; btn.disabled = true;
   iaMsg('Checking session…','info');
   try {
-    const res = await fetch('https://archive.org/account/me.json', {
+    // Use S3-like API which supports CORS and returns login state
+    const res = await fetch('https://s3.us.archive.org/?check_auth=1', {
       credentials: 'include', mode: 'cors'
     });
-    const json = await res.json().catch(()=>null);
-    if(res.ok && json && json.username){
-      localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username:json.username}));
-      iaMsg('✅ Logged in as ' + json.username, 'success');
+    const text = await res.text().catch(()=>'');
+    if(text.includes('<authorized>1</authorized>')){
+      // Grab username from the XML response
+      const match = text.match(/<username>([^<]+)<\/username>/);
+      const username = match ? match[1] : (JSON.parse(localStorage.getItem('ia_session')||'{}').username || 'you');
+      localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username}));
+      iaMsg('✅ Logged in as ' + username, 'success');
       iaRefreshUI();
-    } else {
+    } else if(text.includes('<authorized>0</authorized>')){
       localStorage.removeItem('ia_session');
       iaMsg('❌ Not logged in to archive.org', 'error');
       iaRefreshUI();
+    } else {
+      iaMsg('⚠️ Unexpected response — try again', 'error');
     }
   } catch(e){
     iaMsg('⚠️ Could not reach archive.org — check connection', 'error');
