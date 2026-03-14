@@ -919,6 +919,7 @@ padding-right:calc(1rem + env(safe-area-inset-right));
     <option value="FAMILY MATTERS">810: Family Matters (1989)</option>
     <option value="SAVED BY THE BELL">811: Saved by the Bell (1989)</option>
     <option value="SWEET VALLEY HIGH">812: Sweet Valley High (1994)</option>
+    <option value="HOME IMPROVEMENT">406: Home Improvement (1991)</option>
     <option value="STEP BY STEP">815: Step by Step (1991)</option>
     <option value="ALF LIVE">817: ALF (1986)</option>
     <option value="ALF TALES">818: ALF Tales (1988)</option>
@@ -1755,13 +1756,26 @@ const adultArchiveMovies = {
   'CINDERELLA 1977':       'cinderella-1977',
   'AUSTIN POWERS PARODY':  'austin-powers-adult-parody',
   'RUSSIAN INSTITUTE 7':   'marc-dorcel-russian-institute-lesson-7-2006.-dvdrip',
+  'PIG FARMERS DAUGHTER':  'the-pigkeepers-daughter-1972',
+  'LA SERVANTE PERVERSE':  'la-servante-perverse-1978',
+  'OH REBUCETEIO':         'oh-rebuceteio-1984_202506',
+  'SECHS SCHWEDINNEN':     'sechs-schwedinnen-von-der-tankstelle-1980',
+  'CORY CHASE':            'overdose-anal.com-black-guy-fucking-cory-chase',
+  'CRYSTAL WHITE':         'slutty-blonde-likes-big-cock-inside-her-crystal-white',
+  'FALLO 2003':            'fallo-2003',
+};
+
+// Multi-file archive items for adult — renders like TV show episode lists
+const adultArchiveSourceGroups = {
 };
 
 // Direct-download archive adult entries (full path after /download/)
 const adultDirectVideos = {
+  'DEBBIE DOES DALLAS': 'https://archive.org/download/debbie-does-dallas_202508/Debbie%20Does%20Dallas.mp4',
 };
 
 const adultCollections = {
+
   'WHATEVER SHE WANTS': {
     label: 'What Every French Girl Wants',
     movies: [
@@ -1841,8 +1855,12 @@ const adultCollections = {
   'PARODIES COLLECTION': {
     label: '🃏 Adult Parodies',
     movies: [
-      {title:'Alice in Wonderland (1976)', url:'https://archive.org/embed/alice.in.-wonderland.-1976-xxx-not-for-kids?autoplay=1'},
-      {title:'Cinderella (1977)',           url:'https://archive.org/embed/cinderella-1977?autoplay=1'},
+      {title:'Alice in Wonderland (1976)',          url:'https://archive.org/embed/alice.in.-wonderland.-1976-xxx-not-for-kids?autoplay=1'},
+      {title:'Cinderella (1977)',                   url:'https://archive.org/embed/cinderella-1977?autoplay=1'},
+      {title:'Snow White & 7 Dwarfs XXX — Part 1', url:'https://archive.org/embed/Ho-White-7-Midgets/swat7d.cd1.mp4?autoplay=1'},
+      {title:'Snow White & 7 Dwarfs XXX — Part 2', url:'https://archive.org/embed/Ho-White-7-Midgets/swat7d.cd2.mp4?autoplay=1'},
+      {title:'Snow White Part 1 — Backup (AVI)',   url:'https://archive.org/embed/Ho-White-7-Midgets/swat7d.cd1.avi?autoplay=1'},
+      {title:'Snow White Part 2 — Backup (AVI)',   url:'https://archive.org/embed/Ho-White-7-Midgets/swat7d.cd2.avi?autoplay=1'},
     ]
   },
 };
@@ -1856,6 +1874,14 @@ const adultChannelNumbers = {
   'LOVE RELATIONSHIPS COLLECTION': 6913,
   'MACHINES COLLECTION':           6910,
   'FLIX COLLECTION':               6911,
+  'DEBBIE DOES DALLAS':            6915,
+  'PIG FARMERS DAUGHTER':          6916,
+  'LA SERVANTE PERVERSE':          6917,
+  'OH REBUCETEIO':                 6919,
+  'SECHS SCHWEDINNEN':             6921,
+  'CORY CHASE':                    6922,
+  'CRYSTAL WHITE':                 6923,
+  'FALLO 2003':                    6924,
 };
 
 const adultDisplayNames = {
@@ -1867,10 +1893,19 @@ const adultDisplayNames = {
   'LOVE RELATIONSHIPS COLLECTION': '🗂 Love & Other Relationships (1974)',
   'MACHINES COLLECTION':           '🗂 Machines (7 films)',
   'FLIX COLLECTION':               "🗂 Flix's (21 films)",
+  'DEBBIE DOES DALLAS':            'Debbie Does Dallas (1978)',
+  'PIG FARMERS DAUGHTER':          "The Pig Farmer's Daughter (1972)",
+  'LA SERVANTE PERVERSE':          'La Servante Perverse (1978)',
+  'OH REBUCETEIO':                 'Oh! Rebuceteio (1984)',
+  'SECHS SCHWEDINNEN':             'Sechs Schwedinnen Von Der Tankstelle (1980)',
+  'CORY CHASE':                    '🗂 Cory Chase',
+  'CRYSTAL WHITE':                 '🗂 Crystal White',
+  'FALLO 2003':                    'Fallo! (2003)',
 };
 
 const adultSections = [
-  { label:'🎬 Erotic Cinema',   keys:['MALICIA COLLECTION','INSEGNANTE COLLECTION','LOVE RELATIONSHIPS COLLECTION','WHATEVER SHE WANTS','RUSSIAN INSTITUTE 7'] },
+  { label:'🎬 Erotic Cinema',   keys:['MALICIA COLLECTION','INSEGNANTE COLLECTION','LOVE RELATIONSHIPS COLLECTION','WHATEVER SHE WANTS','RUSSIAN INSTITUTE 7','LA SERVANTE PERVERSE','PIG FARMERS DAUGHTER','OH REBUCETEIO','FALLO 2003','SECHS SCHWEDINNEN','DEBBIE DOES DALLAS'] },
+  { label:'⭐ Featured',         keys:['CORY CHASE','CRYSTAL WHITE'] },
   { label:'⚙️ Machines',        keys:['MACHINES COLLECTION'] },
   { label:"💋 Flix's",          keys:['FLIX COLLECTION'] },
   { label:'🃏 Parodies',        keys:['PARODIES COLLECTION'] },
@@ -3221,6 +3256,9 @@ const dmSeasonPlaylists = {
 // Use for shows where multiple archive IDs are genuinely different uploads/backups,
 // NOT for shows where IDs represent different seasons of the same upload.
 const archiveSourceGroups = {
+  'HOME IMPROVEMENT': [
+    {label:'📦 Archive 1', ids:['home-improvement-tv-series']},
+  ],
   'POLICE ACADEMY ANIMATED': [
     {label:'📦 Archive Backup', ids:['police-academy-Lando18']},
   ],
@@ -3600,6 +3638,7 @@ const channelNumbers = {
   'SHORT CIRCUIT COLLECTION':1326,
   'LITTLE MONSTERS':1327,
   'TALES CRYPT LIVE':346,
+  'HOME IMPROVEMENT':406,
   // ── NEW SHOWS ──
   'FLINTSTONES KIDS':347,
   'FLINTSTONES COMEDY SHOW':348,
@@ -4010,6 +4049,7 @@ const displayNames={
   'TROOP BEVERLY HILLS':'Troop Beverly Hills (1989)',
 
   'TALES CRYPT LIVE':'Tales from the Crypt (Live Action)',
+  'HOME IMPROVEMENT':'Home Improvement (1991)',
   // ── New Movies ──
   'ACE VENTURA COLLECTION':'🗂 Ace Ventura Movies',
   'AN AMERICAN TAIL':'An American Tail (1986)',
@@ -5179,6 +5219,26 @@ function loadAdultPlayer(show){
     return;
   }
 
+  // ── Archive source groups (multi-file — renders episode list) ──
+  const adultGroups = adultArchiveSourceGroups[show];
+  if(adultGroups){
+    listDiv.style.display = 'block';
+    listDiv.innerHTML = '';
+    const label = adultDisplayNames[show] || show;
+    document.getElementById('now-playing').textContent = '🔞 ' + label + ' — tap an episode';
+    document.getElementById('play-overlay').classList.add('hidden');
+    hideLoading();
+    (async () => {
+      for(const g of adultGroups){
+        const eps = (await Promise.all(g.ids.map(id => fetchArchiveEpisodes(show, id)))).flat();
+        if(!eps.length) continue;
+        listDiv.appendChild(makeSourceHeader(g.label, '#ff2d55', 'rgba(255,45,85,0.15)'));
+        renderSeasonGroups(eps, listDiv, true);
+      }
+    })();
+    return;
+  }
+
   // ── Archive embed ──
   const archiveId = adultArchiveMovies[show];
   if(archiveId){
@@ -5319,7 +5379,7 @@ function getAllSections(){
     { label:'🍁 Canadian', type:'show', keys:['RACCOONS','REBOOT','UNDERGRADS','DOG CITY','LITTLEST HOBO'] },
     { label:'🕹️ 90s Toons', type:'show', keys:['ADDAMS FAMILY 90','BEETLEJUICE','DEXTER LAB','EXTREME GHOSTBUSTERS','SLIMER','EARTHWORM JIM','THE TICK','EXOSQUAD','COPS ANIMATED','DARKSTALKERS','MEGA MAN 94','MEGA MAN NT','ARCHIE WEIRD MYSTERIES','ANIMANIACS','THE OBLONGS','BUMP IN THE NIGHT','ALADDIN ANIMATED','BILL TED ANIMATED','DRAGON BALL Z','DRAWN TOGETHER','FILMATION GHOSTBUSTERS','BEETHOVEN ANIMATED','HEATHCLIFF CATILLAC','WAYNEHEAD','TEEN ANGEL'] },
     { label:'📺 Classics Animation', type:'show', keys:['PINK PANTHER','ROCKY BULLWINKLE','UNDERDOG','CASPER','ARCHIE SHOW','CADILLACS DINOSAURS','GARBAGE PAIL KIDS','TALES CRYPTKEEPER','MY PET MONSTER','POLE POSITION','RICHIE RICH','POPEYE','MIGHTY MOUSE','FRAGGLE ROCK ANIMATED','MY LITTLE PONY','BOBBYS WORLD','CAMP CANDY','HELLO KITTY','LITTLE SHOP','PETER PAN PIRATES','FLIPPER LOPAKA','CALIFORNIA RAISINS','SYLVANIAN FAMILIES','LAVERNE SHIRLEY ARMY','GROOVIE GOOLIES','MONSTER SQUAD 1976','RAGGEDY ANN ANDY','POUND PUPPIES','JACKSON 5IVE','FELIX THE CAT'] },
-    { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
+    { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','HOME IMPROVEMENT','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
     { label:'🕰️ Classic Sitcoms', type:'show', keys:['LEAVE IT BEAVER','NEW LEAVE IT BEAVER','MONKEES','ARCHIE BUNKERS PLACE','BAYWATCH','ADDAMS FAMILY LIVE','NEW ADDAMS FAMILY','MUNSTERS','JEFFERSONS','GOOD TIMES','DIFF STROKES','GET SMART','BENSON','GHOST MRS MUIR','THATS MY BOY'] },
     { label:'🔭 Sci-Fi & Adventure', type:'show', keys:['VOYAGERS','SOMETHING OUT THERE','EERIE INDIANA OTHER DIM','SUPERNATURAL 1977','HARDY BOYS NANCY DREW','YOUNG INDIANA JONES','DA VINCI DEMONS','OTHERWORLD','STREET HAWK','JACK OF ALL TRADES'] },
     { label:'🎃 Horror & Thrills', type:'show', keys:['FREDDYS NIGHTMARES','WEREWOLF TV','HAMMER HOUSE HORROR','THE FRIGHTENERS TV','TIMESLIP','TALES CRYPT LIVE','FRIDAY 13TH','AFRAID DARK','GOOSEBUMPS','TALES DARKSIDE','MASTERS HORROR','CREEPSHOW','CREEPSHOW LIVE'] },
