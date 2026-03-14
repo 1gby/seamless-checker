@@ -5855,14 +5855,14 @@
       document.getElementById('section-xxx-favorites').style.display = 'none';
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
       await Promise.all([
-        loadSection('/tv/airing_today', {}, 'airing-grid'),
-        loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4', 'vote_count.gte': '50', 'release_date.lte': today }, 'new-releases-grid'),
-        loadSection('/trending/tv/week',    {}, 'trending-tv-grid'),
-        loadSection('/trending/movie/week', {}, 'trending-movies-grid'),
-        loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': weekAgo,  'first_air_date.lte': today },          'tv-week-grid'),
-        loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': weekAgo, 'primary_release_date.lte': today }, 'movies-week-grid'),
-        loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': today,    'first_air_date.lte': monthFromNow },    'anticipated-tv-grid'),
-        loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': today,  'primary_release_date.lte': monthFromNow }, 'anticipated-movies-grid'),
+        loadSection('/tv/airing_today', { language: 'en-US', timezone: 'America/New_York' }, 'airing-grid'),
+        loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
+        loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
+        loadSection('/trending/movie/week', { language: 'en-US' }, 'trending-movies-grid'),
+        loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': weekAgo,  'first_air_date.lte': today,         with_original_language: 'en', 'watch_region': 'US' }, 'tv-week-grid'),
+        loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': weekAgo, 'primary_release_date.lte': today, with_original_language: 'en', region: 'US' }, 'movies-week-grid'),
+        loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': today,    'first_air_date.lte': monthFromNow,   with_original_language: 'en', 'watch_region': 'US' }, 'anticipated-tv-grid'),
+        loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': today,  'primary_release_date.lte': monthFromNow, with_original_language: 'en', region: 'US' }, 'anticipated-movies-grid'),
       ]);
     }
     await loadFavorites();
