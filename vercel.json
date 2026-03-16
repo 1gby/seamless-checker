@@ -1,6 +1,8 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/bftp", "destination": "/bftp.html" },
+    { "source": "/bftp/:path*", "destination": "/bftp.html" },
     { "source": "/comingsoon", "destination": "/comingsoon.html" },
     { "source": "/comingsoon/:path*", "destination": "/comingsoon.html" },
     { "source": "/converter", "destination": "/converter.html" },
