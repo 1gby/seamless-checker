@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Blast from the Past">
 <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/bftp.png">
-<meta property="og:title" content="Blast from the Past 🛋️">
-<meta property="og:description" content="Retro TV & Movies — classic cartoons, 80s/90s films, and more. Free streaming, no sign-up.">
+<meta property="og:title" content="Blast from the Past 📺">
+<meta property="og:description" content="Retro TV & movies — classic cartoons, 80s/90s films, and more. Free streaming, no sign-up.">
 <meta property="og:image" content="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/bftp.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
@@ -2802,7 +2802,7 @@ const archiveSeriesItems = {
   'KARATE KID ANIMATED':'the-karate-kid-the-animated-series-complete-series-1989',
   'CAMP CANDY':'s-02e-12-one-million-years-bc',
   'BLACKSTAR':'blackstar-complete-series-1981',
-  'HELLO KITTY':'hello-kittys-furry-tale-theatre-1987-original-animated-series',
+  'HELLO KITTY':'hello-kittys-furry-tale-theater-full-episode', // backup kept, primary via sourceGroups
   'LITTLE SHOP':'little-shop-s-01-e-04-unfair-science',
   'TALE SPIN':'tale-spin-1990',
   'DEXTER LAB':'dexters-laboratory-the-complete-series',
@@ -3678,6 +3678,10 @@ const dmSeasonPlaylists = {
 // Use for shows where multiple archive IDs are genuinely different uploads/backups,
 // NOT for shows where IDs represent different seasons of the same upload.
 const archiveSourceGroups = {
+  'HELLO KITTY': [
+    {label:'📦 Archive (Full Episodes)', ids:['hello-kittys-furry-tale-theater-full-episode']},
+    {label:'📦 Archive Backup',          ids:['hello-kittys-furry-tale-theatre-1987-original-animated-series']},
+  ],
   'HOME IMPROVEMENT': [
     {label:'📦 Archive 1', ids:['home-improvement-tv-series']},
   ],
@@ -5555,7 +5559,6 @@ function updateGuideTabLabel(){
   if(guideTab === 'show')       btn.textContent = '🎬 Movies';
   else if(guideTab === 'movie') btn.textContent = adultUnlocked ? '🔞 18+' : '📺 TV';
   else if(guideTab === 'adult') btn.textContent = '📺 TV';
-  // Style the button red when on adult tab
   btn.style.borderColor = guideTab === 'adult' ? '#ff2d55' : '';
   btn.style.color       = guideTab === 'adult' ? '#ff2d55' : '';
 }
@@ -5586,6 +5589,7 @@ function lockAdultSection(){
   adultUnlocked = false;
   sessionStorage.removeItem('adultUnlocked');
   if(guideTab === 'adult'){ guideTab = 'show'; }
+  if(guideTab === 'live') guideTab = 'show';
   updateGuideTabLabel();
   const flash = document.createElement('div');
   flash.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99998;background:#000;border:2px solid #7c3aed;color:#a855f7;font-family:"Courier New",monospace;font-size:1rem;font-weight:900;letter-spacing:0.15em;padding:1rem 2rem;border-radius:8px;text-align:center;';
@@ -5816,8 +5820,10 @@ function getAllSections(){
   ];
 }
 
+/* ==================== LIVE TV ==================== */
+
+
 function renderGuideBody(){
-  // Route to adult tab renderer if active
   if(guideTab === 'adult'){ renderAdultGuide(); return; }
 
   const body = document.getElementById('guide-body');
