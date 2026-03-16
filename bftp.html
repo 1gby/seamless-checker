@@ -766,12 +766,10 @@ padding-right:calc(1rem + env(safe-area-inset-right));
             <button id="ia-login-btn" onclick="iaLogin()">Log In</button>
             <button id="ia-logout-btn" onclick="iaLogout()" style="display:none;">Log Out</button>
           </div>
+          <button id="ia-refresh-btn" onclick="iaRefreshSession()" style="display:none;width:100%;padding:0.6rem;margin-top:0.4rem;background:rgba(176,110,243,0.15);border:1px solid rgba(176,110,243,0.4);border-radius:8px;color:#b06ef3;font-family:inherit;font-size:0.88rem;cursor:pointer;transition:background 0.2s;">🔄 Refresh Session</button>
           <div id="ia-msg"></div>
         </div>
-        <div id="ia-btn-row2" style="margin-top:0.4rem;">
-          <button id="ia-test-btn" onclick="iaTestLogin()" style="width:100%;padding:0.55rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;color:#10b981;font-family:inherit;font-size:0.85rem;cursor:pointer;transition:background 0.2s;">🔍 Test Archive.org Session</button>
-        </div>
-        <div class="settings-note">Logging in unlocks restricted and borrowed items on archive.org</div>
+        <div class="settings-note">Login opens archive.org in a popup — sign in there, close the window, and restricted items will work.</div>
       </div>
     </div>
   </div>
@@ -6068,29 +6066,6 @@ document.getElementById('easterEggOverlay').addEventListener('click',()=>{
 
 /* ==================== INIT ==================== */
 // Auto-relogin to archive.org if credentials saved
-async function iaAutoLogin(){
-  const creds = localStorage.getItem('ia_creds');
-  if(!creds) return;
-  try {
-    const decoded = atob(creds);
-    const colon = decoded.indexOf(':');
-    const user = decoded.substring(0, colon);
-    const pass = decoded.substring(colon + 1);
-    const fd = new FormData();
-    fd.append('username', user);
-    fd.append('password', pass);
-    fd.append('submit_by_js', 'true');
-    const res = await fetch('https://archive.org/account/login', {
-      method:'POST', body:fd, credentials:'include', mode:'cors'
-    });
-    const json = await res.json().catch(()=>null);
-    if(res.ok && json && json.status==='ok'){
-      localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username:user}));
-    }
-  } catch(e){ /* silent fail — CORS on localhost is expected */ }
-}
-iaAutoLogin();
-
 window.addEventListener('load',()=>{
   const savedShow=localStorage.getItem('currentShow');
   const savedType=localStorage.getItem('currentType')||'show';
@@ -6134,85 +6109,79 @@ document.addEventListener('DOMContentLoaded', initSettingsOverlay);
 function iaRefreshUI(){
   const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
   const loggedIn = !!saved.loggedIn;
-  const dot  = document.getElementById('ia-status-dot');
-  const txt  = document.getElementById('ia-status-text');
-  const loginBtn  = document.getElementById('ia-login-btn');
-  const logoutBtn = document.getElementById('ia-logout-btn');
-  const userInput = document.getElementById('ia-user');
-  const passInput = document.getElementById('ia-pass');
+  const dot        = document.getElementById('ia-status-dot');
+  const txt        = document.getElementById('ia-status-text');
+  const loginBtn   = document.getElementById('ia-login-btn');
+  const logoutBtn  = document.getElementById('ia-logout-btn');
+  const refreshBtn = document.getElementById('ia-refresh-btn');
+  const userInput  = document.getElementById('ia-user');
+  const passInput  = document.getElementById('ia-pass');
   if(loggedIn){
-    dot.className='online';
-    txt.textContent='Logged in as '+saved.username;
-    loginBtn.style.display='none';
-    logoutBtn.style.display='block';
-    userInput.style.display='none';
-    passInput.style.display='none';
+    dot.className = 'online';
+    // Show session age warning if > 6 hours old
+    const loginTime = saved.loginTime || 0;
+    const hoursAgo = (Date.now() - loginTime) / 3600000;
+    if(hoursAgo > 6 && loginTime > 0){
+      txt.textContent = 'Logged in as ' + saved.username + ' — session may need refresh';
+      dot.className = 'error';
+    } else {
+      txt.textContent = 'Logged in as ' + saved.username;
+    }
+    loginBtn.style.display  = 'none';
+    logoutBtn.style.display = 'block';
+    refreshBtn.style.display = 'block';
+    userInput.style.display = 'none';
+    passInput.style.display = 'none';
   } else {
-    dot.className='';
-    txt.textContent='Not logged in';
-    loginBtn.style.display='block';
-    logoutBtn.style.display='none';
-    userInput.style.display='block';
-    passInput.style.display='block';
+    dot.className = '';
+    txt.textContent = 'Not logged in';
+    loginBtn.style.display  = 'block';
+    logoutBtn.style.display = 'none';
+    refreshBtn.style.display = 'none';
+    userInput.style.display = 'block';
+    passInput.style.display = 'block';
   }
+}
+
+function iaOpenPopup(onClose){
+  const popup = window.open('https://archive.org/account/login','ia_login','width=520,height=640');
+  const poll = setInterval(()=>{
+    if(!popup || popup.closed){
+      clearInterval(poll);
+      if(onClose) onClose();
+    }
+  }, 500);
+  return popup;
 }
 
 async function iaLogin(){
   const user = document.getElementById('ia-user').value.trim();
   const pass = document.getElementById('ia-pass').value;
-  const msg  = document.getElementById('ia-msg');
   const btn  = document.getElementById('ia-login-btn');
-  if(!user||!pass){ iaMsg('Enter your username and password','error'); return; }
-  btn.textContent='Logging in…'; btn.disabled=true;
-  // Save credentials for auto-relogin (base64 obfuscated, not secure but better than plaintext label)
-  localStorage.setItem('ia_creds', btoa(user + ':' + pass));
-  iaMsg('Connecting to archive.org…','info');
-  try {
-    const fd = new FormData();
-    fd.append('username', user);
-    fd.append('password', pass);
-    fd.append('submit_by_js', 'true');
-    const res = await fetch('https://archive.org/account/login', {
-      method:'POST', body:fd, credentials:'include', mode:'cors'
-    });
-    const json = await res.json().catch(()=>null);
-    if(res.ok && json && json.status==='ok'){
-      localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username:user}));
-      iaMsg('Logged in successfully!','success');
-      iaRefreshUI();
-    } else if(json && json.error){
-      iaMsg(json.error,'error');
-    } else if(res.status===403||res.status===401){
-      iaMsg('Wrong username or password','error');
-    } else {
-      // CORS blocked — open popup fallback
-      iaMsg('Direct login blocked. Opening archive.org login…','info');
-      const popup = window.open('https://archive.org/account/login','ia_login','width=500,height=600');
-      // Poll for popup close then assume logged in
-      const poll = setInterval(()=>{
-        if(!popup||popup.closed){
-          clearInterval(poll);
-          localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username:user}));
-          iaMsg('Session saved. If login succeeded you can access restricted items.','success');
-          iaRefreshUI();
-        }
-      },500);
-    }
-  } catch(e){
-    // Network/CORS error — open popup fallback
-    iaMsg('Opening archive.org login in popup…','info');
-    const popup = window.open('https://archive.org/account/login','ia_login','width=500,height=600');
-    const poll = setInterval(()=>{
-      if(!popup||popup.closed){
-        clearInterval(poll);
-        localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username:user}));
-        iaMsg('Session saved. If you logged in successfully, restricted items should now work.','success');
-        iaRefreshUI();
-      }
-    },500);
-  } finally {
-    btn.textContent='Log In'; btn.disabled=false;
-  }
+  if(!user || !pass){ iaMsg('Enter your username and password','error'); return; }
+  btn.textContent = 'Opening…'; btn.disabled = true;
+  // Store username for display (not password)
+  localStorage.setItem('ia_username', user);
+  iaMsg('Sign in on the archive.org page that opens, then close that window.','info');
+  iaOpenPopup(()=>{
+    const session = {loggedIn:true, username:user, loginTime:Date.now()};
+    localStorage.setItem('ia_session', JSON.stringify(session));
+    iaMsg('✅ Session active — restricted items should now work.','success');
+    iaRefreshUI();
+  });
+  btn.textContent = 'Log In'; btn.disabled = false;
+}
+
+function iaRefreshSession(){
+  const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
+  const user = saved.username || localStorage.getItem('ia_username') || '';
+  iaMsg('Sign in on the archive.org page that opens, then close that window.','info');
+  iaOpenPopup(()=>{
+    const session = {loggedIn:true, username:user, loginTime:Date.now()};
+    localStorage.setItem('ia_session', JSON.stringify(session));
+    iaMsg("✅ Session refreshed — you're good to go.","success");
+    iaRefreshUI();
+  });
 }
 
 function iaLogout(){
@@ -6220,39 +6189,7 @@ function iaLogout(){
   localStorage.removeItem('ia_creds');
   iaMsg('Logged out','info');
   iaRefreshUI();
-  // Also hit archive.org logout endpoint in background
   fetch('https://archive.org/account/logout',{credentials:'include',mode:'no-cors'}).catch(()=>{});
-}
-
-async function iaTestLogin(){
-  const btn = document.getElementById('ia-test-btn');
-  btn.textContent = '🔍 Testing…'; btn.disabled = true;
-  iaMsg('Checking session…','info');
-  try {
-    // Use S3-like API which supports CORS and returns login state
-    const res = await fetch('https://s3.us.archive.org/?check_auth=1', {
-      credentials: 'include', mode: 'cors'
-    });
-    const text = await res.text().catch(()=>'');
-    if(text.includes('<authorized>1</authorized>')){
-      // Grab username from the XML response
-      const match = text.match(/<username>([^<]+)<\/username>/);
-      const username = match ? match[1] : (JSON.parse(localStorage.getItem('ia_session')||'{}').username || 'you');
-      localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username}));
-      iaMsg('✅ Logged in as ' + username, 'success');
-      iaRefreshUI();
-    } else if(text.includes('<authorized>0</authorized>')){
-      localStorage.removeItem('ia_session');
-      iaMsg('❌ Not logged in to archive.org', 'error');
-      iaRefreshUI();
-    } else {
-      iaMsg('⚠️ Unexpected response — try again', 'error');
-    }
-  } catch(e){
-    iaMsg('⚠️ Could not reach archive.org — check connection', 'error');
-  } finally {
-    btn.textContent = '🔍 Test Archive.org Session'; btn.disabled = false;
-  }
 }
 
 function iaMsg(text, type){
