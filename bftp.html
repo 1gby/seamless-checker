@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Blast from the Past">
-<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/bftp.png">
 <script src="https://www.youtube.com/iframe_api" async></script>
 <title>BLAST FROM THE PAST</title>
 <style>
@@ -1755,7 +1755,7 @@ const adultArchiveMovies = {
   'ALICE WONDERLAND 1976': 'alice.in.-wonderland.-1976-xxx-not-for-kids',
   'CINDERELLA 1977':       'cinderella-1977',
   'AUSTIN POWERS PARODY':  'austin-powers-adult-parody',
-  'RUSSIAN INSTITUTE 7':   'marc-dorcel-russian-institute-lesson-7-2006.-dvdrip',
+  // 'RUSSIAN INSTITUTE 7': moved to adultCollections
   'PIG FARMERS DAUGHTER':  'the-pigkeepers-daughter-1972',
   'LA SERVANTE PERVERSE':  'la-servante-perverse-1978',
   'OH REBUCETEIO':         'oh-rebuceteio-1984_202506',
@@ -1804,10 +1804,31 @@ const adultDirectVideos = {
   'ANATOMY OF HELL':          'https://archive.org/download/x-rated-rated-r-adult-films/Anatomy%20Of%20Hell%2C%20by%20Katherine%20Breillat%20%282003%29.mp4',
   'EROTIC GAMES 1988':        'https://archive.org/download/x-rated-rated-r-adult-films/Erotic%20Games%20%281988%29%20Moana%20Pozzi%2C%20Marino%20Mas%C3%A8%2C%20Petra%20Scharbach%2C%20Hula.mp4',
   'SECHS SCHWEDINNEN BACKUP': 'https://archive.org/download/x-rated-rated-r-adult-films/Sechs%20Schwedinnen%20von%20der%20Tankstelle%20aka%20Six%20Su%C3%A9doises%20%C3%A0%20la%20pompe%20%28Eng.%2C%20Six%20Swedes%20at%20a%20Pump%29%2C%20by%20Erwin%20C.%20Dietrich%20-%20Brigitte%20Lahaie%20%20%281980%29%20Com%C3%A9die%20%C3%A9rotique.mp4',
+  'TIA CYRUS WEDDING':        'https://archive.org/download/pornstars-like-it-big-tia-cyrus-rent-a-pornstar-the-wedding-planner-part-2_202602/PornstarsLikeItBig%20-%20Tia%20Cyrus%20-%20Rent-A-Pornstar%20The%20Wedding%20Planner%20Part%202.mp4',
+  'ZZ SLUTTIEST STRIPPERS':   'https://archive.org/download/pornstars-like-it-big-tia-cyrus-rent-a-pornstar-the-wedding-planner-part-2_202602/BrazzersExxtra.23.06.08.Best.Of.ZZ.Sluttiest.Strippers.XXX.1080p.HEVC.x265.PRT.mp4',
+  'THROUGH LOOKING GLASS':    'https://archive.org/download/through_the_looking_glass_1976/Through.The.Looking.Glass.1976.XXX.1080P.BLURAY.X264-WATCHABLE.mp4',
+  'BABYFACE 2':               'https://archive.org/download/privatehd.to-baby-face-2-1986-1080p-blu-ray-remux-avc-dts-hd-ma-1.0-spbd/Babyface%202%201986%201080p%20Blu-ray%20Remux%20AVC%20DTS-HD%20MA%201.0-SPBD.mp4',
+  'SECHS SCHWEDINNEN ALM':    'https://archive.org/download/sechs-schwedinnen-auf-der-alm-1983/Sechs%20Schwedinnen%20auf%20der%20Alm%20%281983%29.mp4',
+  'LOVE LETTERS PORTUGUESE':  'https://archive.org/download/love_letters_of_a_portuguese_nun/Cartas%20de%20amor%20de%20una%20monja%20portuguesa%20Die%20Liebesbriefe%20einer%20po.mp4',
+  'MICHEL LEMOINE 31200':     'https://archive.org/download/michel-lemoine-31200/Michel%20Lemoine%2031200.mp4',
+  'ERIKA SAVASTANI 1995':     'https://archive.org/download/erika-savastani-in-1995-movie/Erika%20Savastani%20in%201995%20movie.mp4',
+  'XVIDEO 2023':              'https://archive.org/download/xvideos.com_4fee09c1b29310a5eb102a2e452194ea/vid_720p.mp4',
+  'VIDEO 2023 MAY':           'https://archive.org/download/2023-05-02-20-49-28_202510/2023-05-02%2020-49-28.mp4',
 };
 
 const adultCollections = {
 
+  'RUSSIAN INSTITUTE 7': {
+    label: '🎓 Russian Institute Collection',
+    movies: [
+      {title:'Russian Institute: Lesson 7 (2006)', url:'https://archive.org/embed/marc-dorcel-russian-institute-lesson-7-2006.-dvdrip?autoplay=1'},
+      {title:'Russian Institute: Lesson 1',        url:'https://archive.org/download/98_20220403/L1%20Russian%20institute.mp4'},
+      {title:'Russian Institute: Lesson 2',        url:'https://archive.org/download/98_20220403/L2%20Russian%20institute.mp4'},
+      {title:'Russian Institute: Lesson 3',        url:'https://archive.org/download/98_20220403/L3%20Russian%20institute.mp4'},
+      {title:'Russian Institute: Lesson 4',        url:'https://archive.org/download/98_20220403/L4%20Russian%20institute.mp4'},
+      {title:'Russian Institute: Lesson 5',        url:'https://archive.org/download/98_20220403/L5%20Russian%20institute.mp4'},
+    ]
+  },
   'WHATEVER SHE WANTS': {
     label: 'What Every French Girl Wants',
     movies: [
@@ -1859,8 +1880,45 @@ const adultCollections = {
       {title:'Machines Vol. 7', url:'https://archive.org/download/5-lhlr-s-2-m-720p/w3NJ29Ql_720p.mp4'},
     ]
   },
-  'FLIX COLLECTION': {
-    label: "💋 Flix's",
+  'X FLIXS': {
+    label: "🔥 X-Flix's",
+    movies: [
+      {title:'Sneaky Stepson Spying on Busty Stepmom',           url:'https://archive.org/download/skeet-a-boo/A%20sneaky%20stepson%20spying%20on%20his%20busty%20naked%20stepmom%20gets%20into%20trouble.mp4'},
+      {title:'Traditional Wife Gets Fucked',                     url:'https://archive.org/download/skeet-a-boo/After%20all%2C%20getting%20fucked%20is%20also%20part%20of%20a%20traditional%20wife%E2%80%99s%20duty.mp4'},
+      {title:'Busty PAWG Cheats with Hung Masseur',              url:'https://archive.org/download/skeet-a-boo/Busty%20PAWG%20cheats%20on%20her%20BF%20with%20the%20hung%20masseur.mp4'},
+      {title:'Busty Schoolgirl Bangs Neighbor for Cookies',      url:'https://archive.org/download/skeet-a-boo/Busty%20schoolgirl%20bangs%20her%20neighbor%20to%20sell%20cookies.mp4'},
+      {title:"Butler Teaches Boss's Daughter a Lesson",          url:'https://archive.org/download/skeet-a-boo/Butler%20teaches%20her%20boss%E2%80%99s%20daughter%20a%20lesson%20by%20fucking%20her%20up%20her%20tight%20teen%20asshole.mp4'},
+      {title:'Dude Stays at B&B with Famous Porn Star',          url:'https://archive.org/download/skeet-a-boo/Dude%20is%20staying%20in%20a%20B%26B%20with%20famous%20porn%20star%20as%20his%20hostess.mp4'},
+      {title:'Lulu Chu & Aria Lee — Perverted Practices 1',      url:'https://archive.org/download/skeet-a-boo/EPORNER.COM%20-%20%5Bxr3zG60yu2W%5D%20Lulu%20Chu%20And%20Aria%20Lee%20In%20Perverted%20Practices%201%20%28360%29.mp4'},
+      {title:'Family Trip Steamy Threesome — Mom & Daughter',    url:'https://archive.org/download/skeet-a-boo/Family%20Trip%20turns%20into%20a%20steamy%20threesome%20with%20mom%20and%20daughter.mp4'},
+      {title:'Five Teen Girls Lesbian Orgy in Shoot House',      url:'https://archive.org/download/skeet-a-boo/Five%20beautiful%20teen%20girls%20enjoy%20lesbian%20orgy%20under%20the%20shower%20in%20a%20shoot%20house.mp4'},
+      {title:"Brunette Fucks Sister's Husband Behind Her Back",   url:'https://archive.org/download/skeet-a-boo/Gorgeous%20brunette%20fucking%20her%20sister%E2%80%99s%20husband%20behind%20her%20back.mp4'},
+      {title:'Hardcore Basketball Lessons for Lustful Stepsister',url:'https://archive.org/download/skeet-a-boo/Hardcore%20basketball%20lessons%20for%20a%20lustful%20stepsister.mp4'},
+      {title:"Sneaky Fuck — Girlfriend Doesn't Hear",             url:'https://archive.org/download/skeet-a-boo/He%20quietly%20tries%20to%20fuck%20the%20sexy%20prisoner%20so%20his%20girlfriend%20doesn%E2%80%99t%20hear.mp4'},
+      {title:'Hijab Hookup — Muslim Babe Pays Rent with Pussy',  url:'https://archive.org/download/skeet-a-boo/Hijab%20Hookup%20-%20Sexy%20Muslim%20Babe%20Offers%20Her%20Pussy%20To%20Landlord%20As%20Payment%20For%20Rent%20%281%29.mp4'},
+      {title:'Movie Night — BF Cheats with Thick Slut',          url:'https://archive.org/download/skeet-a-boo/Movie%20night%20turns%20steamy%20once%20the%20BF%20decides%20to%20cheat%20with%20the%20thick%20slut.mp4'},
+      {title:'Horny Stepsister Fucks While GF is in House',      url:'https://archive.org/download/skeet-a-boo/My%20horny%20stepsister%20wanted%20me%20to%20fuck%20her%20while%20my%20GF%20was%20in%20the%20house.mp4'},
+      {title:'Naked Stepmom Joins in Bathtub',                   url:'https://archive.org/download/skeet-a-boo/My%20naked%20stepmom%20joined%20me%20in%20the%20bathtub%20to%20play%20with%20my%20cock.mp4'},
+      {title:"Older Stepsister in Kitchen Behind Mom's Back",    url:'https://archive.org/download/skeet-a-boo/My%20older%20stepsister%20made%20me%20fuck%20her%20in%20the%20kitchen%20behind%20my%20mom%E2%80%99s%20back%21.mp4'},
+      {title:'Sexy Game with Two Teen Sluts — Sneaky Threesome',  url:'https://archive.org/download/skeet-a-boo/Playing%20a%20sexy%20game%20with%20two%20teen%20sluts%20leads%20to%20a%20sneaky%20threesome.mp4'},
+      {title:'Skeet A Boo',                                      url:'https://archive.org/download/skeet-a-boo/Skeet%20A%20Boo.mp4'},
+      {title:'Step-Aunt Gives Perving Nephew the Real Thing',     url:'https://archive.org/download/skeet-a-boo/Step-aunt%20catches%20her%20nephew%20perving%20on%20her%20and%20gives%20him%20the%20real%20thing.mp4'},
+      {title:'Teen Invites Neighbor — Stepmom Joins',            url:'https://archive.org/download/skeet-a-boo/Teen%20invites%20her%20peeping%20neighbor%20over%20to%20fuck%20but%20her%20stepmom%20sees%20and%20joins.mp4'},
+      {title:'Thanksgiving with Stepdaughter — Anal',            url:'https://archive.org/download/skeet-a-boo/Thanksgiving%20with%20my%20stepdaughter%20ended%20with%20my%20cock%20in%20her%20tight%20asshole.mp4'},
+      {title:'Hot Summer Day — Step-Aunt Makes Dream Come True',  url:'https://archive.org/download/skeet-a-boo/That%20hot%20summer%20day%20my%20step-aunt%20made%20my%20dream%20come%20true.mp4'},
+      {title:'Hot MILFs — Aunt and Stepmom Show Him the Ropes',  url:'https://archive.org/download/skeet-a-boo/The%20hot%20MILFs%2C%20his%20aunt%20and%20his%20stepmoms%2C%20showing%20him%20what%20an%20older%20woman%20can%20do.mp4'},
+      {title:'Library — Showing Off Big Bubble Ass',             url:'https://archive.org/download/skeet-a-boo/The%20library%20is%20a%20perfect%20place%20for%20show%20off%20her%20naked%20big%20bubble%20ass.mp4'},
+      {title:'Weekend Reality — Eight Teen Lesbians',            url:'https://archive.org/download/skeet-a-boo/The%20weekend%20reality%20with%20eight%20sensational%20teen%20lesbians.mp4'},
+      {title:'Cheerleading Sisters Bounce on Stepbro',           url:'https://archive.org/download/skeet-a-boo/These%20cheerleading%20sisters%20love%20bouncing%20on%20their%20stepbro%E2%80%99s%20cock.mp4'},
+      {title:'Three Naked Muslim Women Foursome',                url:'https://archive.org/download/skeet-a-boo/Three%20naked%20Muslim%20women%20are%20having%20a%20foursome%20with%20an%20American%20guy.mp4'},
+      {title:'Identical Twin Stepsisters Share One Boyfriend',   url:'https://archive.org/download/skeet-a-boo/Two%20stepsisters%20who%20look%20identical%20love%20sharing%20one%20boyfriend.mp4'},
+      {title:"GF's MILF Stepmom Has Same Big Boobs",             url:'https://archive.org/download/skeet-a-boo/Would%20you%20fuck%20your%20gf%E2%80%99s%20MILF%20stepmom%20if%20she%20had%20the%20same%20big%20boobs%20as%20your%20girl.mp4'},
+      {title:'Nurses Need Cum Sample — Lulu Chu',               url:'https://archive.org/download/skeet-a-boo/nurses-need-cum-sample-lulu-chu-480p.mp4'},
+      {title:'Siri Dahl & Katie Kush — Raunchy Realtor Pt.2',   url:'https://archive.org/download/skeet-a-boo/siri-dahl-katie-kush-raunchy-realtor-gets-fucked-part-two-360p.mp4'},
+    ]
+  },
+  'XXX FAMILY': {
+    label: '👨‍👩‍👧 XXX Family',
     movies: [
       {title:"Flix's 01",  url:'https://archive.org/download/284fa-7ed-0c-96af-7e-2b-47c-7d-80048ab-33a-65ebebbe-80bdee-3152ae-1202e-544467/0dc95f785bb22355ea85053342b4b8264eaea4a572126618080b2bcd2e2504e2.mp4'},
       {title:"Flix's 02",  url:'https://archive.org/download/284fa-7ed-0c-96af-7e-2b-47c-7d-80048ab-33a-65ebebbe-80bdee-3152ae-1202e-544467/0e0805c49a3dc104677d360b42941c70db3d38064c3805ccb99f617cd2ecfe17.mp4'},
@@ -1943,6 +2001,119 @@ const adultCollections = {
       {title:'Les mille et une perversions de Felicia (1975) — Alt', url:'https://archive.org/download/x-rated-rated-r-adult-films/Les%20mille%20et%20une%20perversions%20de%20Felicia%2C%20par%20Max%20P%C3%A9cas%20%281975%29%20com%C3%A9die%20%C3%A9rotique%20espa%C3%B1ola%20-%2018%2B%20.mp4'},
     ]
   },
+  'GIVE ME PINK': {
+    label: '🌸 Give Me Pink',
+    movies: [
+      {title:'E001 — Jo (Aug 2004)',              url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E001%20-%20Jo%20-%201aug04.mp4'},
+      {title:'E002 — Candy (Aug 2004)',           url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E002%20-%20Candy%20-%208aug04.mp4'},
+      {title:'E003 — Eve (Aug 2004)',             url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E003%20-%20Eve%20-%2015aug04.mp4'},
+      {title:'E004 — Sandra Shine (Aug 2004)',    url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E004%20-%20Sandra%20Shine%20-%2022aug04.mp4'},
+      {title:'E005 — Dana (Aug 2004)',            url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E005%20-%20Dana%20-%2029aug04.mp4'},
+      {title:'E006 — Tera Bond (Sep 2004)',       url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E006%20-%20Tera%20Bond%20%28Terra%20Bond%29%20-%205sep04.mp4'},
+      {title:'E007 — Cynthia (Sep 2004)',         url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E007%20-%20Cynthia%20%28Cynthia%20Black%29%20-%2012sep04.mp4'},
+      {title:'E008 — Karina (Sep 2004)',          url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E008%20-%20Karina%20-%2019sep04.mp4'},
+      {title:'E009 — Lysa (Sep 2004)',            url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E009%20-%20Lysa%20-%2026sep04.mp4'},
+      {title:'E010 — Jenny (Oct 2004)',           url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E010%20-%20Jenny%20-%203oct04.mp4'},
+      {title:'E011 — Virginie (Oct 2004)',        url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E011%20-%20Virginie%20-%2010oct04.mp4'},
+      {title:'E012 — Puma Black (Oct 2004)',      url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E012%20-%20Puma%20Black%20-%2017oct04.mp4'},
+      {title:'E013 — Clara (Oct 2004)',           url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E013%20-%20Clara%20%28Clara%20G%29%20-%2024oct04.mp4'},
+      {title:'E014 — Christina (Oct 2004)',       url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E014%20-%20Christina%20-%2031oct04.mp4'},
+      {title:'E015 — Peaches (Nov 2004)',         url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E015%20-%20Peaches%20-%207nov04.mp4'},
+      {title:'E016 — Sophie Moone (Nov 2004)',    url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E016%20-%20Sophie%20%28Sophie%20Moone%29%20-%2013nov04.mp4'},
+      {title:'E017 — Angela (Nov 2004)',          url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E017%20-%20Angela%20-%2021nov04.mp4'},
+      {title:'E018 — Bambi (Nov 2004)',           url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E018%20-%20Bambi%20-%2028nov04.mp4'},
+      {title:'E019 — Katalin (Dec 2004)',         url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E019%20-%20Catalin%20%28Katalin%29%20-%205dec04.mp4'},
+      {title:'E020 — Jacqueline Stone (Dec 2004)',url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E020%20-%20Jacqueline%20%28Jaqueline%20Stone%29%20-%2012dec04.mp4'},
+      {title:'E021 — Liz Honey (Dec 2004)',       url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E021%20-%20Liz%20%28Liz%20Honey%29%20-%2019dec04.mp4'},
+      {title:'E022 — May (Dec 2004)',             url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E022%20-%20May%20-%2026dec04.mp4'},
+      {title:'E023 — Nika / Jasmin (Jan 2005)',   url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E023%20-%20Nika%20%28Jasmin%29%20-%202jan05.mp4'},
+      {title:'E024 — Yasmine Gold (Jan 2005)',    url:'https://archive.org/download/20231227_20231227_1525/GiveMePink%20E024%20-%20Yasmine%20%28Yasmine%20Gold%29%20-%209jan05.mp4'},
+    ]
+  },
+  'GAME SHOW XXX': {
+    label: '🎮 Game Show XXX',
+    movies: [
+      {title:'RCT-409 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-409%20Uncensored.mp4'},
+      {title:'RCT-472 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-472%20Uncensored.mp4'},
+      {title:'RCT-493 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-493%20Uncensored.mp4'},
+      {title:'RCT-493 English Subtitle',    url:'https://archive.org/download/Family-Show-987987/RCT-493%20English%20Subtitle.mp4'},
+      {title:'RCT-520 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-520%20Uncensored.mp4'},
+      {title:'RCT-536 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-536%20Uncensored.mp4'},
+      {title:'RCT-607 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-607%20Uncensored.mp4'},
+      {title:'RCT-647 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-647%20Uncensored.mp4'},
+      {title:'RCT-690 Uncensored',          url:'https://archive.org/download/Family-Show-987987/RCT-690%20Uncensored.mp4'},
+      {title:'RCT-690 English Subtitle',    url:'https://archive.org/download/Family-Show-987987/RCT-690%20English%20Subtitle.mp4'},
+      {title:'RCTD-031 English Subtitle',   url:'https://archive.org/download/Family-Show-987987/RCTD-031%20English%20Subtitle.mp4'},
+      {title:'RCTD-450 Uncensored',         url:'https://archive.org/download/Family-Show-987987/RCTD-450%20Uncensored.mp4'},
+    ]
+  },
+  'MICHELLE BAUER': {
+    label: '🎬 Scream Queen Michelle Bauer',
+    movies: [
+      {title:'Nightdreams (1981)',                     url:'https://archive.org/download/scream-queen-michelle-bauer/1981.%20Nightdreams%2C%20by%20Stephen%20Sayadian%20-%20as%20Chained%20Girl%20-%20uncredited.mp4'},
+      {title:'Café Flesh (1982)',                      url:'https://archive.org/download/scream-queen-michelle-bauer/1982.%20Caf%C3%A9%20Flesh%2C%20by%20Stephen%20Sayadian%20%28under%20the%20pseudonym%20Rinse%20Dream%29%20-%20as%20Lana%20-%20credited%20as%20Pia%20Snow.mp4'},
+      {title:'Homework (1982)',                        url:'https://archive.org/download/scream-queen-michelle-bauer/1982.%20Homework%2C%20by%20James%20Beshears%2C%20with%20Joan%20Collins%20-%20as%20Dream%20Groupie%2C%20uncredited.mp4'},
+      {title:'Reform School Girls (1986)',             url:'https://archive.org/download/scream-queen-michelle-bauer/1986.%20Reform%20School%20Girls%2C%20by%20Tom%20DeSimone%2C%20featuring%20Wendy%20O.%20Williams%2C%20with%20Sibyl%20Danning%20-%20Michelle%20Bauer%20as%20Shower%20Girl%20-%20uncredited.mp4'},
+      {title:'Hollywood Chainsaw Hookers (1988)',      url:'https://archive.org/download/scream-queen-michelle-bauer/1988%201.%20Hollywood%20Chainsaw%20Hookers%2C%20%20by%20Fred%20Olen%20Ray%2C%20with%20Linnea%20Quigley%20-%20as%20Mercedes%2C%20credited%20as%20Michelle%20McLellan.mp4'},
+      {title:'Nightmare Sisters (1988)',               url:'https://archive.org/download/scream-queen-michelle-bauer/1988%202.%20Nightmare%20Sisters%20aka%20Sorority%20Succubus%20Sisters%2C%20by%20David%20DeCoteau%20-%20Mickey%2C%20credited%20as%20Michelle%20McClellan.mp4'},
+      {title:'Sorority Babes in the Slimeball Bowl-O-Rama (1988)', url:'https://archive.org/download/scream-queen-michelle-bauer/1988%203.%20Sorority%20Babes%20in%20the%20Slimeball%20Bowl-O-Rama%2C%20by%20David%20DeCoteau%20-%20as%20Lisa%2C%20credited%20as%20Michelle%20McClellen.mp4'},
+      {title:'Beverly Hills Vamp (1989)',              url:'https://archive.org/download/scream-queen-michelle-bauer/1989%201.%20Beverly%20Hills%20Vamp%2C%20by%20Fred%20Olen%20Ray%20-%20as%20Kristina.mp4'},
+      {title:'Dr. Alien (1989)',                       url:'https://archive.org/download/scream-queen-michelle-bauer/1989%202.%20Dr.%20Alien%2C%20starring%20Ginger%20Lynn%20%28Allen%29%2C%20Linnea%20Quigley%20-%20Michelle%20Bauer%20as%20Coed%20%231.mp4'},
+      {title:'Dinosaur Island (1994)',                 url:'https://archive.org/download/scream-queen-michelle-bauer/1994.%20Dinosaur%20Island%2C%20by%20Fred%20Olen%20Ray%20%26%20Jim%20Wynorski%20-%20as%20June.mp4'},
+      {title:'Red Lips (1995)',                        url:'https://archive.org/download/scream-queen-michelle-bauer/1995%201.%20Red%20Lips%2C%20by%20Donald%20Farmer%20-%20as%20Lisa.mp4'},
+      {title:'Attack of the 60 Foot Centerfold (1995)',url:'https://archive.org/download/scream-queen-michelle-bauer/1995%202.%20Attack%20of%20the%2060%20Foot%20Centerfold%20-%20as%20Dr.%20Joyce%20Mann.mp4'},
+      {title:'The Bikini Escort Company (2006)',       url:'https://archive.org/download/scream-queen-michelle-bauer/2006.%20The%20Bikini%20Escort%20Company%2C%20by%20Fred%20Olen%20Ray%20-%20as%20Miss%20Howell%20-%20poor%20quality%20direct-to-cable%20Rated%20X%2018%2B%20.mp4'},
+    ]
+  },
+  'REX COLLECTION': {
+    label: '🎬 Rex Porn Collection',
+    movies: [
+      {title:'Bad Girls Get Fucked Under Christmas Tree',     url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Bad_Girls_Get_Fucked_By_Their_Step_Brother_Under_Christmas_Tree_480p.mp4'},
+      {title:'Blue Hair Naughty Teen Seduces Step Brother',   url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Blue_Hair_Naughty_Teen_Seduces_Her_Obliging_Step_Brother_480p.mp4'},
+      {title:'Busty Bitch Ivy — Family Dinner',               url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Busty_Bitch_Ivy_Not_Ready_For_Sexual_Abstinence_Even_During_Family_Dinner_480p.mp4'},
+      {title:'Family Man Fucks Wife and Stepdaughter',        url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Family_Man_Comes_Home_From_Work_And_Fucked_His_Wife_And_Stepdaughter_480p.mp4'},
+      {title:'Fitness Workout — Kendra and Jenna',            url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Fitness_workout_with_busty_mature_MILF_Kendra_and_Jenna_480p.mp4'},
+      {title:'Freya — Step Brother Wants to Be a Winner',     url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Freya_-_My_Step_Brother_Wants_To_Be_A_Winner_But_I_Have_A_Few_Tricks_In_Stock_480p.mp4'},
+      {title:'Gina — Naughty Teens Group Porn at School',     url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Gina_-_Naughty_Teens_In_Group_Porn_At_School_Locker_Room_480p.mp4'},
+      {title:'Gym Teacher Katana Rewards Young Guy',          url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Gym_Teacher_Katana_Caught_Nerd_In_Locker_Room_And_Rewarded_Young_Guy_480p.mp4'},
+      {title:'New Husband Fucks Stepdaughter',                url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_I_Hope_My_Mom_Does_Not_Find_Out_That_Her_New_Husband_Fucked_My_Pussy_480p.mp4'},
+      {title:'Stepdad Cums in Stepdaughter',                  url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Im_So_Ashamed_For_Sex_And_Cums_In_My_Step-Daughters_Pussy_480p.mp4'},
+      {title:'Petite Step Sister Helps Broken Hand',          url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Its_Good_That_My_Petite_Step_Sister_Helped_Me_When_My_Hand_Was_Broken_480p.mp4'},
+      {title:'Jada — Drunk Men Fuck Stepdaughters in Tent',   url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Jada_-_Drunk_Men_Fuck_Their_Stepdaughters_In_A_Tent_480p.mp4'},
+      {title:'Japanese Airlines Obedient Stewardesses',       url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Japanese_Airlines_Obedient_obliging_asian_stewardesses_can_do_everything_for_you_480p.mp4'},
+      {title:'Mature Man Fucks Maid Alex',                    url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Mature_Man_Fucks_Young_Maid_Alex_In_The_Presence_Of_His_Wife_480p.mp4'},
+      {title:'Midwives Help Poor Man',                        url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Midwives_Help_Poor_Man_While_His_Wife_Is_In_Obstetric_Chair_480p.mp4'},
+      {title:'Asian Stepmom Came Drunk',                      url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Asian_Stepmom_Came_Drunk_Today_and_Slept_in_My_Bed_480p.mp4'},
+      {title:'Best Friend Sleeping — Fucking His Girlfriend', url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Best_Friend_Was_Sleeping_While_I_Was_Fucking_His_Busty_Girlfriend_480p.mp4'},
+      {title:'My Big Step Daddy Fucks Me Roughly',            url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Big_Step_Daddy_Fucks_Me_Roughly_But_Thats_What_I_Wanted_480p.mp4'},
+      {title:'Cheating Husband Fucks Stepdaughter',           url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Cheating_Husband_Fucks_My_Dear_Princess_When_I_Go_To_Work_480p.mp4'},
+      {title:"Girlfriend's Chubby Sister",                    url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Girlfriends_Chubby_Sister_Knows_What_to_Do_With_My_Erect_Cock_480p.mp4'},
+      {title:'Wife Sleeping — Fucking Naughty Stepdaughter',  url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Wife_Is_Sleeping_And_Im_Fucking_My_Naughty_Stepdaughter_Meanwhile_480p.mp4'},
+      {title:'Wife Lauren vs Daughter Alex',                  url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Wife_Lauren_Is_Hot_But_Her_Daughter_Alex_Is_Even_Sexier_480p.mp4'},
+      {title:'Girlfriend Kiara and Hot Fitness Mom Lexi',     url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_My_Young_Girlfriend_Kiara_And_Her_Hot_Fitness_Mom_Lexi_480p.mp4'},
+      {title:'Natalia — Pajama Party Group Orgy',             url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Natalia_-_I_Wanted_A_Pajama_Party_But_It_Was_A_Group_Orgy_480p.mp4'},
+      {title:"Santa Fucks His Little Helper's Ass",           url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Santa_fucks_his_little_helpers_ass_under_the_Christmas_tree_480p.mp4'},
+      {title:"Skinny Lady Gets Anal from Boyfriend's Daddy",  url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Skinny_Body_Young_Lady_Gets_Anal_From_Her_Boyfriends_Daddy_480p.mp4'},
+      {title:'Stepdad Fucks Stepdaughter During Family Dinner',url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Stepdad_Fucks_His_Naughty_Stepdaughter_During_Family_Dinner_480p.mp4'},
+      {title:'Stupid Jock and Slutty Ladyana at Gym',         url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Stupid_Jock_Gets_Horny_When_He_Sees_Slutty_Fitness_Ladyana_In_The_Gym_480p.mp4'},
+      {title:'Swinger Orgy in Foster Family',                 url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Swinger_Orgy_In_My_Foster_Family_This_is_not_what_they_teach_me_in_school_480p.mp4'},
+      {title:'Tanned Latina Seduces Stepdad',                 url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Tanned_Latina_Seduces_Her_Stepdad_and_Twerks_on_His_Cock_480p.mp4'},
+      {title:'Tattooed Blonde Lauren Seduced',                url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Tattooed_Blonde_Lauren_Seduced_By_Her_Roommates_Boyfriend_480p.mp4'},
+      {title:"Boyfriend Fucks Drunk Sister Avi",              url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_What_The_Fuck__My_Boyfriend_Fucks_My_Drunk_Sister_Avi_480p.mp4'},
+      {title:'Young Latina Sinful Sex with Stepdad (POV)',    url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Young_Latina_Has_Sinful_Sex_With_Her_Stepdad_In_POV_480p.mp4'},
+      {title:'Young Girl Seduces Step Brother Under Xmas Tree',url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/RexPorn_Young_Naughty_Girl_Seduces_Her_Step_Brother_Under_Christmas_Tree_480p.mp4'},
+      {title:'Two Hot Naked Girls — Lesbian Sex',             url:'https://archive.org/download/rex-porn-my-big-step-daddy-fucks-me-roughly-but-thats-what-i-wanted-480p/Two%20smoking%20hot%20naked%20girls%20have%20hot%20lesbian%20sex%20together%20%E2%80%93%20Naked%20Girls%20%281%29.mp4'},
+    ]
+  },
+  '9799705 COLLECTION': {
+    label: '🎬 9799705 Collection',
+    movies: [
+      {title:'Vol. 1 — 1080p', url:'https://archive.org/download/9799705-1080p/8993908-1080p.mp4'},
+      {title:'Vol. 2 — 1080p', url:'https://archive.org/download/9799705-1080p/8995742-1080p.mp4'},
+      {title:'Vol. 3 — 720p',  url:'https://archive.org/download/9799705-1080p/9175639-720p.mp4'},
+      {title:'Vol. 4 — 1080p', url:'https://archive.org/download/9799705-1080p/9799705-1080p.mp4'},
+    ]
+  },
   'TITO BRASS': {
     label: '🎞 Tinto Brass Movies',
     movies: [
@@ -2000,7 +2171,7 @@ const adultChannelNumbers = {
   'INSEGNANTE COLLECTION':         6912,
   'LOVE RELATIONSHIPS COLLECTION': 6913,
   'MACHINES COLLECTION':           6910,
-  'FLIX COLLECTION':               6911,
+  'XXX FAMILY':               6911,
   'DEBBIE DOES DALLAS':            6915,
   'PIG FARMERS DAUGHTER':          6916,
   'LA SERVANTE PERVERSE':          6917,
@@ -2048,17 +2219,33 @@ const adultChannelNumbers = {
   'ANITA SWEDISH NYMPHET':         6961,
   'ANATOMY OF HELL':               6962,
   'EROTIC GAMES 1988':             6963,
+  'TIA CYRUS WEDDING':             6964,
+  'ZZ SLUTTIEST STRIPPERS':        6965,
+  'THROUGH LOOKING GLASS':         6966,
+  'BABYFACE 2':                    6967,
+  'SECHS SCHWEDINNEN ALM':         6968,
+  'LOVE LETTERS PORTUGUESE':       6969,
+  'MICHEL LEMOINE 31200':          6970,
+  'ERIKA SAVASTANI 1995':          6971,
+  'XVIDEO 2023':                   6972,
+  'VIDEO 2023 MAY':                6973,
+  'GIVE ME PINK':                  6974,
+  '9799705 COLLECTION':            6975,
+  'GAME SHOW XXX':                 6976,
+  'MICHELLE BAUER':                6977,
+  'REX COLLECTION':                6978,
+  'X FLIXS':                       6979,
 };
 
 const adultDisplayNames = {
   'MALICIA COLLECTION':            '🗂 Malicia (1973)',
   'WHATEVER SHE WANTS':            'What Every French Girl Wants',
   'PARODY MOVIES XXX':             '🃏 All Parodies (15 films)',
-  'RUSSIAN INSTITUTE 7':           'Russian Institute: Lesson 7 (2006)',
+  'RUSSIAN INSTITUTE 7':           '🎓 Russian Institute (6 lessons)',
   'INSEGNANTE COLLECTION':         "🗂 L'insegnante (1975)",
   'LOVE RELATIONSHIPS COLLECTION': '🗂 Love & Other Relationships (1974)',
   'MACHINES COLLECTION':           '🗂 Machines (7 films)',
-  'FLIX COLLECTION':               "🗂 Flix's (21 films)",
+  'XXX FAMILY':               '🗂 XXX Family (21 films)',
   'DEBBIE DOES DALLAS':            'Debbie Does Dallas (1978)',
   'PIG FARMERS DAUGHTER':          "The Pig Farmer's Daughter (1972)",
   'LA SERVANTE PERVERSE':          'La Servante Perverse (1978)',
@@ -2106,18 +2293,35 @@ const adultDisplayNames = {
   'ANITA SWEDISH NYMPHET':         'Anita, Swedish Nymphet (1973)',
   'ANATOMY OF HELL':               'Anatomy of Hell (2003)',
   'EROTIC GAMES 1988':             'Erotic Games (1988)',
+  'TIA CYRUS WEDDING':             'Tia Cyrus — Rent-A-Pornstar: Wedding Planner Pt.2',
+  'ZZ SLUTTIEST STRIPPERS':        'Best of ZZ: Sluttiest Strippers (2023)',
+  'THROUGH LOOKING GLASS':         'Through the Looking Glass (1976)',
+  'BABYFACE 2':                    'Babyface 2 (1986)',
+  'SECHS SCHWEDINNEN ALM':         'Sechs Schwedinnen auf der Alm (1983)',
+  'LOVE LETTERS PORTUGUESE':       'Love Letters of a Portuguese Nun',
+  'MICHEL LEMOINE 31200':          'Michel Lemoine 31200',
+  'ERIKA SAVASTANI 1995':          'Erika Savastani (1995)',
+  'XVIDEO 2023':                   'XVideo 2023',
+  'VIDEO 2023 MAY':                'Video — May 2023',
+  'GIVE ME PINK':                  '🌸 Give Me Pink (24 eps)',
+  '9799705 COLLECTION':            '🗂 9799705 Collection (4 films)',
+  'GAME SHOW XXX':                 '🎮 Game Show XXX (12 eps)',
+  'MICHELLE BAUER':                '🎬 Scream Queen Michelle Bauer (13 films)',
+  'REX COLLECTION':                '🎬 Rex Porn Collection (33 films)',
+  'X FLIXS':                       "🗂 X-Flix's (32 films)",
 };
 
 const adultSections = [
-  { label:'🎬 Erotic Cinema',   keys:['MALICIA COLLECTION','INSEGNANTE COLLECTION','LOVE RELATIONSHIPS COLLECTION','WHATEVER SHE WANTS','RUSSIAN INSTITUTE 7','LA SERVANTE PERVERSE','PIG FARMERS DAUGHTER','OH REBUCETEIO','FALLO 2003','SECHS SCHWEDINNEN','DEBBIE DOES DALLAS','YOUNG LADY CHATTERLEY','WITHOUT A STITCH','TRACI I LOVE YOU','ROMANCE X','ODYSSEY ULTIMATE TRIP','MALICE 1994','LOLITA 1998','DAMAGE 1992','BOXING HELENA','9 SONGS 2004','ANATOMY OF HELL','EROTIC GAMES 1988','HOW TO SCORE CHICKS','HOW TO STRIP FOR MAN','DR SEX 1964','DEEP THROAT 1972','CONFESSIONS CAMPUS VIRGIN'] },
+  { label:'🎬 Erotic Cinema',   keys:['MALICIA COLLECTION','INSEGNANTE COLLECTION','LOVE RELATIONSHIPS COLLECTION','WHATEVER SHE WANTS','RUSSIAN INSTITUTE 7','LA SERVANTE PERVERSE','PIG FARMERS DAUGHTER','OH REBUCETEIO','FALLO 2003','SECHS SCHWEDINNEN','SECHS SCHWEDINNEN ALM','DEBBIE DOES DALLAS','YOUNG LADY CHATTERLEY','WITHOUT A STITCH','TRACI I LOVE YOU','ROMANCE X','ODYSSEY ULTIMATE TRIP','MALICE 1994','LOLITA 1998','DAMAGE 1992','BOXING HELENA','9 SONGS 2004','ANATOMY OF HELL','EROTIC GAMES 1988','HOW TO SCORE CHICKS','HOW TO STRIP FOR MAN','DR SEX 1964','DEEP THROAT 1972','CONFESSIONS CAMPUS VIRGIN','THROUGH LOOKING GLASS','BABYFACE 2','LOVE LETTERS PORTUGUESE','MICHEL LEMOINE 31200','ERIKA SAVASTANI 1995','XVIDEO 2023','VIDEO 2023 MAY'] },
   { label:'🥢 French & European',keys:['TOUT LE MONDE','PARTIES CHAUDES','LES DELICES DU TOSSING','LES AVENTURES ZORRO','LES ZIZIS EN FOLIE','LES ONZE MILLE VERGES','LES AVENTURES NERON','LES COLLEGIENNES','LA CAMERIERA','INITIATION ROSALIE','KEETJE TIPPEL','IL VIZIO DI FAMIGLIA','IL DECAMERONE PROIBITO','ANITA SWEDISH NYMPHET'] },
   { label:'🚃 Japanese',         keys:['GROPER TRAIN'] },
   { label:'🌺 Series',           keys:['EMANUELLE COLLECTION','ROLLS ROYCE BABY','LA BETE COLLECTION','FELICIA COLLECTION'] },
-  { label:'⭐ Featured',         keys:['CORY CHASE','CRYSTAL WHITE','WHATEVER ASIAN WANTS','4K HEAVEN'] },
-  { label:'🎞 Collections',      keys:['TITO BRASS'] },
+  { label:'⭐ Featured',         keys:['CORY CHASE','CRYSTAL WHITE','WHATEVER ASIAN WANTS','4K HEAVEN','TIA CYRUS WEDDING','ZZ SLUTTIEST STRIPPERS'] },
+  { label:'🎞 Collections',      keys:['TITO BRASS','GIVE ME PINK','GAME SHOW XXX','MICHELLE BAUER','REX COLLECTION','9799705 COLLECTION'] },
   { label:'🃏 Parodies',        keys:['PARODY MOVIES XXX'] },
   { label:'⚙️ Machines',        keys:['MACHINES COLLECTION'] },
-  { label:"💋 Flix's",          keys:['FLIX COLLECTION'] },
+  { label:'👨‍👩‍👧 XXX Family',       keys:['XXX FAMILY'] },
+  { label:"🔥 X-Flix's",         keys:['X FLIXS'] },
 ];
 
 const movieCollections = {
@@ -5863,6 +6067,30 @@ document.getElementById('easterEggOverlay').addEventListener('click',()=>{
 });
 
 /* ==================== INIT ==================== */
+// Auto-relogin to archive.org if credentials saved
+async function iaAutoLogin(){
+  const creds = localStorage.getItem('ia_creds');
+  if(!creds) return;
+  try {
+    const decoded = atob(creds);
+    const colon = decoded.indexOf(':');
+    const user = decoded.substring(0, colon);
+    const pass = decoded.substring(colon + 1);
+    const fd = new FormData();
+    fd.append('username', user);
+    fd.append('password', pass);
+    fd.append('submit_by_js', 'true');
+    const res = await fetch('https://archive.org/account/login', {
+      method:'POST', body:fd, credentials:'include', mode:'cors'
+    });
+    const json = await res.json().catch(()=>null);
+    if(res.ok && json && json.status==='ok'){
+      localStorage.setItem('ia_session', JSON.stringify({loggedIn:true, username:user}));
+    }
+  } catch(e){ /* silent fail — CORS on localhost is expected */ }
+}
+iaAutoLogin();
+
 window.addEventListener('load',()=>{
   const savedShow=localStorage.getItem('currentShow');
   const savedType=localStorage.getItem('currentType')||'show';
@@ -5936,6 +6164,8 @@ async function iaLogin(){
   const btn  = document.getElementById('ia-login-btn');
   if(!user||!pass){ iaMsg('Enter your username and password','error'); return; }
   btn.textContent='Logging in…'; btn.disabled=true;
+  // Save credentials for auto-relogin (base64 obfuscated, not secure but better than plaintext label)
+  localStorage.setItem('ia_creds', btoa(user + ':' + pass));
   iaMsg('Connecting to archive.org…','info');
   try {
     const fd = new FormData();
@@ -5987,6 +6217,7 @@ async function iaLogin(){
 
 function iaLogout(){
   localStorage.removeItem('ia_session');
+  localStorage.removeItem('ia_creds');
   iaMsg('Logged out','info');
   iaRefreshUI();
   // Also hit archive.org logout endpoint in background
