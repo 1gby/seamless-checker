@@ -1909,7 +1909,67 @@
      ═══════════════════════════════════════════════════════════════════ */
   let isAdultMode       = localStorage.getItem('adultMode') === 'true';
   let currentMovieId    = null;   // id of movie/show open in detail view
-  let currentDetailItem = null;   // full item object open in detail view
+  let currentDetailItem = null;
+
+  // ── Navigation Stack (LIFO) ──────────────────────────────────────────
+  const navStack = [];
+
+  function navPush() {
+    const detailBody = document.getElementById('detail-body');
+    if (!detailBody) return;
+    navStack.push({
+      html:              detailBody.innerHTML,
+      scrollTop:         detailBody.scrollTop,
+      currentDetailItem: currentDetailItem ? { ...currentDetailItem } : null,
+      currentImdbId:     currentImdbId,
+      currentMediaType:  currentMediaType,
+      currentSeason:     currentSeason,
+      currentEpisode:    currentEpisode,
+    });
+    // Push a browser history entry so iOS swipe-back triggers popstate
+    history.pushState({ navDepth: navStack.length }, '');
+  }
+
+  function navBack() {
+    if (navStack.length === 0) {
+      closeDetail();
+      return;
+    }
+    const prev = navStack.pop();
+    const detailBody = document.getElementById('detail-body');
+    detailBody.innerHTML = prev.html;
+    currentDetailItem  = prev.currentDetailItem;
+    currentImdbId      = prev.currentImdbId;
+    currentMediaType   = prev.currentMediaType;
+    currentSeason      = prev.currentSeason;
+    currentEpisode     = prev.currentEpisode;
+    requestAnimationFrame(() => { detailBody.scrollTop = prev.scrollTop; });
+    document.querySelectorAll('#back-btn, #back-to-movie').forEach(btn => {
+      btn.onclick = navBack;
+    });
+    document.getElementById('detail-close').onclick = () => {
+      navStack.length = 0;
+      closeDetail();
+    };
+    updateAllFavoriteButtons();
+  }
+
+  // Hook iOS swipe-back / browser back into our nav stack
+  window.addEventListener('popstate', (e) => {
+    const detailActive = document.getElementById('detail-view')?.classList.contains('active');
+    if (!detailActive) return;
+    // Prevent browser navigating away — handle it ourselves
+    if (navStack.length > 0) {
+      navBack();
+      // Re-push so the browser always has a state to swipe back to
+      history.pushState({ navDepth: navStack.length }, '');
+    } else {
+      closeDetail();
+    }
+  });
+
+  // Push an initial state on load so swipe-back into detail always has a base
+  history.replaceState({ navDepth: 0 }, '');   // full item object open in detail view
   let currentImdbId     = null;   // IMDB ID for Stremio addon queries
   let currentMediaType  = null;   // 'movie' or 'tv'
   let currentSeason     = null;   // Current season number (TV)
@@ -6017,8 +6077,8 @@
         }
       }
 
-      document.getElementById('detail-close').onclick = closeDetail;
-      document.getElementById('back-btn').onclick     = closeDetail;
+      document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
+      document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading movie details.</p>';
       console.error('[openMovieDetail]', err);
@@ -6221,8 +6281,8 @@
         }
       }
 
-      document.getElementById('detail-close').onclick = closeDetail;
-      document.getElementById('back-btn').onclick     = closeDetail;
+      document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
+      document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading TV details.</p>';
       console.error('[openTVDetail]', err);
@@ -6231,6 +6291,7 @@
   }
 
   async function openActorDetail(actorId) {
+    navPush(); // save current page before navigating to actor
     closeFavoritesPage();
     showLoading({ message: 'Loading actor details…' });
     try {
@@ -6325,8 +6386,8 @@
         };
       });
 
-      document.getElementById('detail-close').onclick  = closeDetail;
-      document.getElementById('back-to-movie').onclick = closeDetail;
+      document.getElementById('detail-close').onclick  = () => { navStack.length = 0; closeDetail(); };
+      document.getElementById('back-to-movie').onclick = navBack;
     } catch (err) {
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading actor details.</p>';
       console.error('[openActorDetail]', err);
@@ -6335,6 +6396,7 @@
   }
 
   function closeDetail() {
+    navStack.length = 0; // clear stack on full close
     document.getElementById('detail-view').classList.remove('active');
     document.body.style.overflow = '';
     currentDetailItem = null;
@@ -6358,6 +6420,7 @@
   }
 
   async function showCollection(collectionId) {
+    navPush(); // save current page before navigating to collection
     showLoading({ message: 'Loading collection…' });
     try {
       const collection = await (isAdultMode ? tmdbAdult : tmdb)(`/collection/${collectionId}`);
@@ -6370,8 +6433,8 @@
       document.getElementById('detail-body').innerHTML = html;
       document.getElementById('detail-view').classList.add('active');
       await renderVerticalGrid('collection-grid', collection.parts || []);
-      document.getElementById('detail-close').onclick = closeDetail;
-      document.getElementById('back-btn').onclick     = closeDetail;
+      document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
+      document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading collection.</p>';
     }
