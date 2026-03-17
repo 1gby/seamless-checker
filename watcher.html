@@ -1921,6 +1921,27 @@
 
   // ── Navigation Stack (LIFO) ──────────────────────────────────────────
   const navStack = [];
+  const _navReg = {};
+  function navRegStore(item) {
+    const type = item.media_type || (item.known_for_department ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
+    const key = type + '_' + item.id;
+    _navReg[key] = item;
+    return key;
+  }
+  function rewireCards() {
+    document.querySelectorAll('[data-nav-key]').forEach(card => {
+      const item = _navReg[card.dataset.navKey];
+      if (item) card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
+    });
+    document.querySelectorAll('[data-actor-id]').forEach(card => {
+      const id = parseInt(card.dataset.actorId);
+      if (id) card.onclick = () => openActorDetail(id);
+    });
+    document.querySelectorAll('[data-tv-id]').forEach(card => {
+      const id = parseInt(card.dataset.tvId);
+      if (id) card.onclick = () => openTVDetail(id);
+    });
+  }
 
   function navPush() {
     const detailBody = document.getElementById('detail-body');
@@ -1963,6 +1984,7 @@
     currentSeason      = prev.currentSeason;
     currentEpisode     = prev.currentEpisode;
     requestAnimationFrame(() => { detailBody.scrollTop = prev.scrollTop; });
+    rewireCards();
     document.querySelectorAll('#back-btn, #back-to-movie').forEach(btn => {
       btn.onclick = navBack;
     });
@@ -5179,7 +5201,8 @@
         </button>
         <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
         <div class="info">${year ? `<div class="year">${year}</div>` : ''}</div>`;
-      card.onclick = () => openDetail(item);
+      card.dataset.navKey = navRegStore(item);
+      card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
     }
   }
@@ -5212,7 +5235,8 @@
         </button>
         <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
         <div class="info">${infoHtml}</div>`;
-      card.onclick = () => openDetail(item);
+      card.dataset.navKey = navRegStore(item);
+      card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
     }
   }
@@ -5449,6 +5473,7 @@
           <div style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${dayName} · ${epLabel}</div>
           <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ep.name || ''}</div>
         </div>`;
+      card.dataset.tvId = show.id;
       card.onclick = () => openTVDetail(show.id);
       grid.appendChild(card);
     }
@@ -5551,6 +5576,7 @@
           <div class="cw-title">${show.name || show.original_name || ''}</div>
           <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</div>
         </div>`;
+      card.dataset.tvId = show.id;
       card.onclick = () => openTVDetail(show.id);
       grid.appendChild(card);
     }
@@ -6068,6 +6094,7 @@
           const card = document.createElement('div');
           card.className = 'card director-card';
           card.innerHTML = `<img class="poster" src="${TMDB_IMG}${d.profile_path}" loading="lazy" alt="${d.name}"><div class="info"><div class="director-info-stacked"><div class="director-name">${d.name}</div><div class="director-role">Director</div></div></div>`;
+          card.dataset.actorId = d.id;
           card.onclick = () => openActorDetail(d.id);
           ds.appendChild(card);
         }
@@ -6081,6 +6108,7 @@
           card.className = 'card';
           const role = actor.character || actor.roles?.[0]?.character || 'Unknown Role';
           card.innerHTML = `<img class="poster" src="${TMDB_IMG}${actor.profile_path}" loading="lazy" alt="${actor.name}"><div class="info"><div class="actor-info-stacked"><div class="actor-name">${actor.name}</div><div class="actor-role">${role}</div></div></div>`;
+          card.dataset.actorId = actor.id;
           card.onclick = () => openActorDetail(actor.id);
           cs.appendChild(card);
         }
@@ -6235,6 +6263,7 @@
           card.className = 'card';
           const role = actor.character || actor.roles?.[0]?.character || 'Unknown Role';
           card.innerHTML = `<img class="poster" src="${TMDB_IMG}${actor.profile_path}" loading="lazy" alt="${actor.name}"><div class="info"><div class="actor-info-stacked"><div class="actor-name">${actor.name}</div><div class="actor-role">${role}</div></div></div>`;
+          card.dataset.actorId = actor.id;
           card.onclick = () => openActorDetail(actor.id);
           cs.appendChild(card);
         }
@@ -6391,7 +6420,8 @@
           card.className = 'card';
           if (item.id === currentMovieId) card.classList.add('highlight');
           card.innerHTML = `<img class="poster" src="${imageUrl}" loading="lazy" alt="${item.title||item.name}"><div class="info">${year?`<div class="year">${year}</div>`:''}</div>`;
-          card.onclick = () => openDetail(item);
+          card.dataset.navKey = navRegStore(item);
+          card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
           grid.appendChild(card);
         }
       }
