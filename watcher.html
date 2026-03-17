@@ -393,6 +393,13 @@
       line-height: 1; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
     }
     #detail-close:hover { transform: rotate(90deg) scale(1.2); }
+    #detail-back {
+      position: absolute; top: 1rem; left: 1rem; font-size: 2rem;
+      color: var(--accent-green); cursor: pointer; transition: transform 0.2s; z-index: 10;
+      line-height: 1; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    }
+    #detail-back:hover { transform: scale(1.2); }
+    #detail-back.hidden { display: none; }
 
     .detail-hero { position: relative; margin: -2rem -1.5rem 2rem; border-radius: 20px 20px 0 0; overflow: hidden; }
     .detail-backdrop { width: 100%; height: 225px; object-fit: cover; opacity: 0.4; }
@@ -1393,6 +1400,7 @@
 <div id="detail-view">
   <div id="detail-content">
     <span id="detail-close">×</span>
+    <span id="detail-back">←</span>
     <div id="detail-body"></div>
   </div>
 </div>
@@ -1926,8 +1934,19 @@
       currentSeason:     currentSeason,
       currentEpisode:    currentEpisode,
     });
-    // Push a browser history entry so iOS swipe-back triggers popstate
     history.pushState({ navDepth: navStack.length }, '');
+    updateDetailBackBtn();
+  }
+
+  function updateDetailBackBtn() {
+    const btn = document.getElementById('detail-back');
+    if (!btn) return;
+    if (navStack.length > 0) {
+      btn.classList.remove('hidden');
+      btn.onclick = navBack;
+    } else {
+      btn.classList.add('hidden');
+    }
   }
 
   function navBack() {
@@ -1949,8 +1968,10 @@
     });
     document.getElementById('detail-close').onclick = () => {
       navStack.length = 0;
+      updateDetailBackBtn();
       closeDetail();
     };
+    updateDetailBackBtn();
     updateAllFavoriteButtons();
   }
 
@@ -5935,9 +5956,6 @@
   }
 
   function openDetail(item) {
-    // Save current page to stack if detail view is already open (we're navigating deeper)
-    const detailActive = document.getElementById('detail-view')?.classList.contains('active');
-    if (detailActive) navPush();
     currentDetailItem = item;
     if (item.media_type === 'person' || item.known_for_department) openActorDetail(item.id);
     else if (item.media_type === 'tv' || item.first_air_date)      openTVDetail(item.id);
@@ -5949,6 +5967,7 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   async function openMovieDetail(movieId) {
+    if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     currentMovieId = movieId;
     closeFavoritesPage(); // Close favorites overlay if open
     showLoading({ message: 'Loading movie details…' });
@@ -6090,6 +6109,7 @@
   }
 
   async function openTVDetail(tvId) {
+    if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     currentMovieId = tvId;
     closeFavoritesPage(); // Close favorites overlay if open
     showLoading({ message: 'Loading TV show details…' });
@@ -6294,6 +6314,7 @@
   }
 
   async function openActorDetail(actorId) {
+    if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     closeFavoritesPage();
     showLoading({ message: 'Loading actor details…' });
     try {
@@ -6398,7 +6419,8 @@
   }
 
   function closeDetail() {
-    navStack.length = 0; // clear stack on full close
+    navStack.length = 0;
+    updateDetailBackBtn();
     document.getElementById('detail-view').classList.remove('active');
     document.body.style.overflow = '';
     currentDetailItem = null;
