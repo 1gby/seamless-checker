@@ -202,7 +202,7 @@ z-index:5;
 }
 .screen{
 position:absolute;
-left:11.75%;top:22%;right:18%;bottom:12%;
+left:12%;top:22%;right:18%;bottom:12%;
 background:#000;
 border-radius:8px;
 overflow:hidden;
@@ -1032,6 +1032,7 @@ padding-right:calc(1rem + env(safe-area-inset-right));
 
   <optgroup label="🏺 Hanna-Barbera Classics">
     <option value="BATFINK">409: Batfink (1966)</option>
+    <option value="THREE STOOGES">420: The Three Stooges</option>
     <option value="QUACK PACK">360: Quack Pack (1996)</option>
     <option value="JACKSON 5IVE">364: The Jackson 5ive (1971)</option>
   </optgroup>
@@ -1167,6 +1168,7 @@ padding-right:calc(1rem + env(safe-area-inset-right));
         <option value="PRIVATE SCHOOL">Private School (1983)</option>
         <option value="SAY ANYTHING">Say Anything... (1989)</option>
         <option value="SIXTEEN CANDLES">Sixteen Candles (1984)</option>
+        <option value="MY SUMMER STORY">My Summer Story (1994)</option>
         <option value="SPACEBALLS">Spaceballs (1987)</option>
         <option value="STEP BROTHERS">Step Brothers (2008)</option>
         <option value="THROW MAMA TRAIN">Throw Momma from the Train (1987)</option>
@@ -1825,6 +1827,37 @@ const adultDirectVideos = {
   'ANATOMY OF HELL':          'https://archive.org/download/x-rated-rated-r-adult-films/Anatomy%20Of%20Hell%2C%20by%20Katherine%20Breillat%20%282003%29.mp4',
   'EROTIC GAMES 1988':        'https://archive.org/download/x-rated-rated-r-adult-films/Erotic%20Games%20%281988%29%20Moana%20Pozzi%2C%20Marino%20Mas%C3%A8%2C%20Petra%20Scharbach%2C%20Hula.mp4',
 
+  'HAPPY HIGH SCHOOL':        'https://archive.org/download/happy-high-school-las-colegialas/Happy%20High%20School%2C%20Las%20Colegialas.mp4',
+  'SHE DEVILS SS':            'https://archive.org/download/she.-devils.-of.-the.-ss.-1973./She.Devils.Of.The.SS.1973..mp4',
+  'CALIGULAS HOT NIGHTS':     'https://archive.org/download/caligulas-hot-nights-1977/Caligula%27s%20Hot%20Nights%20-%201977.mp4',
+  'I PROSSENETI':             'https://archive.org/download/i-prosseneti-panderers-1976-alain-cuny-juliette-mayniel-stefani-casini-silvia-di/I%20Prosseneti%2C%20Panderers%20-%201976%20-%20Alain%20Cuny%2C%20Juliette%20mayniel%2C%20Stefani%20Casini%2C%20Silvia%20Dionsio%2C%20Jean%20Valmont%2C%20Ilona%20Staller%2C%20Gabriella%20Lepori%2C%20Anna%20Mallarini%2C%20Sofia%20Dionsio%2C%20Marina%20Pierro%20%2B%20Brunello%20Rondi.mp4',
+  'INTIMATE GAMES 1976':      'https://archive.org/download/intimate-games-1976-george-baker-monika-ringwald-anna-bergman-maria-st-clare-hea/Intimate%20Games%20-%201976%20-%20George%20Baker%2C%20Monika%20Ringwald%2C%20Anna%20Bergman%2C%20Maria%20St%20Clare%2C%20Heather%20Deeley%2C%20Suze%20Mandel%2C%20Felicity%20Devonshire%2C%20Lindy%20Benson%2C%20Mary%20Millington%20%2B%20Tudor%20Gates%2C%20Martin%20Campbell%20%20.mp4',
+  'SEX WITH THE STARS':       'https://archive.org/download/sex.-with.-the.-stars.-1981.720p.-blu-ray.x-264.-aac-yts.-mx/Sex.With.The.Stars.1981.720p.BluRay.x264.AAC-%5BYTS.MX%5D.mp4',
+  'LADY VENGEANCE':           'https://archive.org/download/lady-vengeance-2005/Lady%20Vengeance%20%282005%29.mp4',
+  'MY AMERICAN COUSIN':       'https://archive.org/download/can-film-archive/My%20American%20Cousin%20%281985%29.mp4',
+  'INHIBITIONS 1976':         'https://archive.org/download/inhibitions-inibizione-1976/Inhibitions%2C%20Inibizione%20-%201976.mp4',
+  'BELLA ANTONIA':            'https://archive.org/download/la-bella-antonia-naughty-nun-1972-edwige-fenech-piero-focaccia-riccardo-garrone-/La%20bella%20Antonia%2C%20Naughty%20Nun%20-%201972%20-%20%20Edwige%20Fenech%2C%20Piero%20Focaccia%2C%20Riccardo%20Garrone%2C%20Luciana%20Turina%2C%20Josiane%20Tanzilli%2C%20Carla%20Mancini%2C%20Malisa%20Longo%2C%20Karin%20Well%2C%20Lucretia%20Love%20%2B%20Mariano%20Laurenti.mp4',
+  'BOOB TUBE 1975':           'https://archive.org/download/boob-tube-the-1975-colleen-brennan-john-alderman-lyllah-torena-elana-casey-jon-r/Boob%20Tube%2C%20The%201975%20-%20Colleen%20Brennan%2C%20John%20Alderman%2C%20Lyllah%20Torena%2C%20Elana%20Casey%2C%20Jon%20Reigrod%2C%20Lois%20Lane%2C%20Marcie%20Barkin%2C%20Becky%20Sharpe%2C%20Sable%20Sperling%2C%20Beatty%20Twins%20%2B%20Christopher%20Odin.mp4',
+  'POPCORN ICE CREAM':        'https://archive.org/download/popcorn-and-ice-cream-popcorn-und-himbeereis-1978-benny-schnier-olivia-pascal-za/Popcorn%20and%20Ice%20Cream%2C%20Popcorn%20und%20Himbeereis%20-%201978%20-%20%20Benny%20Schnier%2C%20Olivia%20Pascal%2C%20Zachi%20Noy%2C%20Gesa%20Thomas%2C%20Bea%20Fiedler%2C%20Margarethe%20Kuske%2C%20Ursula%20Buchfellner%2C%20Dolly%20Dollar%2C%20Walter%20Kraus%20%20%2B%20Franz%20Josef%20Gottlieb.mp4',
+  'HURRA SCHWEDINNEN':        'https://archive.org/download/hurra-die-schwedinnen-sind-da-1978-scarlett-gunden-bea-fiedler-corinne-brodbeck-/Hurra%20-%20Die%20Schwedinnen%20sind%20da%20%20-%201978%20%20-%20Scarlett%20Gunden%2C%20Bea%20Fiedler%2C%20Corinne%20Brodbeck%2C%20Renate%20Langer%2C%20Margot%20Mahler%2C%20Corinna%20Genest%2C%20Uschi%20Glas%2C%20Rosi%20Mayr%20%2B%20Franz%20Josef%20Gottlieb.mp4',
+  'UBALDA 1972':              'https://archive.org/download/ubalda-all-naked-and-warm-quel-gran-pezzo-dell-ubalda-tutta-nuda-e-tutta-calda-1/Ubalda%2C%20All%20Naked%20and%20Warm%2C%20Quel%20gran%20pezzo%20dell%20Ubalda%20tutta%20nuda%20e%20tutta%20calda%20-%201972%20-%20Edwige%20Fenech%2C%20Pippo%20Franco%2C%20Karin%20Schubert%2C%20Pino%20Ferrara%2C%20Dane%20Cleri%2C%20Carla%20Mancini%2C%20Gabriella%20Giorgelli%20%2B%20Mariano%20Laurenti%20.mp4',
+  'ITALIAN SEX 1974':         'https://archive.org/download/italian-sex-sesso-in-testa-1974/Italian%20Sex%2C%20Sesso%20in%20testa%20-%201974.mp4',
+  'FRUIT IS RIPE 1977':       'https://archive.org/download/fruit-is-ripe-the-griechische-feigen-1977-olivia-pascal-betty-verges-jessica-dub/Fruit%20is%20Ripe%2C%20The%2C%20%20Griechische%20Feigen%20-%201977%20-%20Olivia%20Pascal%2C%20Betty%20Verges%2C%20Jessica%20Dublin%2C%20Claus%20Richt%2C%20Wolf%20Goldan%2C%20Sabi%20Dorr%2C%20Rut%20Rex%2C%20Eric%20Wedekind%20%2B%20Sigi%20Rothemund.mp4',
+  'LADIES DOCTOR 1977':       'https://archive.org/download/ladies-doctor-il-ginecologo-della-mutua-1977-renzo-montagnani-paola-senatore-mas/Ladies%20Doctor%2C%20Il%20ginecologo%20della%20mutua%20-%201977%20-%20%20Renzo%20Montagnani%2C%20Paola%20Senatore%2C%20Massimo%20Serato%2C%20Daniela%20Doria%2C%20Marina%20Hedman%2C%20%2B%20Joe%20D%27Amato.mp4',
+  'SENSUOUS NURSE 1975':      'https://archive.org/download/sensuous-nurse-the-linfermiera-1975/Sensuous%20Nurse%2C%20The%2C%20L%27infermiera%20-%201975.mp4',
+  'FOXY LADY 1994':           'https://archive.org/download/foxy-lady-spiando-marina-the-smile-of-the-fox-1994-debora-caprioglio-steve-bond-/Foxy%20Lady%2C%20Spiando%20Marina%2C%20The%20Smile%20of%20the%20Fox%20-%201994%20-%20Debora%20Caprioglio%2C%20Steve%20Bond%2C%20Sharon%20Marino%2C%20Leonardo%20Treviglio%2C%20Raffaella%20Offidani%2C%20Sharon%20Twomey%20%2B%20Sergio%20Martino%20%20.mp4',
+  'GRAZIE NONNA':             'https://archive.org/download/GrazieNonnaLoverBoy1975FullMovieItalian/Grazie%20nonna%20-Lover%20Boy-%20%281975%29%20Full%20Movie%20-%20Italian.mp4',
+  'FLOWERS IN ATTIC':         'https://archive.org/download/flowers-in-the-attic-1987_202510/Flowers%20in%20the%20Attic%20-%201987/Flowers%20in%20the%20Attic%20-%201987.mp4',
+  'PARADIS POUR TOUS':        'https://archive.org/download/paradis-pour-tous-1982-patrick-dewaaere-jacques-dutronc-fanny-cottencon-stephane/Paradis%20pour%20tous%20-%201982%20-%20Patrick%20Dewaaere%2C%20Jacques%20Dutronc%2C%20Fanny%20Cottencon%2C%20Stephane%20Audran%2C%20Jeanne%20Goupil%2C%20Caroline%20Berg%2C%20Anna%20Gaylor%2C%20Nicole%20Gueden%2C%20Anna%20Gaylor%2C%20Nicole%20Gueden%20%2B%20Alain%20J%20Jessua.mp4',
+  'LA MOGLIE VACANZA':        'https://archive.org/download/la-moglie-in-vacanza-lamante-in-citta-1980/La%20moglie%20in%20vacanza%20l%27amante%20in%20citta%20-%201980.mp4',
+  'HOW FUNNY SEX':            'https://archive.org/download/how-funny-can-sex-be-sessomatto-1973/How%20Funny%20Can%20Sex%20Be%2C%20Sessomatto%20-%201973.mp4',
+  'INCONSOLABLE WIDOW':       'https://archive.org/download/inconsolable-widow-the-la-vedova-inconsolabile-1973/Inconsolable%20Widow%2C%20The%2C%20La%20vedova%20inconsolabile%20-%201973.mp4',
+  'I SEE NAKED 1969':         'https://archive.org/download/i-see-naked-vedo-nudo-1969-sylva-koscina-veronique-vendell-daniela-giordano-edda/I%20See%20Naked%2C%20Vedo%20nudo%20-%201969%20-%20Sylva%20Koscina%2C%20V%C3%A9ronique%20Vendell%2C%20Daniela%20Giordano%2C%20Edda%20Ferronao%2C%20Lisa%20Halvorsen%2C%20Lia%20Tanzi%2C%20Milly%20D%27Abbraccio%20%2B%20Dino%20Risi.mp4',
+  'BYLETH 1972':              'https://archive.org/download/byleth-the-demon-of-incest-1972-claudia-gravy-silvana-pompilli-marzia-damon-carl/Byleth%2C%20The%20Demon%20of%20Incest%20-%201972%20-%20Claudia%20Gravy%2C%20Silvana%20Pompilli%2C%20Marzia%20Damon%2C%20Carla%20Mancini%2C%20Bruna%20Beani%2C%20Karin%20Lorson%2C%20Florian%20Endlicher%2C%20Mark%20Damon%2B%20Leopoldo%20Savona.mp4',
+  'OVERNIGHT MODELS':         'https://archive.org/download/overnight-models-jagd-auf-jungfrauen-1976-gaby-heine-lis-larsen-tony-rose-pia-tr/Overnight%20Models%2C%20Jagd%20Auf%20Jungfrauen%20%20-%201976%20%20-%20Gaby%20Heine%2C%20Lis%20Larsen%2C%20Tony%20Rose%2C%20Pia%20Trajun%2C%20Erna%20Haffner%2C%20Lilo%20Hartmann%2C%20Heidi%20Netzel%2C%20Judith%20Fritsch%2C%20Marita%20Vogelsang%20%2B%20Wolfgang%20Bellenbaum.mp4',
+  'INSACIABLE 1979':          'https://archive.org/download/insaciable-1979/Insaciable%20%281979%29.mp4',
+  'HOLIDAY REPORT 1971':      'https://archive.org/download/holiday-report-urlaubsreport-woruber-reiseleiter-nicht-sprechen-durfen-1971/Holiday%20Report%2C%20Urlaubsreport%2C%20Woruber%20Reiseleiter%20Nicht%20Sprechen%20Durfen%20-%201971.mp4',
+  'LES CHIENNES 1973':        'https://archive.org/download/bitches-the-les-chiennes-1973/Bitches%2C%20The%2C%20Les%20chiennes%20-%201973.mp4',
   'SECHS SCHWEDINNEN BACKUP': 'https://archive.org/download/x-rated-rated-r-adult-films/Sechs%20Schwedinnen%20von%20der%20Tankstelle%20aka%20Six%20Su%C3%A9doises%20%C3%A0%20la%20pompe%20%28Eng.%2C%20Six%20Swedes%20at%20a%20Pump%29%2C%20by%20Erwin%20C.%20Dietrich%20-%20Brigitte%20Lahaie%20%20%281980%29%20Com%C3%A9die%20%C3%A9rotique.mp4',
   'TIA CYRUS WEDDING':        'https://archive.org/download/pornstars-like-it-big-tia-cyrus-rent-a-pornstar-the-wedding-planner-part-2_202602/PornstarsLikeItBig%20-%20Tia%20Cyrus%20-%20Rent-A-Pornstar%20The%20Wedding%20Planner%20Part%202.mp4',
   'ZZ SLUTTIEST STRIPPERS':   'https://archive.org/download/pornstars-like-it-big-tia-cyrus-rent-a-pornstar-the-wedding-planner-part-2_202602/BrazzersExxtra.23.06.08.Best.Of.ZZ.Sluttiest.Strippers.XXX.1080p.HEVC.x265.PRT.mp4',
@@ -1863,6 +1896,7 @@ const adultCollections = {
     label: 'Malicia (1973)',
     movies: [
       {title:'Malicia — Primary',          url:'https://www.dailymotion.com/embed/video/x9huwxq?autoplay=1&ui-logo=0&sharing-enable=0&mute=0'},
+      {title:'Malizia (1973) — Archive Backup 2', url:'https://archive.org/download/malizia-malicious-1973-laura-antonelli-turi-ferro-alessandro-momo-tina-aumont-an/Malizia%2C%20%20Malicious%20-%201973%20-%20%20Laura%20Antonelli%2C%20Turi%20Ferro%2C%20Alessandro%20Momo%2C%20Tina%20Aumont%2C%20Angela%20Luce%2C%20Pino%20Caruso%2C%20Angela%20Luce%2C%20Grazia%20Di%20Marza%20%2B%20Salvatore%20Samperi.mp4'},
       {title:'Malizia / Malicious (1973) — Archive Backup', url:'https://archive.org/download/x-rated-rated-r-adult-films/Malizia%20%28Eng.%2C%20Malicious%29%2C%20by%20Salvatore%20Samperi%20%281973%29%20Italian.mp4'},
       {title:'Malicia — Backup (DM)',       url:'https://www.dailymotion.com/embed/video/x9hv382?autoplay=1&ui-logo=0&sharing-enable=0&mute=0'},
       {title:'Malicious — YouTube Backup', url:'https://www.youtube.com/embed/R7GG9ejcT4c?autoplay=1&start=4682'},
@@ -2021,6 +2055,7 @@ const adultCollections = {
     movies: [
       {title:'Felicia — Les Mille et Une Perversions (1975)', url:'https://archive.org/download/x-rated-rated-r-adult-films/Felicia%20-%20Les%20Mille%20et%20Une%20Perversions%20de%20Felicia%2C%20par%20Max%20P%C3%A9cas%2C%20com%20Mary%20Mendum%20%281975%29%2018%2B%20.mp4'},
       {title:'Les mille et une perversions de Felicia (1975) — Alt', url:'https://archive.org/download/x-rated-rated-r-adult-films/Les%20mille%20et%20une%20perversions%20de%20Felicia%2C%20par%20Max%20P%C3%A9cas%20%281975%29%20com%C3%A9die%20%C3%A9rotique%20espa%C3%B1ola%20-%2018%2B%20.mp4'},
+      {title:'Felicia — Les Mille et Une Perversions (1975) — HD Backup', url:'https://archive.org/download/felicia-les-mille-et-une-perversions-de-felicia-1975-john-roche-batrice-harnois-/Felicia%2C%20Les%20Mille%20et%20Une%20Perversions%20de%20Felicia%20-%201975%20-%20John%20Roche%2C%20Batrice%20Harnois%2C%20Eva%20Khris%2C%20Marlene%20Myller%2C%20Mary%20Mendum%2C%20Nicole%20Daudet%20%20%2B%20Max%20Pecas.mp4'},
     ]
   },
   'GIVE ME PINK': {
@@ -2242,6 +2277,37 @@ const adultChannelNumbers = {
   'ANATOMY OF HELL':               6962,
   'EROTIC GAMES 1988':             6963,
   'JERRY SPRINGER':                 6980,
+  'HAPPY HIGH SCHOOL':              6981,
+  'SHE DEVILS SS':                  6982,
+  'CALIGULAS HOT NIGHTS':           6983,
+  'I PROSSENETI':                   6984,
+  'INTIMATE GAMES 1976':            6985,
+  'SEX WITH THE STARS':             6986,
+  'LES CHIENNES 1973':              6987,
+  'LADY VENGEANCE':                7000,
+  'MY AMERICAN COUSIN':             7001,
+  'INHIBITIONS 1976':               6988,
+  'BELLA ANTONIA':                  6989,
+  'BOOB TUBE 1975':                 6990,
+  'POPCORN ICE CREAM':              6991,
+  'HURRA SCHWEDINNEN':              6992,
+  'UBALDA 1972':                    6993,
+  'ITALIAN SEX 1974':               6994,
+  'FRUIT IS RIPE 1977':             6995,
+  'LADIES DOCTOR 1977':             6996,
+  'SENSUOUS NURSE 1975':            6997,
+  'FOXY LADY 1994':                 6998,
+  'HOLIDAY REPORT 1971':            6999,
+  'GRAZIE NONNA':                   7002,
+  'FLOWERS IN ATTIC':               7003,
+  'PARADIS POUR TOUS':              7004,
+  'LA MOGLIE VACANZA':              7005,
+  'HOW FUNNY SEX':                  7006,
+  'INCONSOLABLE WIDOW':             7007,
+  'I SEE NAKED 1969':               7008,
+  'BYLETH 1972':                    7009,
+  'OVERNIGHT MODELS':               7010,
+  'INSACIABLE 1979':                7011,
   'TIA CYRUS WEDDING':             6964,
   'ZZ SLUTTIEST STRIPPERS':        6965,
   'THROUGH LOOKING GLASS':         6966,
@@ -2335,7 +2401,7 @@ const adultDisplayNames = {
 };
 
 const adultSections = [
-  { label:'🎬 Erotic Cinema',   keys:['MALICIA COLLECTION','INSEGNANTE COLLECTION','LOVE RELATIONSHIPS COLLECTION','WHATEVER SHE WANTS','RUSSIAN INSTITUTE 7','LA SERVANTE PERVERSE','PIG FARMERS DAUGHTER','OH REBUCETEIO','FALLO 2003','SECHS SCHWEDINNEN','SECHS SCHWEDINNEN ALM','DEBBIE DOES DALLAS','JERRY SPRINGER','YOUNG LADY CHATTERLEY','WITHOUT A STITCH','TRACI I LOVE YOU','ROMANCE X','ODYSSEY ULTIMATE TRIP','MALICE 1994','LOLITA 1998','DAMAGE 1992','BOXING HELENA','9 SONGS 2004','ANATOMY OF HELL','EROTIC GAMES 1988','HOW TO SCORE CHICKS','HOW TO STRIP FOR MAN','DR SEX 1964','DEEP THROAT 1972','CONFESSIONS CAMPUS VIRGIN','THROUGH LOOKING GLASS','BABYFACE 2','LOVE LETTERS PORTUGUESE','MICHEL LEMOINE 31200','ERIKA SAVASTANI 1995','XVIDEO 2023','VIDEO 2023 MAY'] },
+  { label:'🎬 Erotic Cinema',   keys:['MALICIA COLLECTION','INSEGNANTE COLLECTION','LOVE RELATIONSHIPS COLLECTION','WHATEVER SHE WANTS','RUSSIAN INSTITUTE 7','LA SERVANTE PERVERSE','PIG FARMERS DAUGHTER','OH REBUCETEIO','FALLO 2003','SECHS SCHWEDINNEN','SECHS SCHWEDINNEN ALM','DEBBIE DOES DALLAS','JERRY SPRINGER','YOUNG LADY CHATTERLEY','WITHOUT A STITCH','TRACI I LOVE YOU','ROMANCE X','ODYSSEY ULTIMATE TRIP','MALICE 1994','LOLITA 1998','DAMAGE 1992','BOXING HELENA','9 SONGS 2004','ANATOMY OF HELL','EROTIC GAMES 1988','HOW TO SCORE CHICKS','HOW TO STRIP FOR MAN','DR SEX 1964','DEEP THROAT 1972','CONFESSIONS CAMPUS VIRGIN','THROUGH LOOKING GLASS','BABYFACE 2','LOVE LETTERS PORTUGUESE','MICHEL LEMOINE 31200','ERIKA SAVASTANI 1995','XVIDEO 2023','VIDEO 2023 MAY','LADY VENGEANCE','MY AMERICAN COUSIN','HAPPY HIGH SCHOOL','SHE DEVILS SS','CALIGULAS HOT NIGHTS','I PROSSENETI','INTIMATE GAMES 1976','SEX WITH THE STARS','LES CHIENNES 1973','INHIBITIONS 1976','BELLA ANTONIA','BOOB TUBE 1975','POPCORN ICE CREAM','HURRA SCHWEDINNEN','UBALDA 1972','ITALIAN SEX 1974','FRUIT IS RIPE 1977','LADIES DOCTOR 1977','SENSUOUS NURSE 1975','FOXY LADY 1994','HOLIDAY REPORT 1971','GRAZIE NONNA','FLOWERS IN ATTIC','PARADIS POUR TOUS','LA MOGLIE VACANZA','HOW FUNNY SEX','INCONSOLABLE WIDOW','I SEE NAKED 1969','BYLETH 1972','OVERNIGHT MODELS','INSACIABLE 1979'] },
   { label:'🥢 French & European',keys:['TOUT LE MONDE','PARTIES CHAUDES','LES DELICES DU TOSSING','LES AVENTURES ZORRO','LES ZIZIS EN FOLIE','LES ONZE MILLE VERGES','LES AVENTURES NERON','LES COLLEGIENNES','LA CAMERIERA','INITIATION ROSALIE','KEETJE TIPPEL','IL VIZIO DI FAMIGLIA','IL DECAMERONE PROIBITO','ANITA SWEDISH NYMPHET'] },
   { label:'🚃 Japanese',         keys:['GROPER TRAIN'] },
   { label:'🌺 Series',           keys:['EMANUELLE COLLECTION','ROLLS ROYCE BABY','LA BETE COLLECTION','FELICIA COLLECTION'] },
@@ -2505,6 +2571,21 @@ const movieCollections = {
       {title:'Flight of the Navigator (1986) — Backup', url:'https://archive.org/embed/28-days-later_202505/Flight.of.the.Navigator.1986.1080p.BrRip.x264.YIFY.mp4'},
     ]
   },
+  'MY SUMMER STORY': {
+    label: 'My Summer Story (1994)',
+    movies: [
+      {title:'My Summer Story (1994)',          url:'https://archive.org/download/my.-summer.-story.-1994.-dvdrip/My.Summer.Story.1994.DVDRip.mp4'},
+      {title:'My Summer Story (1994) — Backup', url:'https://archive.org/download/my.-summer.-story.-1994.-dvdrip/My.Summer.Story.1994.DVDRip.avi'},
+    ]
+  },
+  'DARKMAN COLLECTION': {
+    label: '🦸 Darkman Trilogy',
+    movies: [
+      {title:'Darkman (1990)',                          url:'https://archive.org/download/darkman-trilogy-1990/Darkman%20-%2001%201990.mp4'},
+      {title:'Darkman II: The Return of Durant (1995)', url:'https://archive.org/download/darkman-trilogy-1990/Darkman.%20-%2002%20-%20The%20Return%20of%20Durant%201995.mp4'},
+      {title:'Darkman III: Die Darkman Die (1996)',     url:'https://archive.org/download/darkman-trilogy-1990/Darkman.%20-%2003%20-%20Die%20Darkman%20Die%201996.mp4'},
+    ]
+  },
   'FRIDAY 13TH MOVIES': {
     label: 'Friday the 13th — All Films',
     movies: [
@@ -2580,9 +2661,13 @@ const movieCollections = {
   'ROBOCOP MOVIES': {
     label: 'RoboCop Movies',
     movies: [
-      {title:'RoboCop (1987) 4K',   url:'https://archive.org/download/robo-cop.-1987.2160p.-4-k.-blu-ray.x-265.10bit.-aac-5.1-yts.-mx/RoboCop.1987.2160p.4K.BluRay.x265.10bit.AAC5.1-%5BYTS.MX%5D.mp4'},
-      {title:'RoboCop 2 (1990) 4K', url:'https://archive.org/download/robo-cop.-2.1990.2160p.-4-k.-blu-ray.x-265.10bit.-aac-5.1-yts.-mx/RoboCop.2.1990.2160p.4K.BluRay.x265.10bit.AAC5.1-%5BYTS.MX%5D.mp4'},
-      {title:'RoboCop 3 (1993)',     url:'https://archive.org/download/robo-cop.-3.1993.1080p.-blu-ray.x-264.-aac-5.1-yts.-mx/RoboCop.3.1993.1080p.BluRay.x264.AAC5.1-%5BYTS.MX%5D.mp4'},
+      {title:'RoboCop (1987) 4K',         url:'https://archive.org/download/robo-cop.-1987.2160p.-4-k.-blu-ray.x-265.10bit.-aac-5.1-yts.-mx/RoboCop.1987.2160p.4K.BluRay.x265.10bit.AAC5.1-%5BYTS.MX%5D.mp4'},
+      {title:'RoboCop (1987) — Backup',   url:'https://archive.org/download/robocop-1987_202311/Robocop%201987.mp4'},
+      {title:'RoboCop 2 (1990) 4K',       url:'https://archive.org/download/robo-cop.-2.1990.2160p.-4-k.-blu-ray.x-265.10bit.-aac-5.1-yts.-mx/RoboCop.2.1990.2160p.4K.BluRay.x265.10bit.AAC5.1-%5BYTS.MX%5D.mp4'},
+      {title:'RoboCop 2 (1990) — Backup', url:'https://archive.org/download/robocop-1987_202311/Robocop%202.mp4'},
+      {title:'RoboCop 3 (1993)',           url:'https://archive.org/download/robo-cop.-3.1993.1080p.-blu-ray.x-264.-aac-5.1-yts.-mx/RoboCop.3.1993.1080p.BluRay.x264.AAC5.1-%5BYTS.MX%5D.mp4'},
+      {title:'RoboCop 3 (1993) — Backup', url:'https://archive.org/download/robocop-1987_202311/Robocop%203.mp4'},
+      {title:'RoboCop (2014)',             url:'https://archive.org/download/robocop-1987_202311/Robocop%202014.mp4'},
     ]
   },
   'SCOOBY LIVE MOVIES': {
@@ -2954,6 +3039,7 @@ const archiveSeriesItems = {
   'STREET FIGHTER':  'street-fighter-the-animated-series',
   'EVEN STEVENS':    'evenstevensclips',
   'STONE PROTECTORS': 's-01-e-13-going-home',
+  'THREE STOOGES':    'sing-a-song-of-six-paints',
 };
 
 const archiveSeriesFilter = {
@@ -4106,6 +4192,8 @@ const channelNumbers = {
   'THROW MAMA TRAIN':1080,
   'UHF':1081,
   'MRS DOUBTFIRE':1082,
+  'MY SUMMER STORY':1316,
+  'DARKMAN COLLECTION':1317,
   'HEAVY METAL':1318,
   'TIME BANDITS':1319,
   'HEATHERS':1320,
@@ -4160,6 +4248,7 @@ const channelNumbers = {
   'STREET FIGHTER': 417,
   'EVEN STEVENS':   418,
   'STONE PROTECTORS':419,
+  'THREE STOOGES':   420,
   'JERRY SPRINGER': 6980,
   // ── Batch 3 standalone movies ──
   'ARE WE THERE YET':1124,'BEAVIS BUTTHEAD':1125,'BIG DADDY':1126,'BILLY MADISON':1127,
@@ -4444,6 +4533,8 @@ const displayNames={
   'ADDAMS FAMILY LIVE':'The Addams Family (1964)',
   // ── NEW MOVIE DISPLAY NAMES ──
   'MONTY PYTHON HOLY GRAIL':'Monty Python and the Holy Grail (1975)',
+  'MY SUMMER STORY':'My Summer Story (1994)',
+  'DARKMAN COLLECTION':'🗂 Darkman Trilogy',
   'HEAVY METAL':'Heavy Metal (1981)',
   'TIME BANDITS':'Time Bandits (1981)',
   'HEATHERS':'Heathers (1988)',
@@ -4580,7 +4671,39 @@ const displayNames={
   'STREET FIGHTER': '🗂 Street Fighter: The Animated Series (1995)',
   'EVEN STEVENS':   'Even Stevens (2000)',
   'STONE PROTECTORS':'Stone Protectors (1993)',
+  'THREE STOOGES':   'The Three Stooges',
   'JERRY SPRINGER': 'Jerry Springer',
+  'HAPPY HIGH SCHOOL':    'Happy High School / Las Colegialas',
+  'SHE DEVILS SS':        'She Devils of the SS (1973)',
+  'CALIGULAS HOT NIGHTS': "Caligula's Hot Nights (1977)",
+  'I PROSSENETI':         'I Prosseneti / Panderers (1976)',
+  'INTIMATE GAMES 1976':  'Intimate Games (1976)',
+  'SEX WITH THE STARS':   'Sex with the Stars (1981)',
+  'LES CHIENNES 1973':    'Les Chiennes / The Bitches (1973)',
+  'LADY VENGEANCE':    'Lady Vengeance (2005)',
+  'MY AMERICAN COUSIN':'My American Cousin (1985)',
+  'INHIBITIONS 1976':    'Inhibitions / Inibizione (1976)',
+  'BELLA ANTONIA':       'La bella Antonia, Naughty Nun (1972)',
+  'BOOB TUBE 1975':      'The Boob Tube (1975)',
+  'POPCORN ICE CREAM':   'Popcorn and Ice Cream (1978)',
+  'HURRA SCHWEDINNEN':   'Hurra — Die Schwedinnen sind da (1978)',
+  'UBALDA 1972':         'Ubalda, All Naked and Warm (1972)',
+  'ITALIAN SEX 1974':    'Italian Sex / Sesso in testa (1974)',
+  'FRUIT IS RIPE 1977':  'The Fruit is Ripe / Griechische Feigen (1977)',
+  'LADIES DOCTOR 1977':  "Ladies Doctor / Il ginecologo della mutua (1977)",
+  'SENSUOUS NURSE 1975': "The Sensuous Nurse / L'infermiera (1975)",
+  'FOXY LADY 1994':      'Foxy Lady / Spiando Marina (1994)',
+  'HOLIDAY REPORT 1971': 'Holiday Report / Urlaubsreport (1971)',
+  'GRAZIE NONNA':       'Grazie nonna / Lover Boy (1975)',
+  'FLOWERS IN ATTIC':   'Flowers in the Attic (1987)',
+  'PARADIS POUR TOUS':  'Paradis pour tous (1982)',
+  'LA MOGLIE VACANZA':  "La moglie in vacanza… l'amante in città (1980)",
+  'HOW FUNNY SEX':      'How Funny Can Sex Be / Sessomatto (1973)',
+  'INCONSOLABLE WIDOW': 'The Inconsolable Widow (1973)',
+  'I SEE NAKED 1969':   'I See Naked / Vedo nudo (1969)',
+  'BYLETH 1972':        'Byleth: The Demon of Incest (1972)',
+  'OVERNIGHT MODELS':   'Overnight Models / Jagd auf Jungfrauen (1976)',
+  'INSACIABLE 1979':    'Insaciable (1979)',
   'ARE WE THERE YET':'Are We There Yet? (2005)',
   'BEAVIS BUTTHEAD':'Beavis and Butt-Head Do America (1996)',
   'BIG DADDY':'Big Daddy (1999)',
@@ -5885,7 +6008,7 @@ function getAllSections(){
     { label:'💥 Marvel / DC / Action Heroes', type:'show', keys:['X-MEN','TMNT','THUNDERCATS','REAL GHOSTBUSTERS','ROBOCOP ANIMATED','ROBOCOP LIVE','ROBOCOP MINI','IRON MAN 94','SPIDER MAN 67','SPIDER MAN UNLIMITED','SPIDER MAN 2003','AMAZING SPIDER MAN 77','FANTASTIC FOUR 96','INCREDIBLE HULK 66','INCREDIBLE HULK 94','MEN IN BLACK ANIMATED','JACKIE CHAN ADVENTURES','THE FLASH 90','GREEN HORNET','TINTIN'] },
     { label:'🍁 Canadian', type:'show', keys:['RACCOONS','REBOOT','UNDERGRADS','DOG CITY','LITTLEST HOBO'] },
     { label:'🕹️ 90s Toons', type:'show', keys:['ADDAMS FAMILY 90','BEETLEJUICE','DEXTER LAB','EXTREME GHOSTBUSTERS','SLIMER','EARTHWORM JIM','THE TICK','EXOSQUAD','COPS ANIMATED','DARKSTALKERS','MEGA MAN 94','MEGA MAN NT','ARCHIE WEIRD MYSTERIES','ANIMANIACS','THE OBLONGS','BUMP IN THE NIGHT','ALADDIN ANIMATED','BILL TED ANIMATED','DRAGON BALL Z','DRAWN TOGETHER','FILMATION GHOSTBUSTERS','BEETHOVEN ANIMATED','HEATHCLIFF CATILLAC','WAYNEHEAD','TEEN ANGEL','BIKER MICE','MIGHTY MAX','MK DEFENDERS','TATTOOED TEENS','STONE PROTECTORS'] },
-    { label:'📺 Classics Animation', type:'show', keys:['PINK PANTHER','ROCKY BULLWINKLE','UNDERDOG','CASPER','ARCHIE SHOW','CADILLACS DINOSAURS','GARBAGE PAIL KIDS','TALES CRYPTKEEPER','MY PET MONSTER','POLE POSITION','RICHIE RICH','POPEYE','MIGHTY MOUSE','FRAGGLE ROCK ANIMATED','MY LITTLE PONY','BOBBYS WORLD','CAMP CANDY','HELLO KITTY','LITTLE SHOP','PETER PAN PIRATES','FLIPPER LOPAKA','CALIFORNIA RAISINS','SYLVANIAN FAMILIES','LAVERNE SHIRLEY ARMY','GROOVIE GOOLIES','MONSTER SQUAD 1976','RAGGEDY ANN ANDY','POUND PUPPIES','JACKSON 5IVE','FELIX THE CAT','BATFINK','TEDDY RUXPIN'] },
+    { label:'📺 Classics Animation', type:'show', keys:['PINK PANTHER','ROCKY BULLWINKLE','UNDERDOG','CASPER','ARCHIE SHOW','CADILLACS DINOSAURS','GARBAGE PAIL KIDS','TALES CRYPTKEEPER','MY PET MONSTER','POLE POSITION','RICHIE RICH','POPEYE','MIGHTY MOUSE','FRAGGLE ROCK ANIMATED','MY LITTLE PONY','BOBBYS WORLD','CAMP CANDY','HELLO KITTY','LITTLE SHOP','PETER PAN PIRATES','FLIPPER LOPAKA','CALIFORNIA RAISINS','SYLVANIAN FAMILIES','LAVERNE SHIRLEY ARMY','GROOVIE GOOLIES','MONSTER SQUAD 1976','RAGGEDY ANN ANDY','POUND PUPPIES','JACKSON 5IVE','FELIX THE CAT','BATFINK','TEDDY RUXPIN','THREE STOOGES'] },
     { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','HOME IMPROVEMENT','WISHBONE','EVEN STEVENS','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
     { label:'🕰️ Classic Sitcoms', type:'show', keys:['LEAVE IT BEAVER','NEW LEAVE IT BEAVER','MONKEES','ARCHIE BUNKERS PLACE','BAYWATCH','ADDAMS FAMILY LIVE','NEW ADDAMS FAMILY','MUNSTERS','JEFFERSONS','GOOD TIMES','DIFF STROKES','GET SMART','BENSON','GHOST MRS MUIR','THATS MY BOY'] },
     { label:'🔭 Sci-Fi & Adventure', type:'show', keys:['VOYAGERS','SOMETHING OUT THERE','EERIE INDIANA','EERIE INDIANA OTHER DIM','SUPERNATURAL 1977','HARDY BOYS NANCY DREW','YOUNG INDIANA JONES','DA VINCI DEMONS','OTHERWORLD','STREET HAWK','JACK OF ALL TRADES'] },
@@ -5893,10 +6016,10 @@ function getAllSections(){
     { label:'🇬🇧 British', type:'show', keys:['MR BEAN','KEEPING UP APPEARANCES','ARE YOU BEING SERVED','ALL CREATURES','FAWLTY TOWERS','RENTAGHOST','DENNIS MENACE GNASHER','BLACKADDER','THE PRISONER','HITCHHIKER','MR MEN','LITTLE MISS'] },
     { label:'📚 Educational & Kids', type:'show', keys:['BILL NYE','READING RAINBOW','ADVENTURES IN ODYSSEY','THOMAS AND FRIENDS','BERENSTAIN BEARS','CHRONICLES NARNIA','STORYTELLER','CHARLIE BROWN','HAUNTING HOUR','ANCIENT ALIENS'] },
     { label:'🗂 Collections', type:'movie', keys:['ACE VENTURA COLLECTION','BATMAN COLLECTION','BILL TED COLLECTION','BTTF COLLECTION','CARE BEARS COLLECTION','CREEPSHOW MOVIES','ERNEST COLLECTION','GHOSTBUSTERS COLLECTION','GREMLINS COLLECTION','HOME ALONE COLLECTION','JOHN CANDY COLLECTION','MANIAC COP COLLECTION','MK COLLECTION','NFB COLLECTION','NEVERENDING STORY COLLECTION','NIGHTMARE ELM COLLECTION','3 NINJAS','POLICE ACADEMY COLLECTION','PROBLEM CHILD COLLECTION','RAMBO COLLECTION','REVENGE NERDS COLLECTION','ROCKY COLLECTION','SCOOBY COLLECTION','SCOOBY LIVE MOVIES','TMNT COLLECTION','YOUNG GUNS COLLECTION'] },
-    { label:'😂 Comedy', type:'movie', keys:['ANGUS','ARE WE THERE YET','ARE YOU BEING SERVED FILM','AUSTIN POWERS','BEAVIS BUTTHEAD','BIG DADDY','BILLY MADISON','BIO DOME','BLANK CHECK','BREAKFAST CLUB','CABLE GUY','ENCINO MAN','FERRIS BUELLER','FRIED GREEN TOMATOES','GOOFY MOVIE','GROUNDHOG DAY','HAPPY GILMORE','HEATHERS','LITTLE NICKY','MRS DOUBTFIRE','OSCAR MOVIE','PRIVATE SCHOOL','SAY ANYTHING','SIXTEEN CANDLES','SPACEBALLS','STEP BROTHERS','THROW MAMA TRAIN','TROOP BEVERLY HILLS','UHF','WEIRD SCIENCE'] },
+    { label:'😂 Comedy', type:'movie', keys:['ANGUS','ARE WE THERE YET','ARE YOU BEING SERVED FILM','AUSTIN POWERS','BEAVIS BUTTHEAD','BIG DADDY','BILLY MADISON','BIO DOME','BLANK CHECK','BREAKFAST CLUB','CABLE GUY','ENCINO MAN','FERRIS BUELLER','FRIED GREEN TOMATOES','GOOFY MOVIE','GROUNDHOG DAY','HAPPY GILMORE','HEATHERS','LITTLE NICKY','MRS DOUBTFIRE','OSCAR MOVIE','PRIVATE SCHOOL','SAY ANYTHING','SIXTEEN CANDLES','MY SUMMER STORY','SPACEBALLS','STEP BROTHERS','THROW MAMA TRAIN','TROOP BEVERLY HILLS','UHF','WEIRD SCIENCE'] },
     { label:'🦕 Family & Adventure', type:'movie', keys:['AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS'] },
     { label:'🧙 Fantasy & Sci-Fi', type:'movie', keys:['HEAVY METAL','HACKERS','MONTY PYTHON HOLY GRAIL','PRINCESS BRIDE','SHORT CIRCUIT COLLECTION','TIME BANDITS','WILLOW'] },
-    { label:'💥 Action & Thriller', type:'movie', keys:['AIRBORNE','BATMAN ADAM WEST','BATMAN CARTOON MOVIE','BOYZ N HOOD','CLUE','COUNT MONTE CRISTO','DEMOLITION MAN','FALLING DOWN','FIGHT CLUB','FIST NORTH STAR','FREAKY FRIDAY','FRIDAY','GLEAMING CUBE COLLECTION','GOOD BAD UGLY','GREAT BALLS OF FIRE','KARATE KID COLLECTION','LAST ACTION HERO','MENACE II SOCIETY','NEED FOR SPEED','OF MICE MEN','OUTSIDERS','THE MASK','CUCKOOS NEST','PINK FLOYD WALL','RESERVOIR DOGS','ROBOCOP MOVIES','SPAWN','SUPERMAN 1978','TOY SOLDIERS','TRUE ROMANCE'] },
+    { label:'💥 Action & Thriller', type:'movie', keys:['AIRBORNE','BATMAN ADAM WEST','BATMAN CARTOON MOVIE','BOYZ N HOOD','CLUE','COUNT MONTE CRISTO','DEMOLITION MAN','FALLING DOWN','FIGHT CLUB','FIST NORTH STAR','FREAKY FRIDAY','FRIDAY','GLEAMING CUBE COLLECTION','GOOD BAD UGLY','GREAT BALLS OF FIRE','KARATE KID COLLECTION','LAST ACTION HERO','MENACE II SOCIETY','NEED FOR SPEED','OF MICE MEN','OUTSIDERS','THE MASK','CUCKOOS NEST','PINK FLOYD WALL','RESERVOIR DOGS','DARKMAN COLLECTION','ROBOCOP MOVIES','SPAWN','SUPERMAN 1978','TOY SOLDIERS','TRUE ROMANCE'] },
     { label:'🔪 Horror', type:'movie', keys:['13 GHOSTS','FRIDAY 13TH MOVIES','FUN MOVIE'] },
   ];
 }
