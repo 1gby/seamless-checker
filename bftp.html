@@ -930,7 +930,14 @@ padding-right:calc(1rem + env(safe-area-inset-right));
     <option value="HOME IMPROVEMENT">406: Home Improvement (1991)</option>
     <option value="WISHBONE">407: Wishbone (1995)</option>
     <option value="EVEN STEVENS">418: Even Stevens (2000)</option>
+    <option value="BROTHERS KEEPER">421: Brother's Keeper (1998)</option>
+    <option value="YOU WISH">422: You Wish! (1997)</option>
+    <option value="NEWS RADIO">423: NewsRadio (1995)</option>
+    <option value="CLUELESS TV">424: Clueless (1996)</option>
+    <option value="WORKING TV">425: Working (1997)</option>
+    <option value="FERRIS BUELLER TV">426: Ferris Bueller (1990)</option>
     <option value="STEP BY STEP">815: Step by Step (1991)</option>
+    <option value="UNHAPPILY EVER">430: Unhappily Ever After (1995)</option>
     <option value="ALF LIVE">817: ALF (1986)</option>
     <option value="ALF TALES">818: ALF Tales (1988)</option>
   </optgroup>
@@ -1014,7 +1021,12 @@ padding-right:calc(1rem + env(safe-area-inset-right));
   <optgroup label="🧬 Sci-Fi & Live Action">
     <option value="BILL TED LIVE">350: Bill &amp; Ted's Excellent Adventures (Live Action)</option>
     <option value="NEW ADDAMS FAMILY">354: The New Addams Family (1998)</option>
+    <option value="SHE WOLF LONDON">429: She-Wolf of London (1990)</option>
+    <option value="LEGEND 1995">431: Legend (1995)</option>
+    <option value="CRIME TRAVELLER">432: Crime Traveller (1997)</option>
+    <option value="NIGHTMARE CAFE">433: Nightmare Café (1992)</option>
     <option value="DRAGON BALL Z">352: Dragon Ball Z</option>
+    <option value="DRAGON BALL GT">434: Dragon Ball GT (1996)</option>
   </optgroup>
 
   <optgroup label="🐾 Kids Adventure">
@@ -1028,6 +1040,8 @@ padding-right:calc(1rem + env(safe-area-inset-right));
   <optgroup label="🔭 Live Action">
     <option value="PEOPLE NEXT DOOR">358: The People Next Door (1989)</option>
     <option value="ALIENS IN FAMILY">359: Aliens in the Family (1996)</option>
+    <option value="WELCOME FRESHMEN">428: Welcome Freshmen (1991)</option>
+    <option value="UNHAPPILY EVER">430: Unhappily Ever After (1995)</option>
   </optgroup>
 
   <optgroup label="🏺 Hanna-Barbera Classics">
@@ -1178,6 +1192,7 @@ padding-right:calc(1rem + env(safe-area-inset-right));
       </optgroup>
       <optgroup label="🦕 Family &amp; Adventure">
         <option value="PEANUTS COLLECTION">🗂 Peanuts 1960s Collection</option>
+        <option value="SANDLOT">The Sandlot (1993)</option>
         <option value="AN AMERICAN TAIL">An American Tail (1986)</option>
         <option value="ANIMAL FARM">Animal Farm (1999)</option>
         <option value="BATTERIES NOT INCLUDED">Batteries Not Included (1987)</option>
@@ -2585,6 +2600,13 @@ const movieCollections = {
       {title:'A Boy Named Charlie Brown (1969 — Theatrical Film)', url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/8.%29%20A%20Boy%20Named%20Charlie%20Brown%20%281969%2C%20HD%29.mp4'},
     ]
   },
+  'SANDLOT': {
+    label: '⚾ The Sandlot (1993)',
+    movies: [
+      {title:'The Sandlot (1993) — 1080p',  url:'https://archive.org/download/The_Sandlot/The%20Sandlot%201993%201080p.mp4'},
+      {title:'The Sandlot (1993) — 720p',   url:'https://archive.org/download/The_Sandlot/The%20Sandlot%201993%20720p.mp4'},
+    ]
+  },
   'MY SUMMER STORY': {
     label: 'My Summer Story (1994)',
     movies: [
@@ -2994,7 +3016,9 @@ const archiveSeriesItems = {
   'PEOPLE NEXT DOOR':'the-people-next-door-1989',
   'ALIENS IN FAMILY':'Aliens-in-the-Family',
   'POUND PUPPIES':'pound-puppies-s-01-e-11_202509',
-  'DRAGON BALL Z':'dbz-westwood-remaster',
+  // 'DRAGON BALL Z': moved to archiveSourceGroups
+  'DRAGON BALL Z': 'dbz-westwood-remaster',
+  'DRAGON BALL GT': 'dragon-ball-gt.-sp-1.-dbox.-480p.x-264-i-kaos-v-2-046-a-1-c-10',
   'FLINTSTONES COMEDY SHOW':'flintstonescomedyshowcomplete',
   'FLINTSTONES KIDS':'the-flintstones-kids-complete-series',
   // ── NEW SHOWS (batch 4) ──
@@ -3054,6 +3078,19 @@ const archiveSeriesItems = {
   'EVEN STEVENS':    'evenstevensclips',
   'STONE PROTECTORS': 's-01-e-13-going-home',
   'THREE STOOGES':    'sing-a-song-of-six-paints',
+  // ── NEW SHOWS (batch 9) ──
+  'BROTHERS KEEPER':    'Brothers_Keeper_ABC_Rarities',
+  'YOU WISH':           'you-wish-1997-1998',
+  'NEWS RADIO':         'newsradio-1995-99',
+  'CLUELESS TV':        'clueless-1996-99',
+  'WORKING TV':         'working-1997-99-sitcom',
+  // 'FERRIS BUELLER TV': moved to archiveSourceGroups
+  'WELCOME FRESHMEN':   'Welcome-Frehsmen-1991-Series',
+  'SHE WOLF LONDON':    'she-wolf-of-london-complete-series-1990',
+  'UNHAPPILY EVER':     'unhappily_ever_after',
+  'LEGEND 1995':        'legend-complete-series-1995',
+  'CRIME TRAVELLER':    'crime-traveller-complete-series-1997',
+  'NIGHTMARE CAFE':     'nightmare-cafe_202309',
 };
 
 const archiveSeriesFilter = {
@@ -3100,6 +3137,12 @@ const archiveIdSeasonMap = {
   // Ancient Aliens — parser extracts seasons from filenames
   // Charlie Brown — full override in archiveEpisodeOverrides
   // Felix the Cat 1972 — single feature film
+  'dragon-ball-z-complete-001-291-color-corrected-dragon-box-merge': 'All Episodes',
+  'dbz-westwood-remaster':                   'All Episodes',
+  'dbz-westwood-dub-dragon-box-remaster': 'All Episodes',
+  'unhappily_ever_after':          'All Episodes',
+  'unhappily-ever-after_202507':   'All Episodes',
+  'unhappily-ever-after-1.05':     'All Episodes',
   'Mighty-Max-Cartoon-Part-1-of-2': 'Season 1 (Eps 1–20)',
   'mighty-max-s-1-e-02':            'Season 2 (Eps 21–40)',
   'fritz-the-cat-1972-cover': 'Full Film',
@@ -3114,6 +3157,13 @@ const archiveIdSeasonMap = {
   // The Jeffersons — single archive collection
   'earth-is-carmen-sandiego': 'All Episodes',
   'WishboneTVSeries19951997': 'All Episodes',
+  '036mysticmanorflopgoestheweaselthelegendoflongjondvdripxvidphz': 'Season 2',
+  '056mistakeswillhappenthewelldwellerthewisemandvdripxvidphz':     'Season 3',
+  '068bouncingbabybluestheuglyducklinglearninglessonsdvdripxvidphz':'Season 4',
+  '088ghostofachanceroygetssackedrevengeofthelivinglunchdvdripxvidphz': 'Season 5',
+  '098dr.jekyllandmr.mousepaydaymaydayhowtodrivehumanscrazydvdripxvidphz': 'Season 6',
+  '116thoroughlymixedupmousetheoldmanofthemountainfoodfighterdvdripxvidphz': 'Season 7',
+  'garfield-and-friends-complete-series': 'All Episodes',
   'the-jeffersons-Lando18':     'All Seasons',
   // Good Times — single archive collection  
   'good-times-Lando18':         'All Seasons',
@@ -3371,6 +3421,19 @@ const archiveEpisodeRangeSeasons = {
     { min:  1, max: 65, season: 'Season 1 (1984-85)' },
     { min: 66, max: 86, season: 'Season 2 (1985-86)' },
   ],
+
+  'DRAGON BALL Z': [
+    {label:'📦 Westwood Remaster (Primary)',  ids:['dbz-westwood-remaster']},
+    {label:'📦 Color Corrected Dragon Box',   ids:['dragon-ball-z-complete-001-291-color-corrected-dragon-box-merge']},
+    {label:'📦 Westwood Dub Dragon Box',      ids:['dbz-westwood-dub-dragon-box-remaster']},
+  ],
+  'UNHAPPILY EVER': [
+    { min:  1, max: 13, season: 'Season 1 (1995)' },
+    { min: 14, max: 35, season: 'Season 2 (1995-96)' },
+    { min: 36, max: 57, season: 'Season 3 (1996-97)' },
+    { min: 58, max: 78, season: 'Season 4 (1997-98)' },
+    { min: 79, max: 100, season: 'Season 5 (1998-99)' },
+  ],
   'CARMEN SANDIEGO': [
     { min:  1, max:  8, season: 'Season 1 (1994)' },
     { min:  9, max: 21, season: 'Season 2 (1994-95)' },
@@ -3431,6 +3494,21 @@ const ytEpisodePlaylists = {
 
 
 const dmEpisodeBackups = {
+  'FERRIS BUELLER TV': [
+    {title:'S01E01 - Pilot',                          season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e01%20Pilot%20-%202.13.22.mp4'},
+    {title:'S01E02 - Behind Every Dirtbag',           season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e02%20Behind%20Every%20Dirtbag.mp4'},
+    {title:'S01E03 - Custodian of the People',        season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e03%20Custodian%20of%20the%20People.mp4'},
+    {title:"S01E04 - Without You I'm Nothing",        season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e04%20Without%20You%20I%27m%20Nothing.mp4'},
+    {title:"S01E05 - Between a Rock and Rooney's Place", season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e05%20Between%20a%20Rock%20and%20Rooney%27s%20Place.mp4'},
+    {title:'S01E06 - A Dog and His Boy',              season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e06%20A%20Dog%20and%20His%20Boy.mp4'},
+    {title:"S01E07 - Ferris Bueller Can't Win",       season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e07%20%20Ferris%20Bueller%20Can%27t%20Win.mp4'},
+    {title:'S01E08 - Sloan Again, Naturally',         season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e08%20Sloan%20Again%2C%20Naturally.mp4'},
+    {title:'S01E09 - Scenes From a Grandma',          season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e09%20Scenes%20From%20a%20Grandma.mp4'},
+    {title:'S01E10 - Stand-In Deliver',               season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e10%20%20Stand-In%20Deliver.mp4'},
+    {title:"S01E11 - Baby You Can't Drive My Car",    season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e11%20Baby%20You%20Can%27t%20Drive%20My%20Car.mp4'},
+    {title:'S01E12 - Grace Under Pressure',           season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e12%20Grace%20Under%20Pressure.mp4'},
+    {title:'S01E13 - A Night in the Life',            season:'Season 1', source:'archive', archiveId:'parker-lewis-cant-lose-1990-and-ferris-bueller-the-tv-series', filename:'Ferris%20Bueller%20-%20the%20TV%20series%20%281990%E2%80%9391%29%2013%20eps%20ft%20Jennifer%20Aniston%21/Ferris%20Bueller%20TV%20Series%20%20s01e13%20A%20Night%20in%20the%20Life.mp4'},
+  ],
   'FLINTSTONES KIDS': [
     // Flintstones Kids (1986-1988): 2 seasons, 65 episodes
     // Season 1 (1986-87) | Season 2 (1987-88)
@@ -3849,8 +3927,13 @@ const archiveSourceGroups = {
     {label:'📦 Archive Backup', ids:['benson-complete-tv-series-ctv']},
   ],
   'GARFIELD AND FRIENDS': [
-    {label:'📦 Archive 1',      ids:['garfield-and-friends-complete-series']},
-    {label:'📦 Archive Backup', ids:['garfield-and-friends-complete-series']},
+    {label:'📦 Complete Series', ids:['garfield-and-friends-complete-series']},
+    {label:'📦 Season 2',  ids:['036mysticmanorflopgoestheweaselthelegendoflongjondvdripxvidphz']},
+    {label:'📦 Season 3',  ids:['056mistakeswillhappenthewelldwellerthewisemandvdripxvidphz']},
+    {label:'📦 Season 4',  ids:['068bouncingbabybluestheuglyducklinglearninglessonsdvdripxvidphz']},
+    {label:'📦 Season 5',  ids:['088ghostofachanceroygetssackedrevengeofthelivinglunchdvdripxvidphz']},
+    {label:'📦 Season 6',  ids:['098dr.jekyllandmr.mousepaydaymaydayhowtodrivehumanscrazydvdripxvidphz']},
+    {label:'📦 Season 7',  ids:['116thoroughlymixedupmousetheoldmanofthemountainfoodfighterdvdripxvidphz']},
   ],
   'FAT ALBERT': [
     {label:'📦 Archive 1',      ids:['fat-albert-and-the-cosby-kids_202410']},
@@ -3934,6 +4017,11 @@ const archiveSourceGroups = {
   'BIKER MICE': [
     {label:'📦 All Seasons (1993–96)', ids:['biker.-mice.-from.-mars.-s-02-e-02.-dvdrip.-480p.-aac']},
     {label:'📦 Revival Series (2006)', ids:['biker-mice-from-mars-2006-06-between-rump-and-a-hard-place']},
+  ],
+  'UNHAPPILY EVER': [
+    {label:'📦 Complete Series (Primary)', ids:['unhappily_ever_after']},
+    {label:'📦 Backup 1',                  ids:['unhappily-ever-after_202507']},
+    {label:'📦 Backup 2',                  ids:['unhappily-ever-after-1.05']},
   ],
   'MIGHTY MAX': [
     {label:'📦 Season 1 (Eps 1-20)', ids:['Mighty-Max-Cartoon-Part-1-of-2']},
@@ -4280,6 +4368,20 @@ const channelNumbers = {
   'EVEN STEVENS':   418,
   'STONE PROTECTORS':419,
   'THREE STOOGES':   420,
+  'BROTHERS KEEPER':  421,
+  'YOU WISH':         422,
+  'NEWS RADIO':       423,
+  'CLUELESS TV':      424,
+  'WORKING TV':       425,
+  'FERRIS BUELLER TV':426,
+  'WELCOME FRESHMEN': 428,
+  'SHE WOLF LONDON':  429,
+  'UNHAPPILY EVER':   430,
+  'LEGEND 1995':      431,
+  'CRIME TRAVELLER':  432,
+  'NIGHTMARE CAFE':   433,
+  'DRAGON BALL GT':   434,
+  'SANDLOT':          1330,
   'JERRY SPRINGER': 6980,
   // ── Batch 3 standalone movies ──
   'ARE WE THERE YET':1124,'BEAVIS BUTTHEAD':1125,'BIG DADDY':1126,'BILLY MADISON':1127,
@@ -4704,6 +4806,20 @@ const displayNames={
   'EVEN STEVENS':   'Even Stevens (2000)',
   'STONE PROTECTORS':'Stone Protectors (1993)',
   'THREE STOOGES':   'The Three Stooges',
+  'BROTHERS KEEPER':  'Brother\'s Keeper (1998)',
+  'YOU WISH':         'You Wish! (1997)',
+  'NEWS RADIO':       'NewsRadio (1995)',
+  'CLUELESS TV':      'Clueless (1996)',
+  'WORKING TV':       'Working (1997)',
+  'FERRIS BUELLER TV':'Ferris Bueller (1990)',
+  'WELCOME FRESHMEN': 'Welcome Freshmen (1991)',
+  'SHE WOLF LONDON':  'She-Wolf of London (1990)',
+  'UNHAPPILY EVER':   'Unhappily Ever After (1995)',
+  'LEGEND 1995':      'Legend (1995)',
+  'CRIME TRAVELLER':  'Crime Traveller (1997)',
+  'NIGHTMARE CAFE':   'Nightmare Café (1992)',
+  'DRAGON BALL GT':   'Dragon Ball GT (1996)',
+  'SANDLOT':          'The Sandlot (1993)',
   'JERRY SPRINGER': 'Jerry Springer',
   'HAPPY HIGH SCHOOL':    'Happy High School / Las Colegialas',
   'SHE DEVILS SS':        'She Devils of the SS (1973)',
@@ -4938,7 +5054,9 @@ function playArchiveEp(ep, el){
   if(player){try{player.destroy();}catch(e){}player=null;}
   currentSource='archive';
   const container=freshPlayerDiv();
-  const directUrl = `https://archive.org/download/${ep.archiveId}/${encodeURIComponent(ep.filename)}`;
+  // filename may already be URL-encoded (e.g. hardcoded episodes) — don't double-encode
+  const encodedFilename = ep.filename.includes('%') ? ep.filename : encodeURIComponent(ep.filename);
+  const directUrl = `https://archive.org/download/${ep.archiveId}/${encodedFilename}`;
   const ext = ep.filename.split('.').pop().toLowerCase();
   if(['mp4','webm','ogv','ogg','m4v'].includes(ext)){
     const vid = document.createElement('video');
@@ -4949,11 +5067,30 @@ function playArchiveEp(ep, el){
     vid.src = directUrl;
     vid.onerror = () => {
       container.innerHTML = '';
-      container.appendChild(makeArchiveIframe(`https://archive.org/embed/${ep.archiveId}/${encodeURIComponent(ep.filename)}?autoplay=1`));
+      // Check if this might be an IA auth issue
+      const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
+      if(saved.loggedIn) {
+        // Show session refresh prompt inline
+        const banner = document.createElement('div');
+        banner.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;padding:1rem;text-align:center;';
+        banner.innerHTML = `
+          <div style="font-size:2rem;">🔐</div>
+          <div style="color:#e2e8f0;font-size:0.9rem;">Video failed — your Archive.org session may have expired.</div>
+          <button onclick="document.getElementById('settings-overlay').classList.remove('hidden');iaRefreshSession();" style="background:rgba(176,110,243,0.2);border:1px solid rgba(176,110,243,0.5);border-radius:10px;padding:0.6rem 1.2rem;color:#b06ef3;font-family:inherit;font-size:0.88rem;cursor:pointer;">🔄 Refresh IA Session</button>
+          <div style="color:#64748b;font-size:0.75rem;">Or try the embed fallback below</div>`;
+        container.appendChild(banner);
+        // Also try embed after a moment
+        setTimeout(() => {
+          container.innerHTML = '';
+          container.appendChild(makeArchiveIframe(`https://archive.org/embed/${ep.archiveId}/${encodedFilename}?autoplay=1`));
+        }, 4000);
+      } else {
+        container.appendChild(makeArchiveIframe(`https://archive.org/embed/${ep.archiveId}/${encodedFilename}?autoplay=1`));
+      }
     };
     container.appendChild(vid);
   } else {
-    container.appendChild(makeArchiveIframe(`https://archive.org/embed/${ep.archiveId}/${encodeURIComponent(ep.filename)}?autoplay=1`));
+    container.appendChild(makeArchiveIframe(`https://archive.org/embed/${ep.archiveId}/${encodedFilename}?autoplay=1`));
   }
   document.getElementById('now-playing').textContent = '📺 '+ep.title;
   document.getElementById('play-overlay').classList.add('hidden');
@@ -5193,10 +5330,30 @@ async function fetchArchiveEpisodes(show, archiveId){
       return true;
     }).sort((a, b) => a.name.localeCompare(b.name));
 
+    // Dual-format detection: if archive has both AVI + MP4 for same basenames, keep all and tag with format group
+    const mp4Files = videoFiles.filter(f => /\.mp4$/i.test(f.name));
+    const aviFiles = videoFiles.filter(f => /\.avi$/i.test(f.name));
+    const mp4Bases = new Set(mp4Files.map(f => f.name.replace(/\.[^.]+$/, '').replace(/.*\//,'').toLowerCase()));
+    const aviBases = new Set(aviFiles.map(f => f.name.replace(/\.[^.]+$/, '').replace(/.*\//,'').toLowerCase()));
+    const hasDualFormat = mp4Files.length > 0 && aviFiles.length > 0 &&
+      [...mp4Bases].some(b => aviBases.has(b));
+
+    const dedupedFiles = hasDualFormat ? videoFiles.map(f => ({
+      ...f, _formatGroup: /\.mp4$/i.test(f.name) ? '📹 MP4' : /\.avi$/i.test(f.name) ? '📼 AVI' : '📦 Other'
+    })) : (() => {
+      const seen = new Set();
+      return videoFiles.filter(f => {
+        const base = f.name.replace(/\.[^.]+$/i, '').toLowerCase();
+        if(seen.has(base)) return false;
+        seen.add(base);
+        return true;
+      });
+    })();
+
     const archiveSeason = archiveIdSeasonMap[archiveId] || null;
     const epOverrides = archiveEpisodeOverrides[archiveId] || null;
 
-    return videoFiles.map((f, idx) => {
+    return dedupedFiles.map((f, idx) => {
       let title, season;
 
       if(epOverrides && epOverrides[idx]) {
@@ -5217,13 +5374,17 @@ async function fetchArchiveEpisodes(show, archiveId){
         season = 'All Episodes';
 
         // Try SxxExx, NxNN, or "S1 Ep N" format (e.g. Bobby's World filenames)
-        const sm = title.match(/S(\d+)[Ee](\d+)/i) || title.match(/(\d+)x(\d+)/i) || title.match(/S(\d+)\s+Ep\s+(\d+)/i);
-        if(sm) {
-          season = 'Season ' + parseInt(sm[1], 10);
+        const sm = title.match(/S(\d+)[Ee](\d+)/i) || title.match(/(\d+)x(\d+)/i) || title.match(/S(\d+)\s+Ep\s+(\d+)/i) || title.match(/S(\d+)\s+E(\d+)\b/i);
+        // Also try "season_N_-_episode_N" underscore style (e.g. MSCL filenames)
+        const smU = !sm && basename.match(/season[_\s]+(\d+)[_\s\-]+episode[_\s]+(\d+)/i);
+        const smMatch = sm || smU;
+        if(smMatch) {
+          season = 'Season ' + parseInt(smMatch[1], 10);
           // Clean the season/ep code from title
           title = title.replace(/S\d+[Ee]\d+[\s\-_]*/i, '')
                        .replace(/\d+x\d+[\s\-_]*/i, '')
-                       .replace(/S\d+\s+Ep\s+\d+[\s\-_]*/i, '').trim();
+                       .replace(/S\d+\s+Ep\s+\d+[\s\-_]*/i, '')
+                       .replace(/season[\s_]+\d+[\s_\-]+episode[\s_]+\d+[\s_\-]*/i, '').trim();
         } else {
           // Try to extract season from folder path (e.g. "The Smurfs/S01/Episode.mp4" → Season 1)
           const folderSm = f.name.match(/\/S(\d+)\//i);
@@ -5289,7 +5450,8 @@ async function fetchArchiveEpisodes(show, archiveId){
         filename: f.name,
         archiveId,
         season,
-        source: 'archive'
+        source: 'archive',
+        ...(f._formatGroup ? {formatGroup: f._formatGroup} : {})
       };
     }).filter(ep => ep.title.length > 0);
   } catch(e) {
@@ -5457,6 +5619,37 @@ async function fetchEpisodes(playlistId, show){
         group.appendChild(header);
         const epList=document.createElement('div');
         epList.className='episode-list';
+
+        // Check if this season has format groups (dual-format archive)
+        const hasFormatGroups = bySeaon[season].some(ep => ep.formatGroup);
+        if(hasFormatGroups) {
+          const byFormat = {};
+          bySeaon[season].forEach(ep => {
+            const fg = ep.formatGroup || '📦 Other';
+            if(!byFormat[fg]) byFormat[fg] = [];
+            byFormat[fg].push(ep);
+          });
+          // Render MP4 first, then AVI, then other
+          const fmtOrder = ['📹 MP4','📼 AVI','📦 Other'];
+          fmtOrder.filter(f => byFormat[f]).forEach(fmt => {
+            const fmtHeader = document.createElement('div');
+            fmtHeader.style.cssText = 'padding:0.35rem 0.75rem;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:#a78bfa;opacity:0.8;';
+            fmtHeader.textContent = fmt;
+            epList.appendChild(fmtHeader);
+            byFormat[fmt].forEach(ep => {
+              const div=document.createElement('div');
+              div.className='episode-item';
+              const thumb=ep.thumb?`<img src="${ep.thumb}" class="episode-thumb" loading="lazy">`:'';
+              const srcClass = ep.source==="archive" ? "src-archive" : ep.source==="dailymotion" ? "src-dailymotion" : "src-youtube";
+              const srcLabel = ep.source==="archive" ? "📦 Archive" : ep.source==="dailymotion" ? "🎞 DM" : ep.source==="yt-playlist" ? "▶ YT Parts" : "▶ YouTube";
+              div.innerHTML=`<span class="ep-play-icon">▶</span>${thumb}<span class="episode-title">${ep.title}</span><span class="ep-source-badge ${srcClass}">${srcLabel}</span>`;
+              const playFn = ep.source==='dailymotion' ? ()=>playDmEp(ep,div) : ep.source==='archive' ? ()=>playArchiveEp(ep,div) : ep.source==='yt-playlist' ? ()=>playYouTubePlaylistEp(ep,div) : ()=>playYouTubeEp(ep,div);
+              div.onclick=playFn;
+              div.querySelector('.ep-play-icon').onclick=e=>{e.stopPropagation();playFn();};
+              epList.appendChild(div);
+            });
+          });
+        } else {
         bySeaon[season].forEach(ep=>{
           const div=document.createElement('div');
           div.className='episode-item';
@@ -5469,6 +5662,7 @@ async function fetchEpisodes(playlistId, show){
           div.querySelector('.ep-play-icon').onclick=e=>{e.stopPropagation();playFn();};
           epList.appendChild(div);
         });
+        } // end else (no format groups)
         group.appendChild(epList);
         listDiv.appendChild(group);
       });
@@ -5570,13 +5764,15 @@ async function fetchEpisodes(playlistId, show){
       'BACK TO THE FUTURE CARTOON': '🎞️ Dailymotion Backup Episodes',
       'WHERES HUDDLES': '🎞️ Dailymotion Backup Episodes',
       'FREAKS GEEKS': '🎞️ Dailymotion Episodes',
+      'FERRIS BUELLER TV': '📦 Internet Archive',
     };
     function renderDMEpisodeBackups(label){
       const dmBackups = dmEpisodeBackups[show];
       if(!dmBackups || !dmBackups.length) return;
       const effectiveLabel = dmEpisodeLabelOverrides[show] || label || '🎞️ Dailymotion Backups';
-      const color = effectiveLabel.includes('Additional') ? '#6366f1' : '#f59e0b';
-      const border = effectiveLabel.includes('Additional') ? 'rgba(99,102,241,0.2)' : 'rgba(245,158,11,0.2)';
+      const isArchiveLabel = effectiveLabel.includes('Archive');
+      const color = isArchiveLabel ? '#10b981' : effectiveLabel.includes('Additional') ? '#6366f1' : '#f59e0b';
+      const border = isArchiveLabel ? 'rgba(16,185,129,0.2)' : effectiveLabel.includes('Additional') ? 'rgba(99,102,241,0.2)' : 'rgba(245,158,11,0.2)';
       listDiv.appendChild(makeSourceHeader(effectiveLabel, color, border));
       // Preserve all fields — some entries (e.g. ALL CREATURES) are archive, not DM
       renderSeasonGroups(dmBackups.map(ep => ({
@@ -6046,17 +6242,17 @@ function getAllSections(){
     { label:'🎪 DiC / Disney', type:'show', keys:['INSPECTOR GADGET','CARE BEARS','DARKWING DUCK','QUACK PACK','GARFIELD AND FRIENDS','ALVIN AND THE CHIPMUNKS','BACK TO THE FUTURE CARTOON','LEGEND OF ZELDA','SUPER MARIO','SMURFS','JOHAN PEEWIT','GET ALONG GANG','GARGOYLES','TALE SPIN','DUCKTALES','SUPER MARIO WORLD','SAMURAI PIZZA CATS','LAND BEFORE TIME TV','CAPTAIN PLANET','SONIC HEDGEHOG','MUMMIES ALIVE','POLICE ACADEMY ANIMATED','DOUBLE DRAGON','CARMEN SANDIEGO','STREET FIGHTER'] },
     { label:'💥 Marvel / DC / Action Heroes', type:'show', keys:['X-MEN','TMNT','THUNDERCATS','REAL GHOSTBUSTERS','ROBOCOP ANIMATED','ROBOCOP LIVE','ROBOCOP MINI','IRON MAN 94','SPIDER MAN 67','SPIDER MAN UNLIMITED','SPIDER MAN 2003','AMAZING SPIDER MAN 77','FANTASTIC FOUR 96','INCREDIBLE HULK 66','INCREDIBLE HULK 94','MEN IN BLACK ANIMATED','JACKIE CHAN ADVENTURES','THE FLASH 90','GREEN HORNET','TINTIN'] },
     { label:'🍁 Canadian', type:'show', keys:['RACCOONS','REBOOT','UNDERGRADS','DOG CITY','LITTLEST HOBO'] },
-    { label:'🕹️ 90s Toons', type:'show', keys:['ADDAMS FAMILY 90','BEETLEJUICE','DEXTER LAB','EXTREME GHOSTBUSTERS','SLIMER','EARTHWORM JIM','THE TICK','EXOSQUAD','COPS ANIMATED','DARKSTALKERS','MEGA MAN 94','MEGA MAN NT','ARCHIE WEIRD MYSTERIES','ANIMANIACS','THE OBLONGS','BUMP IN THE NIGHT','ALADDIN ANIMATED','BILL TED ANIMATED','DRAGON BALL Z','DRAWN TOGETHER','FILMATION GHOSTBUSTERS','BEETHOVEN ANIMATED','HEATHCLIFF CATILLAC','WAYNEHEAD','TEEN ANGEL','BIKER MICE','MIGHTY MAX','MK DEFENDERS','TATTOOED TEENS','STONE PROTECTORS'] },
+    { label:'🕹️ 90s Toons', type:'show', keys:['ADDAMS FAMILY 90','BEETLEJUICE','DEXTER LAB','EXTREME GHOSTBUSTERS','SLIMER','EARTHWORM JIM','THE TICK','EXOSQUAD','COPS ANIMATED','DARKSTALKERS','MEGA MAN 94','MEGA MAN NT','ARCHIE WEIRD MYSTERIES','ANIMANIACS','THE OBLONGS','BUMP IN THE NIGHT','ALADDIN ANIMATED','BILL TED ANIMATED','DRAGON BALL Z','DRAGON BALL GT','DRAWN TOGETHER','FILMATION GHOSTBUSTERS','BEETHOVEN ANIMATED','HEATHCLIFF CATILLAC','WAYNEHEAD','TEEN ANGEL','BIKER MICE','MIGHTY MAX','MK DEFENDERS','TATTOOED TEENS','STONE PROTECTORS'] },
     { label:'📺 Classics Animation', type:'show', keys:['PINK PANTHER','ROCKY BULLWINKLE','UNDERDOG','CASPER','ARCHIE SHOW','CADILLACS DINOSAURS','GARBAGE PAIL KIDS','TALES CRYPTKEEPER','MY PET MONSTER','POLE POSITION','RICHIE RICH','POPEYE','MIGHTY MOUSE','FRAGGLE ROCK ANIMATED','MY LITTLE PONY','BOBBYS WORLD','CAMP CANDY','HELLO KITTY','LITTLE SHOP','PETER PAN PIRATES','FLIPPER LOPAKA','CALIFORNIA RAISINS','SYLVANIAN FAMILIES','LAVERNE SHIRLEY ARMY','GROOVIE GOOLIES','MONSTER SQUAD 1976','RAGGEDY ANN ANDY','POUND PUPPIES','JACKSON 5IVE','FELIX THE CAT','BATFINK','TEDDY RUXPIN','THREE STOOGES'] },
-    { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','HOME IMPROVEMENT','WISHBONE','EVEN STEVENS','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
+    { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','HOME IMPROVEMENT','WISHBONE','EVEN STEVENS','BROTHERS KEEPER','YOU WISH','NEWS RADIO','CLUELESS TV','WORKING TV','UNHAPPILY EVER','FERRIS BUELLER TV','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','WELCOME FRESHMEN','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
     { label:'🕰️ Classic Sitcoms', type:'show', keys:['LEAVE IT BEAVER','NEW LEAVE IT BEAVER','MONKEES','ARCHIE BUNKERS PLACE','BAYWATCH','ADDAMS FAMILY LIVE','NEW ADDAMS FAMILY','MUNSTERS','JEFFERSONS','GOOD TIMES','DIFF STROKES','GET SMART','BENSON','GHOST MRS MUIR','THATS MY BOY'] },
-    { label:'🔭 Sci-Fi & Adventure', type:'show', keys:['VOYAGERS','SOMETHING OUT THERE','EERIE INDIANA','EERIE INDIANA OTHER DIM','SUPERNATURAL 1977','HARDY BOYS NANCY DREW','YOUNG INDIANA JONES','DA VINCI DEMONS','OTHERWORLD','STREET HAWK','JACK OF ALL TRADES'] },
+    { label:'🔭 Sci-Fi & Adventure', type:'show', keys:['VOYAGERS','SOMETHING OUT THERE','EERIE INDIANA','EERIE INDIANA OTHER DIM','SUPERNATURAL 1977','HARDY BOYS NANCY DREW','YOUNG INDIANA JONES','DA VINCI DEMONS','OTHERWORLD','STREET HAWK','JACK OF ALL TRADES','SHE WOLF LONDON','LEGEND 1995','CRIME TRAVELLER','NIGHTMARE CAFE'] },
     { label:'🎃 Horror & Thrills', type:'show', keys:['FREDDYS NIGHTMARES','WEREWOLF TV','HAMMER HOUSE HORROR','THE FRIGHTENERS TV','TIMESLIP','TALES CRYPT LIVE','FRIDAY 13TH','AFRAID DARK','GOOSEBUMPS','TALES DARKSIDE','MASTERS HORROR','CREEPSHOW','CREEPSHOW LIVE'] },
     { label:'🇬🇧 British', type:'show', keys:['MR BEAN','KEEPING UP APPEARANCES','ARE YOU BEING SERVED','ALL CREATURES','FAWLTY TOWERS','RENTAGHOST','DENNIS MENACE GNASHER','BLACKADDER','THE PRISONER','HITCHHIKER','MR MEN','LITTLE MISS'] },
     { label:'📚 Educational & Kids', type:'show', keys:['BILL NYE','READING RAINBOW','ADVENTURES IN ODYSSEY','THOMAS AND FRIENDS','BERENSTAIN BEARS','CHRONICLES NARNIA','STORYTELLER','CHARLIE BROWN','HAUNTING HOUR','ANCIENT ALIENS'] },
     { label:'🗂 Collections', type:'movie', keys:['ACE VENTURA COLLECTION','BATMAN COLLECTION','BILL TED COLLECTION','BTTF COLLECTION','CARE BEARS COLLECTION','CREEPSHOW MOVIES','ERNEST COLLECTION','GHOSTBUSTERS COLLECTION','GREMLINS COLLECTION','HOME ALONE COLLECTION','JOHN CANDY COLLECTION','MANIAC COP COLLECTION','MK COLLECTION','NFB COLLECTION','NEVERENDING STORY COLLECTION','NIGHTMARE ELM COLLECTION','3 NINJAS','POLICE ACADEMY COLLECTION','PROBLEM CHILD COLLECTION','RAMBO COLLECTION','REVENGE NERDS COLLECTION','ROCKY COLLECTION','SCOOBY COLLECTION','SCOOBY LIVE MOVIES','TMNT COLLECTION','YOUNG GUNS COLLECTION'] },
     { label:'😂 Comedy', type:'movie', keys:['ANGUS','ARE WE THERE YET','ARE YOU BEING SERVED FILM','AUSTIN POWERS','BEAVIS BUTTHEAD','BIG DADDY','BILLY MADISON','BIO DOME','BLANK CHECK','BREAKFAST CLUB','CABLE GUY','ENCINO MAN','FERRIS BUELLER','FRIED GREEN TOMATOES','GOOFY MOVIE','GROUNDHOG DAY','HAPPY GILMORE','HEATHERS','LITTLE NICKY','MRS DOUBTFIRE','OSCAR MOVIE','PRIVATE SCHOOL','SAY ANYTHING','SIXTEEN CANDLES','MY SUMMER STORY','SPACEBALLS','STEP BROTHERS','THROW MAMA TRAIN','TROOP BEVERLY HILLS','UHF','WEIRD SCIENCE'] },
-    { label:'🦕 Family & Adventure', type:'movie', keys:['PEANUTS COLLECTION','AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS'] },
+    { label:'🦕 Family & Adventure', type:'movie', keys:['SANDLOT','PEANUTS COLLECTION','AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS'] },
     { label:'🧙 Fantasy & Sci-Fi', type:'movie', keys:['HEAVY METAL','HACKERS','MONTY PYTHON HOLY GRAIL','PRINCESS BRIDE','SHORT CIRCUIT COLLECTION','TIME BANDITS','WILLOW'] },
     { label:'💥 Action & Thriller', type:'movie', keys:['AIRBORNE','BATMAN ADAM WEST','BATMAN CARTOON MOVIE','BOYZ N HOOD','CLUE','COUNT MONTE CRISTO','DEMOLITION MAN','FALLING DOWN','FIGHT CLUB','FIST NORTH STAR','FREAKY FRIDAY','FRIDAY','GLEAMING CUBE COLLECTION','GOOD BAD UGLY','GREAT BALLS OF FIRE','KARATE KID COLLECTION','LAST ACTION HERO','MENACE II SOCIETY','NEED FOR SPEED','OF MICE MEN','OUTSIDERS','THE MASK','CUCKOOS NEST','PINK FLOYD WALL','RESERVOIR DOGS','DARKMAN COLLECTION','ROBOCOP MOVIES','SPAWN','SUPERMAN 1978','TOY SOLDIERS','TRUE ROMANCE'] },
     { label:'🔪 Horror', type:'movie', keys:['13 GHOSTS','FRIDAY 13TH MOVIES','FUN MOVIE'] },
@@ -6362,7 +6558,7 @@ function initSettingsOverlay(){
     if(e.target===this) closeSettings();
   });
 }
-document.addEventListener('DOMContentLoaded', initSettingsOverlay);
+document.addEventListener('DOMContentLoaded', ()=>{ initSettingsOverlay(); setTimeout(iaBackgroundCheck, 2000); });
 
 /* ── Internet Archive login ── */
 function iaRefreshUI(){
@@ -6380,8 +6576,8 @@ function iaRefreshUI(){
     // Show session age warning if > 6 hours old
     const loginTime = saved.loginTime || 0;
     const hoursAgo = (Date.now() - loginTime) / 3600000;
-    if(hoursAgo > 6 && loginTime > 0){
-      txt.textContent = 'Logged in as ' + saved.username + ' — session may need refresh';
+    if(hoursAgo > 1 && loginTime > 0){
+      txt.textContent = 'Logged in as ' + saved.username + ' — session expired, please refresh';
       dot.className = 'error';
     } else {
       txt.textContent = 'Logged in as ' + saved.username;
@@ -6413,34 +6609,92 @@ function iaOpenPopup(onClose){
   return popup;
 }
 
+// Verify IA session is actually active by fetching s3.php (returns JSON keys if logged in)
+async function iaVerifyActive(){
+  try {
+    const res = await fetch('https://archive.org/account/s3.php', {credentials:'include'});
+    if(!res.ok) return false;
+    const text = await res.text();
+    // Returns JSON with accesskey if logged in, HTML redirect if not
+    return text.includes('accesskey') || (text.trim().startsWith('{') && !text.includes('login'));
+  } catch(e) {
+    return null; // CORS blocked — can't verify programmatically
+  }
+}
+
 async function iaLogin(){
   const user = document.getElementById('ia-user').value.trim();
   const pass = document.getElementById('ia-pass').value;
   const btn  = document.getElementById('ia-login-btn');
   if(!user || !pass){ iaMsg('Enter your username and password','error'); return; }
   btn.textContent = 'Opening…'; btn.disabled = true;
-  // Store username for display (not password)
   localStorage.setItem('ia_username', user);
   iaMsg('Sign in on the archive.org page that opens, then close that window.','info');
-  iaOpenPopup(()=>{
-    const session = {loggedIn:true, username:user, loginTime:Date.now()};
-    localStorage.setItem('ia_session', JSON.stringify(session));
-    iaMsg('✅ Session active — restricted items should now work.','success');
+  iaOpenPopup(async ()=>{
+    btn.textContent = 'Log In'; btn.disabled = false;
+    iaMsg('Verifying session…','info');
+    await new Promise(r => setTimeout(r, 800));
+    const verified = await iaVerifyActive();
+    if(verified === true){
+      const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:true};
+      localStorage.setItem('ia_session', JSON.stringify(session));
+      iaMsg('✅ Session verified and active!','success');
+    } else if(verified === false){
+      localStorage.removeItem('ia_session');
+      iaMsg('⚠️ Login not detected — please try again and sign in fully.','error');
+    } else {
+      // CORS blocked — trust the user, but mark as unverified
+      const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:false};
+      localStorage.setItem('ia_session', JSON.stringify(session));
+      iaMsg('✅ Session recorded. If videos fail, use Refresh Session.','success');
+    }
     iaRefreshUI();
   });
-  btn.textContent = 'Log In'; btn.disabled = false;
 }
 
 function iaRefreshSession(){
   const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
   const user = saved.username || localStorage.getItem('ia_username') || '';
   iaMsg('Sign in on the archive.org page that opens, then close that window.','info');
-  iaOpenPopup(()=>{
-    const session = {loggedIn:true, username:user, loginTime:Date.now()};
-    localStorage.setItem('ia_session', JSON.stringify(session));
-    iaMsg("✅ Session refreshed — you're good to go.","success");
+  iaOpenPopup(async ()=>{
+    iaMsg('Verifying session…','info');
+    await new Promise(r => setTimeout(r, 800));
+    const verified = await iaVerifyActive();
+    if(verified === true){
+      const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:true};
+      localStorage.setItem('ia_session', JSON.stringify(session));
+      iaMsg('✅ Session verified and active!','success');
+    } else if(verified === false){
+      localStorage.removeItem('ia_session');
+      iaMsg('⚠️ Not logged in — please sign in again.','error');
+    } else {
+      const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:false};
+      localStorage.setItem('ia_session', JSON.stringify(session));
+      iaMsg("✅ Session refreshed. If issues persist try logging out of archive.org and back in.",'success');
+    }
     iaRefreshUI();
   });
+}
+
+// Background session check on app load — silently updates the dot
+async function iaBackgroundCheck(){
+  const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
+  if(!saved.loggedIn) return;
+  const verified = await iaVerifyActive();
+  if(verified === true){
+    // Update loginTime and verified flag silently
+    saved.verified = true;
+    saved.loginTime = Date.now();
+    localStorage.setItem('ia_session', JSON.stringify(saved));
+    iaRefreshUI();
+  } else if(verified === false){
+    // Session definitely dead — mark it
+    saved.loggedIn = false;
+    saved.verified = false;
+    localStorage.setItem('ia_session', JSON.stringify(saved));
+    iaRefreshUI();
+  }
+  // null = CORS blocked, leave as-is
 }
 
 function iaLogout(){
