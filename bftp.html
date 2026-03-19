@@ -202,7 +202,7 @@ z-index:5;
 }
 .screen{
 position:absolute;
-left:12%;top:22%;right:18%;bottom:12%;
+left:11.75%;top:22%;right:18%;bottom:12%;
 background:#000;
 border-radius:8px;
 overflow:hidden;
@@ -1177,6 +1177,7 @@ padding-right:calc(1rem + env(safe-area-inset-right));
         <option value="WEIRD SCIENCE">Weird Science (1985)</option>
       </optgroup>
       <optgroup label="🦕 Family &amp; Adventure">
+        <option value="PEANUTS COLLECTION">🗂 Peanuts 1960s Collection</option>
         <option value="AN AMERICAN TAIL">An American Tail (1986)</option>
         <option value="ANIMAL FARM">Animal Farm (1999)</option>
         <option value="BATTERIES NOT INCLUDED">Batteries Not Included (1987)</option>
@@ -2571,6 +2572,19 @@ const movieCollections = {
       {title:'Flight of the Navigator (1986) — Backup', url:'https://archive.org/embed/28-days-later_202505/Flight.of.the.Navigator.1986.1080p.BrRip.x264.YIFY.mp4'},
     ]
   },
+  'PEANUTS COLLECTION': {
+    label: '🥜 Peanuts 1960s Collection',
+    movies: [
+      {title:'A Boy Named Charlie Brown (1963)',           url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/1.)%20A%20Boy%20Named%20Charlie%20Brown%20%281963%2C%20HD%29.mp4'},
+      {title:'A Charlie Brown Christmas (1965)',           url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/2.)%20A%20Charlie%20Brown%20Christmas%20%281965%2C%20HD%29.mp4'},
+      {title:"Charlie Brown's All Stars (1966)",           url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/3.)%20Charlie%20Brown%27s%20All%20Stars%20%281966%2C%20HD%29.mp4'},
+      {title:"It's The Great Pumpkin, Charlie Brown (1966)", url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/4.)%20It%27s%20The%20Great%20Pumpkin%2C%20Charlie%20Brown%20%281966%2C%20HD%29.mp4'},
+      {title:"You're In Love, Charlie Brown (1967)",       url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/5.)%20You%27re%20In%20Love%2C%20Charlie%20Brown%20%281967%2C%20HD%29.mp4'},
+      {title:"He's Your Dog, Charlie Brown (1968)",        url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/6.)%20He%27s%20Your%20Dog%2C%20Charlie%20Brown%20%281968%2C%20HD%29.mp4'},
+      {title:'It Was a Short Summer, Charlie Brown (1969)', url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/7.)%20It%20Was%20a%20Short%20Summer%20Charlie%20Brown%20%281969%2C%20HD%29.mp4'},
+      {title:'A Boy Named Charlie Brown (1969 — Theatrical Film)', url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/8.%29%20A%20Boy%20Named%20Charlie%20Brown%20%281969%2C%20HD%29.mp4'},
+    ]
+  },
   'MY SUMMER STORY': {
     label: 'My Summer Story (1994)',
     movies: [
@@ -3086,6 +3100,8 @@ const archiveIdSeasonMap = {
   // Ancient Aliens — parser extracts seasons from filenames
   // Charlie Brown — full override in archiveEpisodeOverrides
   // Felix the Cat 1972 — single feature film
+  'Mighty-Max-Cartoon-Part-1-of-2': 'Season 1 (Eps 1–20)',
+  'mighty-max-s-1-e-02':            'Season 2 (Eps 21–40)',
   'fritz-the-cat-1972-cover': 'Full Film',
   // Freddy's Nightmares TV series
   'freddys-nightmares-complete-tv-series': 'Full Series',
@@ -3096,12 +3112,20 @@ const archiveIdSeasonMap = {
   'darkwing-duck-1991_202601':                                 'Archive Backup',
   'darkwing-duck_20240119':                                    'Archive Backup 2',
   // The Jeffersons — single archive collection
+  'earth-is-carmen-sandiego': 'All Episodes',
+  'WishboneTVSeries19951997': 'All Episodes',
   'the-jeffersons-Lando18':     'All Seasons',
   // Good Times — single archive collection  
   'good-times-Lando18':         'All Seasons',
   // Diff'rent Strokes — single archive collection
   'diffrent-strokes-Lando18':   'All Seasons',
   // Married with Children — single archive collection
+  '01x-08-the-poker-game':                             'Season 1',
+  '02x-01-buck-can-do-it':                             'Season 2',
+  'married...-with-children-3x-06-her-cups-runneth-over': 'Season 3',
+  'married-with-children-s-4':                         'Season 4',
+  'married...-with-children-5x-22-you-better-shop-around-2': 'Season 5',
+  'married-with-children-s-6':                         'Season 6',
   'married...-with-children_202602': 'All Seasons',
   // Ancient Aliens — single archive collection
   'ancientalienscollection':    'All Seasons',
@@ -3346,6 +3370,12 @@ const archiveEpisodeRangeSeasons = {
   'HEATHCLIFF CATILLAC': [
     { min:  1, max: 65, season: 'Season 1 (1984-85)' },
     { min: 66, max: 86, season: 'Season 2 (1985-86)' },
+  ],
+  'CARMEN SANDIEGO': [
+    { min:  1, max:  8, season: 'Season 1 (1994)' },
+    { min:  9, max: 21, season: 'Season 2 (1994-95)' },
+    { min: 22, max: 31, season: 'Season 3 (1995)' },
+    { min: 32, max: 40, season: 'Season 4 (1996-99)' },
   ],
   'ROSEANNE': [
     // S1=23, S2=24, S3=25, S4=25, S5=25, S6=25, S7=26, S8=25, S9=24
@@ -3902,8 +3932,8 @@ const archiveSourceGroups = {
     {label:'📦 Archive Backup',  ids:['double-dragon-s-01-e-01-the-shadow-falls-480p-dvdrip']},
   ],
   'BIKER MICE': [
-    {label:'📦 Original Series (1993)', ids:['biker.-mice.-from.-mars.-s-02-e-02.-dvdrip.-480p.-aac']},
-    {label:'📦 Revival Series (2006)',  ids:['biker-mice-from-mars-2006-06-between-rump-and-a-hard-place']},
+    {label:'📦 All Seasons (1993–96)', ids:['biker.-mice.-from.-mars.-s-02-e-02.-dvdrip.-480p.-aac']},
+    {label:'📦 Revival Series (2006)', ids:['biker-mice-from-mars-2006-06-between-rump-and-a-hard-place']},
   ],
   'MIGHTY MAX': [
     {label:'📦 Season 1 (Eps 1-20)', ids:['Mighty-Max-Cartoon-Part-1-of-2']},
@@ -4192,6 +4222,7 @@ const channelNumbers = {
   'THROW MAMA TRAIN':1080,
   'UHF':1081,
   'MRS DOUBTFIRE':1082,
+  'PEANUTS COLLECTION':1315,
   'MY SUMMER STORY':1316,
   'DARKMAN COLLECTION':1317,
   'HEAVY METAL':1318,
@@ -4533,6 +4564,7 @@ const displayNames={
   'ADDAMS FAMILY LIVE':'The Addams Family (1964)',
   // ── NEW MOVIE DISPLAY NAMES ──
   'MONTY PYTHON HOLY GRAIL':'Monty Python and the Holy Grail (1975)',
+  'PEANUTS COLLECTION':'🥜 Peanuts Collection (8 films)',
   'MY SUMMER STORY':'My Summer Story (1994)',
   'DARKMAN COLLECTION':'🗂 Darkman Trilogy',
   'HEAVY METAL':'Heavy Metal (1981)',
@@ -4659,7 +4691,7 @@ const displayNames={
   'NEVERENDING STORY COLLECTION':'🗂 The NeverEnding Story (3 films)',
   'SCOOBY LIVE MOVIES':'🗂 Scooby-Doo Live Action Movies',
   'WISHBONE':       'Wishbone (1995)',
-  'BIKER MICE':     '🗂 Biker Mice from Mars (1993 + 2006)',
+  'BIKER MICE':     '🗂 Biker Mice from Mars (1993 + 2006 Revival)',
   'BATFINK':        'Batfink (1966)',
   'DOUBLE DRAGON':  '🗂 Double Dragon (1993)',
   'TATTOOED TEENS': 'Tattooed Teenage Alien Fighters from Beverly Hills',
@@ -5219,12 +5251,19 @@ async function fetchArchiveEpisodes(show, archiveId){
             const em = (basename || '').match(/\bE(\d+)\b/i);
             if(em) epNum = parseInt(em[1], 10);
           }
+          // Also try "Episode N" pattern (e.g. "Show Episode 01 – Title.mp4")
+          if(isNaN(epNum)) {
+            const epm = (basename || '').match(/\bEpisode\s+(\d+)\b/i);
+            if(epm) epNum = parseInt(epm[1], 10);
+          }
           if(!isNaN(epNum)) {
             const match = rangeMap.find(r => epNum >= r.min && epNum <= r.max);
             if(match) {
               season = match.season;
               // Strip the leading number from the display title (e.g. "23 Let's Call It Quits" → "Let's Call It Quits")
-              title = title.replace(/^\d+\s+/, '').trim();
+              title = title.replace(/^Where on Earth Is Carmen Sandiego\s+/i, '')
+                           .replace(/^Episode\s+\d+\s*[–\-]\s*/i, '')
+                           .replace(/^\d+\s+/, '').trim();
             }
           }
         }
@@ -6017,7 +6056,7 @@ function getAllSections(){
     { label:'📚 Educational & Kids', type:'show', keys:['BILL NYE','READING RAINBOW','ADVENTURES IN ODYSSEY','THOMAS AND FRIENDS','BERENSTAIN BEARS','CHRONICLES NARNIA','STORYTELLER','CHARLIE BROWN','HAUNTING HOUR','ANCIENT ALIENS'] },
     { label:'🗂 Collections', type:'movie', keys:['ACE VENTURA COLLECTION','BATMAN COLLECTION','BILL TED COLLECTION','BTTF COLLECTION','CARE BEARS COLLECTION','CREEPSHOW MOVIES','ERNEST COLLECTION','GHOSTBUSTERS COLLECTION','GREMLINS COLLECTION','HOME ALONE COLLECTION','JOHN CANDY COLLECTION','MANIAC COP COLLECTION','MK COLLECTION','NFB COLLECTION','NEVERENDING STORY COLLECTION','NIGHTMARE ELM COLLECTION','3 NINJAS','POLICE ACADEMY COLLECTION','PROBLEM CHILD COLLECTION','RAMBO COLLECTION','REVENGE NERDS COLLECTION','ROCKY COLLECTION','SCOOBY COLLECTION','SCOOBY LIVE MOVIES','TMNT COLLECTION','YOUNG GUNS COLLECTION'] },
     { label:'😂 Comedy', type:'movie', keys:['ANGUS','ARE WE THERE YET','ARE YOU BEING SERVED FILM','AUSTIN POWERS','BEAVIS BUTTHEAD','BIG DADDY','BILLY MADISON','BIO DOME','BLANK CHECK','BREAKFAST CLUB','CABLE GUY','ENCINO MAN','FERRIS BUELLER','FRIED GREEN TOMATOES','GOOFY MOVIE','GROUNDHOG DAY','HAPPY GILMORE','HEATHERS','LITTLE NICKY','MRS DOUBTFIRE','OSCAR MOVIE','PRIVATE SCHOOL','SAY ANYTHING','SIXTEEN CANDLES','MY SUMMER STORY','SPACEBALLS','STEP BROTHERS','THROW MAMA TRAIN','TROOP BEVERLY HILLS','UHF','WEIRD SCIENCE'] },
-    { label:'🦕 Family & Adventure', type:'movie', keys:['AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS'] },
+    { label:'🦕 Family & Adventure', type:'movie', keys:['PEANUTS COLLECTION','AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS'] },
     { label:'🧙 Fantasy & Sci-Fi', type:'movie', keys:['HEAVY METAL','HACKERS','MONTY PYTHON HOLY GRAIL','PRINCESS BRIDE','SHORT CIRCUIT COLLECTION','TIME BANDITS','WILLOW'] },
     { label:'💥 Action & Thriller', type:'movie', keys:['AIRBORNE','BATMAN ADAM WEST','BATMAN CARTOON MOVIE','BOYZ N HOOD','CLUE','COUNT MONTE CRISTO','DEMOLITION MAN','FALLING DOWN','FIGHT CLUB','FIST NORTH STAR','FREAKY FRIDAY','FRIDAY','GLEAMING CUBE COLLECTION','GOOD BAD UGLY','GREAT BALLS OF FIRE','KARATE KID COLLECTION','LAST ACTION HERO','MENACE II SOCIETY','NEED FOR SPEED','OF MICE MEN','OUTSIDERS','THE MASK','CUCKOOS NEST','PINK FLOYD WALL','RESERVOIR DOGS','DARKMAN COLLECTION','ROBOCOP MOVIES','SPAWN','SUPERMAN 1978','TOY SOLDIERS','TRUE ROMANCE'] },
     { label:'🔪 Horror', type:'movie', keys:['13 GHOSTS','FRIDAY 13TH MOVIES','FUN MOVIE'] },
