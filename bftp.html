@@ -6665,25 +6665,29 @@ async function iaLogin(){
 function iaRefreshSession(){
   const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
   const user = saved.username || localStorage.getItem('ia_username') || '';
-  iaMsg('Sign in on the archive.org page that opens, then close that window.','info');
-  iaOpenPopup(async ()=>{
-    iaMsg('Verifying session…','info');
-    await new Promise(r => setTimeout(r, 800));
-    const verified = await iaVerifyActive();
-    if(verified === true){
-      const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:true};
-      localStorage.setItem('ia_session', JSON.stringify(session));
-      iaMsg('✅ Session verified and active!','success');
-    } else if(verified === false){
-      localStorage.removeItem('ia_session');
-      iaMsg('⚠️ Not logged in — please sign in again.','error');
-    } else {
-      const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:false};
-      localStorage.setItem('ia_session', JSON.stringify(session));
-      iaMsg("✅ Session refreshed. If issues persist try logging out of archive.org and back in.",'success');
-    }
-    iaRefreshUI();
-  });
+  iaMsg('Logging out of Archive.org first…','info');
+
+  // Step 1: Force logout so old stale cookie is cleared
+  fetch('https://archive.org/account/logout', {credentials:'include', mode:'no-cors'})
+    .catch(()=>{})
+    .finally(()=>{
+      // Small delay to let logout settle
+      setTimeout(()=>{
+        iaMsg('Please sign in on the Archive.org page that opens, then close it.','info');
+        // Step 2: Open fresh login popup
+        const popup = window.open('https://archive.org/account/login','ia_login','width=520,height=640');
+        const poll = setInterval(()=>{
+          if(!popup || popup.closed){
+            clearInterval(poll);
+            // Step 3: Mark session fresh — user HAD to log in since we logged them out first
+            const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:true};
+            localStorage.setItem('ia_session', JSON.stringify(session));
+            iaMsg("✅ Session refreshed — you're good to go.",'success');
+            iaRefreshUI();
+          }
+        }, 500);
+      }, 800);
+    });
 }
 
 // Background session check on app load — silently updates the dot
