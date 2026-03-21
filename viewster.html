@@ -66,7 +66,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 1000;
-      padding: 0.85rem 1.2rem;
+      padding: calc(env(safe-area-inset-top) + 0.6rem) 1.2rem 0.6rem;
       background: rgba(0,0,0,0.85);
       backdrop-filter: blur(40px) saturate(180%);
       -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -114,7 +114,7 @@
     .page-wrapper {
       position: relative;
       z-index: 1;
-      padding: 80px 14px 40px;
+      padding: calc(env(safe-area-inset-top) + 80px) 14px calc(env(safe-area-inset-bottom) + 40px);
       max-width: 840px;
       margin: 0 auto;
     }
@@ -238,6 +238,7 @@
       font-size: 0.8rem;
       animation: weather-glow 4s ease-in-out infinite;
       overflow: visible;
+      position: relative; z-index: 1;
     }
     @keyframes weather-glow {
       0%,100% { box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 15px rgba(118,75,162,0.4), inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); }
@@ -264,8 +265,7 @@
       50%      { color: #764ba2; text-shadow: 0 0 8px rgba(118,75,162,0.6); }
     }
 
-    #footer { position: relative; z-index: 1; padding: 1.5rem 2rem 2rem; text-align: center; }
-    .footer-credit {
+    #footer { position: relative; z-index: 1; padding: 1.5rem 2rem 2rem; text-align: center; }    .footer-credit {
       font-family: var(--font-mono);
       font-weight: 700;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -284,6 +284,7 @@
     .footer-btns {
       display: flex; gap: 10px; justify-content: center;
       margin-bottom: 14px;
+      position: relative; z-index: 1;
     }
     .footer-modal-btn {
       font-family: var(--font-mono);
@@ -366,11 +367,12 @@
     #statusbar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      height: 28px;
+      height: calc(28px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
       background: rgba(0,0,0,0.92);
       border-top: 1px solid var(--border);
       display: flex; align-items: center;
-      padding: 0 16px; gap: 20px; z-index: 1000;
+      padding-left: 16px; padding-right: 16px; gap: 20px; z-index: 1000;
     }
     .status-item {
       font-family: var(--font-mono); font-size: 0.62rem;
@@ -451,7 +453,7 @@
 
     #options-panel {
       position: fixed;
-      top: 58px; right: 14px;
+      top: calc(env(safe-area-inset-top) + 58px); right: 14px;
       width: 260px;
       background: rgba(0,0,0,0.92);
       backdrop-filter: blur(40px) saturate(180%);
@@ -594,6 +596,11 @@
   </div>
 </div>
 
+<div class="footer-btns">
+  <button class="footer-modal-btn" id="tosBtn">Terms of Service</button>
+  <button class="footer-modal-btn" id="howBtn">How to Use</button>
+</div>
+
 <div class="weather-widget" id="weatherWidget">
   <div class="weather-icon-temp">
     <span class="weather-icon" id="weatherIcon">🌤️</span>
@@ -614,10 +621,6 @@
 </div>
 
 <div id="footer">
-  <div class="footer-btns">
-    <button class="footer-modal-btn" id="tosBtn">Terms of Service</button>
-    <button class="footer-modal-btn" id="howBtn">How to Use</button>
-  </div>
   <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
 </div>
 
