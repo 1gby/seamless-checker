@@ -3074,7 +3074,7 @@ const archiveSeriesItems = {
   'ALIENS IN FAMILY':'Aliens-in-the-Family',
   'POUND PUPPIES':'pound-puppies-s-01-e-11_202509',
   // 'DRAGON BALL Z': moved to archiveSourceGroups
-  'DRAGON BALL Z': 'dbz-westwood-remaster',
+  // 'DRAGON BALL Z': moved to archiveSourceGroups
   'DRAGON BALL GT': 'dragon-ball-gt.-sp-1.-dbox.-480p.x-264-i-kaos-v-2-046-a-1-c-10',
   'FLINTSTONES COMEDY SHOW':'flintstonescomedyshowcomplete',
   'FLINTSTONES KIDS':'the-flintstones-kids-complete-series',
@@ -5285,8 +5285,6 @@ function playArchiveEp(ep, el){
     vid.controls = true;
     vid.autoplay = true;
     vid.playsInline = true;
-    vid.setAttribute('webkit-playsinline', '');
-    vid.setAttribute('x-webkit-airplay', 'allow');
     vid.style.cssText = 'width:100%;height:100%;background:#000;';
     vid.src = directUrl;
     vid.onerror = () => {
@@ -6179,13 +6177,8 @@ function playCollectionMovie(url, title, el){
     vid.src = url;
     vid.controls = true;
     vid.autoplay = true;
+    vid.playsInline = true;
     vid.style.cssText = 'width:100%;height:100%;background:#000;';
-    // Allow native fullscreen on iOS Safari
-    vid.setAttribute('playsinline', '');
-    vid.setAttribute('webkit-playsinline', '');
-    vid.setAttribute('x-webkit-airplay', 'allow');
-    // Tap fullscreen button triggers native iOS fullscreen
-    vid.addEventListener('webkitbeginfullscreen', () => {});
     vid.onerror = () => {
       container.innerHTML = '';
       const ifr = document.createElement('iframe');
@@ -6193,7 +6186,6 @@ function playCollectionMovie(url, title, el){
       ifr.style.cssText='width:100%;height:100%;border:none;';
       ifr.allowFullscreen=true;
       ifr.setAttribute('allowfullscreen','');
-      ifr.setAttribute('allow','autoplay; fullscreen');
       container.appendChild(ifr);
     };
     container.appendChild(vid);
@@ -6203,7 +6195,7 @@ function playCollectionMovie(url, title, el){
     iframe.style.cssText='width:100%;height:100%;border:none;';
     iframe.allowFullscreen=true;
     iframe.setAttribute('allowfullscreen','');
-    iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+    iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     container.appendChild(iframe);
   }
   document.getElementById('now-playing').textContent = '📺 Now Playing: ' + title;
@@ -6904,6 +6896,27 @@ function initSettingsOverlay(){
 document.addEventListener('DOMContentLoaded', ()=>{ initSettingsOverlay(); setTimeout(iaBackgroundCheck, 2000); });
 
 /* ── Internet Archive login ── */
+// After IA login, reload the current archive video so it gets fresh credentials + fullscreen capability
+function iaReloadCurrentVideo(){
+  if(currentSource !== 'archive') return;
+  const container = document.getElementById('player-container');
+  if(!container) return;
+  const vid = container.querySelector('video');
+  if(!vid || !vid.src) return;
+  const src = vid.src;
+  const currentTime = vid.currentTime || 0;
+  // Recreate video element fresh — new element gets IA cookies + fullscreen
+  const newVid = document.createElement('video');
+  newVid.src = src;
+  newVid.controls = true;
+  newVid.autoplay = true;
+  newVid.playsInline = true;
+  newVid.style.cssText = 'width:100%;height:100%;background:#000;';
+  newVid.addEventListener('loadedmetadata', () => { if(currentTime > 0) newVid.currentTime = currentTime; });
+  container.innerHTML = '';
+  container.appendChild(newVid);
+}
+
 function iaRefreshUI(){
   const saved = JSON.parse(localStorage.getItem('ia_session')||'{}');
   const loggedIn = !!saved.loggedIn;
@@ -6982,6 +6995,7 @@ async function iaLogin(){
       const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:true};
       localStorage.setItem('ia_session', JSON.stringify(session));
       iaMsg('✅ Session verified and active!','success');
+      iaReloadCurrentVideo();
     } else if(verified === false){
       localStorage.removeItem('ia_session');
       iaMsg('⚠️ Login not detected — please try again and sign in fully.','error');
@@ -7016,6 +7030,7 @@ function iaRefreshSession(){
             const session = {loggedIn:true, username:user, loginTime:Date.now(), verified:true};
             localStorage.setItem('ia_session', JSON.stringify(session));
             iaMsg("✅ Session refreshed — you're good to go.",'success');
+            iaReloadCurrentVideo();
             iaRefreshUI();
           }
         }, 500);
