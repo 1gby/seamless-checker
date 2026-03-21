@@ -698,7 +698,7 @@
 
 </div>
 
-<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.0/dist/ffmpeg.min.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -782,10 +782,17 @@ document.querySelectorAll('.accordion-header').forEach(h => {
 });
 
 // ═══════════════════════════════════════════════════
-// 6. FFMPEG + DOM
+// 6. FFMPEG v0.11 + DOM
 // ═══════════════════════════════════════════════════
-const { FFmpeg } = FFmpegWASM;
-const ffmpeg = new FFmpeg();
+// v0.11.0: single-file, no workers, no COOP/COEP headers needed
+const { createFFmpeg } = FFmpeg;
+const ffmpeg = createFFmpeg({
+  corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+  log: false,
+  progress: ({ ratio }) => {
+    progressBar.style.width = Math.min(ratio * 100, 100).toFixed(1) + '%';
+  }
+});
 
 const statusEl        = document.getElementById('status');
 const progressBar     = document.getElementById('progress-bar');
@@ -920,12 +927,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // 11. SERVICE WORKER
 // ═══════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
-  const sw = `const C='vv2';const A=['./','https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js','https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.js','https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.wasm'];self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  const sw = `const C='vv3';const A=['./','https://unpkg.com/@ffmpeg/ffmpeg@0.11.0/dist/ffmpeg.min.js','https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js','https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.wasm','https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.worker.js'];self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A).catch(()=>{}))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})));
 }
 
 // ═══════════════════════════════════════════════════
-// 12. MAIN PROCESS
+// 12. MAIN PROCESS  (FFmpeg v0.11 API)
 // ═══════════════════════════════════════════════════
 processBtn.addEventListener('click', async () => {
   const file = videoInput.files[0];
@@ -939,102 +946,118 @@ processBtn.addEventListener('click', async () => {
 
   if (!ffmpegLoaded) {
     try {
-      await ffmpeg.load({
-        coreURL: 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.js',
-        wasmURL: 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.wasm',
-      });
+      await ffmpeg.load();
       ffmpegLoaded = true;
-    } catch (err) { statusEl.textContent = 'Load failed: ' + err.message; processBtn.disabled = false; return; }
-  }
-
-  statusEl.textContent = 'Writing input to WASM filesystem...';
-  await ffmpeg.writeFile('input', await fetchFile(file));
-
-  let hasSubs = false;
-  if (subtitleInput.files.length) {
-    await ffmpeg.writeFile('subs.srt', await fetchFile(subtitleInput.files[0]));
-    hasSubs = true;
+    } catch (err) {
+      statusEl.textContent = 'Load failed: ' + err.message;
+      processBtn.disabled = false;
+      return;
+    }
   }
 
   const ext = outputFormat.value;
-  const out = `edited.${ext}`;
-  let args = ['-i','input'];
-
-  // Trim — -ss for start, -to for absolute end
-  const s = parseFloat(trimStart.value) || 0;
-  if (s > 0) args.push('-ss', s.toString());
-  const e = parseFloat(trimEnd.value);
-  if (!isNaN(e) && e > 0) args.push('-to', e.toString());
-
-  // Video filter chain
-  let vf = [];
-  if (cropFilter.value.trim())         vf.push('crop=' + cropFilter.value.trim());
-  if (resizeOption.value !== 'original') vf.push('scale=' + resizeOption.value.split('x')[0] + ':-2:flags=lanczos');
-  const rot = rotateOption.value;
-  if      (rot === '90')   vf.push('transpose=1');
-  else if (rot === '180')  vf.push('transpose=2,transpose=1');
-  else if (rot === '270')  vf.push('transpose=2');
-  else if (rot === 'hflip') vf.push('hflip');
-  const spd = parseFloat(speedSlider.value);
-  if (spd !== 1.0) vf.push('setpts=' + (1/spd).toFixed(6) + '*PTS');
-  if (grayscaleCheck.checked) vf.push('colorchannelmixer=.3:.4:.3:0:.3:.4:.3:0:.3:.4:.3');
-  const br = parseFloat(brightnessSlider.value);
-  const co = parseFloat(contrastSlider.value);
-  if (br !== 0 || co !== 1) vf.push('eq=brightness=' + br + ':contrast=' + co);
-  // Subtitle burn-in merged into same -vf chain (avoids FFmpeg conflict with separate -vf flags)
-  if (hasSubs) vf.push("subtitles=subs.srt:force_style='Fontsize=24'");
-  if (vf.length > 0) args.push('-vf', vf.join(','));
-
-  // Audio filters
-  let af = [];
-  if (spd !== 1.0) af.push('atempo=' + spd);
-  const vol = parseFloat(volumeSlider.value);
-  if (vol !== 1.0) af.push('volume=' + vol);
-  if (af.length > 0) args.push('-af', af.join(','));
-
-  // Codec / quality
-  if (ext === 'gif') {
-    const gvf = (vf.length ? vf.filter(f => !f.startsWith('subtitles')).join(',') + ',' : '') + 'fps=10,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse';
-    const vi = args.indexOf('-vf');
-    if (vi !== -1) args.splice(vi, 2);
-    args.push('-vf', gvf, '-loop', '0');
-  } else if (ext === 'mp4') {
-    args.push('-c:v','libx264','-preset','fast','-pix_fmt','yuv420p','-movflags','+faststart');
-    args.push('-crf', {high:'18',medium:'23',low:'28',verylow:'33'}[qualityPreset.value]||'23');
-    const mb = parseInt(bitrateSlider.value);
-    if (mb > 0) args.push('-maxrate',mb+'k','-bufsize',mb*2+'k');
-    args.push('-c:a','aac','-b:a','128k');
-  } else if (ext === 'webm') {
-    args.push('-c:v','libvpx-vp9','-row-mt','1');
-    args.push('-crf', {high:'20',medium:'30',low:'35',verylow:'40'}[qualityPreset.value]||'30','-b:v','0');
-    const mb = parseInt(bitrateSlider.value);
-    if (mb > 0) args.push('-maxrate',mb+'k','-bufsize',mb*2+'k');
-    args.push('-c:a','libopus','-b:a','96k');
-  } else if (ext === 'mp3') {
-    args.push('-vn','-c:a','libmp3lame','-q:a','2');
-  } else if (ext === 'wav') {
-    args.push('-vn','-c:a','pcm_s16le');
-  }
-  args.push(out);
-
-  statusEl.textContent = 'Processing ' + ext.toUpperCase() + '...  May take a while on large files.';
-  ffmpeg.on('progress', ({ progress }) => {
-    progressBar.style.width = Math.min(progress * 100, 100).toFixed(1) + '%';
-  });
+  const out  = 'edited.' + ext;
 
   try {
-    await ffmpeg.exec(args);
-    const data = await ffmpeg.readFile(out);
-    const mime = ext === 'gif' ? 'image/gif' : ['mp3','wav'].includes(ext) ? 'audio/' + ext : 'video/' + ext;
+    // Write input file to WASM FS
+    statusEl.textContent = 'Writing input to WASM filesystem...';
+    ffmpeg.FS('writeFile', 'input', await fetchFile(file));
+
+    let hasSubs = false;
+    if (subtitleInput.files.length) {
+      ffmpeg.FS('writeFile', 'subs.srt', await fetchFile(subtitleInput.files[0]));
+      hasSubs = true;
+    }
+
+    let args = ['-i', 'input'];
+
+    // Trim
+    const ss = parseFloat(trimStart.value) || 0;
+    if (ss > 0) args.push('-ss', ss.toString());
+    const to = parseFloat(trimEnd.value);
+    if (!isNaN(to) && to > 0) args.push('-to', to.toString());
+
+    // Video filter chain
+    let vf = [];
+    if (cropFilter.value.trim())            vf.push('crop=' + cropFilter.value.trim());
+    if (resizeOption.value !== 'original')  vf.push('scale=' + resizeOption.value.split('x')[0] + ':-2:flags=lanczos');
+    const rot = rotateOption.value;
+    if      (rot === '90')    vf.push('transpose=1');
+    else if (rot === '180')   vf.push('transpose=2,transpose=1');
+    else if (rot === '270')   vf.push('transpose=2');
+    else if (rot === 'hflip') vf.push('hflip');
+    const spd = parseFloat(speedSlider.value);
+    if (spd !== 1.0) vf.push('setpts=' + (1/spd).toFixed(6) + '*PTS');
+    if (grayscaleCheck.checked) vf.push('colorchannelmixer=.3:.4:.3:0:.3:.4:.3:0:.3:.4:.3');
+    const br = parseFloat(brightnessSlider.value);
+    const co = parseFloat(contrastSlider.value);
+    if (br !== 0 || co !== 1) vf.push('eq=brightness=' + br + ':contrast=' + co);
+    if (hasSubs) vf.push("subtitles=subs.srt:force_style='Fontsize=24'");
+    if (vf.length > 0) args.push('-vf', vf.join(','));
+
+    // Audio filters
+    let af = [];
+    if (spd !== 1.0) af.push('atempo=' + spd);
+    const vol = parseFloat(volumeSlider.value);
+    if (vol !== 1.0) af.push('volume=' + vol);
+    if (af.length > 0) args.push('-af', af.join(','));
+
+    // Codec / quality
+    if (ext === 'gif') {
+      const gvf = (vf.length ? vf.filter(f => !f.startsWith('subtitles')).join(',') + ',' : '')
+                + 'fps=10,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse';
+      const vi = args.indexOf('-vf');
+      if (vi !== -1) args.splice(vi, 2);
+      args.push('-vf', gvf, '-loop', '0');
+    } else if (ext === 'mp4') {
+      args.push('-c:v','libx264','-preset','fast','-pix_fmt','yuv420p','-movflags','+faststart');
+      args.push('-crf', {high:'18',medium:'23',low:'28',verylow:'33'}[qualityPreset.value] || '23');
+      const mb = parseInt(bitrateSlider.value);
+      if (mb > 0) args.push('-maxrate', mb+'k', '-bufsize', mb*2+'k');
+      args.push('-c:a','aac','-b:a','128k');
+    } else if (ext === 'webm') {
+      args.push('-c:v','libvpx-vp9','-row-mt','1');
+      args.push('-crf', {high:'20',medium:'30',low:'35',verylow:'40'}[qualityPreset.value] || '30', '-b:v','0');
+      const mb = parseInt(bitrateSlider.value);
+      if (mb > 0) args.push('-maxrate', mb+'k', '-bufsize', mb*2+'k');
+      args.push('-c:a','libopus','-b:a','96k');
+    } else if (ext === 'mp3') {
+      args.push('-vn','-c:a','libmp3lame','-q:a','2');
+    } else if (ext === 'wav') {
+      args.push('-vn','-c:a','pcm_s16le');
+    }
+    args.push(out);
+
+    statusEl.textContent = 'Processing ' + ext.toUpperCase() + '...  This may take a while.';
+
+    // v0.11 API: run(...args) spread — NOT exec([array])
+    await ffmpeg.run(...args);
+
+    const data = ffmpeg.FS('readFile', out);
+    const mime = ext === 'gif' ? 'image/gif'
+               : ['mp3','wav'].includes(ext) ? 'audio/' + ext
+               : 'video/' + ext;
     const blob = new Blob([data.buffer], { type: mime });
     const url  = URL.createObjectURL(blob);
-    downloadLink.href = url;
+
+    downloadLink.href     = url;
     downloadLink.download = out;
     downloadLink.textContent = '⬇  Download ' + out + '  (' + (blob.size/1048576).toFixed(2) + ' MB)';
     downloadLink.classList.add('visible');
-    if (!['mp3','wav'].includes(ext)) { preview.src = url; preview.style.display = 'block'; }
+
+    if (!['mp3','wav'].includes(ext)) {
+      preview.src = url;
+      preview.style.display = 'block';
+    }
+
     statusEl.textContent = '✓  Done!   ' + out + '  —  ' + (blob.size/1048576).toFixed(2) + ' MB';
     progressBar.style.width = '100%';
+
+    // Clean up WASM FS to free memory
+    try { ffmpeg.FS('unlink', 'input'); } catch {}
+    try { ffmpeg.FS('unlink', out); } catch {}
+    if (hasSubs) { try { ffmpeg.FS('unlink', 'subs.srt'); } catch {} }
+
   } catch (err) {
     statusEl.textContent = 'Error: ' + (err.message || err) + '\n\nTry a smaller file or fewer effects.';
   } finally {
