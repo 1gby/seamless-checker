@@ -5285,6 +5285,8 @@ function playArchiveEp(ep, el){
     vid.controls = true;
     vid.autoplay = true;
     vid.playsInline = true;
+    vid.setAttribute('webkit-playsinline', '');
+    vid.setAttribute('x-webkit-airplay', 'allow');
     vid.style.cssText = 'width:100%;height:100%;background:#000;';
     vid.src = directUrl;
     vid.onerror = () => {
@@ -6177,14 +6179,21 @@ function playCollectionMovie(url, title, el){
     vid.src = url;
     vid.controls = true;
     vid.autoplay = true;
-    vid.playsInline = true;
     vid.style.cssText = 'width:100%;height:100%;background:#000;';
+    // Allow native fullscreen on iOS Safari
+    vid.setAttribute('playsinline', '');
+    vid.setAttribute('webkit-playsinline', '');
+    vid.setAttribute('x-webkit-airplay', 'allow');
+    // Tap fullscreen button triggers native iOS fullscreen
+    vid.addEventListener('webkitbeginfullscreen', () => {});
     vid.onerror = () => {
       container.innerHTML = '';
       const ifr = document.createElement('iframe');
       ifr.src = url;
       ifr.style.cssText='width:100%;height:100%;border:none;';
       ifr.allowFullscreen=true;
+      ifr.setAttribute('allowfullscreen','');
+      ifr.setAttribute('allow','autoplay; fullscreen');
       container.appendChild(ifr);
     };
     container.appendChild(vid);
@@ -6193,7 +6202,8 @@ function playCollectionMovie(url, title, el){
     iframe.src = url;
     iframe.style.cssText='width:100%;height:100%;border:none;';
     iframe.allowFullscreen=true;
-    iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.setAttribute('allowfullscreen','');
+    iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
     container.appendChild(iframe);
   }
   document.getElementById('now-playing').textContent = '📺 Now Playing: ' + title;
@@ -6325,7 +6335,7 @@ function loadAdultPlayer(show){
     video.controls = true;
     video.autoplay = true;
     video.style.cssText = 'width:100%;height:100%;background:#000;';
-    video.setAttribute('playsinline','true');
+    // playsinline removed to allow fullscreen
     container.appendChild(video);
     document.getElementById('now-playing').textContent = '🔞 '+(adultDisplayNames[show]||show);
     document.getElementById('play-overlay').classList.add('hidden');
