@@ -1,26 +1,15 @@
 {
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cross-Origin-Opener-Policy",  "value": "same-origin"  },
-        { "key": "Cross-Origin-Embedder-Policy", "value": "require-corp" }
-      ]
-    }
-  ],
-  "rewrites": [
-    { "source": "/bftp",             "destination": "/bftp.html"        },
-    { "source": "/bftp/:path*",      "destination": "/bftp.html"        },
-    { "source": "/comingsoon",       "destination": "/comingsoon.html"  },
-    { "source": "/comingsoon/:path*","destination": "/comingsoon.html"  },
-    { "source": "/converter",        "destination": "/converter.html"   },
-    { "source": "/converter/:path*", "destination": "/converter.html"   },
-    { "source": "/seamless",         "destination": "/seamless.html"    },
-    { "source": "/seamless/:path*",  "destination": "/seamless.html"    },
-    { "source": "/watcher",          "destination": "/watcher.html"     },
-    { "source": "/watcher/:path*",   "destination": "/watcher.html"     },
-    { "source": "/vidverter",        "destination": "/Vidverter.html"   },
-    { "source": "/vidverter/:path*", "destination": "/Vidverter.html"   }
-  ]
+“cleanUrls”: true,
+“rewrites”: [
+{ “source”: “/bftp”, “destination”: “/bftp.html” },
+{ “source”: “/bftp/:path*”, “destination”: “/bftp.html” },
+{ “source”: “/comingsoon”, “destination”: “/comingsoon.html” },
+{ “source”: “/comingsoon/:path*”, “destination”: “/comingsoon.html” },
+{ “source”: “/converter”, “destination”: “/converter.html” },
+{ “source”: “/converter/:path*”, “destination”: “/converter.html” },
+{ “source”: “/seamless”, “destination”: “/seamless.html” },
+{ “source”: “/seamless/:path*”, “destination”: “/seamless.html” },
+{ “source”: “/watcher”, “destination”: “/watcher.html” },
+{ “source”: “/watcher/:path*”, “destination”: “/watcher.html” }
+]
 }
