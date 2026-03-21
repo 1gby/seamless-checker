@@ -114,7 +114,7 @@
     .page-wrapper {
       position: relative;
       z-index: 1;
-      padding: calc(env(safe-area-inset-top) + 80px) 14px calc(env(safe-area-inset-bottom) + 40px);
+      padding: calc(env(safe-area-inset-top) + 80px) 14px 20px;
       max-width: 840px;
       margin: 0 auto;
     }
@@ -229,16 +229,16 @@
       width: auto;
       margin-left: auto;
       margin-right: auto;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
-      -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2);
+      border: none;
+      box-shadow: none;
       font-size: 0.8rem;
-      animation: weather-glow 4s ease-in-out infinite;
       overflow: visible;
       position: relative; z-index: 1;
+      margin-top: 80px;
     }
     @keyframes weather-glow {
       0%,100% { box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 15px rgba(118,75,162,0.4), inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); }
@@ -281,25 +281,34 @@
     .footer-credit:hover { opacity: 0.75; transform: scale(1.03); }
 
     /* ── FOOTER BUTTONS ──────────────────────────── */
+    .bottom-section {
+      margin-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
     .footer-btns {
       display: flex; gap: 10px; justify-content: center;
-      margin-bottom: 14px;
       position: relative; z-index: 1;
     }
     .footer-modal-btn {
       font-family: var(--font-mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
-      padding: 7px 16px;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
       border-radius: 20px;
-      border: 1px solid var(--border);
-      background: rgba(123,47,255,0.07);
-      color: var(--text-muted);
+      border: 1px solid rgba(123,47,255,0.5);
+      background: rgba(123,47,255,0.12);
+      color: #b090e0;
       cursor: pointer;
       transition: border-color 0.2s, color 0.2s, background 0.2s;
       text-transform: uppercase;
     }
-    .footer-modal-btn:hover { border-color: var(--purple); color: var(--text); background: rgba(123,47,255,0.15); }
+    .footer-modal-btn:hover { border-color: var(--purple); color: var(--text); background: rgba(123,47,255,0.25); }
 
     /* ── MODALS ──────────────────────────────────── */
     .modal-overlay {
@@ -594,34 +603,36 @@
 </div>
 
   </div>
-</div>
+</div><!-- /page-wrapper -->
 
-<div class="footer-btns">
-  <button class="footer-modal-btn" id="tosBtn">Terms of Service</button>
-  <button class="footer-modal-btn" id="howBtn">How to Use</button>
-</div>
+<!-- BOTTOM SECTION — fixed above status bar -->
 
-<div class="weather-widget" id="weatherWidget">
-  <div class="weather-icon-temp">
-    <span class="weather-icon" id="weatherIcon">🌤️</span>
-    <span class="weather-temp" id="weatherTemp">--°</span>
+<div class="bottom-section">
+  <div class="footer-btns">
+    <button class="footer-modal-btn" id="tosBtn">Terms of Service</button>
+    <button class="footer-modal-btn" id="howBtn">How to Use</button>
   </div>
-  <span class="weather-divider">|</span>
-  <div class="weather-time-wrapper">
-    <span class="weather-time" id="weatherTime">--:--</span>
+  <div class="weather-widget" id="weatherWidget">
+    <div class="weather-icon-temp">
+      <span class="weather-icon" id="weatherIcon">🌤️</span>
+      <span class="weather-temp" id="weatherTemp">--°</span>
+    </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-time-wrapper">
+      <span class="weather-time" id="weatherTime">--:--</span>
+    </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-condition-wrapper">
+      <span class="weather-condition" id="weatherCondition">Loading...</span>
+    </div>
+    <span class="weather-divider">|</span>
+    <div class="weather-location-wrapper">
+      <span class="weather-location" id="weatherLocation">--</span>
+    </div>
   </div>
-  <span class="weather-divider">|</span>
-  <div class="weather-condition-wrapper">
-    <span class="weather-condition" id="weatherCondition">Loading...</span>
+  <div id="footer">
+    <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
   </div>
-  <span class="weather-divider">|</span>
-  <div class="weather-location-wrapper">
-    <span class="weather-location" id="weatherLocation">--</span>
-  </div>
-</div>
-
-<div id="footer">
-  <div class="footer-credit" id="easterEgg">Created by Rudeboy™</div>
 </div>
 
 <!-- TERMS OF SERVICE MODAL -->
