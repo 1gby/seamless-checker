@@ -698,7 +698,7 @@
 
 </div>
 
-<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 11. SERVICE WORKER
 // ═══════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
-  const sw = `const C='vv1';const A=['./','https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js','https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js'];self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  const sw = `const C='vv2';const A=['./','https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js','https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.js','https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.wasm'];self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(A))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})));
 }
 
@@ -939,7 +939,10 @@ processBtn.addEventListener('click', async () => {
 
   if (!ffmpegLoaded) {
     try {
-      await ffmpeg.load({ coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js' });
+      await ffmpeg.load({
+        coreURL: 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.js',
+        wasmURL: 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd/ffmpeg-core.wasm',
+      });
       ffmpegLoaded = true;
     } catch (err) { statusEl.textContent = 'Load failed: ' + err.message; processBtn.disabled = false; return; }
   }
