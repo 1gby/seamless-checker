@@ -1122,7 +1122,7 @@ function displayWeather(data,lat,lon,cityName){
   els.weatherIcon.textContent=getWeatherIcon(data.current_weather.weathercode);
   els.weatherWidget.classList.remove('loading');
 }
-function getWeatherIcon(c){if(c===0)return'☀️';if(c<=2)return'🌤️';if(c===3)return'☁️';if(c<=48)return'🌫️';if(c<=67)return'🌧️';if(c<=77)return'❄️';if(c<=82)return'🌦️';if(c<=86)return'❄️';if(c<=99)return'⛈️';return'🌡️';}
+function getWeatherIcon(c){if(c===0)return'☀️';if(c<=2)return'🌤️';if(c===3)return'☁️';if(c<=48)return'😶‍🌫️';if(c<=67)return'🌧️';if(c<=77)return'❄️';if(c<=82)return'🌦️';if(c<=86)return'❄️';if(c<=99)return'⛈️';return'🌡️';}
 function getRudeboyCondition(c){if(c===0)return'SunnySide Up';if(c<=2)return"It's Cloudy Bitch";if(c===3)return"It's Cloudy Bitch";if(c<=48)return"Can't see shit";if(c<=67)return'Wet T-Shirt Weather';if(c<=77)return'Fucking Snow';if(c<=82)return"She's a squirter";if(c<=86)return'Fucking Snow';if(c<=99)return'Zeus is Pissed';return'Unknown';}
 getWeather();
 
