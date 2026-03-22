@@ -173,7 +173,7 @@ padding:2rem;
 text-align:center;
 cursor:pointer;
 transition:all 0.3s;
-background:rgba(255,255,255,0.05);
+background:rgba(0,0,0,0.8);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(118,75,162,0.3),inset 0 2px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.2);
@@ -196,7 +196,7 @@ transition:opacity 0.3s;
 .upload-area:hover::before{opacity:1}
 .upload-area:hover{
 border-color:rgba(118,75,162,0.5);
-background:rgba(255,255,255,0.08);
+background:rgba(0,0,0,0.8);
 transform:translateY(-2px);
 box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 30px rgba(118,75,162,0.6),inset 0 2px 0 rgba(255,255,255,0.35);
 }
@@ -481,7 +481,7 @@ margin-top:0.5rem;
 .dimension-input{
 padding:0.75rem 0.5rem;
 border-radius:8px;
-background:rgba(255,255,255,0.1);
+background:rgba(0,0,0,0.8);
 border:1px solid rgba(255,255,255,0.2);
 color:#eee;
 font-size:0.85rem;
@@ -491,7 +491,7 @@ transition:all 0.3s;
 }
 .dimension-input:focus{
 border-color:rgba(16,185,129,0.5);
-background:rgba(255,255,255,0.15);
+background:rgba(0,0,0,0.8);
 box-shadow:0 0 15px rgba(16,185,129,0.4);
 }
 .dimension-input::placeholder{color:#666}
@@ -786,7 +786,7 @@ margin-bottom:1.5rem;
 padding:0.75rem 1rem;
 font-size:0.95rem;
 border-radius:16px;
-background:rgba(255,255,255,0.1);
+background:rgba(0,0,0,0.8);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 border:1px solid rgba(255,255,255,0.2);
@@ -800,7 +800,7 @@ align-items:center;
 user-select:none;
 }
 .instructions-accordion-header:hover{
-background:rgba(255,255,255,0.15);
+background:rgba(0,0,0,0.8);
 border-color:rgba(255,255,255,0.25);
 box-shadow:0 6px 24px rgba(0,0,0,0.4),0 0 25px rgba(16,185,129,0.8),inset 0 2px 0 rgba(255,255,255,0.35),inset 0 -2px 0 rgba(0,0,0,0.2);
 }
@@ -816,7 +816,7 @@ overflow-y:auto;
 }
 
 .instructions-card{
-background:rgba(255,255,255,0.1);
+background:rgba(0,0,0,0.8);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 border-radius:16px;
@@ -874,7 +874,7 @@ justify-content:center;
 gap:0.5rem;
 padding:0.65rem 0.75rem;
 margin-bottom:1rem;
-background:rgba(255,255,255,0.1);
+background:rgba(0,0,0,0.8);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.1);
 border-radius:16px;
@@ -2356,7 +2356,7 @@ function getWeatherIconFromCode(code) {
   if (code === 0) return '☀️';
   if (code === 1 || code === 2) return '🌤️';
   if (code === 3) return '☁️';
-  if (code === 45 || code === 48) return '🌫️';
+  if (code === 45 || code === 48) return '😶‍🌫️';
   if (code >= 51 && code <= 67) return '🌧️';
   if (code >= 71 && code <= 77) return '❄️';
   if (code >= 80 && code <= 82) return '🌦️';
