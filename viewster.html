@@ -1410,7 +1410,7 @@ function playRandomTrack(){
   const track=shuffledPlaylist[currentTrackIndex++];
   els.audio.src=track.url;els.audio.volume=0;els.audio.loop=false;
   els.audio.play().then(()=>{
-    if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:track.title,artist:track.artist,album:'Secret Stash',artwork:[{src:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/work.png',sizes:'512x512',type:'image/png'}]});
+    if('mediaSession' in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:track.title,artist:track.artist,album:'Secret Stash',artwork:[{src:'https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Viewster.png',sizes:'512x512',type:'image/png'}]});
     let vol=0;const fi=setInterval(()=>{if(vol<0.5){vol+=0.05;els.audio.volume=Math.min(vol,0.5);}else clearInterval(fi);},100);
   }).catch(()=>{if(matrixActive)playRandomTrack();});
 }
