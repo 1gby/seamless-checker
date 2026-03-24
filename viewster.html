@@ -869,7 +869,7 @@ window.addEventListener('resize', () => { resizeBg(); stopBg(); startBg(currentB
 function startDark() { bgCtx.fillStyle='#000'; bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height); }
 
 function startMatrix() {
-  const FS=16, CHARS='アイウエオカキクケコ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const FS=16, CHARS='ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ ｻ ｼ ｽ ｾ ｿ ﾀ ﾂ ﾃ ﾄ ﾅ ﾆ ﾇ ﾈ ﾊ ﾋ ﾌ ﾍ ﾎ ﾏ ﾐ ﾑ ﾒ ﾓ ﾔ ﾕ ﾖ ﾗ ﾘ ﾙ ﾚ ﾛ ﾜ ﾝ';
   const cols=Math.floor(bgCanvas.width/FS), y=new Array(cols).fill(0);
   for(let i=0;i<cols;i++)y[i]=Math.floor(Math.random()*(bgCanvas.height/FS));
   bgCtx.fillStyle='#000'; bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
@@ -980,7 +980,7 @@ function startGlitch() {
 }
 
 function startMatrixPurple() {
-  const FS=16,CHARS='アイウエオカキクケコ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ∅∑∆Ω';
+  const FS=16,CHARS='ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ ｻ ｼ ｽ ｾ ｿ ﾀ ﾂ ﾃ ﾄ ﾅ ﾆ ﾇ ﾈ ﾊ ﾋ ﾌ ﾍ ﾎ ﾏ ﾐ ﾑ ﾒ ﾓ ﾔ ﾕ ﾖ ﾗ ﾘ ﾙ ﾚ ﾛ ﾜ ﾝ';
   const cols=Math.floor(bgCanvas.width/FS),y=new Array(cols).fill(0);
   for(let i=0;i<cols;i++)y[i]=Math.floor(Math.random()*(bgCanvas.height/FS));
   bgCtx.fillStyle='#000';bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
