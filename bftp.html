@@ -1077,6 +1077,10 @@ padding-right:calc(1rem + env(safe-area-inset-right));
     <option value="BE COOL SCOOBY DOO">455: Be Cool, Scooby-Doo!</option>
     <option value="DONALD DUCK">460: Donald Duck Cartoons</option>
     <option value="DISNEY SHORTS">461: Disney Animated Shorts</option>
+    <option value="PEEWEE PLAYHOUSE">465: Pee-wee's Playhouse (1986)</option>
+    <option value="MALCOLM MIDDLE">466: Malcolm in the Middle (2000)</option>
+    <option value="JUST SHOOT ME">467: Just Shoot Me! (1997)</option>
+    <option value="MR ROGERS">468: Mister Rogers' Neighborhood</option>
     <option value="DISNEY ANTHOLOGY">464: Disney Anthology TV Series</option>
     <option value="GUMMI BEARS">463: Adventures of the Gummi Bears (1985)</option>
     <option value="PEPPER ANN">462: Pepper Ann (1997)</option>
@@ -1225,8 +1229,11 @@ padding-right:calc(1rem + env(safe-area-inset-right));
         <option value="WEIRD SCIENCE">Weird Science (1985)</option>
       </optgroup>
       <optgroup label="🦕 Family &amp; Adventure">
+        <option value="DRIVE IN">🎬 Drive-In Intermissions</option>
         <option value="PEANUTS COLLECTION">🗂 Peanuts 1960s Collection</option>
         <option value="SANDLOT">The Sandlot (1993)</option>
+        <option value="FINAL DESTINATION">🗂 Final Destination Collection</option>
+        <option value="SCARY MOVIE COLLECTION">🗂 Scary Movie Collection</option>
         <option value="AN AMERICAN TAIL">An American Tail (1986)</option>
         <option value="ANIMAL FARM">Animal Farm (1999)</option>
         <option value="BATTERIES NOT INCLUDED">Batteries Not Included (1987)</option>
@@ -1300,6 +1307,10 @@ padding-right:calc(1rem + env(safe-area-inset-right));
         <option value="MAN FLINTSTONES">The Man Called Flintstone (1966)</option>
         <option value="SKI SCHOOL 1990">Ski School (1990)</option>
         <option value="STAND BY ME">Stand by Me (1986)</option>
+        <option value="LOST BOYS 1987">The Lost Boys (1987)</option>
+        <option value="EDWARD SCISSORHANDS">Edward Scissorhands (1990)</option>
+        <option value="MISERY 1990">Misery (1990)</option>
+        <option value="RIVER WILD">The River Wild (1994)</option>
         <option value="STAND AND DELIVER">Stand and Deliver (1988)</option>
         <option value="BOY WHO COULD FLY">The Boy Who Could Fly (1986)</option>
         <option value="TWINS 1988">Twins (1988)</option>
@@ -1748,6 +1759,31 @@ const directVideoMovies = {
   'NEED FOR SPEED':    'https://archive.org/download/transformers-2007_202602/Need%20for%20Speed%20%282014%29.mp4',
   'OF MICE MEN':       'https://archive.org/download/transformers-2007_202602/Of%20Mice%20and%20Men%20%281992%29.mp4',
   'OUTSIDERS':         'https://archive.org/download/transformers-2007_202602/The%20Outsiders%20-%20%281983%29.mp4',
+  'PEANUT BUTTER SOLUTION':'the.-peanut.-butter.-solution.-1985.1080p.-blu-ray.x-264.-aac-yts.-mx',
+  'MASTERMINDS 1997':   'https://archive.org/download/masterminds-1997-dvdrip-4k-hq/Masterminds.%281997%29.DvDRip.4kHQ.mp4',
+  'FIRST KID 1996':     'https://archive.org/download/first-kid-1996-1080p/First%20Kid%20%281996%29%20-%20%5B1080p%5D.mp4',
+  '50 FIRST DATES':     'https://archive.org/download/seivoMseilloM/50%20First%20Dates%20%282004%29.mp4',
+  'ADVENTURES BABYSIT': 'https://archive.org/download/seivoMseilloM/Adventures%20in%20Babysitting%20%281987%29.mp4',
+  'EDWARD SCISSORHANDS':'https://archive.org/download/seivoMseilloM/Edward%20Scissorhands%20%281990%29.mp4',
+  'FUN SIZE':           'https://archive.org/download/seivoMseilloM/Fun%20Size%20%282012%29.mp4',
+  'KINDERGARTEN COP':   'https://archive.org/download/seivoMseilloM/Kindergarten%20Cop%20%281990%29.mp4',
+  'MANNEQUIN 1987':     'https://archive.org/download/seivoMseilloM/Mannequin%20%281987%29.mp4',
+  'MANNEQUIN 2':        'https://archive.org/download/seivoMseilloM/Mannequin%202%3B%20On%20the%20Move%20%281991%29.mp4',
+  'MOONWALKER':         'https://archive.org/download/seivoMseilloM/Michael%20Jackson%20-%20Moonwalker%20%281988%29.mp4',
+  'WATERBOY':           'https://archive.org/download/seivoMseilloM/The%20Waterboy%20%281998%29.mp4',
+  'TUCKER DALE':        'https://archive.org/download/seivoMseilloM/Tucker%20%26%20Dale%20vs.%20Evil%20%282010%29.mp4',
+  'WHITE CHICKS':       'https://archive.org/download/seivoMseilloM/White%20Chicks%20%282004%29.mp4',
+  'LOST BOYS 1987':     'https://archive.org/download/seivoMseilloM/The%20Lost%20Boys%20%281987%29.mp4',
+  'PETES DRAGON 1977':  'https://archive.org/download/where-the-wild-things-are-vhs-and-other-maurice-sendak-stories-o-60-fps-2002_202309/HD%20Pete%27s%20Dragon%20%281977%29.mp4',
+  'PAGEMASTER':         'https://archive.org/download/where-the-wild-things-are-vhs-and-other-maurice-sendak-stories-o-60-fps-2002_202309/The%20Pagemaster.mp4',
+  'DOC HOLLYWOOD':      'https://archive.org/download/90s_20250812/Doc%20Hollywood%C2%A0%281991%29.mp4',
+  'DROP DEAD FRED':     'https://archive.org/download/90s_20250812/Drop%20Dead%20Fred%C2%A0%281991%29.mp4',
+  'HOOK 1991':          'https://archive.org/download/90s_20250812/Hook%20%281991%29.mp4',
+  'MISERY 1990':        'https://archive.org/download/90s_20250812/Misery%20%281990%29.mp4',
+  'RADIO FLYER':        'https://archive.org/download/90s_20250812/Radio%20Flyer%20%281992%29.mp4',
+  'NOW AND THEN':       'https://archive.org/download/90s_20250812/Now%20And%20Then%20%281995%29.mp4',
+  'SCENT OF A WOMAN':   'https://archive.org/download/90s_20250812/Scent%20of%20a%20Woman%20%281992%29.mp4',
+  'RIVER WILD':         'https://archive.org/download/90s_20250812/The%20River%20Wild%20%281994%29.mp4',
   'IT 1990':            'https://archive.org/download/are-you-alone-in-the-house/It.mp4',
   'JURY DUTY COMEDY':   'https://archive.org/download/are-you-alone-in-the-house/Jury%20Duty%20The%20Comedy.mp4',
   'MAN FLINTSTONES':    'https://archive.org/download/are-you-alone-in-the-house/The%20Man%20Called%20Flintstone.mp4',
@@ -1801,10 +1837,10 @@ const archiveMovies = {
   'BILL TED MOVIE 1':'bill-teds-excellent-adventure_202404',
   'BILL TED MOVIE 2':'bill..-teds.-bogus.-journey.-1991.1080p.-blu-ray.-ddp.-5.1.-h.-265-edge-2020',
   // ── movies_20220526 batch ──
-  'AN AMERICAN TAIL':'movies_20220526/An.American.Tail.1986.720p.BluRay.x264.YIFY.mp4',
-  'AUSTIN POWERS':'movies_20220526/Austin.Powers.International.Man.of.Mystery.1997.720p.Brrip.x264.Deceit.YIFY.mp4',
+  // 'AN AMERICAN TAIL': moved to movieCollections
+  // 'AUSTIN POWERS': moved to movieCollections
   'ET':'movies_20220526/E.T.The.Extra-Terrestrial.1982.1080p.BluRay.x265-RARBG.mp4',
-  'FREE WILLY':'movies_20220526/Free.Willy.1993.720p.BluRay.x264.YIFY.mp4',
+  'FREE WILLY':'90s_20250812/Free%20Willy%20%281993%29.mp4',
   'JURASSIC PARK':'movies_20220526/Jurassic.Park.1993.720p.BrRip.264.YIFY.mp4',
   'SPACE JAM':'movies_20220526/Space.Jam.1996.720p.HDDVD.x264.YIFY.mp4',
   'THE MASK':'movies_20220526/The.Mask.1994.720p.BRrip.x264.YIFY.mp4',
@@ -1812,7 +1848,7 @@ const archiveMovies = {
   'FREAKY FRIDAY':'rocky-1976_202310/Freaky%20Friday%20%281976%29.mp4',
   'CUCKOOS NEST':'rocky-1976_202310/One%20Flew%20Over%20The%20Cuckoo%27s%20Nest%20%281975%29.mp4',
   'SUPERMAN 1978':'rocky-1976_202310/Superman%20%281978%20Extended%20version%29.mp4',
-  'WILLY WONKA':'rocky-1976_202310/Willy%20Wonka%20%26%20the%20Chocolate%20Factory%20%281971%29.mp4',
+  'WILLY WONKA':'seivoMseilloM/Willy%20Wonka%20%26%20the%20Chocolate%20Factory%20%281971%29.mp4',
   // ── 28-days-later_202505 batch ──
   'AIRBORNE':'28-days-later_202505/Airborne%201993%20DvDrip%20XviD%20greenbud1969%2026K.mp4',
   'CABLE GUY':'28-days-later_202505/The.Cable.Guy.1996.SWESUB.DVDRip.XviD-andreaspetersson.mp4',
@@ -2671,6 +2707,37 @@ const movieCollections = {
       {title:'A Boy Named Charlie Brown (1969 — Theatrical Film)', url:'https://archive.org/download/8.-a-boy-named-charlie-brown-1969-hd_20220418/Peanuts%201960s%20Collection%20%28HD%29/8.%29%20A%20Boy%20Named%20Charlie%20Brown%20%281969%2C%20HD%29.mp4'},
     ]
   },
+  'AN AMERICAN TAIL': {
+    label: 'An American Tail Collection',
+    movies: [
+      {title:'An American Tail (1986)',                       url:'https://archive.org/download/where-the-wild-things-are-vhs-and-other-maurice-sendak-stories-o-60-fps-2002_202309/An%20American%20Tail.mp4'},
+      {title:'Fievel Goes West (1991)',                       url:'https://archive.org/download/where-the-wild-things-are-vhs-and-other-maurice-sendak-stories-o-60-fps-2002_202309/An%20American%20Tail%20II%20Fievel%20Goes%20West.mp4'},
+      {title:'The Treasure of Manhattan Island (1998)',       url:'https://archive.org/download/where-the-wild-things-are-vhs-and-other-maurice-sendak-stories-o-60-fps-2002_202309/AN%20AMERICAN%20TAIL%203%20_THE%20TREASURE%20OF%20MANHATTAN%20ISLAND%20%281998%29.mp4'},
+      {title:'The Mystery of the Night Monster (1999)',       url:'https://archive.org/download/where-the-wild-things-are-vhs-and-other-maurice-sendak-stories-o-60-fps-2002_202309/AN%20AMERICAN%20TAIL%204%20_THE%20MYSTERY%20OF%20THE%20NIGHT%20MONSTER%20%281999%29.mp4'},
+      {title:'An American Tail (1986) — Backup',             url:'https://archive.org/embed/movies_20220526/An.American.Tail.1986.720p.BluRay.x264.YIFY.mp4'},
+    ]
+  },
+  'AUSTIN POWERS': {
+    label: 'Austin Powers Collection',
+    movies: [
+      {title:'Austin Powers: International Man of Mystery (1997) — Archive', url:'https://archive.org/download/seivoMseilloM/Austin%20Powers%20International%20Man%20of%20Mystery%20%281997%29.mp4'},
+      {title:'Austin Powers: The Spy Who Shagged Me (1999)',                  url:'https://archive.org/download/seivoMseilloM/Austin%20Powers%20The%20Spy%20Who%20Shagged%20Me%20%281999%29.mp4'},
+      {title:'Austin Powers in Goldmember (2002)',                            url:'https://archive.org/download/seivoMseilloM/Austin%20Powers%20Goldmember%20%282002%29.mp4'},
+      {title:'Austin Powers: International Man of Mystery (1997) — Backup',  url:'https://archive.org/embed/movies_20220526/Austin.Powers.International.Man.of.Mystery.1997.720p.Brrip.x264.Deceit.YIFY.mp4'},
+    ]
+  },
+  'DRIVE IN': {
+    label: '🎬 Drive-In Intermissions',
+    movies: [
+      {title:'Drive-In Intermission (2026)',           url:'https://archive.org/download/drive-in-intermission_202603/Drive-In%20Intermission.mp4'},
+      {title:'Our Feature Presentation (Color Swirl)', url:'https://archive.org/download/Drive-inOurFeaturePresentation-colorSwirl/Drive-in--OurFeaturePresentation-Colorswirl_512kb.mp4'},
+      {title:'Drive-In Intermission 23',               url:'https://archive.org/download/Drive-inIntermission23/Drive-inIntermission23_512kb.mp4'},
+      {title:'Snack Bar Ad',                           url:'https://archive.org/download/Drive-inSnackBarAd/DriveIn-SnackBarAd_512kb.mp4'},
+      {title:'Drive-In Intermission 21',               url:'https://archive.org/download/DriveInIntermission21/Drive-inIntermission21_512kb.mp4'},
+      {title:'10-Minute Countdown Clock',              url:'https://archive.org/download/SwampAssDriveInIntermission10MinuteCountdownClock/intermissionclk10minutes_512kb.mp4'},
+      {title:'🎬 YouTube Playlist (Full Collection)',   url:'https://www.youtube.com/embed/videoseries?list=PLy0mRMkCOQbNp5MJiqUXc6KosthVI5XYY&autoplay=1'},
+    ]
+  },
   'OFFICE SPACE': {
     label: 'Office Space (1999)',
     movies: [
@@ -2898,11 +2965,34 @@ const movieCollections = {
       {title:'Mortal Kombat (2021)',                 url:'https://archive.org/embed/28-days-later_202505/Mortal.Kombat.2021.1080p.WEBRip.x264.AAC5.1-%5BYTS.MX%5D.mp4'},
     ]
   },
+  'FINAL DESTINATION': {
+    label: 'Final Destination Collection',
+    movies: [
+      {title:'Final Destination (2000)',                url:'https://archive.org/download/seivoMseilloM/Final%20Destination%20%282000%29.mp4'},
+      {title:'Final Destination 2 (2003)',              url:'https://archive.org/download/seivoMseilloM/Final%20Destination%202%20%282003%29.mp4'},
+      {title:'Final Destination 3 (2006)',              url:'https://archive.org/download/seivoMseilloM/Final%20Destination%203%20-%20Choose%20Their%20Fate%20%282006%20DVD%29.mp4'},
+      {title:'The Final Destination 4 (2009)',          url:'https://archive.org/download/seivoMseilloM/Final%20Destination%204%20-%20The%20Final%20Destination%20%282009%29.mp4'},
+      {title:'Final Destination 5 (2011)',              url:'https://archive.org/download/seivoMseilloM/Final%20Destination%205%20%282011%29.mp4'},
+      {title:'Final Destination Bloodlines (2025)',     url:'https://archive.org/download/seivoMseilloM/Final%20Destination%206%20-%20Bloodlines%20%282025%29.mp4'},
+    ]
+  },
+  'SCARY MOVIE COLLECTION': {
+    label: 'Scary Movie Collection',
+    movies: [
+      {title:'Scary Movie (2000)',   url:'https://archive.org/download/seivoMseilloM/Scary%20Movie%20%282000%29.mp4'},
+      {title:'Scary Movie II (2001)',url:'https://archive.org/download/seivoMseilloM/Scary%20Movie%20II%20%282001%29.mp4'},
+      {title:'Scary Movie III (2003)',url:'https://archive.org/download/seivoMseilloM/Scary%20Movie%20III%20%282003%29.mp4'},
+      {title:'Scary Movie IV (2006)',url:'https://archive.org/download/seivoMseilloM/Scary%20Movie%20IV%20%282006%29.mp4'},
+    ]
+  },
   'BATMAN COLLECTION': {
     label: 'Batman Movies',
     movies: [
-      {title:'Batman (1966)', url:'https://www.dailymotion.com/embed/video/x9j4sme?autoplay=1&ui-logo=0&sharing-enable=0&mute=0&queue-enable=0'},
-      {title:'Batman: Mask of the Phantasm (1993)', url:'https://www.dailymotion.com/embed/video/x94s2h0?autoplay=1&ui-logo=0&sharing-enable=0&mute=0&queue-enable=0'}
+      {title:'Batman (1966)',                         url:'https://www.dailymotion.com/embed/video/x9j4sme?autoplay=1&ui-logo=0&sharing-enable=0&mute=0&queue-enable=0'},
+      {title:'Batman (1989)',                         url:'https://archive.org/download/seivoMseilloM/Batman%20%281989%29.mp4'},
+      {title:'Batman Returns (1992)',                  url:'https://archive.org/download/seivoMseilloM/Batman%20Returns%20%281992%29%202.mp4'},
+      {title:'Batman Forever (1995)',                  url:'https://archive.org/download/seivoMseilloM/Batman%20Forever%20%281995%29.mp4'},
+      {title:'Batman: Mask of the Phantasm (1993)',   url:'https://www.dailymotion.com/embed/video/x94s2h0?autoplay=1&ui-logo=0&sharing-enable=0&mute=0&queue-enable=0'},
     ]
   },
   'REVENGE NERDS COLLECTION': {
@@ -3107,8 +3197,7 @@ const archiveSeriesItems = {
   'PEOPLE NEXT DOOR':'the-people-next-door-1989',
   'ALIENS IN FAMILY':'Aliens-in-the-Family',
   'POUND PUPPIES':'pound-puppies-s-01-e-11_202509',
-  // 'DRAGON BALL Z': moved to archiveSourceGroups
-  // 'DRAGON BALL Z': moved to archiveSourceGroups
+  'DRAGON BALL Z': 'dbz-westwood-remaster',
   'DRAGON BALL GT': 'dragon-ball-gt.-sp-1.-dbox.-480p.x-264-i-kaos-v-2-046-a-1-c-10',
   'FLINTSTONES COMEDY SHOW':'flintstonescomedyshowcomplete',
   'FLINTSTONES KIDS':'the-flintstones-kids-complete-series',
@@ -3171,6 +3260,10 @@ const archiveSeriesItems = {
   'THREE STOOGES':    'sing-a-song-of-six-paints',
   'GUMMI BEARS':        'gummi-bears-s-01-e-09-a-gummi-by-any-other-name_202602',
   'DISNEY ANTHOLOGY':    'disney-anthology-television-series',
+  'PEEWEE PLAYHOUSE':    'peewee-playhouse',
+  'MALCOLM MIDDLE':      'malcolm-in-the-middle-complete-series-2000-2006',
+  'JUST SHOOT ME':       '3-e-21',
+  'MR ROGERS':           'mister-rogers-neighborhood-50th-anniversary-complete-series',
   // ── NEW SHOWS (batch 10) ──
   'RISING DAMP':        'rising-damp-1974-78',
   'NINJA WARRIOR JR':   'american-ninja-warrior-junior-s-01-e-01-junior-qualifier-1',
@@ -3260,6 +3353,13 @@ const archiveIdSeasonMap = {
   // Ancient Aliens — parser extracts seasons from filenames
   // Charlie Brown — full override in archiveEpisodeOverrides
   // Felix the Cat 1972 — single feature film
+  'dbz-westwood-remaster':                   'All Episodes',
+  'AkiraToriyamaTributeCollectionArchive-LivBs': 'All Episodes',
+  'dragon-ball-z-1-291-sp-12-animax-encodes':    'All Episodes',
+  'dragon-ball-z-ocean-dub-mastered-complete':   'All Episodes',
+  'dragon-ball-z-funimation-faulconer-score':    'All Episodes',
+  'som-dragon-ball-complete-001-153-color-corrected-dragon-box': 'All Episodes',
+  'dragonball-z-kai-dub':                        'All Episodes',
   'dragon-ball-z-complete-001-291-color-corrected-dragon-box-merge': 'All Episodes',
   'dbz-westwood-remaster':                   'All Episodes',
   'dbz-westwood-dub-dragon-box-remaster': 'All Episodes',
@@ -3558,9 +3658,15 @@ const archiveEpisodeRangeSeasons = {
   ],
 
   'DRAGON BALL Z': [
-    {label:'📦 Westwood Remaster (Primary)',  ids:['dbz-westwood-remaster']},
-    {label:'📦 Color Corrected Dragon Box',   ids:['dragon-ball-z-complete-001-291-color-corrected-dragon-box-merge']},
-    {label:'📦 Westwood Dub Dragon Box',      ids:['dbz-westwood-dub-dragon-box-remaster']},
+    {label:'📦 Akira Toriyama Tribute (444 eps)', ids:['AkiraToriyamaTributeCollectionArchive-LivBs']},
+    {label:'📦 Animax Encodes (293 eps)',          ids:['dragon-ball-z-1-291-sp-12-animax-encodes']},
+    {label:'📦 Ocean Dub Mastered (276 eps)',      ids:['dragon-ball-z-ocean-dub-mastered-complete']},
+    {label:'📦 Funimation/Faulconer (224 eps)',    ids:['dragon-ball-z-funimation-faulconer-score']},
+    {label:'📦 Westwood Remaster (170 eps)',       ids:['dbz-westwood-remaster']},
+    {label:'📦 Color Corrected Dragon Box (45 eps)',ids:['dragon-ball-z-complete-001-291-color-corrected-dragon-box-merge']},
+    {label:'📦 Color Corrected 001-153 (75 eps)',  ids:['som-dragon-ball-complete-001-153-color-corrected-dragon-box']},
+    {label:'📦 DBZ Kai Dub (100 eps)',             ids:['dragonball-z-kai-dub']},
+    {label:'📦 Westwood Dub Dragon Box (65 eps)',  ids:['dbz-westwood-dub-dragon-box-remaster']},
   ],
   'JEFFERSONS': [
     { min:   1, max:  13, season: 'Season 1 (1975)' },
@@ -4603,6 +4709,11 @@ const channelNumbers = {
   'LEGEND 1995':      431,
   'CRIME TRAVELLER':  432,
   'NIGHTMARE CAFE':   433,
+  'PEEWEE PLAYHOUSE':   465,
+  'MALCOLM MIDDLE':     466,
+  'JUST SHOOT ME':      467,
+  'MR ROGERS':          468,
+  'DRIVE IN':           469,
   'DISNEY ANTHOLOGY':  464,
   'GUMMI BEARS':      463,
   'PEPPER ANN':       462,
@@ -4646,6 +4757,34 @@ const channelNumbers = {
   'TWINS 1988':       1339,
   'WEEKEND BERNIES':  1340,
   'DREAM TEAM 1989':  1341,
+  'FINAL DESTINATION':1342,
+  'SCARY MOVIE COLLECTION':1343,
+  'MASTERMINDS 1997': 1344,
+  'FIRST KID 1996':   1345,
+  '50 FIRST DATES':   1346,
+  'ADVENTURES BABYSIT':1347,
+  'EDWARD SCISSORHANDS':1348,
+  'FUN SIZE':         1349,
+  'KINDERGARTEN COP': 1350,
+  'MANNEQUIN 1987':   1351,
+  'MANNEQUIN 2':      1352,
+  'MOONWALKER':       1353,
+  'WATERBOY':         1354,
+  'TUCKER DALE':      1355,
+  'WHITE CHICKS':     1356,
+  'LOST BOYS 1987':   1357,
+  'PETES DRAGON 1977':1358,
+  'PAGEMASTER':       1359,
+  'DOC HOLLYWOOD':    1360,
+  'DROP DEAD FRED':   1361,
+  'HOOK 1991':        1362,
+  'MISERY 1990':      1363,
+  'RADIO FLYER':      1364,
+  'NOW AND THEN':     1365,
+  'SCENT OF A WOMAN': 1366,
+  'RIVER WILD':       1367,
+  'PEANUT BUTTER SOLUTION':1368,
+  'DRIVE IN':         1369,
   'JERRY SPRINGER': 6980,
   // ── Batch 3 standalone movies ──
   'ARE WE THERE YET':1124,'BEAVIS BUTTHEAD':1125,'BIG DADDY':1126,'BILLY MADISON':1127,
@@ -5101,7 +5240,7 @@ const displayNames={
   'WAYNE 2019':         'Wayne (2019)',
   'WOLF LAKE':          'Wolf Lake (2001)',
   'SELWYN FROGGITT':    "Oh No It's Selwyn Froggitt! (1974)",
-  'MASH':               'M*A*S*H',
+  'MASH':               'MASH (M*A*S*H)',
   'BE COOL SCOOBY DOO': 'Be Cool, Scooby-Doo!',
   'LITTLE BEAR':        'Little Bear',
   'ACE VENTURA ANIMATED':'Ace Ventura: Pet Detective (Animated)',
@@ -5110,6 +5249,11 @@ const displayNames={
   'DONALD DUCK':        'Donald Duck Cartoons (98 eps)',
   'DISNEY SHORTS':      'Disney Animated Shorts',
   'DISNEY ANTHOLOGY':    'Disney Anthology Television Series (399 eps)',
+  'PEEWEE PLAYHOUSE':    "Pee-wee's Playhouse (1986)",
+  'MALCOLM MIDDLE':      'Malcolm in the Middle (2000)',
+  'JUST SHOOT ME':       'Just Shoot Me! (1997)',
+  'MR ROGERS':           "Mr. Rogers' Neighborhood",
+  'DRIVE IN':            '🎬 Drive-In Intermissions',
   'GUMMI BEARS':        'Adventures of the Gummi Bears (1985)',
   'PEPPER ANN':         'Pepper Ann (1997)',
   'SANDLOT':          'The Sandlot (1993)',
@@ -6644,23 +6788,23 @@ function getAllSections(){
     { label:'🏺 Hanna-Barbera', type:'show', keys:['FLINTSTONES','FLINTSTONES KIDS','FLINTSTONES COMEDY SHOW','JETSONS','YOGI BEAR','HUCKLEBERRY HOUND','QUICK DRAW MCGRAW','TOP CAT','JABBERJAW','SNAGGLEPUSS','SNORKS','TOM JERRY','RUFF AND REDDY','SCOOBY DOO','JEANNIE','HARLEM GLOBETROTTERS','PEABODY','SCOOBY DOO SHOW 76','GEORGE OF THE JUNGLE','FAT ALBERT','WHERES HUDDLES','PARTRIDGE FAMILY'] },
     { label:'🎬 Warner Bros.', type:'show', keys:['BUGS BUNNY SHOW','LOONEY TUNES','MERRIE MELODIES','BATMAN ANIMATED','BATMAN BEYOND','THE BATMAN 2004','TINY TOON ADVENTURES','SYLVESTER AND TWEETY MYSTERIES','SUPERMAN ANIMATED','DUCK DODGERS'] },
     { label:'⚔️ Filmation / Sunbow', type:'show', keys:['HE-MAN','BRAVESTARR','GI JOE','TRANSFORMERS','DUNGEONS DRAGONS','SHE RA','BLACKSTAR','INHUMANOIDS','RAMBO ANIMATED','KARATE KID ANIMATED','BATTLETECH','NEW HE MAN'] },
-    { label:'🎪 DiC / Disney', type:'show', keys:['INSPECTOR GADGET','CARE BEARS','DARKWING DUCK','QUACK PACK','GARFIELD AND FRIENDS','ALVIN AND THE CHIPMUNKS','BACK TO THE FUTURE CARTOON','LEGEND OF ZELDA','SUPER MARIO','SMURFS','JOHAN PEEWIT','GET ALONG GANG','GARGOYLES','TALE SPIN','DUCKTALES','SUPER MARIO WORLD','SAMURAI PIZZA CATS','LAND BEFORE TIME TV','CAPTAIN PLANET','SONIC HEDGEHOG','MUMMIES ALIVE','POLICE ACADEMY ANIMATED','DOUBLE DRAGON','CARMEN SANDIEGO','STREET FIGHTER','ACE VENTURA ANIMATED','PUP NAMED SCOOBY','BE COOL SCOOBY DOO','DONALD DUCK','DISNEY SHORTS','PEPPER ANN','GUMMI BEARS','DISNEY ANTHOLOGY'] },
+    { label:'🎪 DiC / Disney', type:'show', keys:['INSPECTOR GADGET','CARE BEARS','DARKWING DUCK','QUACK PACK','GARFIELD AND FRIENDS','ALVIN AND THE CHIPMUNKS','BACK TO THE FUTURE CARTOON','LEGEND OF ZELDA','SUPER MARIO','SMURFS','JOHAN PEEWIT','GET ALONG GANG','GARGOYLES','TALE SPIN','DUCKTALES','SUPER MARIO WORLD','SAMURAI PIZZA CATS','LAND BEFORE TIME TV','CAPTAIN PLANET','SONIC HEDGEHOG','MUMMIES ALIVE','POLICE ACADEMY ANIMATED','DOUBLE DRAGON','CARMEN SANDIEGO','STREET FIGHTER','ACE VENTURA ANIMATED','PUP NAMED SCOOBY','BE COOL SCOOBY DOO','DONALD DUCK','DISNEY SHORTS','PEPPER ANN','GUMMI BEARS','DISNEY ANTHOLOGY','PEEWEE PLAYHOUSE'] },
     { label:'💥 Marvel / DC / Action Heroes', type:'show', keys:['X-MEN','TMNT','THUNDERCATS','REAL GHOSTBUSTERS','ROBOCOP ANIMATED','ROBOCOP LIVE','ROBOCOP MINI','IRON MAN 94','SPIDER MAN 67','SPIDER MAN UNLIMITED','SPIDER MAN 2003','AMAZING SPIDER MAN 77','FANTASTIC FOUR 96','INCREDIBLE HULK 66','INCREDIBLE HULK 94','MEN IN BLACK ANIMATED','JACKIE CHAN ADVENTURES','THE FLASH 90','GREEN HORNET','TINTIN'] },
     { label:'🍁 Canadian', type:'show', keys:['RACCOONS','REBOOT','UNDERGRADS','DOG CITY','LITTLEST HOBO'] },
     { label:'🕹️ 90s Toons', type:'show', keys:['ADDAMS FAMILY 90','BEETLEJUICE','DEXTER LAB','EXTREME GHOSTBUSTERS','SLIMER','EARTHWORM JIM','THE TICK','EXOSQUAD','COPS ANIMATED','DARKSTALKERS','MEGA MAN 94','MEGA MAN NT','ARCHIE WEIRD MYSTERIES','ANIMANIACS','THE OBLONGS','BUMP IN THE NIGHT','ALADDIN ANIMATED','BILL TED ANIMATED','DRAGON BALL Z','DRAGON BALL GT','DRAWN TOGETHER','FILMATION GHOSTBUSTERS','BEETHOVEN ANIMATED','HEATHCLIFF CATILLAC','WAYNEHEAD','TEEN ANGEL','BIKER MICE','MIGHTY MAX','MK DEFENDERS','TATTOOED TEENS','STONE PROTECTORS'] },
     { label:'📺 Classics Animation', type:'show', keys:['PINK PANTHER','ROCKY BULLWINKLE','UNDERDOG','CASPER','ARCHIE SHOW','CADILLACS DINOSAURS','GARBAGE PAIL KIDS','TALES CRYPTKEEPER','MY PET MONSTER','POLE POSITION','RICHIE RICH','POPEYE','MIGHTY MOUSE','FRAGGLE ROCK ANIMATED','MY LITTLE PONY','BOBBYS WORLD','CAMP CANDY','HELLO KITTY','LITTLE SHOP','PETER PAN PIRATES','FLIPPER LOPAKA','CALIFORNIA RAISINS','SYLVANIAN FAMILIES','LAVERNE SHIRLEY ARMY','GROOVIE GOOLIES','MONSTER SQUAD 1976','RAGGEDY ANN ANDY','POUND PUPPIES','JACKSON 5IVE','FELIX THE CAT','BATFINK','TEDDY RUXPIN','THREE STOOGES','HELLO KITTY PARADISE','MAGIC SCHOOL BUS','LITTLE BEAR'] },
-    { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','HOME IMPROVEMENT','WISHBONE','EVEN STEVENS','BROTHERS KEEPER','YOU WISH','NEWS RADIO','CLUELESS TV','WORKING TV','UNHAPPILY EVER','FERRIS BUELLER TV','MARRIED TO KELLYS','WAYNE 2019','MASH','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','WELCOME FRESHMEN','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
+    { label:'📺 TGIF & Prime Time', type:'show', keys:['FAMILY MATTERS','HOME IMPROVEMENT','WISHBONE','EVEN STEVENS','MALCOLM MIDDLE','JUST SHOOT ME','BROTHERS KEEPER','YOU WISH','NEWS RADIO','CLUELESS TV','WORKING TV','UNHAPPILY EVER','FERRIS BUELLER TV','MARRIED TO KELLYS','WAYNE 2019','MASH','SAVED BY THE BELL','STEP BY STEP','SWEET VALLEY HIGH','ALF LIVE','ALF TALES','MADTV','HOGAN FAMILY','DOOGIE HOWSER','DAY BY DAY','FREE SPIRIT','ALIENS IN FAMILY','WELCOME FRESHMEN','BILL TED LIVE','PEOPLE NEXT DOOR','PUNKY BREWSTER','WONDER YEARS','FREAKS GEEKS','SIX FEET UNDER','JUMP STREET','MARRIED WITH CHILDREN','MY SECRET IDENTITY','ROSEANNE','LIFE GOES ON'] },
     { label:'🕰️ Classic Sitcoms', type:'show', keys:['LEAVE IT BEAVER','NEW LEAVE IT BEAVER','MONKEES','ARCHIE BUNKERS PLACE','BAYWATCH','ADDAMS FAMILY LIVE','NEW ADDAMS FAMILY','MUNSTERS','JEFFERSONS','GOOD TIMES','DIFF STROKES','GET SMART','BENSON','GHOST MRS MUIR','THATS MY BOY'] },
     { label:'🎰 Game Shows', type:'show', keys:['SUPERMARKET SWEEP','PRESS YOUR LUCK','PASS THE BUCK','FAMILY FEUD','BUMPER STUMPERS','LOVE ME LOVE ME NOT','LOVE CONNECTION','NAME THAT TUNE','CHAIN REACTION','MXC','TO TELL THE TRUTH'] },
-    { label:'🔭 Sci-Fi & Adventure', type:'show', keys:['VOYAGERS','SOMETHING OUT THERE','EERIE INDIANA','EERIE INDIANA OTHER DIM','SUPERNATURAL 1977','HARDY BOYS NANCY DREW','YOUNG INDIANA JONES','DA VINCI DEMONS','OTHERWORLD','STREET HAWK','JACK OF ALL TRADES','SHE WOLF LONDON','LEGEND 1995','CRIME TRAVELLER','NIGHTMARE CAFE','WOLF LAKE','NINJA WARRIOR JR'] },
+    { label:'🔭 Sci-Fi & Adventure', type:'show', keys:['VOYAGERS','SOMETHING OUT THERE','MR ROGERS','EERIE INDIANA','EERIE INDIANA OTHER DIM','SUPERNATURAL 1977','HARDY BOYS NANCY DREW','YOUNG INDIANA JONES','DA VINCI DEMONS','OTHERWORLD','STREET HAWK','JACK OF ALL TRADES','SHE WOLF LONDON','LEGEND 1995','CRIME TRAVELLER','NIGHTMARE CAFE','WOLF LAKE','NINJA WARRIOR JR'] },
     { label:'🎃 Horror & Thrills', type:'show', keys:['FREDDYS NIGHTMARES','WEREWOLF TV','HAMMER HOUSE HORROR','THE FRIGHTENERS TV','TIMESLIP','TALES CRYPT LIVE','FRIDAY 13TH','AFRAID DARK','GOOSEBUMPS','TALES DARKSIDE','MASTERS HORROR','CREEPSHOW','CREEPSHOW LIVE'] },
     { label:'🇬🇧 British', type:'show', keys:['MR BEAN','KEEPING UP APPEARANCES','ARE YOU BEING SERVED','ALL CREATURES','FAWLTY TOWERS','RISING DAMP','FINE ROMANCE','SELWYN FROGGITT','RENTAGHOST','DENNIS MENACE GNASHER','BLACKADDER','THE PRISONER','HITCHHIKER','MR MEN','LITTLE MISS'] },
     { label:'📚 Educational & Kids', type:'show', keys:['BILL NYE','READING RAINBOW','ADVENTURES IN ODYSSEY','THOMAS AND FRIENDS','BERENSTAIN BEARS','CHRONICLES NARNIA','STORYTELLER','CHARLIE BROWN','HAUNTING HOUR','ANCIENT ALIENS'] },
-    { label:'🗂 Collections', type:'movie', keys:['ACE VENTURA COLLECTION','BATMAN COLLECTION','BILL TED COLLECTION','BTTF COLLECTION','CARE BEARS COLLECTION','CREEPSHOW MOVIES','ERNEST COLLECTION','GHOSTBUSTERS COLLECTION','GREMLINS COLLECTION','HOME ALONE COLLECTION','JOHN CANDY COLLECTION','MANIAC COP COLLECTION','MK COLLECTION','NFB COLLECTION','NEVERENDING STORY COLLECTION','NIGHTMARE ELM COLLECTION','3 NINJAS','POLICE ACADEMY COLLECTION','PROBLEM CHILD COLLECTION','RAMBO COLLECTION','REVENGE NERDS COLLECTION','ROCKY COLLECTION','SCOOBY COLLECTION','SCOOBY LIVE MOVIES','TMNT COLLECTION','YOUNG GUNS COLLECTION'] },
-    { label:'😂 Comedy', type:'movie', keys:['ANGUS','ARE WE THERE YET','ARE YOU BEING SERVED FILM','AUSTIN POWERS','BEAVIS BUTTHEAD','BIG DADDY','BILLY MADISON','BIO DOME','BLANK CHECK','BREAKFAST CLUB','CABLE GUY','ENCINO MAN','FERRIS BUELLER','FRIED GREEN TOMATOES','GOOFY MOVIE','GROUNDHOG DAY','HAPPY GILMORE','HEATHERS','LITTLE NICKY','MRS DOUBTFIRE','OSCAR MOVIE','PRIVATE SCHOOL','SAY ANYTHING','SIXTEEN CANDLES','MY SUMMER STORY','SPACEBALLS','STEP BROTHERS','THROW MAMA TRAIN','TROOP BEVERLY HILLS','UHF','WEIRD SCIENCE','TWINS 1988','WEEKEND BERNIES','DREAM TEAM 1989','JURY DUTY COMEDY','SKI SCHOOL 1990'] },
-    { label:'🦕 Family & Adventure', type:'movie', keys:['SANDLOT','PEANUTS COLLECTION','AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS','BOY WHO COULD FLY','MAN FLINTSTONES'] },
+    { label:'🗂 Collections', type:'movie', keys:['ACE VENTURA COLLECTION','BATMAN COLLECTION','BILL TED COLLECTION','BTTF COLLECTION','CARE BEARS COLLECTION','CREEPSHOW MOVIES','ERNEST COLLECTION','GHOSTBUSTERS COLLECTION','GREMLINS COLLECTION','HOME ALONE COLLECTION','JOHN CANDY COLLECTION','MANIAC COP COLLECTION','MK COLLECTION','NFB COLLECTION','NEVERENDING STORY COLLECTION','NIGHTMARE ELM COLLECTION','3 NINJAS','POLICE ACADEMY COLLECTION','PROBLEM CHILD COLLECTION','RAMBO COLLECTION','REVENGE NERDS COLLECTION','ROCKY COLLECTION','SCOOBY COLLECTION','SCOOBY LIVE MOVIES','TMNT COLLECTION','YOUNG GUNS COLLECTION','FINAL DESTINATION','SCARY MOVIE COLLECTION'] },
+    { label:'😂 Comedy', type:'movie', keys:['ANGUS','ARE WE THERE YET','ARE YOU BEING SERVED FILM','AUSTIN POWERS','BEAVIS BUTTHEAD','BIG DADDY','BILLY MADISON','BIO DOME','BLANK CHECK','BREAKFAST CLUB','CABLE GUY','ENCINO MAN','FERRIS BUELLER','FRIED GREEN TOMATOES','GOOFY MOVIE','GROUNDHOG DAY','HAPPY GILMORE','HEATHERS','LITTLE NICKY','MRS DOUBTFIRE','OSCAR MOVIE','PRIVATE SCHOOL','SAY ANYTHING','SIXTEEN CANDLES','MY SUMMER STORY','SPACEBALLS','STEP BROTHERS','THROW MAMA TRAIN','TROOP BEVERLY HILLS','UHF','WEIRD SCIENCE','TWINS 1988','WEEKEND BERNIES','DREAM TEAM 1989','JURY DUTY COMEDY','SKI SCHOOL 1990','50 FIRST DATES','ADVENTURES BABYSIT','FUN SIZE','KINDERGARTEN COP','MANNEQUIN 1987','MANNEQUIN 2','WATERBOY','TUCKER DALE','WHITE CHICKS','DOC HOLLYWOOD','DROP DEAD FRED','NOW AND THEN','MOONWALKER','HOOK 1991','RADIO FLYER'] },
+    { label:'🦕 Family & Adventure', type:'movie', keys:['SANDLOT','PEANUTS COLLECTION','AN AMERICAN TAIL','ANIMAL FARM','ARISTOCATS','BATTERIES NOT INCLUDED','BLACK CAULDRON','CHRISTMAS STORY','ET','FREE WILLY','FLIGHT OF NAVIGATOR COLLECTION','FLINTSTONES MOVIES','GARBAGE PAIL KIDS MOVIE','GOONIES','HEAVYWEIGHTS','HEMAN MOVIE','JURASSIC PARK','LITTLE MONSTERS','MAC AND ME','ROCKETEER','RUDOLPH REINDEER','SPACE JAM','WILLY WONKA','WHO FRAMED ROGER RABBIT','YOGIS FIRST CHRISTMAS','BOY WHO COULD FLY','MAN FLINTSTONES','PETES DRAGON 1977','PAGEMASTER','FIRST KID 1996','PEANUT BUTTER SOLUTION','MASTERMINDS 1997','DRIVE IN'] },
     { label:'🧙 Fantasy & Sci-Fi', type:'movie', keys:['HEAVY METAL','HACKERS','OFFICE SPACE','MONTY PYTHON HOLY GRAIL','PRINCESS BRIDE','SHORT CIRCUIT COLLECTION','TIME BANDITS','WILLOW'] },
-    { label:'💥 Action & Thriller', type:'movie', keys:['AIRBORNE','BATMAN ADAM WEST','BATMAN CARTOON MOVIE','BOYZ N HOOD','CLUE','COUNT MONTE CRISTO','DEMOLITION MAN','FALLING DOWN','FIGHT CLUB','FIST NORTH STAR','FREAKY FRIDAY','FRIDAY','GLEAMING CUBE COLLECTION','GOOD BAD UGLY','GREAT BALLS OF FIRE','KARATE KID COLLECTION','LAST ACTION HERO','MENACE II SOCIETY','NEED FOR SPEED','OF MICE MEN','OUTSIDERS','THE MASK','CUCKOOS NEST','PINK FLOYD WALL','RESERVOIR DOGS','DARKMAN COLLECTION','ROBOCOP MOVIES','SPAWN','SUPERMAN 1978','TOY SOLDIERS','TRUE ROMANCE','STAND BY ME','STAND AND DELIVER','IT 1990'] },
+    { label:'💥 Action & Thriller', type:'movie', keys:['AIRBORNE','BATMAN ADAM WEST','BATMAN CARTOON MOVIE','BOYZ N HOOD','CLUE','COUNT MONTE CRISTO','DEMOLITION MAN','FALLING DOWN','FIGHT CLUB','FIST NORTH STAR','FREAKY FRIDAY','FRIDAY','GLEAMING CUBE COLLECTION','GOOD BAD UGLY','GREAT BALLS OF FIRE','KARATE KID COLLECTION','LAST ACTION HERO','MENACE II SOCIETY','NEED FOR SPEED','OF MICE MEN','OUTSIDERS','THE MASK','CUCKOOS NEST','PINK FLOYD WALL','RESERVOIR DOGS','DARKMAN COLLECTION','ROBOCOP MOVIES','SPAWN','SUPERMAN 1978','TOY SOLDIERS','TRUE ROMANCE','STAND BY ME','STAND AND DELIVER','IT 1990','SCENT OF A WOMAN','LOST BOYS 1987','EDWARD SCISSORHANDS','MISERY 1990','RIVER WILD'] },
     { label:'🔪 Horror', type:'movie', keys:['13 GHOSTS','FRIDAY 13TH MOVIES','FUN MOVIE'] },
   ];
 }
@@ -6774,7 +6918,7 @@ async function getCityName(lat,lon){
 
 function getWeatherIcon(code){
   if(code===0)return'☀️';if(code===1||code===2)return'🌤️';if(code===3)return'☁️';
-  if(code===45||code===48)return'😶‍🌫️';if(code>=51&&code<=67)return'🌧️';
+  if(code===45||code===48)return'🌫️';if(code>=51&&code<=67)return'🌧️';
   if(code>=71&&code<=77)return'❄️';if(code>=80&&code<=82)return'🌦️';
   if(code>=85&&code<=86)return'❄️';if(code>=95&&code<=99)return'⛈️';return'🌡️';
 }
