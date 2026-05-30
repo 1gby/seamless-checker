@@ -6329,7 +6329,7 @@
       document.getElementById('section-xxx-favorites').style.display = 'none';
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
       await Promise.all([
-        loadSection('/tv/airing_today', { language: 'en-US', timezone: 'America/New_York', with_original_language: 'en', watch_region: 'US' }, 'airing-grid'),
+        loadSection('/discover/tv', { sort_by: 'popularity.desc', with_original_language: 'en', watch_region: 'US', 'air_date.gte': today, 'air_date.lte': today, language: 'en-US' }, 'airing-grid'),
         loadStreamingNow('streaming-now-grid'),
         loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
         loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
@@ -7265,7 +7265,6 @@
   getWeather();
 
 </script>
-<!-- Hidden visitor tracker - counts toward home page total -->
-<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
+
 </body>
 </html>
