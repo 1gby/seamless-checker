@@ -282,10 +282,11 @@
 
     /* Continue Watching progress badge */
     .cw-badge {
-      position: absolute; bottom: 2.5rem; left: 0; right: 0;
-      background: linear-gradient(135deg, rgba(16,185,129,0.9), rgba(118,75,162,0.85));
+      position: absolute; bottom: 2.75rem; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(16,185,129,0.92), rgba(118,75,162,0.88));
       color: #fff; font-size: 0.62rem; font-weight: 800; text-align: center;
-      padding: 0.2rem 0; letter-spacing: 0.04em;
+      padding: 0.25rem 0.75rem; letter-spacing: 0.04em; white-space: nowrap;
+      border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);
       text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
     .cw-title {
@@ -5771,26 +5772,42 @@
     const grid    = document.getElementById('fav-this-week-grid');
     if (!section || !grid) return;
 
+    // Use both favorites AND any show in watch history
     const favTv = (favorites.tv || []);
-    if (favTv.length === 0) { section.style.display = 'none'; return; }
+    const watchedIds = new Set();
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('watched_')) {
+        const id = parseInt(key.split('_')[1]);
+        if (id && !favTv.find(s => s.id === id)) watchedIds.add(id);
+      }
+    }
+
+    if (favTv.length === 0 && watchedIds.size === 0) { section.style.display = 'none'; return; }
 
     const today   = new Date();
-    const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
-    const todayStr = today.toISOString().split('T')[0];
+    // Yesterday → 10 days ahead to catch shows TMDB reports slightly off
+    const fromDate = new Date(today); fromDate.setDate(fromDate.getDate() - 1);
+    const weekEnd  = new Date(today); weekEnd.setDate(weekEnd.getDate() + 10);
+    const fromStr  = fromDate.toISOString().split('T')[0];
     const weekStr  = weekEnd.toISOString().split('T')[0];
+    const todayStr = today.toISOString().split('T')[0];
 
     const airingThisWeek = [];
-    // Check up to 15 fav shows in parallel
-    const checks = favTv.slice(0, 15).map(async show => {
+    const allShows = [...favTv];
+
+    const checks = allShows.slice(0, 20).map(async show => {
       try {
-        const data = await tmdb(`/tv/${show.id}`, { append_to_response: 'external_ids' });
+        const data = await tmdb(`/tv/${show.id}`);
         if (!data?.next_episode_to_air) return;
         const airDate = data.next_episode_to_air.air_date;
-        if (airDate >= todayStr && airDate <= weekStr) {
+        if (airDate >= fromStr && airDate <= weekStr) {
           airingThisWeek.push({
-            ...show, media_type: 'tv',
+            ...show,
+            poster_path: show.poster_path || data.poster_path,
+            media_type: 'tv',
             _nextEp: data.next_episode_to_air,
             _airDate: airDate,
+            _isToday: airDate === todayStr,
           });
         }
       } catch {}
@@ -5799,27 +5816,28 @@
 
     if (airingThisWeek.length === 0) { section.style.display = 'none'; return; }
 
-    // Sort by air date (soonest first)
     airingThisWeek.sort((a, b) => a._airDate.localeCompare(b._airDate));
-
     section.style.display = 'block';
     grid.innerHTML = '';
+
     for (const show of airingThisWeek) {
       const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
       if (!imgUrl) continue;
       const ep = show._nextEp;
       const epLabel = `S${String(ep.season_number).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')}`;
-      const dayName = new Date(show._airDate + 'T12:00:00').toLocaleDateString('en', { weekday: 'short' });
+      const airD = new Date(show._airDate + 'T12:00:00');
+      const dayName = show._isToday ? 'Today' : airD.toLocaleDateString('en', { weekday: 'short' });
       const card = document.createElement('div');
       card.className = 'card';
+      card.dataset.navKey = navRegStore(show);
       card.innerHTML = `
         <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+        <div class="cw-badge" style="background:${show._isToday ? 'rgba(16,185,129,0.92)' : 'rgba(118,75,162,0.88)'};">${dayName}</div>
         <div class="info">
-          <div style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${dayName} · ${epLabel}</div>
+          <div style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${epLabel}</div>
           <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ep.name || ''}</div>
         </div>`;
-      card.dataset.tvId = show.id;
-      card.onclick = () => openTVDetail(show.id);
+      card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openTVDetail(show.id); };
       grid.appendChild(card);
     }
   }
@@ -6315,7 +6333,7 @@
     const today        = new Date().toISOString().split('T')[0];
     const weekAgo      = new Date(Date.now() - 7  * 86400000).toISOString().split('T')[0];
     const monthFromNow = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-    const normalSections = ['fav-this-week','airing','streaming-now','new-releases','trending-tv','trending-movies','tv-week','movies-week','recently-watched','anticipated-tv','anticipated-movies'];
+    const normalSections = ['airing','streaming-now','new-releases','trending-tv','trending-movies','tv-week','movies-week','anticipated-tv','anticipated-movies'];
     const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
     if (isAdultMode) {
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
