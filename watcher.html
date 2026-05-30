@@ -248,8 +248,8 @@
        § CSS-07  CARDS
        ═══════════════════════════════════════════════════════════════════ */
     .card {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 36px; overflow: hidden; backdrop-filter: blur(16px);
+      background: var(--glass-bg); border: none;
+      border-radius: 22px; overflow: hidden;
       transition: all 0.35s cubic-bezier(0.4,0,0.2,1); cursor: pointer; position: relative;
     }
     .card:active { transform: scale(0.98); }
@@ -278,14 +278,13 @@
     .year { font-size: 0.75rem; font-weight: 600; color: var(--accent-green); line-height: 1.2; }
     .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.6); }
 
-    /* Continue Watching progress badge */
+    /* Continue Watching progress badge — inline below poster */
     .cw-badge {
-      position: absolute; bottom: 2.75rem; left: 50%; transform: translateX(-50%);
+      display: inline-block;
       background: linear-gradient(135deg, rgba(16,185,129,0.92), rgba(118,75,162,0.88));
-      color: #fff; font-size: 0.62rem; font-weight: 800; text-align: center;
-      padding: 0.25rem 0.75rem; letter-spacing: 0.04em; white-space: nowrap;
-      border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      color: #fff; font-size: 0.58rem; font-weight: 800;
+      padding: 0.18rem 0.55rem; letter-spacing: 0.04em; white-space: nowrap;
+      border-radius: 999px; margin-bottom: 0.1rem;
     }
     .cw-title {
       font-size: 0.55rem; color: rgba(255,255,255,0.5); overflow: hidden;
@@ -5835,10 +5834,12 @@
       card.dataset.navKey = navRegStore(show);
       card.innerHTML = `
         <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-        <div class="cw-badge" style="background:${show._isToday ? 'rgba(16,185,129,0.92)' : 'rgba(118,75,162,0.88)'};">${dayName}</div>
         <div class="info">
-          <div style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${epLabel}</div>
-          <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ep.name || ''}</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;margin-bottom:0.15rem;">
+            <span class="cw-badge" style="background:${show._isToday ? 'rgba(16,185,129,0.92)' : 'rgba(118,75,162,0.88)'};">${dayName}</span>
+            <span style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${epLabel}</span>
+          </div>
+          <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;">${ep.name || ''}</div>
         </div>`;
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openTVDetail(show.id); };
       grid.appendChild(card);
@@ -5931,10 +5932,12 @@
         card.dataset.navKey = navRegStore(show);
         card.innerHTML = `
           <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-          <div class="cw-badge">${epLabel}</div>
           <div class="info">
             <div class="cw-title">${show.name || show.original_name || ''}</div>
-            <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
+              <span class="cw-badge">${epLabel}</span>
+              <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
+            </div>
           </div>`;
         card.onclick = () => openTVDetail(show.id);
         grid.appendChild(card);
@@ -5958,10 +5961,12 @@
           card.dataset.navKey = navRegStore(show);
           card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-            <div class="cw-badge" style="background:rgba(16,185,129,0.85);">✅ Caught Up</div>
             <div class="info">
               <div class="cw-title">${show.name || show.original_name || ''}</div>
-              <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${show._watchedCount} episodes watched</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;margin-top:0.15rem;">
+                <span class="cw-badge" style="background:rgba(16,185,129,0.85);">✅ Caught Up</span>
+                <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${show._watchedCount} watched</span>
+              </div>
             </div>`;
           card.onclick = () => openTVDetail(show.id);
           rwGrid.appendChild(card);
