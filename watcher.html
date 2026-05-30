@@ -31,7 +31,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     /* ═══════════════════════════════════════════════════════════════════
@@ -68,7 +68,8 @@
                env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
-    h1, h2, .title-text { font-family: 'Bebas Neue', cursive; letter-spacing: 1.8px; }
+    h1, .title-text { font-family: 'Bebas Neue', cursive; letter-spacing: 1.8px; }
+    h2 { font-family: 'Bangers', cursive; letter-spacing: 2px; }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-03  LOADING OVERLAY
@@ -204,10 +205,7 @@
 
     h2 {
       font-size: 2.2rem; margin: 0.5rem 0 1rem;
-      background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: var(--title-glow);
-      filter: drop-shadow(0 0 12px rgba(118,75,162,0.4)) drop-shadow(0 0 20px rgba(16,185,129,0.3));
+      color: var(--accent-purple);
     }
 
     .horizontal-scroll {
@@ -251,7 +249,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .card {
       background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 28px; overflow: hidden; backdrop-filter: blur(16px);
+      border-radius: 36px; overflow: hidden; backdrop-filter: blur(16px);
       transition: all 0.35s cubic-bezier(0.4,0,0.2,1); cursor: pointer; position: relative;
     }
     .card:active { transform: scale(0.98); }
