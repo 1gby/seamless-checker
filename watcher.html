@@ -258,7 +258,7 @@
     }
 
     .favorite-btn {
-      position: absolute; top: 0.2rem; right: 0.2rem;
+      position: absolute; top: 0.55rem; right: 0.55rem;
       background: rgba(0,0,0,0.50); border: none; border-radius: 50%;
       width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
       cursor: pointer; z-index: 10; transition: all 0.3s ease; font-size: 1rem;
@@ -271,7 +271,7 @@
     .poster {
       width: 100%; aspect-ratio: 2/3; object-fit: cover;
       background: #111; display: block; filter: drop-shadow(var(--poster-glow));
-      transition: filter 0.35s;
+      transition: filter 0.35s; border-radius: inherit;
     }
     .card:hover .poster { filter: drop-shadow(0 0 30px rgba(118,75,162,0.7)); }
     .info { padding: 0.4rem 0.9rem 0.5rem; text-align: center; min-height: 2.2rem; }
