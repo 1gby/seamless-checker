@@ -1330,15 +1330,15 @@
 <section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <h2>Airing Today</h2>              <div class="horizontal-scroll" id="airing-grid"></div></section>
-<section id="section-streaming-now">   <h2>Streaming Now</h2>             <div class="horizontal-scroll" id="streaming-now-grid"></div></section>
-    <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
+<section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
+    <section id="section-streaming-now">   <h2>Streaming Now</h2>             <div class="horizontal-scroll" id="streaming-now-grid"></div></section>
 <section id="section-trending-tv">     <h2>Trending TV</h2>               <div class="horizontal-scroll" id="trending-tv-grid"></div></section>
 <section id="section-trending-movies"> <h2>Trending Movies</h2>           <div class="horizontal-scroll" id="trending-movies-grid"></div></section>
 <section id="section-tv-week">         <h2>TV This Week</h2>              <div class="horizontal-scroll" id="tv-week-grid"></div></section>
 <section id="section-movies-week">     <h2>Movies This Week</h2>          <div class="horizontal-scroll" id="movies-week-grid"></div></section>
-<section id="section-recently-watched" style="display:none;"><h2>Recently Watched</h2><div class="horizontal-scroll" id="recently-watched-grid"></div></section>
-    <section id="section-anticipated-tv">      <h2>Most Anticipated TV Shows</h2> <div class="horizontal-scroll" id="anticipated-tv-grid"></div></section>
+<section id="section-anticipated-tv">      <h2>Most Anticipated TV Shows</h2> <div class="horizontal-scroll" id="anticipated-tv-grid"></div></section>
 <section id="section-anticipated-movies">  <h2>Most Anticipated Movies</h2>   <div class="horizontal-scroll" id="anticipated-movies-grid"></div></section>
+<section id="section-recently-watched" style="display:none;"><h2>Recently Watched</h2><div class="horizontal-scroll" id="recently-watched-grid"></div></section>
 
 <!-- FAVORITES — Normal Mode -->
 
@@ -6329,7 +6329,7 @@
       document.getElementById('section-xxx-favorites').style.display = 'none';
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
       await Promise.all([
-        loadSection('/tv/airing_today', { language: 'en-US', timezone: 'America/New_York' }, 'airing-grid'),
+        loadSection('/tv/airing_today', { language: 'en-US', timezone: 'America/New_York', with_original_language: 'en', watch_region: 'US' }, 'airing-grid'),
         loadStreamingNow('streaming-now-grid'),
         loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
         loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
@@ -7265,6 +7265,7 @@
   getWeather();
 
 </script>
-
+<!-- Hidden visitor tracker - counts toward home page total -->
+<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
 </body>
 </html>
