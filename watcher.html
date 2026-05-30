@@ -2384,14 +2384,42 @@
   }
 
   async function showTBAccountInfo() {
-    if (!getTBToken()) { alert('No Torbox token saved.'); return; }
+    if (!getTBToken()) { showToast('No Torbox token saved', 'error'); return; }
     try {
       const json = await tbFetch('/user/me');
-      if (!json?.success) { alert('❌ ' + (json?.detail || 'Error')); return; }
+      if (!json?.success) { showToast('❌ ' + (json?.detail || 'Error'), 'error'); return; }
       const u = json.data;
       const planName = ['Free','Essential','Standard','Pro'][u.plan] || 'Unknown';
-      alert(`👤 Torbox Account\n\nEmail: ${u.email || '—'}\nPlan: ${planName}\nExpires: ${u.premium_expires_at ? new Date(u.premium_expires_at).toLocaleDateString() : 'N/A'}`);
-    } catch(e) { alert('❌ ' + e.message); }
+      const isPremium = u.is_subscribed;
+      const expires = u.premium_expires_at ? new Date(u.premium_expires_at).toLocaleDateString('en-CA') : 'N/A';
+      const created = u.created_at ? new Date(u.created_at).toLocaleDateString('en-CA') : 'N/A';
+      const cooldown = u.cooldown_until ? new Date(u.cooldown_until).toLocaleDateString('en-CA') : 'None';
+      const daysLeft = u.premium_expires_at ? Math.max(0, Math.ceil((new Date(u.premium_expires_at) - Date.now()) / 86400000)) : 0;
+
+      document.getElementById('tb-account-popup')?.remove();
+      const popup = document.createElement('div');
+      popup.id = 'tb-account-popup';
+      popup.innerHTML = `
+        <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
+        <div class="cache-popup-panel" style="border-color:rgba(118,75,162,0.5);max-width:340px;">
+          <div class="cache-popup-title" style="font-size:1.1rem;">Torbox</div>
+          <div style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.8rem;padding:0.5rem 0;text-align:left;">
+            <div><strong>Email:</strong> ${u.email || '—'}</div>
+            <div><strong>Created:</strong> ${created}</div>
+            <div><strong>Plan:</strong> ${planName}</div>
+            <div><strong>Premium Status:</strong> <span style="color:${isPremium ? 'var(--accent-green)' : 'var(--accent-red)'}">${isPremium ? 'Active' : 'Inactive'}</span></div>
+            <div><strong>Premium Expires:</strong> <span style="color:${daysLeft < 7 ? 'var(--accent-red)' : 'var(--accent-green)'}">${expires}</span></div>
+            <div><strong>Downloads:</strong> ${u.total_downloaded != null ? u.total_downloaded + ' torrents' : '—'}</div>
+            <div><strong>Cooldown Until:</strong> ${cooldown}</div>
+            ${u.referral_code ? `<div><strong>Referral Code:</strong> <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${u.referral_code}</span></div>` : ''}
+          </div>
+          <div class="cache-popup-buttons">
+            <button class="cache-popup-btn infuse" onclick="this.closest('#tb-account-popup').remove()">Close</button>
+            <button class="cache-popup-btn delete" onclick="deleteTBToken();this.closest('#tb-account-popup').remove();">Logout</button>
+          </div>
+        </div>`;
+      document.body.appendChild(popup);
+    } catch(e) { showToast('TB Error: ' + e.message, 'error'); }
   }
 
   async function openTBLibrary() {
