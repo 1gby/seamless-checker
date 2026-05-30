@@ -216,7 +216,7 @@
     .horizontal-scroll::-webkit-scrollbar       { height: 6px; }
     .horizontal-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
     .horizontal-scroll::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 10px; }
-    .horizontal-scroll .card { flex: 0 0 100px; scroll-snap-align: start; }
+    .horizontal-scroll .card { flex: 0 0 115px; scroll-snap-align: start; }
 
     .vertical-grid {
       display: grid;
@@ -5963,10 +5963,10 @@
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
             <div class="info">
               <div class="cw-title">${show.name || show.original_name || ''}</div>
-              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;margin-top:0.15rem;">
+              <div style="margin-top:0.2rem;">
                 <span class="cw-badge" style="background:rgba(16,185,129,0.85);">✅ Caught Up</span>
-                <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${show._watchedCount} watched</span>
               </div>
+              <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);margin-top:0.15rem;">${show._watchedCount} watched</div>
             </div>`;
           card.onclick = () => openTVDetail(show.id);
           rwGrid.appendChild(card);
@@ -7291,6 +7291,7 @@
   getWeather();
 
 </script>
-
+<!-- Hidden visitor tracker - counts toward home page total -->
+<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
 </body>
 </html>
