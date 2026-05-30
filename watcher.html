@@ -906,6 +906,36 @@
 
     #settings-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.75rem; }
 
+    /* Settings submenus */
+    .settings-nav { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.25rem 0; }
+    .settings-nav-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem; border-radius: 12px; cursor: pointer;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .settings-nav-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(16,185,129,0.3); }
+    .settings-nav-btn .snb-icon { font-size: 1.1rem; margin-right: 0.6rem; }
+    .settings-nav-btn .snb-arrow { color: rgba(255,255,255,0.3); font-size: 0.8rem; }
+    .settings-nav-btn .snb-badge {
+      font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 8px;
+      background: rgba(16,185,129,0.15); color: var(--accent-green);
+      border: 1px solid rgba(16,185,129,0.3); margin-left: auto; margin-right: 0.5rem;
+    }
+    .settings-submenu { display: none; flex-direction: column; gap: 0.75rem; }
+    .settings-submenu.active { display: flex; }
+    .settings-submenu-back {
+      display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0 0.75rem;
+      color: var(--accent-green); cursor: pointer; font-size: 0.85rem; font-weight: 500;
+      border: none; background: none;
+    }
+    .settings-submenu-back:hover { opacity: 0.8; }
+    .settings-submenu-title {
+      font-size: 1rem; font-weight: 700; color: #fff;
+      padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 0.25rem;
+    }
     .settings-section { display: flex; flex-direction: column; gap: 0.75rem; }
     .settings-section-title {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
@@ -966,6 +996,12 @@
     .settings-url-input:focus { outline: none; border-color: var(--accent-green); }
 
     /* RD status indicator */
+    #settings-tb-status {
+      padding: 0.4rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      display: inline-block; margin-bottom: 0.25rem;
+    }
+    #settings-tb-status.connected    { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+    #settings-tb-status.disconnected { background: rgba(239,68,68,0.1); color: var(--accent-red);    border: 1px solid rgba(239,68,68,0.3); }
     #settings-rd-status {
       font-size: 0.78rem; padding: 0.4rem 0.8rem; border-radius: 8px;
       display: inline-flex; align-items: center; gap: 0.4rem;
@@ -1216,11 +1252,8 @@
   </style>
 
   <!-- HLS.js for .m3u8 stream support -->
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
-
   <script src="https://cdn.plyr.io/3.8.4/plyr.js"></script>
-
   <link rel="stylesheet" href="https://cdn.plyr.io/3.8.4/plyr.css">
   <style>
     /* Plyr dark theme overrides */
@@ -1297,12 +1330,14 @@
 <section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <h2>Airing Today</h2>              <div class="horizontal-scroll" id="airing-grid"></div></section>
-<section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
+<section id="section-streaming-now">   <h2>Streaming Now</h2>             <div class="horizontal-scroll" id="streaming-now-grid"></div></section>
+    <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
 <section id="section-trending-tv">     <h2>Trending TV</h2>               <div class="horizontal-scroll" id="trending-tv-grid"></div></section>
 <section id="section-trending-movies"> <h2>Trending Movies</h2>           <div class="horizontal-scroll" id="trending-movies-grid"></div></section>
 <section id="section-tv-week">         <h2>TV This Week</h2>              <div class="horizontal-scroll" id="tv-week-grid"></div></section>
 <section id="section-movies-week">     <h2>Movies This Week</h2>          <div class="horizontal-scroll" id="movies-week-grid"></div></section>
-<section id="section-anticipated-tv">      <h2>Most Anticipated TV Shows</h2> <div class="horizontal-scroll" id="anticipated-tv-grid"></div></section>
+<section id="section-recently-watched" style="display:none;"><h2>Recently Watched</h2><div class="horizontal-scroll" id="recently-watched-grid"></div></section>
+    <section id="section-anticipated-tv">      <h2>Most Anticipated TV Shows</h2> <div class="horizontal-scroll" id="anticipated-tv-grid"></div></section>
 <section id="section-anticipated-movies">  <h2>Most Anticipated Movies</h2>   <div class="horizontal-scroll" id="anticipated-movies-grid"></div></section>
 
 <!-- FAVORITES — Normal Mode -->
@@ -1413,7 +1448,6 @@
   <div id="torrent-overlay-inner">
 
 <!-- Stream player (shown after RD unrestrict) — at top so it's immediately visible -->
-
 <div id="torrent-overlay-player" style="display:none;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.2rem 0.5rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
@@ -1482,6 +1516,8 @@
 
 <div id="torrent-overlay-results"></div>
 
+
+
   </div><!-- /torrent-overlay-inner -->
 </div><!-- /torrent-overlay -->
 
@@ -1503,106 +1539,128 @@
 
 <div id="settings-body">
 
-  <!-- § Real-Debrid Token -->
+<!-- ── Main nav ─────────────────────────────────────────────────── -->
+<div id="settings-main-nav" class="settings-nav">
 
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-debrid')">
+    <span><span class="snb-icon">🔐</span>Debrid Services</span>
+    <span id="snb-debrid-badge" class="snb-badge" style="display:none;">Connected</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-scrapers')">
+    <span><span class="snb-icon">🔍</span>Scrapers</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-sources')">
+    <span><span class="snb-icon">⚡</span>Stream Sources</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-info')">
+    <span><span class="snb-icon">ℹ️</span>Info & Data</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
+</div>
+
+<!-- ── Submenu: Debrid Services ──────────────────────────────────── -->
+<div id="submenu-debrid" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">🔐 Debrid Services</div>
+
+  <!-- RD Token -->
   <div class="settings-section">
     <div class="settings-section-title">Real-Debrid API Token</div>
     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
       <div id="settings-rd-status" class="disconnected">● Not connected</div>
       <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
-         style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">
-        Get token ↗
-      </a>
+         style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
     </div>
     <div class="settings-token-row">
       <input type="password" id="settings-token-input" class="settings-token-input"
-             placeholder="Paste API token here…"
-             autocomplete="off" spellcheck="false">
-      <button class="token-eye-btn" onclick="toggleTokenVisibility()" id="token-eye-btn" title="Show/hide token">👁</button>
+             placeholder="Paste API token here…" autocomplete="off" spellcheck="false">
+      <button class="token-eye-btn" onclick="toggleTokenVisibility()" id="token-eye-btn">👁</button>
       <button class="settings-btn green"  onclick="saveRDToken()">Save</button>
       <button class="settings-btn purple" onclick="testRDToken()">Test</button>
       <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
     </div>
-    <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 Account Info</button>
+    <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
   </div>
 
-  <!-- § Torrent Sources -->
+  <!-- RD Library -->
+  <div class="settings-section">
+    <div class="settings-section-title">Real-Debrid Library</div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="settings-btn green"  onclick="openRDLibrary()">📂 View Library</button>
+      <button class="settings-btn purple" onclick="openRDLibrary()">🔄 Refresh</button>
+      <button class="settings-btn red"    onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close</button>
+    </div>
+    <div id="rd-library-panel">
+      <div id="rd-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
+      <div id="rd-library-list"></div>
+    </div>
+  </div>
+
+  <!-- Torbox Token -->
+  <div class="settings-section">
+    <div class="settings-section-title">Torbox API Token</div>
+    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+      <div id="settings-tb-status" class="disconnected">● Not connected</div>
+      <a href="https://torbox.app/settings" target="_blank" rel="noopener"
+         style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
+    </div>
+    <div class="settings-token-row">
+      <input type="password" id="settings-tb-token-input" class="settings-token-input"
+             placeholder="Paste Torbox API token here…" autocomplete="off" spellcheck="false">
+      <button class="token-eye-btn" onclick="toggleTBTokenVisibility()">👁</button>
+      <button class="settings-btn green"  onclick="saveTBToken()">Save</button>
+      <button class="settings-btn purple" onclick="testTBToken()">Test</button>
+      <button class="settings-btn red"    onclick="deleteTBToken()">Clear</button>
+    </div>
+    <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
+  </div>
+
+  <!-- Torbox Library -->
+  <div class="settings-section">
+    <div class="settings-section-title">Torbox Library</div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="settings-btn green"  onclick="openTBLibrary()">📂 View Library</button>
+      <button class="settings-btn purple" onclick="openTBLibrary()">🔄 Refresh</button>
+      <button class="settings-btn red"    onclick="closeTBLibrary()" id="tb-library-close-btn" style="display:none;">✕ Close</button>
+    </div>
+    <div id="tb-library-panel" style="display:none;">
+      <div id="tb-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
+      <div id="tb-library-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Submenu: Scrapers ──────────────────────────────────────────── -->
+<div id="submenu-scrapers" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">🔍 Scrapers</div>
 
   <div class="settings-section">
     <div class="settings-section-title">Built-in Scrapers</div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">These are searched directly. Green = enabled.</p>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">Searched directly alongside Stremio addons. Green = enabled.</p>
     <div class="source-toggle-grid">
       <div class="source-toggle-card active" id="src-apibay" onclick="toggleSource('apibay')">
-        <div class="stc-check">✓</div>
-        <div class="stc-icon">🏴‍☠️</div>
-        <div class="stc-label">APIBAY</div>
+        <div class="stc-check">✓</div><div class="stc-icon">🏴‍☠️</div><div class="stc-label">APIBAY</div>
       </div>
       <div class="source-toggle-card active" id="src-knaben" onclick="toggleSource('knaben')">
-        <div class="stc-check">✓</div>
-        <div class="stc-icon">🔍</div>
-        <div class="stc-label">Knaben</div>
+        <div class="stc-check">✓</div><div class="stc-icon">🔍</div><div class="stc-label">Knaben</div>
       </div>
       <div class="source-toggle-card active" id="src-yts" onclick="toggleSource('yts')">
-        <div class="stc-check">✓</div>
-        <div class="stc-icon">🍿</div>
-        <div class="stc-label">YTS</div>
+        <div class="stc-check">✓</div><div class="stc-icon">🍿</div><div class="stc-label">YTS</div>
       </div>
       <div class="source-toggle-card active" id="src-1337x" onclick="toggleSource('1337x')">
-        <div class="stc-check">✓</div>
-        <div class="stc-icon">📂</div>
-        <div class="stc-label">1337x</div>
+        <div class="stc-check">✓</div><div class="stc-icon">📂</div><div class="stc-label">1337x</div>
       </div>
     </div>
   </div>
-
-  <div class="settings-section">
-    <div class="settings-section-title">Provider Filter (Addon Results)</div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">
-      Filter which providers appear in addon results (Torrentio/Comet). <span style="color:var(--accent-green);">Green</span> = show,
-      <span style="color:var(--accent-red);">Red</span> = hidden. Tap to toggle.
-    </p>
-    <div style="display:flex;gap:0.3rem;margin-bottom:0.5rem;flex-wrap:wrap;">
-      <button class="exclude-preset-chip" style="border-color:var(--accent-green);color:var(--accent-green);background:rgba(16,185,129,0.08);" onclick="setAllProviders(true)">✓ Include All</button>
-      <button class="exclude-preset-chip" onclick="setAllProviders(false)">✕ Exclude All</button>
-    </div>
-    <div class="source-toggle-grid" id="provider-filter-grid">
-      <!-- Populated by JS from PROVIDER_LIST -->
-    </div>
-  </div>
-
-  <!-- § Quality Filters -->
-
-  <div class="settings-section">
-    <div class="settings-section-title">Quality Filters (include in results)</div>
-    <div class="settings-checkbox-grid">
-      <label class="settings-checkbox-label"><input type="checkbox" id="sf-4k"      onchange="saveSettings()"> 4K / UHD</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="sf-1080p"   onchange="saveSettings()"> 1080p</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="sf-720p"    onchange="saveSettings()"> 720p</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="sf-480p"    onchange="saveSettings()"> 480p</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="sf-bluray"  onchange="saveSettings()"> BluRay / Remux</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="sf-3d"      onchange="saveSettings()"> 3D</label>
-    </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.25rem;">Leave all unchecked to show everything.</p>
-  </div>
-
-  <!-- § Exclude Keywords -->
-
-  <div class="settings-section">
-    <div class="settings-section-title">Exclude from Results</div>
-    <div class="settings-checkbox-grid">
-      <label class="settings-checkbox-label"><input type="checkbox" id="se-cam"      onchange="saveSettings()"> CAM / HDCAM</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="se-screener" onchange="saveSettings()"> Screener</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="se-dubbed"   onchange="saveSettings()"> Dubbed</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="se-subbed"   onchange="saveSettings()"> Subbed</label>
-      <label class="settings-checkbox-label"><input type="checkbox" id="se-hdr"      onchange="saveSettings()"> HDR only</label>
-    </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.5rem;">Custom keywords (comma-separated):</p>
-    <input type="text" id="se-exclude-keywords" class="exclude-keywords-input"
-           placeholder="e.g. rarbg, rutor, kinozal"
-           onchange="saveSettings()" onkeyup="saveSettings()">
-  </div>
-
-  <!-- § Search Options -->
 
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
@@ -1620,90 +1678,75 @@
     </div>
     <div class="settings-row">
       <label>Max results — YTS (50)</label>
-      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="30" onchange="saveSettings()">
+      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="50" onchange="saveSettings()">
     </div>
     <div class="settings-row">
       <label>Max results — 1337x (50)</label>
-      <input type="number" id="sf-max-1337x" class="settings-number-input" min="1" max="50" value="25" onchange="saveSettings()">
+      <input type="number" id="sf-max-1337x" class="settings-number-input" min="1" max="50" value="50" onchange="saveSettings()">
     </div>
+    <label class="settings-checkbox-label" style="margin-top:0.25rem;">
+      <input type="checkbox" id="sf-english-only" onchange="saveSettings()"> English results only
+    </label>
   </div>
 
-  <!-- § Stremio Addons (Torrentio, Comet, etc.) -->
+</div>
+
+<!-- ── Submenu: Stream Sources ───────────────────────────────────── -->
+<div id="submenu-sources" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">⚡ Stream Sources</div>
 
   <div class="settings-section">
-    <div class="settings-section-title">Stremio Addons (Stream Sources)</div>
-    <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
-      Add Stremio-compatible addons like <strong style="color:#c084fc">Torrentio</strong>, <strong style="color:#c084fc">Comet</strong>, <strong style="color:#c084fc">MediaFusion</strong>, <strong style="color:#c084fc">Peerflix</strong>, and <strong style="color:#c084fc">TorrentsDB</strong> as stream sources.
-      More addons = more cached results. Configure your debrid key in each addon for best results.
-    </p>
-    <div class="addon-quick-add">
-      <button class="addon-quick-btn" onclick="quickAddAddon('torrentio-rd')">+ Torrentio (RD)</button>
-      <button class="addon-quick-btn" onclick="quickAddAddon('comet')">+ Comet</button>
-      <button class="addon-quick-btn" onclick="quickAddAddon('mediafusion')">+ MediaFusion</button>
-      <button class="addon-quick-btn" onclick="quickAddAddon('peerflix')">+ Peerflix</button>
-      <button class="addon-quick-btn" onclick="quickAddAddon('torrentsdb')">+ TorrentsDB</button>
+    <div class="settings-section-title">Stremio Addons</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Paste a manifest URL from a configured Stremio addon.</p>
+
+    <!-- URL input row -->
+    <div style="display:flex;gap:0.4rem;margin-bottom:0.5rem;">
+      <input type="url" id="addon-url-input" class="settings-url-input" placeholder="https://…/manifest.json" autocomplete="off" spellcheck="false" style="flex:1;">
+      <button class="settings-btn green" onclick="addAddonFromInput()">+ Add</button>
     </div>
-    <div class="addon-custom-row">
-      <input type="url" id="addon-custom-url" class="addon-custom-input"
-             placeholder="https://torrentio.strem.fun/manifest.json"
-             onkeydown="if(event.key==='Enter')addCustomAddon()">
-      <button class="settings-btn green" onclick="addCustomAddon()">Add</button>
+
+    <!-- Existing addon list -->
+    <div id="addon-list" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.5rem;"></div>
+
+    <!-- Quick add -->
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+      <button class="settings-btn purple" style="font-size:0.72rem;" onclick="quickAddAddon('torrentio-rd')">🧲 Torrentio</button>
+      <button class="settings-btn purple" style="font-size:0.72rem;" onclick="quickAddAddon('comet')">☄️ Comet</button>
+      <button class="settings-btn purple" style="font-size:0.72rem;" onclick="quickAddAddon('mediafusion')">🔀 MediaFusion</button>
+      <button class="settings-btn purple" style="font-size:0.72rem;" onclick="quickAddAddon('peerflix')">🎯 Peerflix</button>
+      <button class="settings-btn purple" style="font-size:0.72rem;" onclick="quickAddAddon('torrentsdb')">🗄 TorrentsDB</button>
     </div>
-    <div class="addon-list" id="addon-list">
-      <!-- Populated by JS -->
+
+    <!-- Catalog browser -->
+    <div style="margin-bottom:0.5rem;">
+      <button class="settings-btn purple" style="width:100%;" onclick="browseAddonCatalogs()">📺 Browse Addon Catalogs</button>
     </div>
-    <div style="margin-top:0.6rem;">
-      <button class="settings-btn purple" onclick="browseAddonCatalogs()" id="btn-browse-catalogs" style="font-size:0.75rem;">🗂 Browse Addon Catalogs</button>
-    </div>
-    <div id="addon-catalog-panel" style="display:none;margin-top:0.6rem;">
+    <div id="addon-catalog-panel" style="display:none;">
       <div id="addon-catalog-tabs" style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
       <div id="addon-catalog-results" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:0.5rem;max-height:50vh;overflow-y:auto;"></div>
       <div id="addon-catalog-status" style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:0.4rem 0;"></div>
     </div>
-    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.5rem;">
-      💡 <strong style="color:#c084fc;">Torrentio (RD)</strong> — The most popular Stremio addon for torrent streams. Aggregates results from multiple torrent providers into one feed.
-      Go to <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>,
-      set your RD API key, then copy the manifest URL and paste above.
-    </p>
-    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
-      💡 <strong style="color:#c084fc;">Comet</strong> — A fast, modern Stremio addon focused on debrid-cached torrents. Supports Real-Debrid, AllDebrid, Premiumize and more.
-      Go to <a href="https://comet.feels.legal/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">comet.feels.legal/configure</a>,
-      connect your debrid account, customise your filters, then copy the manifest URL and paste it in the field above.
-    </p>
-    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
-      💡 <strong style="color:#c084fc;">MediaFusion</strong> — A community-driven Stremio addon that indexes multiple torrent and streaming sources. Highly configurable with provider and quality filters.
-      Go to <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>,
-      set your preferences and debrid provider, then copy the manifest URL and paste it above.
-    </p>
-    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
-      💡 <strong style="color:#c084fc;">Peerflix</strong> — A lightweight Stremio addon that finds cached torrents on your debrid service. Fast and efficient with minimal setup.
-      Go to <a href="https://peerflix-addon.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">peerflix-addon.elfhosted.com/configure</a>,
-      connect your debrid account, then copy the manifest URL and paste it above.
-    </p>
-    <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.35rem;">
-      💡 <strong style="color:#c084fc;">TorrentsDB</strong> — A torrent database addon that provides an extensive index of cached torrents from Real-Debrid and other debrid services.
-      Go to <a href="https://torrents-db.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrents-db.elfhosted.com/configure</a>,
-      set up your debrid provider, then copy the manifest URL and paste it above.
-    </p>
-  </div>
 
-  <!-- § RD Library -->
-
-  <div class="settings-section">
-    <div class="settings-section-title">Real-Debrid Library</div>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <button class="settings-btn green" onclick="openRDLibrary()">📂 View My RD Library</button>
-      <button class="settings-btn purple" onclick="openRDLibrary()">🔄 Refresh</button>
-      <button class="settings-btn red"   onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close Library</button>
-    </div>
-    <!-- Library sub-view -->
-    <div id="rd-library-panel">
-      <div id="rd-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
-      <div id="rd-library-list"></div>
+    <div style="display:flex;flex-direction:column;gap:0.35rem;margin-top:0.5rem;">
+      <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);">
+        💡 <strong style="color:#c084fc;">Torrentio</strong> — <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>
+      </p>
+      <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);">
+        💡 <strong style="color:#c084fc;">Comet</strong> — <a href="https://comet.feels.legal/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">comet.feels.legal/configure</a>
+      </p>
+      <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);">
+        💡 <strong style="color:#c084fc;">MediaFusion</strong> — <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>
+      </p>
     </div>
   </div>
 
-  <!-- § Import / Export Settings -->
+</div>
+
+<!-- ── Submenu: Info & Data ───────────────────────────────────────── -->
+<div id="submenu-info" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">ℹ️ Info & Data</div>
 
   <div class="settings-section">
     <div class="settings-section-title">Backup & Restore</div>
@@ -1715,23 +1758,19 @@
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">Exports all settings, favorites, watch history, and library as JSON.</p>
   </div>
 
-  <!-- § Clear Cache -->
-
   <div class="settings-section">
     <div class="settings-section-title">Clear Cache</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">
-      Clear cached data to fix stale results or free up storage. Your settings, favorites, and watch history are preserved unless you choose "Reset Everything".
+      Clear cached data to fix stale results or free up storage. Settings, favorites and watch history are preserved unless you choose Reset Everything.
     </p>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="cache-buttons">
       <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Cache <span id="cache-size-rd" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Cache <span id="cache-size-tmdb" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches <span id="cache-size-all" style="opacity:0.5;font-size:0.65rem;"></span></button>
-      <button class="settings-btn red" onclick="resetEverything()">💣 Reset Everything <span id="cache-size-total" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn red"    onclick="resetEverything()">💣 Reset Everything <span id="cache-size-total" style="opacity:0.5;font-size:0.65rem;"></span></button>
     </div>
     <p id="cache-status-msg" style="font-size:0.68rem;color:rgba(255,255,255,0.25);margin-top:0.3rem;"></p>
   </div>
-
-  <!-- § Disclaimer -->
 
   <div class="settings-section">
     <div class="settings-section-title">Legal Disclaimer</div>
@@ -1739,13 +1778,15 @@
       <strong>For personal, legal use only.</strong> Watcher is a discovery and streaming interface.
       Only stream content you own or have the legal right to access.
       <br><br>
-      <strong>Real-Debrid</strong> is a third-party paid service — Watcher has no affiliation with them.
+      <strong>Real-Debrid</strong> and <strong>Torbox</strong> are third-party paid services — Watcher has no affiliation with them.
       Torrent indexers (APIBAY, Knaben, YTS, 1337x) are third-party sites — Watcher does not host any content.
       <br><br>
       Downloading or streaming copyrighted material without authorisation may be illegal in your region.
       Use responsibly and in accordance with your local laws.
     </div>
   </div>
+
+</div>
 
 </div><!-- /settings-body -->
 
@@ -2122,11 +2163,18 @@
     renderAddonList();
     // Render provider filter grid
     renderProviderGrid();
-    // Token field
+    // Always return to main nav on open
+    closeSettingsSubmenu();
+    // Token fields
     const tok = getRDToken();
     const inp = document.getElementById('settings-token-input');
     if (inp && tok) inp.value = tok;
     updateRDStatusBadge();
+    const tbTok = getTBToken();
+    const tbInp = document.getElementById('settings-tb-token-input');
+    if (tbInp && tbTok) tbInp.value = tbTok;
+    updateTBStatusBadge();
+    updateDebridBadge();
   }
 
   function saveSettings() {
@@ -2187,6 +2235,7 @@
     if (!val) { showToast('Paste your RD API token first', 'error'); return; }
     localStorage.setItem('rd_token', val);
     updateRDStatusBadge();
+    updateDebridBadge();
     showToast('✅ Token saved! Syncing library…', 'success');
     // Immediately sync RD library into cache
     refreshRDCache();
@@ -2223,6 +2272,240 @@
     const inp = document.getElementById('settings-token-input');
     if (inp) inp.value = '';
     updateRDStatusBadge();
+    updateDebridBadge();
+  }
+
+  // ── Settings Submenu Navigation ──────────────────────────────────────
+  function openSettingsSubmenu(id) {
+    document.getElementById('settings-main-nav').style.display = 'none';
+    document.querySelectorAll('.settings-submenu').forEach(el => el.classList.remove('active'));
+    const sub = document.getElementById(id);
+    if (sub) sub.classList.add('active');
+    if (id === 'submenu-sources') renderAddonList();
+  }
+
+  function closeSettingsSubmenu() {
+    document.querySelectorAll('.settings-submenu').forEach(el => el.classList.remove('active'));
+    document.getElementById('settings-main-nav').style.display = 'flex';
+  }
+
+  function updateDebridBadge() {
+    const badge = document.getElementById('snb-debrid-badge');
+    if (!badge) return;
+    const hasRD = !!getRDToken();
+    const hasTB = !!getTBToken();
+    if (hasRD || hasTB) {
+      const parts = [];
+      if (hasRD) parts.push('RD');
+      if (hasTB) parts.push('TB');
+      badge.textContent = parts.join(' + ');
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ── Torbox Token Management ─────────────────────────────────────────
+
+  function getTBToken()   { return localStorage.getItem('tb_token') || ''; }
+  function setTBToken(t)  { localStorage.setItem('tb_token', t); }
+  function clearTBToken() { localStorage.removeItem('tb_token'); }
+
+  function updateTBStatusBadge() {
+    const el = document.getElementById('settings-tb-status');
+    if (!el) return;
+    const tok = getTBToken();
+    if (tok) { el.className = 'connected'; el.textContent = '● Connected'; }
+    else      { el.className = 'disconnected'; el.textContent = '● Not connected'; }
+  }
+
+  function saveTBToken() {
+    const inp = document.getElementById('settings-tb-token-input');
+    const val = inp?.value?.trim();
+    if (!val) { showToast('Paste your Torbox API token first', 'error'); return; }
+    setTBToken(val);
+    updateTBStatusBadge();
+    showToast('✅ Torbox token saved!', 'success');
+  }
+
+  async function tbFetch(path, { method = 'GET', body = null } = {}) {
+    const token = getTBToken();
+    if (!token) throw new Error('No Torbox token saved');
+    const res = await fetch('/api/tb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path, method, postBody: body ? JSON.stringify(body) : undefined, token }),
+      signal: safeFetchSignal(20000),
+    });
+    if (res.status === 204) return null;
+    const json = await res.json().catch(() => null);
+    if (!res.ok) {
+      const detail = json?.detail || json?.error || `HTTP ${res.status}`;
+      throw new Error(detail);
+    }
+    return json;
+  }
+
+  async function testTBToken() {
+    const inp = document.getElementById('settings-tb-token-input');
+    const tok = inp?.value?.trim() || getTBToken();
+    if (!tok) { alert('No Torbox token to test — paste one first.'); return; }
+    // Save token first so tbFetch can use it
+    const prev = getTBToken();
+    setTBToken(tok);
+    try {
+      const json = await tbFetch('/user/me');
+      if (json?.success) {
+        const u = json.data;
+        const planName = ['Free','Essential','Standard','Pro'][u.plan] || 'Unknown';
+        alert('✅ Connected as: ' + (u.email || 'Torbox User') + '\nPlan: ' + planName);
+      } else {
+        alert('❌ ' + (json?.detail || 'Invalid token'));
+      }
+    } catch (e) {
+      if (!prev) clearTBToken(); else setTBToken(prev);
+      alert('❌ ' + e.message);
+      return;
+    }
+    // Keep new token if test passed
+  }
+
+  function toggleTBTokenVisibility() {
+    const inp = document.getElementById('settings-tb-token-input');
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function deleteTBToken() {
+    if (!confirm('Clear your Torbox token?')) return;
+    clearTBToken();
+    const inp = document.getElementById('settings-tb-token-input');
+    if (inp) inp.value = '';
+    updateTBStatusBadge();
+    showToast('Torbox token cleared', 'success');
+  }
+
+  async function showTBAccountInfo() {
+    if (!getTBToken()) { alert('No Torbox token saved.'); return; }
+    try {
+      const json = await tbFetch('/user/me');
+      if (!json?.success) { alert('❌ ' + (json?.detail || 'Error')); return; }
+      const u = json.data;
+      const planName = ['Free','Essential','Standard','Pro'][u.plan] || 'Unknown';
+      alert(`👤 Torbox Account\n\nEmail: ${u.email || '—'}\nPlan: ${planName}\nExpires: ${u.premium_expires_at ? new Date(u.premium_expires_at).toLocaleDateString() : 'N/A'}`);
+    } catch(e) { alert('❌ ' + e.message); }
+  }
+
+  async function openTBLibrary() {
+    const panel = document.getElementById('tb-library-panel');
+    const closeBtn = document.getElementById('tb-library-close-btn');
+    if (panel) panel.style.display = 'block';
+    if (closeBtn) closeBtn.style.display = 'inline-flex';
+    await renderTBLibrary();
+  }
+
+  function closeTBLibrary() {
+    const panel = document.getElementById('tb-library-panel');
+    const closeBtn = document.getElementById('tb-library-close-btn');
+    if (panel) panel.style.display = 'none';
+    if (closeBtn) closeBtn.style.display = 'none';
+  }
+
+  const deletedTBIds = new Set();
+
+  async function renderTBLibrary() {
+    const status = document.getElementById('tb-library-status');
+    const list   = document.getElementById('tb-library-list');
+    if (!list) return;
+    if (!getTBToken()) {
+      if (status) status.textContent = '❌ No Torbox token saved.';
+      list.innerHTML = '';
+      return;
+    }
+    if (status) status.textContent = '⏳ Loading Torbox library…';
+    list.innerHTML = '';
+    try {
+      const json = await tbFetch('/torrents/mylist?bypass_cache=true');
+      if (!json.success) throw new Error(json.detail || 'Failed to load library');
+      const torrents = (json.data || []).filter(t => !deletedTBIds.has(t.id));
+      if (!torrents.length) { if (status) status.textContent = 'Library is empty.'; return; }
+      if (status) status.textContent = `${torrents.length} item(s) in Torbox library`;
+
+      torrents.forEach(t => {
+        const row = document.createElement('div');
+        row.className = 'rd-lib-row';
+        row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid rgba(255,255,255,0.06);';
+        const ready = t.download_state === 'completed' || t.download_finished;
+        const statusIcon = ready ? '✅' : '⏳';
+        const sizeStr = t.size ? (t.size > 1e9 ? (t.size/1e9).toFixed(2)+' GB' : (t.size/1e6).toFixed(0)+' MB') : '';
+        row.innerHTML = `
+          <span style="flex:1;font-size:0.78rem;color:rgba(255,255,255,0.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(t.name||'').replace(/"/g,'&quot;')}">${statusIcon} ${t.name || 'Unknown'}</span>
+          <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);white-space:nowrap;">${sizeStr}</span>
+          <button class="rd-lib-btn play" style="font-size:0.75rem;padding:0.2rem 0.5rem;">▶</button>
+          <button class="rd-lib-btn" style="font-size:0.75rem;padding:0.2rem 0.5rem;border-color:rgba(239,68,68,0.4);color:#f87171;">🗑</button>`;
+        const playBtn = row.querySelector('.rd-lib-btn.play');
+        if (playBtn) playBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (!ready) { showToast('Torrent not ready yet', 'error'); return; }
+          playBtn.textContent = '⏳';
+          playBtn.disabled = true;
+          playTBTorrent(t).finally(() => { playBtn.textContent = '▶'; playBtn.disabled = false; });
+        };
+        const delBtn = row.querySelectorAll('.rd-lib-btn')[1];
+        if (delBtn) delBtn.onclick = (e) => { e.stopPropagation(); deleteTBTorrent(t.id, row); };
+        list.appendChild(row);
+      });
+    } catch(e) {
+      if (status) status.textContent = '❌ ' + e.message;
+    }
+  }
+
+  async function playTBTorrent(torrent) {
+    const tok = getTBToken();
+    if (!torrent.files?.length) {
+      showToast('No files in this torrent', 'error'); return;
+    }
+    const videoFiles = torrent.files.filter(f => {
+      const ext = (f.name || f.short_name || '').split('.').pop().toLowerCase();
+      return VIDEO_EXTS.has(ext);
+    });
+    const filesToPlay = videoFiles.length ? videoFiles : torrent.files;
+    const links = [];
+    for (const file of filesToPlay.slice(0, 5)) {
+      try {
+        // requestdl with redirect=true returns a direct URL — proxy it then follow redirect
+        const dlJson = await tbFetch(`/torrents/requestdl?torrent_id=${torrent.id}&file_id=${file.id}&zip_link=false&redirect=false`);
+        const url = dlJson?.data || `https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${torrent.id}&file_id=${file.id}&redirect=true`;
+        links.push({
+          url,
+          filename: file.name || file.short_name || torrent.name,
+          filesize: file.size || 0,
+          quality: guessQuality(file.name || torrent.name || ''),
+          mimeType: 'video/mp4',
+          isVideo: true,
+        });
+      } catch(e) { console.warn('[TB] link error:', e.message); }
+    }
+    if (!links.length) { showToast('No playable files found', 'error'); return; }
+    showRDLibraryPlayPopup(links, torrent.name || 'stream');
+  }
+
+  async function deleteTBTorrent(torrentId, rowEl) {
+    if (!confirm('Delete this torrent from Torbox?')) return;
+    rowEl.style.opacity = '0.4';
+    try {
+      const json = await tbFetch('/torrents/controltorrent', {
+        method: 'POST',
+        body: { torrent_id: torrentId, operation: 'delete' },
+      });
+      if (!json?.success) throw new Error(json?.detail || 'Delete failed');
+      deletedTBIds.add(torrentId);
+      rowEl.remove();
+      showToast('🗑 Deleted from Torbox', 'success');
+    } catch(e) {
+      rowEl.style.opacity = '1';
+      showToast('❌ ' + e.message, 'error');
+    }
   }
 
   // ── Stremio Addon Management ──────────────────────────────────────
@@ -2297,6 +2580,27 @@
     appSettings.stremioAddons[index].enabled = !appSettings.stremioAddons[index].enabled;
     saveSettings();
     renderAddonList();
+  }
+
+  function addAddonFromInput() {
+    const inp = document.getElementById('addon-url-input');
+    if (!inp) return;
+    const url = inp.value.trim();
+    if (!url) { showToast('Paste a manifest URL first', 'error'); return; }
+    if (!url.startsWith('http')) { showToast('URL must start with http/https', 'error'); return; }
+    const addons = appSettings.stremioAddons || [];
+    if (addons.find(a => a.url === url)) { showToast('Addon already added', 'error'); return; }
+    // Try to extract name from URL
+    const name = url.includes('torrentio') ? 'Torrentio' :
+                 url.includes('comet')     ? 'Comet' :
+                 url.includes('mediafusion') ? 'MediaFusion' :
+                 url.includes('peerflix')  ? 'Peerflix' : 'Addon';
+    addons.push({ url, name, enabled: true });
+    appSettings.stremioAddons = addons;
+    saveSettings();
+    inp.value = '';
+    renderAddonList();
+    showToast('✅ Addon added!', 'success');
   }
 
   function renderAddonList() {
@@ -5272,6 +5576,47 @@
      § 15  SECTION & HOME LOADING
      ═══════════════════════════════════════════════════════════════════ */
 
+  // Provider IDs: Netflix=8, Prime=9, Disney+=337, Hulu=15, Paramount+=531, AppleTV+=350, HBO Max=1899, Peacock=386
+  const STREAMING_PROVIDERS = [8, 9, 337, 15, 531, 350, 1899, 386];
+
+  async function loadStreamingNow(gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+    const today = new Date().toISOString().slice(0,10);
+    try {
+      // Fetch movies and TV from all major streamers, released in last 30 days
+      const [movRes, tvRes] = await Promise.all([
+        tmdb('/discover/movie', {
+          sort_by: 'popularity.desc',
+          with_watch_providers: STREAMING_PROVIDERS.join('|'),
+          watch_region: 'US',
+          with_original_language: 'en',
+          'primary_release_date.gte': thirtyDaysAgo,
+          'primary_release_date.lte': today,
+          'vote_count.gte': '5',
+        }),
+        tmdb('/discover/tv', {
+          sort_by: 'popularity.desc',
+          with_watch_providers: STREAMING_PROVIDERS.join('|'),
+          watch_region: 'US',
+          with_original_language: 'en',
+          'first_air_date.gte': thirtyDaysAgo,
+          'first_air_date.lte': today,
+        }),
+      ]);
+      // Merge movies + TV, sort by popularity, dedupe
+      const seen = new Set();
+      const combined = [...(movRes.results||[]), ...(tvRes.results||[])]
+        .filter(i => { if (seen.has(i.id)) return false; seen.add(i.id); return true; })
+        .sort((a, b) => b.popularity - a.popularity)
+        .slice(0, 40);
+      await renderHorizontal(gridId, combined);
+    } catch (e) {
+      console.warn('[StreamingNow] failed:', e.message);
+    }
+  }
+
   async function loadSection(endpoint, params, gridId, maxPages = 3, useAdultAPI = false) {
     let allResults = [];
     for (let page = 1; page <= maxPages; page++) {
@@ -5543,42 +5888,64 @@
     });
     await Promise.all(checks);
 
-    // Re-sort enriched by last watched, filter out "all caught up" (show at end)
+    // Split: active (episodes remaining) → Continue Watching
+    //        caught up → Recently Watched
     const active   = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
     const caughtUp = enriched.filter(s => s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
-    const ordered  = [...active, ...caughtUp];
 
-    if (ordered.length === 0) { section.style.display = 'none'; return; }
-
-    section.style.display = 'block';
-    grid.innerHTML = '';
-
-    for (const show of ordered) {
-      const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
-      if (!imgUrl) continue;
-
-      let epLabel, subLabel;
-      if (show._allCaughtUp) {
-        epLabel = '✅ Caught Up';
-        subLabel = `${show._watchedCount} episodes watched`;
-      } else {
+    // ── Continue Watching (only shows with episodes remaining) ──
+    if (active.length === 0) {
+      section.style.display = 'none';
+    } else {
+      section.style.display = 'block';
+      grid.innerHTML = '';
+      for (const show of active) {
+        const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
+        if (!imgUrl) continue;
         const ne = show._nextEp;
-        epLabel = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
-        subLabel = `${show._watchedCount} watched`;
+        const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
+        const subLabel = `${show._watchedCount} watched`;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.navKey = navRegStore(show);
+        card.innerHTML = `
+          <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+          <div class="cw-badge">${epLabel}</div>
+          <div class="info">
+            <div class="cw-title">${show.name || show.original_name || ''}</div>
+            <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</div>
+          </div>`;
+        card.onclick = () => openTVDetail(show.id);
+        grid.appendChild(card);
       }
+    }
 
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-        <div class="cw-badge">${epLabel}</div>
-        <div class="info">
-          <div class="cw-title">${show.name || show.original_name || ''}</div>
-          <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</div>
-        </div>`;
-      card.dataset.tvId = show.id;
-      card.onclick = () => openTVDetail(show.id);
-      grid.appendChild(card);
+    // ── Recently Watched (caught-up shows) ──
+    const rwSection = document.getElementById('section-recently-watched');
+    const rwGrid    = document.getElementById('recently-watched-grid');
+    if (rwSection && rwGrid) {
+      if (caughtUp.length === 0) {
+        rwSection.style.display = 'none';
+      } else {
+        rwSection.style.display = 'block';
+        rwGrid.innerHTML = '';
+        for (const show of caughtUp) {
+          const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
+          if (!imgUrl) continue;
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.dataset.navKey = navRegStore(show);
+          card.innerHTML = `
+            <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+            <div class="cw-badge" style="background:rgba(16,185,129,0.85);">✅ Caught Up</div>
+            <div class="info">
+              <div class="cw-title">${show.name || show.original_name || ''}</div>
+              <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${show._watchedCount} episodes watched</div>
+            </div>`;
+          card.onclick = () => openTVDetail(show.id);
+          rwGrid.appendChild(card);
+        }
+      }
     }
   }
 
@@ -5948,7 +6315,7 @@
     const today        = new Date().toISOString().split('T')[0];
     const weekAgo      = new Date(Date.now() - 7  * 86400000).toISOString().split('T')[0];
     const monthFromNow = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-    const normalSections = ['fav-this-week','airing','new-releases','trending-tv','trending-movies','tv-week','movies-week','anticipated-tv','anticipated-movies'];
+    const normalSections = ['fav-this-week','airing','streaming-now','new-releases','trending-tv','trending-movies','tv-week','movies-week','recently-watched','anticipated-tv','anticipated-movies'];
     const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
     if (isAdultMode) {
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
@@ -5963,6 +6330,7 @@
       normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
       await Promise.all([
         loadSection('/tv/airing_today', { language: 'en-US', timezone: 'America/New_York' }, 'airing-grid'),
+        loadStreamingNow('streaming-now-grid'),
         loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
         loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
         loadSection('/trending/movie/week', { language: 'en-US' }, 'trending-movies-grid'),
