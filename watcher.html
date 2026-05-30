@@ -2390,8 +2390,8 @@
       if (!json?.success) { showToast('❌ ' + (json?.detail || 'Error'), 'error'); return; }
       const u = json.data;
       // Plan name — Torbox: 0=Free, 1=Essential, 2=Standard, 3=Pro (some accounts may differ)
-      console.log('[TB User Data]', JSON.stringify(u));
-      const planNames = { 0:'Free', 1:'Essential', 2:'Standard', 3:'Pro' };
+      // Torbox plans: 0=Free, 1=Essential ($3), 2=Pro ($10), 3=Standard ($5)
+      const planNames = { 0:'Free', 1:'Essential', 2:'Pro', 3:'Standard' };
       const planName = planNames[u.plan] ?? (u.plan_name || 'Unknown');
 
       // Use expiry date to determine active status — more reliable than is_subscribed flag
@@ -2401,7 +2401,7 @@
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('en-CA') : 'N/A';
       const cooldown = u.cooldown_until ? new Date(u.cooldown_until).toLocaleDateString('en-CA') : 'None';
       const daysLeft = expiryDate ? Math.max(0, Math.ceil((expiryDate - Date.now()) / 86400000)) : 0;
-      const refCode = u.referral_code || u.referral || '';
+      const refCode = u.referral || u.referral_code || '';
 
       document.getElementById('tb-account-popup')?.remove();
       const popup = document.createElement('div');
@@ -7332,6 +7332,7 @@
   getWeather();
 
 </script>
-
+<!-- Hidden visitor tracker - counts toward home page total -->
+<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
 </body>
 </html>
