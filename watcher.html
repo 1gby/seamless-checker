@@ -2389,12 +2389,18 @@
       const json = await tbFetch('/user/me');
       if (!json?.success) { showToast('❌ ' + (json?.detail || 'Error'), 'error'); return; }
       const u = json.data;
-      const planName = ['Free','Essential','Standard','Pro'][u.plan] || 'Unknown';
-      const isPremium = u.is_subscribed;
-      const expires = u.premium_expires_at ? new Date(u.premium_expires_at).toLocaleDateString('en-CA') : 'N/A';
+      // Plan name — Torbox: 0=Free, 1=Essential, 2=Standard, 3=Pro (some accounts may differ)
+      const planNames = { 0:'Free', 1:'Essential', 2:'Standard', 3:'Pro' };
+      const planName = planNames[u.plan] ?? (u.plan_name || 'Unknown');
+
+      // Use expiry date to determine active status — more reliable than is_subscribed flag
+      const expiryDate = u.premium_expires_at ? new Date(u.premium_expires_at) : null;
+      const isPremium = expiryDate && expiryDate > new Date();
+      const expires = expiryDate ? expiryDate.toLocaleDateString('en-CA') : 'N/A';
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('en-CA') : 'N/A';
       const cooldown = u.cooldown_until ? new Date(u.cooldown_until).toLocaleDateString('en-CA') : 'None';
-      const daysLeft = u.premium_expires_at ? Math.max(0, Math.ceil((new Date(u.premium_expires_at) - Date.now()) / 86400000)) : 0;
+      const daysLeft = expiryDate ? Math.max(0, Math.ceil((expiryDate - Date.now()) / 86400000)) : 0;
+      const refCode = u.referral_code || u.referral || '';
 
       document.getElementById('tb-account-popup')?.remove();
       const popup = document.createElement('div');
@@ -2411,7 +2417,13 @@
             <div><strong>Premium Expires:</strong> <span style="color:${daysLeft < 7 ? 'var(--accent-red)' : 'var(--accent-green)'}">${expires}</span></div>
             <div><strong>Downloads:</strong> ${u.total_downloaded != null ? u.total_downloaded + ' torrents' : '—'}</div>
             <div><strong>Cooldown Until:</strong> ${cooldown}</div>
-            ${u.referral_code ? `<div><strong>Referral Code:</strong> <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);">${u.referral_code}</span></div>` : ''}
+            ${refCode ? `
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+              <strong>Referral Code:</strong>
+              <span id="tb-ref-code" style="font-size:0.7rem;color:rgba(255,255,255,0.5);word-break:break-all;">${refCode}</span>
+              <button onclick="navigator.clipboard.writeText('${refCode}').then(()=>{this.textContent='✅';setTimeout(()=>this.textContent='📋',1500)})"
+                style="background:rgba(118,75,162,0.2);border:1px solid rgba(118,75,162,0.4);border-radius:6px;color:#c084fc;font-size:0.7rem;padding:0.1rem 0.4rem;cursor:pointer;">📋</button>
+            </div>` : ''}
           </div>
           <div class="cache-popup-buttons">
             <button class="cache-popup-btn infuse" onclick="this.closest('#tb-account-popup').remove()">Close</button>
