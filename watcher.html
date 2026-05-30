@@ -251,7 +251,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .card {
       background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 16px; overflow: hidden; backdrop-filter: blur(16px);
+      border-radius: 28px; overflow: hidden; backdrop-filter: blur(16px);
       transition: all 0.35s cubic-bezier(0.4,0,0.2,1); cursor: pointer; position: relative;
     }
     .card:active { transform: scale(0.98); }
@@ -5793,7 +5793,12 @@
     const todayStr = today.toISOString().split('T')[0];
 
     const airingThisWeek = [];
-    const allShows = [...favTv];
+    // Build full show list — favorites + anything with watch history
+    const allShowsMap = new Map(favTv.map(s => [s.id, s]));
+    for (const id of watchedIds) {
+      if (!allShowsMap.has(id)) allShowsMap.set(id, { id, media_type: 'tv' });
+    }
+    const allShows = Array.from(allShowsMap.values());
 
     const checks = allShows.slice(0, 20).map(async show => {
       try {
