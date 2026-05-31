@@ -1958,6 +1958,16 @@
   let currentMovieId    = null;   // id of movie/show open in detail view
   let currentDetailItem = null;
 
+  // ── Local Date Helper (avoids UTC off-by-one issues) ────────────────
+  function localDate(date = new Date(), offsetDays = 0) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + offsetDays);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   // ── Navigation Stack (LIFO) ──────────────────────────────────────────
   const navStack = [];
   const _navReg = {};
@@ -2386,7 +2396,7 @@
   async function showTBAccountInfo() {
     if (!getTBToken()) { showToast('No Torbox token saved', 'error'); return; }
     try {
-      const json = await tbFetch('/user/me');
+      const json = await tbFetch('/user/me?settings=true');
       if (!json?.success) { showToast('❌ ' + (json?.detail || 'Error'), 'error'); return; }
       const u = json.data;
       // Plan name — Torbox: 0=Free, 1=Essential, 2=Standard, 3=Pro (some accounts may differ)
@@ -2401,7 +2411,7 @@
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('en-CA') : 'N/A';
       const cooldown = u.cooldown_until ? new Date(u.cooldown_until).toLocaleDateString('en-CA') : 'None';
       const daysLeft = expiryDate ? Math.max(0, Math.ceil((expiryDate - Date.now()) / 86400000)) : 0;
-      const refCode = u.referral || u.referral_code || '';
+      const refCode = u.referral || u.referral_code || u.referralCode || u.auth_id || '';
 
       document.getElementById('tb-account-popup')?.remove();
       const popup = document.createElement('div');
@@ -5626,8 +5636,8 @@
   async function loadStreamingNow(gridId) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
-    const today = new Date().toISOString().slice(0,10);
+    const thirtyDaysAgo = localDate(new Date(), -30);
+    const today = localDate();
     try {
       // Fetch movies and TV from all major streamers, released in last 30 days
       const [movRes, tvRes] = await Promise.all([
@@ -5736,7 +5746,7 @@
   }
 
   async function loadAdultSections() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDate();
     await Promise.allSettled([
       (async () => {
         const d = await tmdbAdult('/discover/movie', { sort_by: 'release_date.desc', 'with_release_type': '4', certification_country: 'US', certification: 'NC-17', 'release_date.lte': today });
@@ -5827,13 +5837,9 @@
 
     if (favTv.length === 0 && watchedIds.size === 0) { section.style.display = 'none'; return; }
 
-    const today   = new Date();
-    // Yesterday → 10 days ahead to catch shows TMDB reports slightly off
-    const fromDate = new Date(today); fromDate.setDate(fromDate.getDate() - 1);
-    const weekEnd  = new Date(today); weekEnd.setDate(weekEnd.getDate() + 10);
-    const fromStr  = fromDate.toISOString().split('T')[0];
-    const weekStr  = weekEnd.toISOString().split('T')[0];
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = localDate();
+    const fromStr  = localDate(new Date(), -1);
+    const weekStr  = localDate(new Date(), 10);
 
     const airingThisWeek = [];
     // Build full show list — favorites + anything with watch history
@@ -6384,9 +6390,9 @@
 
   async function loadHome() {
     showLoading({ message: 'Loading Watcher…' });
-    const today        = new Date().toISOString().split('T')[0];
-    const weekAgo      = new Date(Date.now() - 7  * 86400000).toISOString().split('T')[0];
-    const monthFromNow = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    const today        = localDate();
+    const weekAgo      = localDate(new Date(), -7);
+    const monthFromNow = localDate(new Date(), 30);
     const normalSections = ['airing','streaming-now','new-releases','trending-tv','trending-movies','tv-week','movies-week','anticipated-tv','anticipated-movies'];
     const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
     if (isAdultMode) {
@@ -7337,7 +7343,6 @@
   getWeather();
 
 </script>
-<!-- Hidden visitor tracker - counts toward home page total -->
-<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
+
 </body>
 </html>
