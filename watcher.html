@@ -2421,9 +2421,14 @@
             ${refCode ? `
             <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
               <strong>Referral Code:</strong>
-              <span id="tb-ref-code" style="font-size:0.7rem;color:rgba(255,255,255,0.5);word-break:break-all;">${refCode}</span>
-              <button onclick="navigator.clipboard.writeText('${refCode}').then(()=>{this.textContent='✅';setTimeout(()=>this.textContent='📋',1500)})"
-                style="background:rgba(118,75,162,0.2);border:1px solid rgba(118,75,162,0.4);border-radius:6px;color:#c084fc;font-size:0.7rem;padding:0.1rem 0.4rem;cursor:pointer;">📋</button>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);word-break:break-all;">${refCode}</span>
+              <button onclick="navigator.clipboard.writeText('${refCode}').then(()=>{this.textContent='✅ Copied';setTimeout(()=>this.textContent='📋 Copy Code',1500)})"
+                style="background:rgba(118,75,162,0.2);border:1px solid rgba(118,75,162,0.4);border-radius:6px;color:#c084fc;font-size:0.7rem;padding:0.2rem 0.5rem;cursor:pointer;width:100%;margin-top:0.2rem;">📋 Copy Code</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-top:0.2rem;">
+              <strong>Referral Link:</strong>
+              <button onclick="navigator.clipboard.writeText('https://torbox.app/subscription?referral=${refCode}').then(()=>{this.textContent='✅ Copied';setTimeout(()=>this.textContent='🔗 Copy Link',1500)})"
+                style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:6px;color:var(--accent-green);font-size:0.7rem;padding:0.2rem 0.5rem;cursor:pointer;width:100%;margin-top:0.2rem;">🔗 Copy Link</button>
             </div>` : ''}
           </div>
           <div class="cache-popup-buttons">
@@ -5838,7 +5843,7 @@
     }
     const allShows = Array.from(allShowsMap.values());
 
-    const checks = allShows.slice(0, 20).map(async show => {
+    const checks = allShows.map(async show => {
       try {
         const data = await tmdb(`/tv/${show.id}`);
         if (!data?.next_episode_to_air) return;
