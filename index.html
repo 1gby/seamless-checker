@@ -6,10 +6,10 @@
   Landing page for Rudeboy's web tools
   - Pattern Checker
   - File Converter
-  - Watcher
+  - Viewster
   - Coming Soon
   - Social Links (Ko-fi, Instagram)
- 
+  
   FEATURES:
   - Matrix Easter Egg with music
   - Weather Widget
@@ -592,10 +592,10 @@ gap:0.75rem;
   </a>
   
   <!-- MIDDLE ROW -->
-  <!-- Watcher (Green with view icon) -->
-  <a href="https://rud3boy.vercel.app/watcher" class="link-box green">
-    <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.gif" alt="Watcher">
-    <div class="link-label">Watcher</div>
+  <!-- Viewster (Green with view icon) -->
+  <a href="https://rud3boy.vercel.app/viewster" class="link-box green">
+    <img src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/Viewster.png" alt="Viewster">
+    <div class="link-label">Viewster</div>
   </a>
   
   <!-- Coming Soon (Purple with soon icon) - Non-clickable -->
@@ -895,7 +895,7 @@ function getWeatherIconFromCode(code) {
   if (code === 0) return '☀️';
   if (code === 1 || code === 2) return '🌤️';
   if (code === 3) return '☁️';
-  if (code === 45 || code === 48) return '😶‍🌫️';
+  if (code === 45 || code === 48) return '🌫️';
   if (code >= 51 && code <= 67) return '🌧️';
   if (code >= 71 && code <= 77) return '❄️';
   if (code >= 80 && code <= 82) return '🌦️';
@@ -1208,10 +1208,10 @@ linkBoxes.forEach(box => {
     // Remove hover state immediately on touch
     box.classList.add('no-hover');
     
-    // Re-enable hover after 5 seconds
+    // Re-enable hover after 1 seconds
     setTimeout(() => {
       box.classList.remove('no-hover');
-    }, 5000);
+    }, 1000);
   });
 });
 
