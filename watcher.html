@@ -5825,29 +5825,17 @@
     const grid    = document.getElementById('fav-this-week-grid');
     if (!section || !grid) return;
 
-    // Use both favorites AND any show in watch history
+    // Only starred TV shows — no watch history guessing (movies share IDs with TV shows in TMDB)
     const favTv = (favorites.tv || []);
-    const watchedIds = new Set();
-    for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('watched_')) {
-        const id = parseInt(key.split('_')[1]);
-        if (id && !favTv.find(s => s.id === id)) watchedIds.add(id);
-      }
-    }
 
-    if (favTv.length === 0 && watchedIds.size === 0) { section.style.display = 'none'; return; }
+    if (favTv.length === 0) { section.style.display = 'none'; return; }
 
     const todayStr = localDate();
     const fromStr  = localDate(new Date(), -1);
     const weekStr  = localDate(new Date(), 10);
 
     const airingThisWeek = [];
-    // Build full show list — favorites + anything with watch history
-    const allShowsMap = new Map(favTv.map(s => [s.id, s]));
-    for (const id of watchedIds) {
-      if (!allShowsMap.has(id)) allShowsMap.set(id, { id, media_type: 'tv' });
-    }
-    const allShows = Array.from(allShowsMap.values());
+    const allShows = favTv;
 
     const checks = allShows.map(async show => {
       try {
@@ -7343,6 +7331,7 @@
   getWeather();
 
 </script>
-
+<!-- Hidden visitor tracker - counts toward home page total -->
+<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
 </body>
 </html>
