@@ -2517,39 +2517,39 @@
 
   async function playTBTorrent(torrent) {
     const tok = getTBToken();
-    // If files not in torrent object, fetch full torrent info
-    let files = torrent.files;
-    if (!files?.length) {
+    if (!tok) { showToast('No Torbox token', 'error'); return; }
+
+    // Fetch individual torrent to get files array (mylist without id returns no files)
+    let files = torrent.files || [];
+    if (!files.length) {
       try {
         const info = await tbFetch(`/torrents/mylist?id=${torrent.id}&bypass_cache=true`);
-        const found = info?.data?.find?.(t => t.id === torrent.id) || info?.data;
-        files = found?.files || [];
-      } catch(e) { console.warn('[TB] file fetch failed:', e.message); }
+        // mylist?id returns data as object, not array
+        const t = Array.isArray(info?.data)
+          ? info.data.find(x => x.id === torrent.id)
+          : info?.data;
+        files = t?.files || [];
+      } catch(e) { console.warn('[TB] file fetch:', e.message); }
     }
-    if (!files?.length) {
-      showToast('No playable files found', 'error'); return;
-    }
+
+    if (!files.length) { showToast('No files found in this torrent', 'error'); return; }
+
     const videoFiles = files.filter(f => {
-      const ext = (f.name || f.short_name || '').split('.').pop().toLowerCase();
+      const ext = ((f.name || f.short_name || '').split('.').pop() || '').toLowerCase();
       return VIDEO_EXTS.has(ext);
     });
     const filesToPlay = videoFiles.length ? videoFiles : files;
-    const links = [];
-    for (const file of filesToPlay.slice(0, 5)) {
-      try {
-        // requestdl with redirect=true returns a direct URL — proxy it then follow redirect
-        const dlJson = await tbFetch(`/torrents/requestdl?torrent_id=${torrent.id}&file_id=${file.id}&zip_link=false&redirect=false`);
-        const url = dlJson?.data || `https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${torrent.id}&file_id=${file.id}&redirect=true`;
-        links.push({
-          url,
-          filename: file.name || file.short_name || torrent.name,
-          filesize: file.size || 0,
-          quality: guessQuality(file.name || torrent.name || ''),
-          mimeType: 'video/mp4',
-          isVideo: true,
-        });
-      } catch(e) { console.warn('[TB] link error:', e.message); }
-    }
+
+    // Use Torbox permalink URLs — Infuse/VLC follow the redirect natively
+    const links = filesToPlay.slice(0, 5).map(file => ({
+      url: `https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${torrent.id}&file_id=${file.id}&redirect=true`,
+      filename: file.name || file.short_name || torrent.name,
+      filesize: file.size || 0,
+      quality: guessQuality(file.name || torrent.name || ''),
+      mimeType: 'video/mp4',
+      isVideo: true,
+    }));
+
     if (!links.length) { showToast('No playable files found', 'error'); return; }
     showRDLibraryPlayPopup(links, torrent.name || 'stream');
   }
@@ -4672,9 +4672,10 @@
       else if (inRD)  badges += `<span class="tor-badge tor-badge-direct">📦 In RD</span>`;
       else if (isCached) badges += `<span class="tor-badge tor-badge-cached">⚡ Cached</span>`;
       const srcLow = (sourceLabel || '').toLowerCase();
-      const isTB  = srcLow.includes('torbox') || srcLow.includes('tb');
-      const isRDTag = srcLow.includes('rd') || srcLow.includes('real-debrid') || srcLow.includes('realdebrid') || srcLow.includes('debrid');
-      const tagStyle = isTB ? 'border-color:rgba(16,185,129,0.5);color:#10b981;' : isRDTag ? 'border-color:rgba(118,75,162,0.5);color:#c084fc;' : '';
+      const urlLow = (torrent._addonUrl || torrent._directUrl || '').toLowerCase();
+      const isTB  = srcLow.includes('torbox') || srcLow.includes(' tb)') || srcLow.includes('(tb)') || urlLow.includes('torbox');
+      const isRDTag = srcLow.includes('(rd)') || srcLow.includes(' rd)') || srcLow.includes('real-debrid') || srcLow.includes('realdebrid') || urlLow.includes('real-debrid') || urlLow.includes('realdebrid');
+      const tagStyle = isTB ? 'border-color:rgba(16,185,129,0.5);color:#10b981;background:rgba(16,185,129,0.1);' : isRDTag ? 'border-color:rgba(118,75,162,0.5);color:#c084fc;background:rgba(118,75,162,0.1);' : '';
       const shortLabel = isTB ? 'TB' : isRDTag ? 'RD' : sourceLabel;
       badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}" style="${tagStyle}">${shortLabel}</span>`;
 
@@ -6335,6 +6336,14 @@
     const sizes = getCacheSizes();
     const rdEl   = document.getElementById('cache-size-rd');
     const tmdbEl = document.getElementById('cache-size-tmdb');
+    const tbEl   = document.getElementById('cache-size-tb');
+    if (tbEl) {
+      const tbSize = [...Array(localStorage.length)].reduce((acc, _, i) => {
+        const k = localStorage.key(i);
+        return acc + (k?.startsWith('tb_') ? (localStorage.getItem(k) || '').length * 2 : 0);
+      }, 0);
+      tbEl.textContent = tbSize > 1048576 ? (tbSize/1048576).toFixed(1)+' MB' : tbSize > 1024 ? (tbSize/1024).toFixed(1)+' KB' : tbSize+' B';
+    }
     const allEl  = document.getElementById('cache-size-all');
     const totEl  = document.getElementById('cache-size-total');
     if (rdEl)   rdEl.textContent   = `(${formatCacheSize(sizes.rdSize)})`;
