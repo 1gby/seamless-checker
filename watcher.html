@@ -1763,6 +1763,7 @@
     </p>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="cache-buttons">
       <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Cache <span id="cache-size-rd" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn purple" onclick="clearTBCache()">🗑 TB Cache <span id="cache-size-tb" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Cache <span id="cache-size-tmdb" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches <span id="cache-size-all" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn red"    onclick="resetEverything()">💣 Reset Everything <span id="cache-size-total" style="opacity:0.5;font-size:0.65rem;"></span></button>
@@ -2516,14 +2517,23 @@
 
   async function playTBTorrent(torrent) {
     const tok = getTBToken();
-    if (!torrent.files?.length) {
-      showToast('No files in this torrent', 'error'); return;
+    // If files not in torrent object, fetch full torrent info
+    let files = torrent.files;
+    if (!files?.length) {
+      try {
+        const info = await tbFetch(`/torrents/mylist?id=${torrent.id}&bypass_cache=true`);
+        const found = info?.data?.find?.(t => t.id === torrent.id) || info?.data;
+        files = found?.files || [];
+      } catch(e) { console.warn('[TB] file fetch failed:', e.message); }
     }
-    const videoFiles = torrent.files.filter(f => {
+    if (!files?.length) {
+      showToast('No playable files found', 'error'); return;
+    }
+    const videoFiles = files.filter(f => {
       const ext = (f.name || f.short_name || '').split('.').pop().toLowerCase();
       return VIDEO_EXTS.has(ext);
     });
-    const filesToPlay = videoFiles.length ? videoFiles : torrent.files;
+    const filesToPlay = videoFiles.length ? videoFiles : files;
     const links = [];
     for (const file of filesToPlay.slice(0, 5)) {
       try {
@@ -2639,9 +2649,11 @@
   function addAddonFromInput() {
     const inp = document.getElementById('addon-url-input');
     if (!inp) return;
-    const url = inp.value.trim();
+    let url = inp.value.trim();
     if (!url) { showToast('Paste a manifest URL first', 'error'); return; }
     if (!url.startsWith('http')) { showToast('URL must start with http/https', 'error'); return; }
+    // Strip /manifest.json suffix so stream URLs build correctly
+    url = url.replace(/\/manifest\.json\/?$/, '');
     const addons = appSettings.stremioAddons || [];
     if (addons.find(a => a.url === url)) { showToast('Addon already added', 'error'); return; }
     // Try to extract name from URL
@@ -4659,7 +4671,12 @@
       if (isDirect) badges += `<span class="tor-badge tor-badge-direct">⚡ Direct</span>`;
       else if (inRD)  badges += `<span class="tor-badge tor-badge-direct">📦 In RD</span>`;
       else if (isCached) badges += `<span class="tor-badge tor-badge-cached">⚡ Cached</span>`;
-      badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}">${sourceLabel}</span>`;
+      const srcLow = (sourceLabel || '').toLowerCase();
+      const isTB  = srcLow.includes('torbox') || srcLow.includes('tb');
+      const isRDTag = srcLow.includes('rd') || srcLow.includes('real-debrid') || srcLow.includes('realdebrid') || srcLow.includes('debrid');
+      const tagStyle = isTB ? 'border-color:rgba(16,185,129,0.5);color:#10b981;' : isRDTag ? 'border-color:rgba(118,75,162,0.5);color:#c084fc;' : '';
+      const shortLabel = isTB ? 'TB' : isRDTag ? 'RD' : sourceLabel;
+      badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}" style="${tagStyle}">${shortLabel}</span>`;
 
       // Action buttons HTML
       const libLabel = inRD ? '✅ In RD' : '📚 Add';
@@ -6326,6 +6343,17 @@
     if (totEl)  totEl.textContent  = `(${formatCacheSize(sizes.totalSize)})`;
   }
 
+  function clearTBCache() {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('tb_')) keysToRemove.push(key);
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    showToast('🗑 TB cache cleared', 'success');
+    updateCacheSizeBadges();
+  }
+
   function clearRDCache() {
     localStorage.removeItem('rd_torrent_cache');
     localStorage.removeItem('rd_torrent_cache_ts');
@@ -6353,6 +6381,7 @@
 
   function clearAllCaches() {
     clearRDCache();
+    clearTBCache();
     clearTMDBCache();
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -7331,7 +7360,6 @@
   getWeather();
 
 </script>
-<!-- Hidden visitor tracker - counts toward home page total -->
-<img src="https://hits.sh/rud3boy.vercel.app.svg" alt="" style="display: none;" />
+
 </body>
 </html>
