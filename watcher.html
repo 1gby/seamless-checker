@@ -2600,6 +2600,35 @@
     }
   }
 
+  function detectDebridFromUrl(url) {
+    const u = url.toLowerCase();
+    if (u.includes('realdebrid') || u.includes('real_debrid') || u.includes('rd_api') || u.includes('debridapikey') || u.includes('debrid_key')) return 'RD';
+    if (u.includes('torbox') || u.includes('torbox_api') || u.includes('tbapi')) return 'TB';
+    if (u.includes('alldebrid') || u.includes('all_debrid') || u.includes('ad_api')) return 'AD';
+    if (u.includes('premiumize')) return 'PM';
+    if (u.includes('debridlink') || u.includes('debrid_link')) return 'DL';
+    if (u.includes('offcloud')) return 'OC';
+    return null;
+  }
+
+  function buildAddonName(url) {
+    const u = url.toLowerCase();
+    let name = 'Addon';
+    try {
+      const host = new URL(url).hostname;
+      if (host.includes('torrentio'))   name = 'Torrentio';
+      else if (host.includes('comet'))  name = 'Comet';
+      else if (host.includes('mediafusion')) name = 'MediaFusion';
+      else if (host.includes('peerflix')) name = 'Peerflix';
+      else if (host.includes('torrent') && host.includes('db')) name = 'TorrentsDB';
+      else if (host.includes('debridmediamanager')) name = 'DMM';
+      else name = host.split('.')[0].charAt(0).toUpperCase() + host.split('.')[0].slice(1);
+    } catch {}
+    const debrid = detectDebridFromUrl(url);
+    if (debrid) name += ` (${debrid})`;
+    return name;
+  }
+
   function addCustomAddon() {
     const inp = document.getElementById('addon-custom-url');
     let url = (inp?.value || '').trim();
@@ -2610,21 +2639,7 @@
     if (!url.startsWith('http')) { alert('URL must start with http:// or https://'); return; }
     const existing = (appSettings.stremioAddons || []).find(a => a.url === url);
     if (existing) { alert('This addon is already added.'); return; }
-    // Determine a friendly name
-    let name = 'Custom Addon';
-    try {
-      const host = new URL(url).hostname;
-      if (host.includes('torrentio'))   name = 'Torrentio';
-      else if (host.includes('comet'))  name = 'Comet';
-      else if (host.includes('mediafusion')) name = 'MediaFusion';
-      else if (host.includes('peerflix')) name = 'Peerflix';
-      else if (host.includes('torrent') && host.includes('db')) name = 'TorrentsDB';
-      else if (host.includes('debridmediamanager')) name = 'DMM';
-      else name = host.split('.')[0];
-      // Mark as RD-configured if URL contains debrid key
-      if (url.includes('realdebrid=') || url.includes('debridApiKey'))
-        name += ' (RD)';
-    } catch {}
+    const name = buildAddonName(url);
     appSettings.stremioAddons = appSettings.stremioAddons || [];
     appSettings.stremioAddons.push({ name, url, enabled: true });
     saveSettings();
@@ -2656,11 +2671,7 @@
     url = url.replace(/\/manifest\.json\/?$/, '');
     const addons = appSettings.stremioAddons || [];
     if (addons.find(a => a.url === url)) { showToast('Addon already added', 'error'); return; }
-    // Try to extract name from URL
-    const name = url.includes('torrentio') ? 'Torrentio' :
-                 url.includes('comet')     ? 'Comet' :
-                 url.includes('mediafusion') ? 'MediaFusion' :
-                 url.includes('peerflix')  ? 'Peerflix' : 'Addon';
+    const name = buildAddonName(url);
     addons.push({ url, name, enabled: true });
     appSettings.stremioAddons = addons;
     saveSettings();
