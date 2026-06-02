@@ -70,6 +70,7 @@
 
     h1, .title-text { font-family: 'Bebas Neue', cursive; letter-spacing: 1.8px; }
     h2 { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+    h3 { font-family: 'Bangers', cursive; letter-spacing: 2px; color: var(--accent-green); }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-03  LOADING OVERLAY
@@ -430,14 +431,14 @@
     .where-to-watch-icon { width: 16px; height: 16px; object-fit: contain; }
 
     .detail-favorite-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.5rem 0.8rem; background: rgba(255,215,0,0.15); color: var(--accent-gold);
-      border: 2px solid rgba(255,215,0,0.3); border-radius: 16px; font-weight: 700; font-size: 0.75rem;
-      cursor: pointer; transition: all 0.3s ease; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 12px; cursor: pointer; flex-shrink: 0;
+      background: rgba(255,215,0,0.08); border: 2px solid rgba(255,215,0,0.35);
+      font-size: 1.25rem; transition: all 0.3s ease;
     }
-    .detail-favorite-btn:hover     { transform: translateY(-2px); background: rgba(255,215,0,0.25); border-color: rgba(255,215,0,0.5); box-shadow: 0 5px 15px rgba(255,215,0,0.3); }
-    .detail-favorite-btn.favorited { background: rgba(255,215,0,0.25); border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
-    .star-icon { font-size: 1rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
+    .detail-favorite-btn:hover     { transform: translateY(-2px); background: rgba(255,215,0,0.18); border-color: rgba(255,215,0,0.6); box-shadow: 0 5px 15px rgba(255,215,0,0.25); }
+    .detail-favorite-btn.favorited { background: rgba(255,215,0,0.2); border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+    .star-icon { font-size: 1.2rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-10  TRAILERS + CAST + EPISODES
@@ -4683,12 +4684,19 @@
       else if (inRD)  badges += `<span class="tor-badge tor-badge-direct">📦 In RD</span>`;
       else if (isCached) badges += `<span class="tor-badge tor-badge-cached">⚡ Cached</span>`;
       const srcLow = (sourceLabel || '').toLowerCase();
-      const urlLow = (torrent._addonUrl || torrent._directUrl || '').toLowerCase();
-      const isTB  = srcLow.includes('torbox') || srcLow.includes(' tb)') || srcLow.includes('(tb)') || urlLow.includes('torbox');
-      const isRDTag = srcLow.includes('(rd)') || srcLow.includes(' rd)') || srcLow.includes('real-debrid') || srcLow.includes('realdebrid') || urlLow.includes('real-debrid') || urlLow.includes('realdebrid');
-      const tagStyle = isTB ? 'border-color:rgba(16,185,129,0.5);color:#10b981;background:rgba(16,185,129,0.1);' : isRDTag ? 'border-color:rgba(118,75,162,0.5);color:#c084fc;background:rgba(118,75,162,0.1);' : '';
-      const shortLabel = isTB ? 'TB' : isRDTag ? 'RD' : sourceLabel;
-      badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}" style="${tagStyle}">${shortLabel}</span>`;
+      const debridMatch = (sourceLabel || '').match(/\(([^)]+)\)\s*$/);
+      const debridPart = debridMatch ? debridMatch[1] : null;
+      const baseName = debridPart ? (sourceLabel || '').slice(0, -(debridPart.length + 2)).trim() : (sourceLabel || '');
+      const debridLow = (debridPart || '').toLowerCase();
+      const isTBDebrid = debridLow === 'tb' || debridLow.includes('torbox');
+      const isRDDebrid = debridLow === 'rd' || debridLow.includes('real-debrid') || debridLow.includes('realdebrid');
+      const debridColor = isTBDebrid ? '#10b981' : isRDDebrid ? '#c084fc' : 'rgba(255,255,255,0.6)';
+      const debridBg = isTBDebrid ? 'rgba(16,185,129,0.12)' : isRDDebrid ? 'rgba(118,75,162,0.12)' : '';
+      const debridBorder = isTBDebrid ? 'rgba(16,185,129,0.4)' : isRDDebrid ? 'rgba(118,75,162,0.4)' : 'rgba(255,255,255,0.2)';
+      const badgeHtml = debridPart
+        ? `<span style="color:#fff;">${baseName}</span> <span style="color:${debridColor};font-weight:800;">(${debridPart})</span>`
+        : sourceLabel;
+      badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}" style="border-color:${debridBorder};background:${debridBg};">${badgeHtml}</span>`;
 
       // Action buttons HTML
       const libLabel = inRD ? '✅ In RD' : '📚 Add';
@@ -6536,10 +6544,8 @@
       html += '<div class="detail-actions">';
       if (data.belongs_to_collection) html += `<button class="collections-btn" onclick="showCollection(${data.belongs_to_collection.id})">View Collection: ${data.belongs_to_collection.name}</button>`;
       html += isAdultMode
-        ? `<a href="https://www.xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn"><span>Watch on xvideos</span><span style="font-size:1.2rem">🔞</span></a>`
-        : `<a href="https://discord.gg/ZwGK9RnCrh" target="_blank" rel="noopener" class="where-to-watch-btn"><span>Where to Watch</span><img class="where-to-watch-icon" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/couch.png" alt="Watch"></a>`;
-      const favorited = isFavorited(movieId, 'movie');
-      html += `<button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()"><span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}</button>`;
+        const favorited = isFavorited(movieId, 'movie');
+      html += `<button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()"><span class="star-icon">${favorited ? '⭐' : '☆'}</span></button>`;
       html += '</div>';
 
       // ★ RD trigger widget
@@ -6681,10 +6687,8 @@
 
       html += '<div class="detail-actions">';
       html += isAdultMode
-        ? `<a href="https://www.xvideos.com" target="_blank" rel="noopener noreferrer" class="where-to-watch-btn"><span>Watch on xvideos</span><span style="font-size:1.2rem">🔞</span></a>`
-        : `<a href="https://discord.gg/ZwGK9RnCrh" target="_blank" rel="noopener" class="where-to-watch-btn"><span>Where to Watch</span><img class="where-to-watch-icon" src="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/couch.png" alt="Watch"></a>`;
-      const favorited = isFavorited(tvId, 'tv');
-      html += `<button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()"><span class="star-icon">${favorited ? '⭐' : '☆'}</span> ${favorited ? 'Favorited' : 'Add Favorite'}</button>`;
+        const favorited = isFavorited(tvId, 'tv');
+      html += `<button class="detail-favorite-btn ${favorited ? 'favorited' : ''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()"><span class="star-icon">${favorited ? '⭐' : '☆'}</span></button>`;
       html += '</div>';
 
       // ★ Play button — shows next unwatched episode
