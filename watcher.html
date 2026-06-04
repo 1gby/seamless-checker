@@ -2948,13 +2948,19 @@
           <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>
           <div style="display:flex;gap:0.2rem;padding:0.2rem 0.3rem 0.35rem;flex-wrap:wrap;">
             <button class="cat-play-btn" onclick="event.stopPropagation();playCatalogFromCache('${safe(imdbId)}','${safe(name)}','${catType}')">▶ Play</button>
-            <button class="cat-play-btn cat-info" onclick="event.stopPropagation();catalogInfo('${safe(imdbId)}','${catType}')" title="Open detail page">📖</button>
+            <button class="cat-play-btn cat-info" onclick="event.stopPropagation();catalogInfo('${safe(imdbId)}','${catType}','${safe(name)}')" title="Open detail page">📖</button>
           </div>`;
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
         card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
         card.onclick = () => {
-          closeSettingsModal();
-          playCatalogFromCache(imdbId, name, catType);
+          if (name === 'Downloads' || imdbId === 'downloads') {
+            // Downloads folder = open RD library
+            openSettingsSubmenu('submenu-debrid');
+            setTimeout(() => openRDLibrary(), 200);
+          } else {
+            closeSettingsModal();
+            playCatalogFromCache(imdbId, name, catType);
+          }
         };
         resultsEl.appendChild(card);
       });
@@ -3014,12 +3020,24 @@
   }
 
   // Open TMDB detail for catalog item
-  function catalogInfo(imdbId, catType) {
+  async function catalogInfo(imdbId, catType, name) {
+    closeSettingsModal();
     if (imdbId && imdbId.startsWith('tt')) {
-      closeSettingsModal();
       searchAndOpenByImdb(imdbId, catType);
-    } else {
-      showToast('No TMDB page for this item', 'error');
+    } else if (name && name.trim() && name.toLowerCase() !== 'downloads') {
+      // Search TMDB by title
+      try {
+        const searchType = catType === 'series' ? 'tv' : 'movie';
+        const endpoint = searchType === 'tv' ? '/search/tv' : '/search/movie';
+        const data = await tmdb(endpoint, { query: name });
+        const results = data?.results || [];
+        if (results.length > 0) {
+          if (searchType === 'tv') openTVDetail(results[0].id);
+          else openMovieDetail(results[0].id);
+        } else {
+          showToast('Could not find on TMDB', 'error');
+        }
+      } catch(e) { showToast('TMDB search failed', 'error'); }
     }
   }
 
