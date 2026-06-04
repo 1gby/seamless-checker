@@ -2948,7 +2948,7 @@
           <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>
           <div style="display:flex;gap:0.2rem;padding:0.2rem 0.3rem 0.35rem;flex-wrap:wrap;">
             <button class="cat-play-btn" onclick="event.stopPropagation();playCatalogFromCache('${safe(imdbId)}','${safe(name)}','${catType}')">▶ Play</button>
-            <button class="cat-play-btn cat-info" onclick="event.stopPropagation();catalogInfo('${safe(imdbId)}','${catType}')">ℹ️</button>
+            <button class="cat-play-btn cat-info" onclick="event.stopPropagation();catalogInfo('${safe(imdbId)}','${catType}')" title="Open detail page">📖</button>
           </div>`;
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
         card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
@@ -6201,56 +6201,56 @@
   }
 
   // ── Catalog play from cache (for addon catalog items) ──
-  // Play from catalog: try RD library first (instant), then addon streams, then torrent search
+  // Play from catalog: gather all direct streams from addons, show Infuse/VLC popup
   async function playCatalogFromCache(imdbId, name, catType) {
     closeSettingsModal();
-    showToast('🔍 Finding stream…', 'info');
+    showToast('⏳ Fetching streams…', 'info');
 
     const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
+    const type   = catType === 'series' ? 'series' : 'movie';
+    const allLinks = [];
 
-    // Method 1: Query addon for a direct stream URL (Torrentio handles RD resolution)
-    if (addons.length > 0) {
-      const type = catType === 'series' ? 'series' : 'movie';
-      for (const addon of addons) {
-        try {
-          const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
-          if (!streams?.length) continue;
+    // Query all addons in parallel
+    await Promise.allSettled(addons.map(async addon => {
+      try {
+        const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
+        if (!streams?.length) return;
 
-          // Pick the best direct URL (already resolved through RD by the addon)
-          const direct = streams.find(s => s._isDirect && s._directUrl);
-          if (direct) {
-            console.log('[catalog] Stream from', addon.name, direct._directUrl?.slice(0, 80));
-            showPlayFromCachePopup(direct._directUrl, direct.title || name);
-            return;
+        for (const s of streams) {
+          // Direct URL already resolved by addon (RD/TB link)
+          if (s._isDirect && s._directUrl) {
+            allLinks.push({
+              url:      s._directUrl,
+              filename: s.title || name,
+              filesize: s.filesize || 0,
+              quality:  s._quality || guessQuality(s.title || ''),
+              mimeType: 'video/mp4',
+              isVideo:  true,
+            });
           }
-
-          // If no direct URL but has hash that's in our RD library, unrestrict it
-          for (const s of streams) {
-            const h = (s.hash || '').toLowerCase();
-            if (h && rdTorrentCache?.has(h)) {
-              const rdEntry = rdTorrentCache.get(h);
-              try {
-                const info = await rdFetch(`/torrents/info/${rdEntry.id}`);
-                if (info.links?.length) {
-                  const links = await unrestrictVideoLinks(info.links);
-                  if (links.length) {
-                    showPlayFromCachePopup(links[0].url, links[0].filename || name);
-                    return;
-                  }
-                }
-              } catch (e) { console.warn('[catalog] RD unrestrict failed:', e.message); }
-            }
+          // Hash in RD library — unrestrict it
+          else if (s.hash && rdTorrentCache?.has(s.hash.toLowerCase())) {
+            try {
+              const rdEntry = rdTorrentCache.get(s.hash.toLowerCase());
+              const info  = await rdFetch(`/torrents/info/${rdEntry.id}`);
+              if (info?.links?.length) {
+                const links = await unrestrictVideoLinks(info.links);
+                links.forEach(l => allLinks.push(l));
+              }
+            } catch {}
           }
-        } catch (e) {
-          console.warn(`[catalog] ${addon.name} failed:`, e.message);
         }
-      }
-    }
+      } catch (e) { console.warn(`[catalog] ${addon.name}:`, e.message); }
+    }));
 
-    // Method 2: Fall back to torrent search overlay
-    showToast('Opening torrent search…', 'info');
-    const mediaType = catType === 'series' ? 'tv' : 'movie';
-    openTorrentOverlay(name, name, imdbId, mediaType, null, null, 'streams');
+    if (allLinks.length > 0) {
+      // Dedupe by URL, best quality first
+      const seen = new Set();
+      const unique = allLinks.filter(l => { if (seen.has(l.url)) return false; seen.add(l.url); return true; });
+      showRDLibraryPlayPopup(unique, name);
+    } else {
+      showToast('No direct streams found', 'error');
+    }
   }
   function exportSettings() {
     // Slim favorites: only keep essential fields for restore
