@@ -4289,7 +4289,7 @@
       const torrents = await rdFetch('/torrents?limit=2500');
       rdTorrentCache = new Map();
       for (const t of (torrents || [])) {
-        if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename });
+        if (t.hash) rdTorrentCache.set(t.hash.toLowerCase(), { id: t.id, status: t.status, filename: t.filename, added: t.added || '' });
       }
       saveRDCacheToStorage();
       console.log(`[RD] Library synced from API: ${rdTorrentCache.size} torrents`);
@@ -6232,47 +6232,61 @@
     catalogPlay({ imdbId, metaId: imdbId, name, catType, addonUrl: null, addonName: null });
   }
 
-  // Show Downloads folder as a popup listing rdTorrentCache items
+  // Show a file-picker popup for a specific RD torrent
+  async function showRDFilePicker(rdId, title, popupId) {
+    const btn = document.querySelector(`[data-rdid="${rdId}"]`);
+    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+    try {
+      const info = await rdFetch(`/torrents/info/${rdId}`);
+      if (info?.links?.length) {
+        const links = await unrestrictVideoLinks(info.links);
+        if (links.length) {
+          if (popupId) document.getElementById(popupId)?.remove();
+          showRDLibraryPlayPopup(links, title);
+          return;
+        }
+      }
+      showToast('No files found', 'error');
+    } catch(e) { showToast('RD Error: ' + e.message, 'error'); }
+    finally { if (btn) { btn.textContent = '▶ Play'; btn.disabled = false; } }
+  }
+
+  // Show Downloads folder popup — sorted by most recent
   async function showDownloadsPopup() {
-    // Ensure cache is loaded
     if (!rdTorrentCache || rdTorrentCache.size === 0) {
       loadRDCacheFromStorage();
-      if (!rdTorrentCache || rdTorrentCache.size === 0) {
-        await refreshRDCache();
-      }
+      if (!rdTorrentCache || rdTorrentCache.size === 0) await refreshRDCache();
     }
     document.getElementById('rd-downloads-popup')?.remove();
     const popup = document.createElement('div');
     popup.id = 'rd-downloads-popup';
+
     const items = [...rdTorrentCache.entries()]
       .filter(([, v]) => v.status === 'downloaded')
-      .sort((a, b) => (a[1].filename || '').localeCompare(b[1].filename || ''));
+      .sort((a, b) => (b[1].added || '').localeCompare(a[1].added || '')); // newest first
+
     const rows = items.map(([hash, v]) => `
-      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-        <span style="flex:1;font-size:0.75rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(v.filename||'').replace(/"/g,'')}">${v.filename || hash}</span>
-        <button class="settings-btn green" style="font-size:0.7rem;padding:0.15rem 0.5rem;white-space:nowrap;"
-          onclick="rdDownloadPlay('${v.id}','${(v.filename||'').replace(/'/g,"\'")}');document.getElementById('rd-downloads-popup').remove();">▶ Play</button>
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <span style="flex:1;font-size:0.75rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(v.filename||'').replace(/"/g,'&quot;')}">${v.filename || hash}</span>
+        <button class="settings-btn green" data-rdid="${v.id}" style="font-size:0.7rem;padding:0.15rem 0.5rem;white-space:nowrap;"
+          onclick="showRDFilePicker('${v.id}','${(v.filename||'').replace(/'/g,"\'")}','rd-downloads-popup')">▶ Play</button>
       </div>`).join('');
+
     popup.innerHTML = `
       <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
-      <div class="cache-popup-panel" style="max-width:380px;max-height:70vh;overflow-y:auto;">
-        <div class="cache-popup-title">📦 Downloads (${items.length})</div>
-        <div style="padding:0.25rem 0;">${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.8rem;">No downloaded files found</p>'}</div>
-        <button class="cache-popup-close" onclick="this.closest('#rd-downloads-popup').remove()">Close</button>
+      <div class="cache-popup-panel" style="max-width:380px;max-height:75vh;display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+          <div class="cache-popup-title" style="margin:0;">📦 Downloads (${items.length})</div>
+          <button onclick="document.getElementById('rd-downloads-popup').remove()"
+            style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.4rem;cursor:pointer;line-height:1;padding:0.2rem;">✕</button>
+        </div>
+        <div style="overflow-y:auto;flex:1;">${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.8rem;padding:0.5rem 0;">No downloaded files found</p>'}</div>
       </div>`;
     document.body.appendChild(popup);
   }
 
   async function rdDownloadPlay(rdId, filename) {
-    showToast('⏳ Loading…', 'info');
-    try {
-      const info = await rdFetch(`/torrents/info/${rdId}`);
-      if (info?.links?.length) {
-        const links = await unrestrictVideoLinks(info.links);
-        if (links.length) { showRDLibraryPlayPopup(links, filename); return; }
-      }
-      showToast('Could not get stream', 'error');
-    } catch(e) { showToast('RD Error: ' + e.message, 'error'); }
+    showRDFilePicker(rdId, filename, 'rd-downloads-popup');
   }
 
   async function catalogPlay(item) {
@@ -6297,22 +6311,14 @@
     // Ensure rdTorrentCache is available
     if (!rdTorrentCache || rdTorrentCache.size === 0) loadRDCacheFromStorage();
 
-    // Path A: Hash → RD library direct unrestrict
+    // Path A: Hash → RD library → show file picker popup
     if (isHash && getRDToken()) {
       try {
-        // Try cache first
         let rdEntry = rdTorrentCache?.get(rawHash);
-        // If not in cache, search by fetching torrents
-        if (!rdEntry) {
-          await refreshRDCache();
-          rdEntry = rdTorrentCache?.get(rawHash);
-        }
+        if (!rdEntry) { await refreshRDCache(); rdEntry = rdTorrentCache?.get(rawHash); }
         if (rdEntry) {
-          const info = await rdFetch(`/torrents/info/${rdEntry.id}`);
-          if (info?.links?.length) {
-            const links = await unrestrictVideoLinks(info.links);
-            links.forEach(l => allLinks.push(l));
-          }
+          showRDFilePicker(rdEntry.id, name, null);
+          return; // file picker handles the rest
         }
       } catch(e) { console.warn('[catalog] RD direct:', e.message); }
     }
