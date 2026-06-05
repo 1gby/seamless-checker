@@ -6232,8 +6232,60 @@
     catalogPlay({ imdbId, metaId: imdbId, name, catType, addonUrl: null, addonName: null });
   }
 
+  // Show Downloads folder as a popup listing rdTorrentCache items
+  async function showDownloadsPopup() {
+    // Ensure cache is loaded
+    if (!rdTorrentCache || rdTorrentCache.size === 0) {
+      loadRDCacheFromStorage();
+      if (!rdTorrentCache || rdTorrentCache.size === 0) {
+        await refreshRDCache();
+      }
+    }
+    document.getElementById('rd-downloads-popup')?.remove();
+    const popup = document.createElement('div');
+    popup.id = 'rd-downloads-popup';
+    const items = [...rdTorrentCache.entries()]
+      .filter(([, v]) => v.status === 'downloaded')
+      .sort((a, b) => (a[1].filename || '').localeCompare(b[1].filename || ''));
+    const rows = items.map(([hash, v]) => `
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <span style="flex:1;font-size:0.75rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(v.filename||'').replace(/"/g,'')}">${v.filename || hash}</span>
+        <button class="settings-btn green" style="font-size:0.7rem;padding:0.15rem 0.5rem;white-space:nowrap;"
+          onclick="rdDownloadPlay('${v.id}','${(v.filename||'').replace(/'/g,"\'")}');document.getElementById('rd-downloads-popup').remove();">▶ Play</button>
+      </div>`).join('');
+    popup.innerHTML = `
+      <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
+      <div class="cache-popup-panel" style="max-width:380px;max-height:70vh;overflow-y:auto;">
+        <div class="cache-popup-title">📦 Downloads (${items.length})</div>
+        <div style="padding:0.25rem 0;">${rows || '<p style="color:rgba(255,255,255,0.4);font-size:0.8rem;">No downloaded files found</p>'}</div>
+        <button class="cache-popup-close" onclick="this.closest('#rd-downloads-popup').remove()">Close</button>
+      </div>`;
+    document.body.appendChild(popup);
+  }
+
+  async function rdDownloadPlay(rdId, filename) {
+    showToast('⏳ Loading…', 'info');
+    try {
+      const info = await rdFetch(`/torrents/info/${rdId}`);
+      if (info?.links?.length) {
+        const links = await unrestrictVideoLinks(info.links);
+        if (links.length) { showRDLibraryPlayPopup(links, filename); return; }
+      }
+      showToast('Could not get stream', 'error');
+    } catch(e) { showToast('RD Error: ' + e.message, 'error'); }
+  }
+
   async function catalogPlay(item) {
     const { imdbId, metaId, name, catType, addonUrl, addonName } = item;
+
+    // Downloads folder → show popup of all RD downloads
+    const isDownloads = name === 'Downloads' || metaId === 'downloads' || imdbId === 'downloads';
+    if (isDownloads) {
+      closeSettingsModal();
+      await showDownloadsPopup();
+      return;
+    }
+
     closeSettingsModal();
     showToast('⏳ Fetching streams…', 'info');
 
@@ -6242,24 +6294,34 @@
     const rawHash = id.replace(/^(rd|tb|kitsu|tmdb|mal):/i, '').toLowerCase();
     const isHash  = /^[a-f0-9]{32,40}$/i.test(rawHash);
 
-    // Path A: Hash-based ID → check RD library directly
-    if (isHash && rdTorrentCache?.has(rawHash) && getRDToken()) {
+    // Ensure rdTorrentCache is available
+    if (!rdTorrentCache || rdTorrentCache.size === 0) loadRDCacheFromStorage();
+
+    // Path A: Hash → RD library direct unrestrict
+    if (isHash && getRDToken()) {
       try {
-        const rdEntry = rdTorrentCache.get(rawHash);
-        const info = await rdFetch(`/torrents/info/${rdEntry.id}`);
-        if (info?.links?.length) {
-          const links = await unrestrictVideoLinks(info.links);
-          links.forEach(l => allLinks.push(l));
+        // Try cache first
+        let rdEntry = rdTorrentCache?.get(rawHash);
+        // If not in cache, search by fetching torrents
+        if (!rdEntry) {
+          await refreshRDCache();
+          rdEntry = rdTorrentCache?.get(rawHash);
+        }
+        if (rdEntry) {
+          const info = await rdFetch(`/torrents/info/${rdEntry.id}`);
+          if (info?.links?.length) {
+            const links = await unrestrictVideoLinks(info.links);
+            links.forEach(l => allLinks.push(l));
+          }
         }
       } catch(e) { console.warn('[catalog] RD direct:', e.message); }
     }
 
-    // Path B: Hash-based ID → check TB library directly
+    // Path B: Hash → TB library direct
     if (isHash && getTBToken() && allLinks.length === 0) {
       try {
-        const info = await tbFetch(`/torrents/mylist?bypass_cache=true`);
-        const torrents = info?.data || [];
-        const match = torrents.find(t => (t.hash || '').toLowerCase() === rawHash);
+        const info = await tbFetch('/torrents/mylist?bypass_cache=true');
+        const match = (info?.data || []).find(t => (t.hash || '').toLowerCase() === rawHash);
         if (match) {
           let files = match.files || [];
           if (!files.length) {
@@ -6267,45 +6329,42 @@
             const t = Array.isArray(detail?.data) ? detail.data.find(x => x.id === match.id) : detail?.data;
             files = t?.files || [];
           }
-          const videoFiles = files.filter(f => VIDEO_EXTS.has((f.name || '').split('.').pop().toLowerCase()));
+          const videoFiles = files.filter(f => VIDEO_EXTS.has((f.name||'').split('.').pop().toLowerCase()));
           const filesToPlay = videoFiles.length ? videoFiles : files;
           const tok = getTBToken();
-          filesToPlay.slice(0, 5).forEach(file => {
-            allLinks.push({
-              url: `https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${match.id}&file_id=${file.id}&redirect=true`,
-              filename: file.name || name,
-              filesize: file.size || 0,
-              quality: guessQuality(file.name || name),
-              mimeType: 'video/mp4',
-              isVideo: true,
-            });
-          });
+          filesToPlay.slice(0, 5).forEach(file => allLinks.push({
+            url: `https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${match.id}&file_id=${file.id}&redirect=true`,
+            filename: file.name || name, filesize: file.size || 0,
+            quality: guessQuality(file.name || name), mimeType: 'video/mp4', isVideo: true,
+          }));
         }
       } catch(e) { console.warn('[catalog] TB direct:', e.message); }
     }
 
-    // Path C: query addons with both IMDB ID and meta ID
+    // Path C: Addon stream endpoint — use 'other' type with exact metaId (RD catalog format)
     if (allLinks.length === 0) {
       const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-      // Also include the specific addon that served this catalog item
-      if (addonUrl && !addons.find(a => a.url === addonUrl)) {
-        addons.unshift({ url: addonUrl, name: addonName || 'Catalog Addon', enabled: true });
-      }
-      const type    = catType === 'series' ? 'series' : 'movie';
-      const tryIds  = [...new Set([imdbId, metaId, rawHash].filter(Boolean))];
+      if (addonUrl && !addons.find(a => a.url === addonUrl))
+        addons.unshift({ url: addonUrl, name: addonName || 'Addon', enabled: true });
+
+      // Try 'other' type with metaId first (correct for RD catalog), then movie/series with imdbId
+      const streamType = catType === 'series' ? 'series' : catType === 'other' ? 'other' : 'movie';
+      const tryPairs = [
+        { type: 'other', id: id },
+        { type: streamType, id: imdbId || id },
+      ].filter(p => p.id);
+
       await Promise.allSettled(addons.flatMap(addon =>
-        tryIds.map(async tryId => {
+        tryPairs.map(async ({ type, id: tryId }) => {
           try {
             const streams = await fetchAddonStreams(addon, type, tryId, null, null);
             for (const s of streams) {
-              if (s._isDirect && s._directUrl) {
-                allLinks.push({
-                  url: s._directUrl, filename: s.title || name,
-                  filesize: s.filesize || 0,
-                  quality: s._quality || guessQuality(s.title || ''),
-                  mimeType: 'video/mp4', isVideo: true,
-                });
-              }
+              if (s._isDirect && s._directUrl) allLinks.push({
+                url: s._directUrl, filename: s.title || name,
+                filesize: s.filesize || 0,
+                quality: s._quality || guessQuality(s.title || ''),
+                mimeType: 'video/mp4', isVideo: true,
+              });
             }
           } catch {}
         })
@@ -6317,7 +6376,7 @@
       const unique = allLinks.filter(l => { if (seen.has(l.url)) return false; seen.add(l.url); return true; });
       showRDLibraryPlayPopup(unique, name);
     } else {
-      showToast('No playable streams found', 'error');
+      showToast('No playable streams found — try from the RD Library in Settings', 'error');
     }
   }
   function exportSettings() {
