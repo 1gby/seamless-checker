@@ -3264,36 +3264,21 @@
       throw new Error(msg);
     }
 
-    // RD has NO CORS headers — go straight to proxies (no direct attempt)
-    // POST requests: corsproxy.io and corsfix forward POST bodies
-    // GET requests: all proxies work
-    const postCapableProxies = [
-      url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
-    ];
-    const getProxies = [
-      url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      url => `https://proxy.corsfix.com/?${encodeURIComponent(url)}`,
-      url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    ];
-    const proxiesToTry = method === 'GET' ? getProxies : postCapableProxies;
-
-    let lastErr;
-    for (const makeProxy of proxiesToTry) {
-      const proxyUrl = makeProxy(fullUrl);
-      try {
-        // Short timeout per proxy so we fail fast and try the next
-        const proxyOpts = { ...fetchOpts, signal: safeFetchSignal(12000) };
-        const res = await fetch(proxyUrl, proxyOpts);
-        return await parseResponse(res);
-      } catch (e) {
-        lastErr = e;
-        if (e.message.includes('token invalid') || e.message.includes('RD API error') || e.message.includes('RD token')) throw e;
-        console.warn('[rdFetch proxy]', proxyUrl.slice(0, 80), e.message);
-      }
+    // Route ALL RD calls through our Vercel /api/rd proxy — same-origin, no CORS issues on iOS
+    try {
+      const body = { path, method, token };
+      if (options.body) body.postBody = options.body;
+      const res = await fetch('/api/rd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: safeFetchSignal(20000),
+      });
+      return await parseResponse(res);
+    } catch(e) {
+      if (e.message.includes('token') || e.message.includes('RD')) throw e;
+      throw new Error('Could not reach Real-Debrid via proxy. Check your connection.');
     }
-    throw lastErr || new Error('Could not reach Real-Debrid. Check your internet connection and try again.');
   }
   // Magnet helpers
   function extractHashFromMagnet(magnet) {
