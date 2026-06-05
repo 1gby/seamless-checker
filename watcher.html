@@ -2894,6 +2894,9 @@
     }
   }
 
+  // Catalog item registry — stores full meta objects to avoid onclick escaping issues
+  const _catalogRegistry = new Map();
+
   async function loadAddonCatalog(entry, tabIdx) {
     const resultsEl = document.getElementById('addon-catalog-results');
     const statusEl  = document.getElementById('addon-catalog-status');
@@ -2927,41 +2930,41 @@
       }
       if (statusEl) statusEl.textContent = `📦 ${metas.length} items in ${entry.catalog.name || entry.catalog.id}`;
 
-      metas.forEach(meta => {
-        const card = document.createElement('div');
-        card.style.cssText = 'cursor:pointer; border-radius:8px; overflow:hidden; background:rgba(255,255,255,0.03); border:1px solid rgba(118,75,162,0.15); transition:all 0.2s; position:relative;';
-        const poster = meta.poster || '';
-        const name   = meta.name || meta.title || 'Unknown';
-        const imdbId = meta.imdb_id || meta.id || '';
+      metas.forEach((meta, idx) => {
+        const card    = document.createElement('div');
+        card.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(118,75,162,0.15);transition:all 0.2s;position:relative;';
+        const name    = meta.name || meta.title || 'Unknown';
+        const imdbId  = meta.imdb_id || '';
+        const metaId  = meta.id || '';
         const catType = entry.catalog.type;
-        const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const regKey  = `cat_${Date.now()}_${idx}`;
+        _catalogRegistry.set(regKey, { meta, name, imdbId, metaId, catType, addonUrl: entry.addon.url, addonName: entry.addon.name });
 
-        // Poster with TMDB fallback
-        const imgEl = poster
-          ? `<img src="${poster}" alt="" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy"
-               onerror="this.onerror=null;tmdbPosterFallback(this,'${imdbId.replace(/'/g, '')}','${catType}')">`
-          : `<div class="catalog-poster-placeholder" data-imdb="${imdbId}" data-type="${catType}"
-               style="width:100%;aspect-ratio:2/3;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`;
+        const poster = meta.poster || '';
+        const imgEl  = poster
+          ? `<img src="${poster}" alt="" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy">`
+          : `<div style="width:100%;aspect-ratio:2/3;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`;
 
         card.innerHTML = `
           ${imgEl}
           <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>
-          <div style="display:flex;gap:0.2rem;padding:0.2rem 0.3rem 0.35rem;flex-wrap:wrap;">
-            <button class="cat-play-btn" onclick="event.stopPropagation();playCatalogFromCache('${safe(imdbId)}','${safe(name)}','${catType}')">▶ Play</button>
-            <button class="cat-play-btn cat-info" onclick="event.stopPropagation();catalogInfo('${safe(imdbId)}','${catType}','${safe(name)}')" title="Open detail page">📖</button>
+          <div style="display:flex;gap:0.2rem;padding:0.2rem 0.3rem 0.35rem;">
+            <button class="cat-play-btn" data-key="${regKey}" data-action="play">▶ Play</button>
+            <button class="cat-play-btn cat-info" data-key="${regKey}" data-action="info" title="Open on TMDB">📖</button>
           </div>`;
+
+        card.querySelectorAll('[data-key]').forEach(btn => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            const item = _catalogRegistry.get(btn.dataset.key);
+            if (!item) return;
+            if (btn.dataset.action === 'play') catalogPlay(item);
+            else catalogDetailOpen(item);
+          };
+        });
+        card.onclick = () => { const item = _catalogRegistry.get(regKey); if (item) catalogPlay(item); };
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
         card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
-        card.onclick = () => {
-          if (name === 'Downloads' || imdbId === 'downloads') {
-            // Downloads folder = open RD library
-            openSettingsSubmenu('submenu-debrid');
-            setTimeout(() => openRDLibrary(), 200);
-          } else {
-            closeSettingsModal();
-            playCatalogFromCache(imdbId, name, catType);
-          }
-        };
         resultsEl.appendChild(card);
       });
 
@@ -3019,26 +3022,29 @@
     } catch {}
   }
 
-  // Open TMDB detail for catalog item
-  async function catalogInfo(imdbId, catType, name) {
+  // Open TMDB detail page for a catalog item
+  async function catalogDetailOpen(item) {
+    const { imdbId, metaId, name, catType } = item;
     closeSettingsModal();
+    // Try IMDB ID first
     if (imdbId && imdbId.startsWith('tt')) {
       searchAndOpenByImdb(imdbId, catType);
-    } else if (name && name.trim() && name.toLowerCase() !== 'downloads') {
-      // Search TMDB by title
-      try {
-        const searchType = catType === 'series' ? 'tv' : 'movie';
-        const endpoint = searchType === 'tv' ? '/search/tv' : '/search/movie';
-        const data = await tmdb(endpoint, { query: name });
-        const results = data?.results || [];
-        if (results.length > 0) {
-          if (searchType === 'tv') openTVDetail(results[0].id);
-          else openMovieDetail(results[0].id);
-        } else {
-          showToast('Could not find on TMDB', 'error');
-        }
-      } catch(e) { showToast('TMDB search failed', 'error'); }
+      return;
     }
+    // Fallback: search by name (clean up torrent filename first)
+    const cleanName = name.replace(/\.\d{4}\..*$/,'').replace(/\./g,' ').replace(/\s+(1080p|4k|720p|bluray|webrip|hevc|x265|x264|hdr|remux).*/i,'').trim();
+    if (!cleanName || cleanName.toLowerCase() === 'downloads') { showToast('No TMDB page available', 'error'); return; }
+    try {
+      const searchType = catType === 'series' ? 'tv' : 'movie';
+      const data = await tmdb(`/search/${searchType}`, { query: cleanName });
+      const results = data?.results || [];
+      if (results.length > 0) {
+        if (searchType === 'tv') openTVDetail(results[0].id);
+        else openMovieDetail(results[0].id);
+      } else {
+        showToast('Could not find on TMDB', 'error');
+      }
+    } catch(e) { showToast('TMDB search failed', 'error'); }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -6221,15 +6227,19 @@
   }
 
   // ── Catalog play from cache (for addon catalog items) ──
-  // Play from catalog: handle RD/TB hash IDs directly, fallback to addon streams
+  // Legacy wrapper
   async function playCatalogFromCache(imdbId, name, catType) {
+    catalogPlay({ imdbId, metaId: imdbId, name, catType, addonUrl: null, addonName: null });
+  }
+
+  async function catalogPlay(item) {
+    const { imdbId, metaId, name, catType, addonUrl, addonName } = item;
     closeSettingsModal();
     showToast('⏳ Fetching streams…', 'info');
 
     const allLinks = [];
-
-    // Extract hash from id formats: "rd:HASH", "tb:HASH", or raw hash
-    const rawHash = imdbId.replace(/^(rd|tb|kitsu|tmdb|mal):/i, '').toLowerCase();
+    const id      = metaId || imdbId || '';
+    const rawHash = id.replace(/^(rd|tb|kitsu|tmdb|mal):/i, '').toLowerCase();
     const isHash  = /^[a-f0-9]{32,40}$/i.test(rawHash);
 
     // Path A: Hash-based ID → check RD library directly
@@ -6274,25 +6284,32 @@
       } catch(e) { console.warn('[catalog] TB direct:', e.message); }
     }
 
-    // Path C: IMDB ID → query addons via our CORS proxy approach
+    // Path C: query addons with both IMDB ID and meta ID
     if (allLinks.length === 0) {
       const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
-      const type   = catType === 'series' ? 'series' : 'movie';
-      await Promise.allSettled(addons.map(async addon => {
-        try {
-          const streams = await fetchAddonStreams(addon, type, imdbId, null, null);
-          for (const s of streams) {
-            if (s._isDirect && s._directUrl) {
-              allLinks.push({
-                url: s._directUrl, filename: s.title || name,
-                filesize: s.filesize || 0,
-                quality: s._quality || guessQuality(s.title || ''),
-                mimeType: 'video/mp4', isVideo: true,
-              });
+      // Also include the specific addon that served this catalog item
+      if (addonUrl && !addons.find(a => a.url === addonUrl)) {
+        addons.unshift({ url: addonUrl, name: addonName || 'Catalog Addon', enabled: true });
+      }
+      const type    = catType === 'series' ? 'series' : 'movie';
+      const tryIds  = [...new Set([imdbId, metaId, rawHash].filter(Boolean))];
+      await Promise.allSettled(addons.flatMap(addon =>
+        tryIds.map(async tryId => {
+          try {
+            const streams = await fetchAddonStreams(addon, type, tryId, null, null);
+            for (const s of streams) {
+              if (s._isDirect && s._directUrl) {
+                allLinks.push({
+                  url: s._directUrl, filename: s.title || name,
+                  filesize: s.filesize || 0,
+                  quality: s._quality || guessQuality(s.title || ''),
+                  mimeType: 'video/mp4', isVideo: true,
+                });
+              }
             }
-          }
-        } catch {}
-      }));
+          } catch {}
+        })
+      ));
     }
 
     if (allLinks.length > 0) {
