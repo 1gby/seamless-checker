@@ -6230,6 +6230,31 @@
     catalogPlay({ imdbId, metaId: imdbId, name, catType, addonUrl: null, addonName: null });
   }
 
+  // Show a file-picker popup for TB torrent files
+  function showTBFilePicker(torrentId, files, title) {
+    document.getElementById('tb-file-picker-popup')?.remove();
+    const tok = getTBToken();
+    const popup = document.createElement('div');
+    popup.id = 'tb-file-picker-popup';
+    const rows = files.map(file => `
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <span style="flex:1;font-size:0.75rem;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(file.name||'').replace(/"/g,'&quot;')}">${file.name || 'file'}</span>
+        <button class="settings-btn green" style="font-size:0.7rem;padding:0.15rem 0.5rem;white-space:nowrap;"
+          onclick="showRDLibraryPlayPopup([{url:'https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${torrentId}&file_id=${file.id}&redirect=true',filename:'${(file.name||'').replace(/'/g,"\'")}',filesize:${file.size||0},quality:'${guessQuality(file.name||'')}',mimeType:'video/mp4',isVideo:true}],'${(file.name||title).replace(/'/g,"\'")}');document.getElementById('tb-file-picker-popup').remove();">▶ Play</button>
+      </div>`).join('');
+    popup.innerHTML = `
+      <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
+      <div class="cache-popup-panel" style="max-width:380px;max-height:75vh;display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+          <div class="cache-popup-title" style="margin:0;">📦 ${title.length > 40 ? title.slice(0,40)+'…' : title}</div>
+          <button onclick="document.getElementById('tb-file-picker-popup').remove()"
+            style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.4rem;cursor:pointer;line-height:1;padding:0.2rem;">✕</button>
+        </div>
+        <div style="overflow-y:auto;flex:1;">${rows}</div>
+      </div>`;
+    document.body.appendChild(popup);
+  }
+
   // Show a file-picker popup for a specific RD torrent
   async function showRDFilePicker(rdId, title, popupId) {
     const btn = document.querySelector(`[data-rdid="${rdId}"]`);
@@ -6331,12 +6356,24 @@
       } catch(e) { console.warn('[catalog] RD:', e.message); }
     }
 
-    // Path B: Hash → TB library direct
-    if (isHash && getTBToken() && allLinks.length === 0) {
+    // Path B: TB library → show file picker popup
+    if (getTBToken()) {
       try {
         const info = await tbFetch('/torrents/mylist?bypass_cache=true');
-        const match = (info?.data || []).find(t => (t.hash || '').toLowerCase() === rawHash);
+        const torrents = info?.data || [];
+        // Match by hash first, then by name
+        const nameLow = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        let match = isHash
+          ? torrents.find(t => (t.hash || '').toLowerCase() === rawHash)
+          : null;
+        if (!match && nameLow) {
+          match = torrents.find(t => {
+            const tLow = (t.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return tLow && nameLow && (tLow.startsWith(nameLow.slice(0,20)) || nameLow.startsWith(tLow.slice(0,20)));
+          });
+        }
         if (match) {
+          // Fetch files if not included
           let files = match.files || [];
           if (!files.length) {
             const detail = await tbFetch(`/torrents/mylist?id=${match.id}&bypass_cache=true`);
@@ -6345,14 +6382,12 @@
           }
           const videoFiles = files.filter(f => VIDEO_EXTS.has((f.name||'').split('.').pop().toLowerCase()));
           const filesToPlay = videoFiles.length ? videoFiles : files;
-          const tok = getTBToken();
-          filesToPlay.slice(0, 5).forEach(file => allLinks.push({
-            url: `https://api.torbox.app/v1/api/torrents/requestdl?token=${encodeURIComponent(tok)}&torrent_id=${match.id}&file_id=${file.id}&redirect=true`,
-            filename: file.name || name, filesize: file.size || 0,
-            quality: guessQuality(file.name || name), mimeType: 'video/mp4', isVideo: true,
-          }));
+          if (filesToPlay.length) {
+            showTBFilePicker(match.id, filesToPlay, name);
+            return;
+          }
         }
-      } catch(e) { console.warn('[catalog] TB direct:', e.message); }
+      } catch(e) { console.warn('[catalog] TB:', e.message); }
     }
 
     // Path C: Addon stream endpoint — use 'other' type with exact metaId (RD catalog format)
