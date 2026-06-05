@@ -2950,7 +2950,6 @@
           <div style="padding:0.3rem 0.4rem;font-size:0.65rem;color:rgba(255,255,255,0.7);line-height:1.2;overflow:hidden;max-height:2.4em;">${name}</div>
           <div style="display:flex;gap:0.2rem;padding:0.2rem 0.3rem 0.35rem;">
             <button class="cat-play-btn" data-key="${regKey}" data-action="play">▶ Play</button>
-            <button class="cat-play-btn cat-info" data-key="${regKey}" data-action="info" title="Open on TMDB">📖</button>
           </div>`;
 
         card.querySelectorAll('[data-key]').forEach(btn => {
@@ -2959,7 +2958,6 @@
             const item = _catalogRegistry.get(btn.dataset.key);
             if (!item) return;
             if (btn.dataset.action === 'play') catalogPlay(item);
-            else catalogDetailOpen(item);
           };
         });
         card.onclick = () => { const item = _catalogRegistry.get(regKey); if (item) catalogPlay(item); };
@@ -6311,16 +6309,26 @@
     // Ensure rdTorrentCache is available
     if (!rdTorrentCache || rdTorrentCache.size === 0) loadRDCacheFromStorage();
 
-    // Path A: Hash → RD library → show file picker popup
-    if (isHash && getRDToken()) {
+    // Path A: RD library lookup — try hash first, then name match
+    if (getRDToken()) {
       try {
-        let rdEntry = rdTorrentCache?.get(rawHash);
-        if (!rdEntry) { await refreshRDCache(); rdEntry = rdTorrentCache?.get(rawHash); }
+        if (!rdTorrentCache || rdTorrentCache.size === 0) await refreshRDCache();
+        let rdEntry = isHash ? rdTorrentCache?.get(rawHash) : null;
+        // Fallback: match by filename if hash didn't work
+        if (!rdEntry && name) {
+          const nameLow = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+          for (const [, v] of rdTorrentCache || []) {
+            const fLow = (v.filename || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (fLow && nameLow && (fLow.startsWith(nameLow.slice(0,20)) || nameLow.startsWith(fLow.slice(0,20)))) {
+              rdEntry = v; break;
+            }
+          }
+        }
         if (rdEntry) {
           showRDFilePicker(rdEntry.id, name, null);
-          return; // file picker handles the rest
+          return;
         }
-      } catch(e) { console.warn('[catalog] RD direct:', e.message); }
+      } catch(e) { console.warn('[catalog] RD:', e.message); }
     }
 
     // Path B: Hash → TB library direct
