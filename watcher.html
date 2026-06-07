@@ -4691,28 +4691,18 @@
       if (isDirect) badges += `<span class="tor-badge tor-badge-direct">⚡ Direct</span>`;
       else if (inRD)  badges += `<span class="tor-badge tor-badge-direct">📦 In RD</span>`;
       else if (isCached) badges += `<span class="tor-badge tor-badge-cached">⚡ Cached</span>`;
-      const srcLow  = (sourceLabel || '').toLowerCase();
-      const urlLow  = (torrent._directUrl || '').toLowerCase();
-
-      // Detect debrid from the ACTUAL URL domain first (most accurate)
-      // then fall back to addon name
-      const isRDUrl = urlLow.includes('real-debrid.com') || urlLow.includes('rdrive.');
-      const isTBUrl = urlLow.includes('torbox.app') || urlLow.includes('cdn.torbox');
+      const srcLow = (sourceLabel || '').toLowerCase();
       const debridMatch = (sourceLabel || '').match(/\(([^)]+)\)\s*$/);
-      const debridPart  = debridMatch ? debridMatch[1] : null;
-      const debridLow   = (debridPart || '').toLowerCase();
-      const isTBDebrid  = isTBUrl || debridLow === 'tb' || debridLow.includes('torbox');
-      const isRDDebrid  = isRDUrl || debridLow === 'rd' || debridLow.includes('real-debrid') || debridLow.includes('realdebrid');
-
-      // If URL says RD but addon says TB — show correct debrid from URL
-      const displayDebrid = isRDUrl ? 'RD' : isTBUrl ? 'TB' : debridPart;
-
-      const baseName    = debridPart ? (sourceLabel || '').slice(0, -(debridPart.length + 2)).trim() : (sourceLabel || '');
+      const debridPart = debridMatch ? debridMatch[1] : null;
+      const baseName = debridPart ? (sourceLabel || '').slice(0, -(debridPart.length + 2)).trim() : (sourceLabel || '');
+      const debridLow = (debridPart || '').toLowerCase();
+      const isTBDebrid = debridLow === 'tb' || debridLow.includes('torbox');
+      const isRDDebrid = debridLow === 'rd' || debridLow.includes('real-debrid') || debridLow.includes('realdebrid');
       const debridColor = isTBDebrid ? '#10b981' : isRDDebrid ? '#c084fc' : 'rgba(255,255,255,0.6)';
-      const debridBg    = isTBDebrid ? 'rgba(16,185,129,0.12)' : isRDDebrid ? 'rgba(118,75,162,0.12)' : '';
+      const debridBg = isTBDebrid ? 'rgba(16,185,129,0.12)' : isRDDebrid ? 'rgba(118,75,162,0.12)' : '';
       const debridBorder = isTBDebrid ? 'rgba(16,185,129,0.4)' : isRDDebrid ? 'rgba(118,75,162,0.4)' : 'rgba(255,255,255,0.2)';
-      const badgeHtml   = displayDebrid
-        ? `<span style="color:#fff;">${baseName}</span> <span style="color:${debridColor};font-weight:800;">(${displayDebrid})</span>`
+      const badgeHtml = debridPart
+        ? `<span style="color:#fff;">${baseName}</span> <span style="color:${debridColor};font-weight:800;">(${debridPart})</span>`
         : sourceLabel;
       badges += `<span class="tor-badge ${isAddon ? 'tor-badge-addon' : 'tor-badge-source'}" style="border-color:${debridBorder};background:${debridBg};">${badgeHtml}</span>`;
 
