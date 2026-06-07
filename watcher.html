@@ -4094,9 +4094,15 @@
       const enc = encodeURIComponent(link.url);
       const infuseUrl = buildInfuseUrl(link.url);
       const vlcUrl = `vlc-x-callback://x-callback-url/stream?url=${enc}`;
+      // Detect actual debrid service from URL domain
+      const urlLow = (link.url || '').toLowerCase();
+      const isRDLink = urlLow.includes('real-debrid.com') || urlLow.includes('rdrive.');
+      const isTBLink = urlLow.includes('torbox.app') || urlLow.includes('cdn.torbox');
+      const serviceTag = isRDLink ? '<span style="font-size:0.6rem;color:#c084fc;font-weight:700;">RD</span>'
+                       : isTBLink ? '<span style="font-size:0.6rem;color:#10b981;font-weight:700;">TB</span>' : '';
       qualityRows += `
         <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);min-width:52px;">${label}</span>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);min-width:52px;display:flex;align-items:center;gap:0.2rem;">${label} ${serviceTag}</span>
           <a href="${infuseUrl}" class="cache-popup-btn infuse" style="flex:1;text-align:center;text-decoration:none;"
             onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('rd-lib-play-popup')?.remove(),300)">
             📺 Infuse
