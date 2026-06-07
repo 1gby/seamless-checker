@@ -4078,6 +4078,38 @@
     }
   }
 
+  function confirmSaveStream(url, filename) {
+    if (!url) { showToast('No download URL', 'error'); return; }
+    const urlLow = url.toLowerCase();
+    const isRD = urlLow.includes('real-debrid.com') || urlLow.includes('rdrive.');
+    const isTB = urlLow.includes('torbox.app') || urlLow.includes('cdn.torbox');
+    const service = isRD ? '🟣 Real-Debrid' : isTB ? '🟢 Torbox' : '🌐 Direct';
+    const serviceColor = isRD ? '#c084fc' : isTB ? '#10b981' : '#60a5fa';
+    const name = (filename || url.split('/').pop() || 'file').slice(0, 60);
+    document.getElementById('save-confirm-popup')?.remove();
+    const popup = document.createElement('div');
+    popup.id = 'save-confirm-popup';
+    popup.innerHTML = `
+      <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
+      <div class="cache-popup-panel" style="max-width:340px;">
+        <div class="cache-popup-title">⬇ Save File</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin:0.5rem 0 0.25rem;">
+          <span style="color:${serviceColor};font-weight:700;">${service}</span>
+        </div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);word-break:break-all;margin-bottom:0.75rem;">${name}</div>
+        <div style="display:flex;gap:0.5rem;">
+          <a href="${url}" download target="_blank" rel="noopener"
+            class="cache-popup-btn infuse" style="flex:1;text-align:center;text-decoration:none;"
+            onclick="setTimeout(()=>document.getElementById('save-confirm-popup')?.remove(),300)">
+            ✅ Confirm Save
+          </a>
+          <button class="cache-popup-btn" onclick="this.closest('#save-confirm-popup').remove()"
+            style="flex:1;">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(popup);
+  }
+
   function showRDLibraryPlayPopup(links, title) {
     document.getElementById('rd-lib-play-popup')?.remove();
 
@@ -4094,15 +4126,9 @@
       const enc = encodeURIComponent(link.url);
       const infuseUrl = buildInfuseUrl(link.url);
       const vlcUrl = `vlc-x-callback://x-callback-url/stream?url=${enc}`;
-      // Detect actual debrid service from URL domain
-      const urlLow = (link.url || '').toLowerCase();
-      const isRDLink = urlLow.includes('real-debrid.com') || urlLow.includes('rdrive.');
-      const isTBLink = urlLow.includes('torbox.app') || urlLow.includes('cdn.torbox');
-      const serviceTag = isRDLink ? '<span style="font-size:0.6rem;color:#c084fc;font-weight:700;">RD</span>'
-                       : isTBLink ? '<span style="font-size:0.6rem;color:#10b981;font-weight:700;">TB</span>' : '';
       qualityRows += `
         <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);min-width:52px;display:flex;align-items:center;gap:0.2rem;">${label} ${serviceTag}</span>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5);min-width:52px;">${label}</span>
           <a href="${infuseUrl}" class="cache-popup-btn infuse" style="flex:1;text-align:center;text-decoration:none;"
             onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('rd-lib-play-popup')?.remove(),300)">
             📺 Infuse
@@ -4721,7 +4747,7 @@
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
-        actions += `<a class="tor-action-btn ext" href="${torrent._directUrl}" download target="_blank" rel="noopener" style="border-color:rgba(59,130,246,0.5);color:#60a5fa;text-decoration:none;">⬇ Save</a>`;
+        actions += `<button class="tor-action-btn ext" onclick="confirmSaveStream(${JSON.stringify(torrent._directUrl).replace(/"/g,'&quot;')},${JSON.stringify(torrent.title||'').replace(/"/g,'&quot;')})" style="border-color:rgba(59,130,246,0.5);color:#60a5fa;">⬇ Save</button>`;
       } else {
         // Raw torrent / addon hash — open in DMM to handle RD
         actions += `<button class="tor-action-btn play" data-action="open-dmm" style="border-color:#00a0b0;color:#00a0b0;">🔗 Open in DMM</button>`;
