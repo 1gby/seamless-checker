@@ -4078,8 +4078,12 @@
     }
   }
 
-  function confirmSaveStream(url, filename, sourceLabel) {
-    if (!url) { showToast('No download URL', 'error'); return; }
+  function confirmSaveStream(idx) {
+    const data = (window._saveStore || [])[idx];
+    if (!data?.url) { showToast('No download URL', 'error'); return; }
+    const url         = data.url;
+    const filename    = data.filename;
+    const sourceLabel = data.sourceLabel;
 
     // Detect debrid from source label (most accurate)
     const srcLow  = (sourceLabel || '').toLowerCase();
@@ -4096,16 +4100,20 @@
 
     const addonBase  = debridPart ? sourceLabel.slice(0, -(debridPart.length + 2)).trim() : (sourceLabel || '');
     const serviceStr = sourceLabel || 'Direct';
-    const name = (filename || url.split('/').pop() || 'file').slice(0, 65);
+    const name = (filename || url.split('/').pop() || 'file').slice(0, 65).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const safeUrl = url.replace(/"/g, '%22').replace(/'/g, '%27');
 
-    const badgeHtml = badgeText ? `
+    const badgeLabel = badgeText || (addonBase || serviceStr).slice(0, 12);
+    const badgeHtml = `
       <span style="
         position:absolute;top:0.75rem;right:0.75rem;
-        background:${badgeBg};border:1px solid ${badgeBorder};
-        color:${badgeColor};font-size:0.7rem;font-weight:800;
-        padding:0.2rem 0.55rem;border-radius:999px;letter-spacing:0.05em;">
-        ${badgeText}
-      </span>` : '';
+        background:${badgeBg || 'rgba(255,255,255,0.06)'};
+        border:1px solid ${badgeBorder || 'rgba(255,255,255,0.15)'};
+        color:${badgeColor || 'rgba(255,255,255,0.5)'};
+        font-size:0.7rem;font-weight:700;
+        padding:0.2rem 0.55rem;border-radius:999px;letter-spacing:0.04em;white-space:nowrap;">
+        ${badgeLabel}
+      </span>`;
 
     document.getElementById('save-confirm-popup')?.remove();
     const popup = document.createElement('div');
@@ -4118,7 +4126,7 @@
         <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin:0.25rem 0 0.5rem;">${serviceStr}</div>
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);word-break:break-all;margin-bottom:0.75rem;">${name}</div>
         <div style="display:flex;gap:0.5rem;">
-          <a href="${url}" download target="_blank" rel="noopener"
+          <a href="${safeUrl}" download target="_blank" rel="noopener"
             class="cache-popup-btn infuse" style="flex:1;text-align:center;text-decoration:none;"
             onclick="setTimeout(()=>document.getElementById('save-confirm-popup')?.remove(),300)">
             ✅ Confirm Save
@@ -4767,7 +4775,8 @@
         actions += `<button class="tor-action-btn play" data-action="play">▶ Play</button>`;
         actions += `<button class="tor-action-btn infuse" data-action="infuse">📺 Infuse</button>`;
         actions += `<button class="tor-action-btn ext" data-action="vlc" style="border-color:#ff8800;color:#ff8800;">🎬 VLC</button>`;
-        actions += `<button class="tor-action-btn ext" onclick="confirmSaveStream(${JSON.stringify(torrent._directUrl).replace(/"/g,'&quot;')},${JSON.stringify(torrent.title||'').replace(/"/g,'&quot;')},${JSON.stringify(torrent.sourceLabel||'').replace(/"/g,'&quot;')})" style="border-color:rgba(59,130,246,0.5);color:#60a5fa;">⬇ Save</button>`;
+        const _saveIdx = (window._saveStore = window._saveStore || []).push({ url: torrent._directUrl, filename: torrent.title || '', sourceLabel: torrent.sourceLabel || '' }) - 1;
+        actions += `<button class="tor-action-btn ext" onclick="confirmSaveStream(${_saveIdx})" style="border-color:rgba(59,130,246,0.5);color:#60a5fa;">⬇ Save</button>`;
       } else {
         // Raw torrent / addon hash — open in DMM to handle RD
         actions += `<button class="tor-action-btn play" data-action="open-dmm" style="border-color:#00a0b0;color:#00a0b0;">🔗 Open in DMM</button>`;
