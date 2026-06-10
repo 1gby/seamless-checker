@@ -213,21 +213,24 @@
     }
 
     /* Search history chips */
-    #search-history {      display: none; flex-wrap: wrap; gap: 0.4rem;
-      padding: 0.5rem 0 0;
+    #search-history {      display: none; flex-wrap: wrap; gap: 0.5rem;
+      padding: 0.65rem 0 0.25rem;
     }
     #search-history.visible { display: flex; }
     .search-hist-chip {
-      padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-      background: rgba(118,75,162,0.15); border: 1px solid rgba(118,75,162,0.35);
-      color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s;
-      display: flex; align-items: center; gap: 0.3rem;
+      padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+      background: rgba(118,75,162,0.18); border: 1.5px solid rgba(118,75,162,0.4);
+      color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.45rem; min-height: 40px;
     }
-    .search-hist-chip:hover { background: rgba(118,75,162,0.3); border-color: var(--accent-purple); color: #fff; }
+    .search-hist-chip:hover { background: rgba(118,75,162,0.35); border-color: var(--accent-purple); color: #fff; }
     .search-hist-chip .hist-x {
-      font-size: 0.65rem; opacity: 0.5; margin-left: 0.15rem; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      font-size: 0.8rem; font-weight: 700; opacity: 0.7; flex-shrink: 0; line-height: 1;
     }
-    .search-hist-chip .hist-x:hover { opacity: 1; color: var(--accent-red); }
+    .search-hist-chip .hist-x:hover { opacity: 1; background: rgba(239,68,68,0.25); color: var(--accent-red); }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-05  SECTIONS & GRIDS
@@ -4906,12 +4909,15 @@
   function buildInfuseUrl(videoUrl, mediaId, mediaType, season, episode) {
     const base = `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
     if (!mediaId || !mediaType) return base;
-    // x-success fires when Infuse finishes — it opens this URL in Safari
+    // x-success fires when Infuse finishes — opens /infuse-return which
+    // auto-redirects back to the PWA with params intact
     const cbp = new URLSearchParams({ infuse_cb: '1', id: mediaId, type: mediaType });
     if (season  != null) cbp.set('season',  season);
     if (episode != null) cbp.set('episode', episode);
-    const successUrl = `${location.origin}${location.pathname}?${cbp}`;
-    return `${base}&x-success=${encodeURIComponent(successUrl)}&x-cancel=${encodeURIComponent(successUrl + '&cancelled=1')}`;
+    const returnBase = `${location.origin}/infuse-return`;
+    const successUrl  = `${returnBase}?${cbp}`;
+    const cancelUrl   = `${returnBase}?${cbp}&cancelled=1`;
+    return `${base}&x-success=${encodeURIComponent(successUrl)}&x-cancel=${encodeURIComponent(cancelUrl)}`;
   }
 
   // ── Open in Infuse (direct streams only) ──
@@ -7662,7 +7668,7 @@
     if (q === '143')   { toggleAdultMode(false); searchInput.value = ''; return; }
     if (!q) { renderSearchHistory(); } else { document.getElementById('search-history')?.classList.remove('visible'); }
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => performSearch(q), 500);
+    searchTimeout = setTimeout(() => performSearch(q), 900);
   });
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') { clearTimeout(searchTimeout); performSearch(searchInput.value.trim()); }
