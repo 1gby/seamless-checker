@@ -4397,7 +4397,10 @@
 
     // Track episode for completion prompt (TV episodes only)
     if (mediaType === 'tv' && season && episode) {
-      epCompletionData = { tvId: null, season, episode, title: displayTitle || searchQuery };
+      // Clean title — strip torrent filename junk if no proper title available
+      const rawTitle = displayTitle || searchQuery || '';
+      const epClean = rawTitle.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s*(S\d+E\d+).*$/i, '').replace(/\s+/g, ' ').trim();
+      epCompletionData = { tvId: null, season, episode, title: epClean };
       // Try to get tvId from currentDetailItem
       if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
         epCompletionData.tvId = currentDetailItem.id;
@@ -4993,16 +4996,75 @@
     banner.querySelector('#npb-dismiss-btn').onclick = () => banner.remove();
   }
 
-  // ── Infuse x-callback-url return handler ──────────────────────────────
+  // ── Shared Cache Storage message bus ─────────────────────────────────
+  // iOS keeps localStorage separate between Safari and the installed PWA,
+  // but Cache Storage IS shared across both contexts on the same origin.
+  // We use it as a one-shot message bus: Safari writes a pending action,
+  // the PWA reads + applies + deletes it on next load/focus.
+  const SHARED_CACHE = 'watcher-shared-v1';
+  const SHARED_KEY   = 'https://rud3boy.vercel.app/_watcher_pending_action';
+
+  async function writeSharedAction(action) {
+    try {
+      const cache = await caches.open(SHARED_CACHE);
+      await cache.put(SHARED_KEY, new Response(JSON.stringify(action), { headers: { 'Content-Type': 'application/json' } }));
+    } catch (e) { console.warn('[SharedCache] write failed', e); }
+  }
+
+  async function readAndClearSharedAction() {
+    try {
+      const cache = await caches.open(SHARED_CACHE);
+      const res = await cache.match(SHARED_KEY);
+      if (!res) return null;
+      const action = await res.json();
+      await cache.delete(SHARED_KEY);
+      return action;
+    } catch { return null; }
+  }
+
+  // Apply a pending shared action (mark episode/movie watched)
+  async function applySharedAction(action) {
+    if (!action) return;
+    if (action.type === 'markEpisodeWatched' && action.tvId && action.season && action.episode) {
+      if (!isEpisodeWatched(action.tvId, action.season, action.episode)) {
+        toggleEpisodeWatched(action.tvId, action.season, action.episode);
+      }
+      refreshTVStreamButton();
+      loadContinueWatching();
+      const epCode = `S${String(action.season).padStart(2,'0')}E${String(action.episode).padStart(2,'0')}`;
+      showToast(`✅ ${action.title || ''} ${epCode} marked watched (from Infuse)`, 'success');
+      // Show the next-episode popup so user can continue
+      epCompletionData = { tvId: action.tvId, season: action.season, episode: action.episode, title: action.title || '' };
+      showEpisodeCompletePopup();
+    } else if (action.type === 'removeMovie' && action.movieId) {
+      removeCWMovie(action.movieId);
+      loadContinueWatching();
+      showToast('✅ Movie finished (from Infuse)', 'success');
+    }
+  }
+
+  // Check for pending shared action on focus (PWA returning from background)
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    // Check shared cache for actions written by Safari's infuse callback
+    const action = await readAndClearSharedAction();
+    if (action) { applySharedAction(action); return; }
+    // Fallback: visibilitychange for non-VLC external app returns
+    if (!_externalAppLaunch) return;
+    const elapsed = Date.now() - _externalAppLaunch.time;
+    if (elapsed < 10000) { _externalAppLaunch = null; return; }
+    const { torrent, app } = _externalAppLaunch;
+    _externalAppLaunch = null;
+    if (app === 'VLC') return; // VLC has Now Playing banner
+    showExternalReturnPopup(torrent, app);
+  });
   // Infuse opens x-success URL in Safari when playback ends.
   // We read the params on page load/focus and handle the callback.
   async function handleInfuseCallback() {
     const params = new URLSearchParams(location.search);
     if (params.get('infuse_cb') !== '1') return;
 
-    // Clean the URL immediately so it doesn't re-trigger on refresh
-    const cleanUrl = location.pathname;
-    history.replaceState({}, '', cleanUrl);
+    history.replaceState({}, '', location.pathname);
 
     const id       = params.get('id');
     const type     = params.get('type');
@@ -5010,52 +5072,51 @@
     const episode  = params.get('episode') ? parseInt(params.get('episode')) : null;
     const cancelled= params.get('cancelled') === '1';
 
-    if (cancelled) {
-      // User cancelled — show banner so they can mark partial if they want
-      showToast('Playback cancelled in Infuse', 'info');
-      return;
+    if (cancelled) { showToast('Playback cancelled in Infuse', 'info'); return; }
+
+    // Fetch clean show title from TMDB
+    let cleanTitle = '';
+    if (type === 'tv' && id) {
+      try { const d = await tmdb(`/tv/${id}`); cleanTitle = d.name || d.original_name || ''; } catch {}
     }
 
-    // Wait for app to initialise fully before showing popup
-    await new Promise(r => setTimeout(r, 800));
-
     if (type === 'tv' && season != null && episode != null && id) {
-      // Mark episode watched automatically and show the episode complete popup
       const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
-      if (!isEpisodeWatched(id, season, episode)) {
-        toggleEpisodeWatched(id, season, episode);
-      }
+      // Write to shared Cache Storage so the PWA picks it up on next focus
+      await writeSharedAction({ type: 'markEpisodeWatched', tvId: id, season, episode, title: cleanTitle });
+      // Also mark locally (Safari context)
+      if (!isEpisodeWatched(id, season, episode)) toggleEpisodeWatched(id, season, episode);
       loadContinueWatching();
-      // Set epCompletionData so the popup has context for "play next"
-      epCompletionData = { tvId: id, season, episode, title: '' };
-      // Try to get show title
-      try {
-        const d = await tmdb(`/tv/${id}`);
-        epCompletionData.title = d.name || d.original_name || '';
-      } catch {}
-      showToast(`✅ Infuse finished — ${epCompletionData.title} ${epCode}`, 'success');
+      epCompletionData = { tvId: id, season, episode, title: cleanTitle };
+      showToast(`✅ ${cleanTitle} ${epCode} — marked watched`, 'success');
       showEpisodeCompletePopup();
     } else if (type === 'movie' && id) {
-      // Movie finished in Infuse — remove from CW
+      await writeSharedAction({ type: 'removeMovie', movieId: id });
       removeCWMovie(id);
       loadContinueWatching();
       showToast('✅ Movie finished in Infuse', 'success');
     }
   }
 
-  // Run callback check on startup
+  // Run on startup — handles Safari x-success callback
   handleInfuseCallback();
 
-  // ── visibilitychange: fallback for when x-callback didn't fire (e.g. VLC) ──
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible' || !_externalAppLaunch) return;
+  // Also check Cache Storage on startup in case Safari wrote an action while PWA was closed
+  readAndClearSharedAction().then(action => { if (action) setTimeout(() => applySharedAction(action), 1200); });
+
+  // visibilitychange — check Cache Storage (PWA returning from background) + VLC fallback
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    // Check if Safari wrote a watched action while we were in Infuse
+    const action = await readAndClearSharedAction();
+    if (action) { applySharedAction(action); return; }
+    // Fallback popup for Infuse without x-callback (shouldn't normally happen)
+    if (!_externalAppLaunch) return;
     const elapsed = Date.now() - _externalAppLaunch.time;
-    // Only show if they were gone for at least 10 seconds (actually watched something)
     if (elapsed < 10000) { _externalAppLaunch = null; return; }
     const { torrent, app } = _externalAppLaunch;
     _externalAppLaunch = null;
-    // VLC already has the Now Playing banner — don't double-popup
-    if (app === 'VLC') return;
+    if (app === 'VLC') return; // VLC has Now Playing banner
     showExternalReturnPopup(torrent, app);
   });
 
@@ -5063,9 +5124,16 @@
     // Remove any existing popup
     document.getElementById('external-return-popup')?.remove();
 
-    const isTV = epCompletionData && epCompletionData.tvId;
+    const isTV   = epCompletionData && epCompletionData.tvId;
     const epCode = isTV ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}` : '';
-    const titleText = isTV ? `${epCompletionData.title || torrent.title} ${epCode}` : (torrent.title || 'this content');
+
+    // Prefer the clean show title from epCompletionData over the raw torrent filename
+    const cleanTitle = isTV
+      ? (epCompletionData.title || '').trim()
+      : (torrent.title || '').replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').trim();
+    const titleText = isTV
+      ? `${cleanTitle || 'this episode'} ${epCode}`
+      : (cleanTitle || 'this content');
 
     const popup = document.createElement('div');
     popup.id = 'external-return-popup';
@@ -6380,18 +6448,26 @@
       refreshTVStreamButton();
       loadContinueWatching();
 
-      // Resolve real next unwatched via TMDB
+      // Resolve real next unwatched + clean show title via TMDB
       let nextSeason = season, nextEpisode = episode + 1;
+      let cleanTitle = title; // may be raw filename — will be overwritten below
       if (epCompletionData.tvId) {
         try {
           const data = await tmdb(`/tv/${epCompletionData.tvId}`);
+          cleanTitle = data.name || data.original_name || title;
           const seasons = (data.seasons || []).filter(s => s.season_number > 0);
           const realNext = getNextUnwatched(epCompletionData.tvId, seasons);
           if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
         } catch {}
       }
+      // Strip common torrent junk from title if TMDB fetch failed
+      if (cleanTitle === title) {
+        cleanTitle = title.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s+/g, ' ').trim();
+      }
       const nextEpLabel = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
-      openTorrentOverlay(`${title} ${nextEpLabel}`, `${title} ${nextEpLabel}`, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
+      const displayTitle = `${cleanTitle} ${nextEpLabel}`;
+      // Pass IMDB ID (currentImdbId) and season/episode directly — addons use these, not the text query
+      openTorrentOverlay(displayTitle, displayTitle, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
     }
 
     // ── Countdown timer ──
