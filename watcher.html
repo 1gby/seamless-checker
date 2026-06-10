@@ -4909,14 +4909,13 @@
   function buildInfuseUrl(videoUrl, mediaId, mediaType, season, episode) {
     const base = `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
     if (!mediaId || !mediaType) return base;
-    // x-success fires when Infuse finishes — opens /infuse-return which
-    // auto-redirects back to the PWA with params intact
+    // x-success fires when Infuse finishes — opens Watcher URL in Safari.
+    // handleInfuseCallback() reads the params on load and processes them.
     const cbp = new URLSearchParams({ infuse_cb: '1', id: mediaId, type: mediaType });
     if (season  != null) cbp.set('season',  season);
     if (episode != null) cbp.set('episode', episode);
-    const returnBase = `${location.origin}/infuse-return`;
-    const successUrl  = `${returnBase}?${cbp}`;
-    const cancelUrl   = `${returnBase}?${cbp}&cancelled=1`;
+    const successUrl = `${location.origin}/watcher?${cbp}`;
+    const cancelUrl  = `${location.origin}/watcher?${cbp}&cancelled=1`;
     return `${base}&x-success=${encodeURIComponent(successUrl)}&x-cancel=${encodeURIComponent(cancelUrl)}`;
   }
 
