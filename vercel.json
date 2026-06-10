@@ -7,8 +7,6 @@
     { "source": "/comingsoon/:path*", "destination": "/comingsoon.html" },
     { "source": "/converter", "destination": "/converter.html" },
     { "source": "/converter/:path*", "destination": "/converter.html" },
-    { "source": "/infuse-return", "destination": "/infuse-return.html" },
-    { "source": "/infuse-return/:path*", "destination": "/infuse-return.html" },
     { "source": "/seamless", "destination": "/seamless.html" },
     { "source": "/seamless/:path*", "destination": "/seamless.html" },
     { "source": "/viewster", "destination": "/viewster.html" },
