@@ -199,9 +199,21 @@
     #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
     #search-input::placeholder { color: rgba(255,255,255,0.5); }
 
+    /* Now Playing banner (VLC external launch) */
+    #now-playing-banner {
+      position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 70px); left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 2rem); max-width: 480px;
+      background: rgba(10,10,30,0.97); border: 1.5px solid var(--accent-green);
+      border-radius: 14px; padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(16,185,129,0.2);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 9000; animation: slideUpFade 0.3s ease;
+    }
+
     /* Search history chips */
-    #search-history {
-      display: none; flex-wrap: wrap; gap: 0.4rem;
+    #search-history {      display: none; flex-wrap: wrap; gap: 0.4rem;
       padding: 0.5rem 0 0;
     }
     #search-history.visible { display: flex; }
@@ -1960,12 +1972,17 @@
   // File extensions considered "video" for filtering RD links
   const VIDEO_EXTS = new Set(['mkv','mp4','avi','mov','wmv','m4v','ts','webm','mpg','mpeg']);
 
-  /* ── § TMDB In-Memory Response Cache (5-min TTL) ─────────────────────
+  /* ── § TMDB In-Memory Response Cache (expires on the hour) ───────────
      Keyed by "endpoint?param=value&…" string. Prevents re-fetching the
      same TMDB data when the user navigates home multiple times per session.
+     Cache busts at the top of each hour so data stays reasonably fresh.
      ─────────────────────────────────────────────────────────────────── */
-  const TMDB_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-  const _tmdbCache = new Map(); // key → { data, ts }
+  const _tmdbCache = new Map(); // key → { data, hour }
+
+  function _tmdbCacheHour() {
+    const n = new Date();
+    return n.getFullYear() * 100000 + (n.getMonth()+1) * 1000 + n.getDate() * 10 + n.getHours();
+  }
 
   function _tmdbCacheKey(endpoint, params) {
     const sorted = Object.entries(params).sort((a, b) => a[0].localeCompare(b[0]));
@@ -4155,7 +4172,7 @@
     links.forEach((link, i) => {
       const label = link.quality || `File ${i+1}`;
       const enc = encodeURIComponent(link.url);
-      const infuseUrl = buildInfuseUrl(link.url);
+      const infuseUrl = buildInfuseUrl(link.url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
       const vlcUrl = `vlc-x-callback://x-callback-url/stream?url=${enc}`;
       qualityRows += `
         <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -4882,16 +4899,29 @@
   // ── External App Return Tracking ──
   let _externalAppLaunch = null; // { time, torrent, app }
 
-  // Build Infuse URL for playback
-  function buildInfuseUrl(videoUrl) {
-    return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
+  // Build Infuse URL with optional x-callback-url support.
+  // When mediaId + mediaType are supplied we embed an x-success URL so Infuse
+  // calls back to the PWA when playback ends.  Falls back to a plain URL when
+  // no callback context is available.
+  function buildInfuseUrl(videoUrl, mediaId, mediaType, season, episode) {
+    const base = `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
+    if (!mediaId || !mediaType) return base;
+    // x-success fires when Infuse finishes — it opens this URL in Safari
+    const cbp = new URLSearchParams({ infuse_cb: '1', id: mediaId, type: mediaType });
+    if (season  != null) cbp.set('season',  season);
+    if (episode != null) cbp.set('episode', episode);
+    const successUrl = `${location.origin}${location.pathname}?${cbp}`;
+    return `${base}&x-success=${encodeURIComponent(successUrl)}&x-cancel=${encodeURIComponent(successUrl + '&cancelled=1')}`;
   }
 
   // ── Open in Infuse (direct streams only) ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
     _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
-    window.location.href = buildInfuseUrl(torrent._directUrl);
+    window.location.href = buildInfuseUrl(
+      torrent._directUrl,
+      currentMovieId, currentMediaType, currentSeason, currentEpisode
+    );
   }
 
   function handleTorrentVLC(torrent, rowEl) {
@@ -4901,9 +4931,117 @@
     const a = document.createElement('a');
     a.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(url)}`;
     a.click();
+    showNowPlayingBanner(torrent.title || 'stream');
   }
 
-  // Listen for return from external app
+  /* ── Now Playing Banner (VLC — no x-success support) ─────────────────
+     A persistent bottom banner that stays visible while the user is away
+     in VLC.  Lets them mark watched or dismiss on return.
+     ─────────────────────────────────────────────────────────────────── */
+  function showNowPlayingBanner(title) {
+    document.getElementById('now-playing-banner')?.remove();
+
+    const isTV   = epCompletionData && epCompletionData.tvId;
+    const epCode = isTV
+      ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}`
+      : '';
+    const label  = isTV ? `${epCompletionData.title || title} · ${epCode}` : title;
+
+    const banner = document.createElement('div');
+    banner.id = 'now-playing-banner';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;">
+        <span style="font-size:1rem;flex-shrink:0;">🎬</span>
+        <div style="min-width:0;">
+          <div style="font-size:0.65rem;color:var(--accent-green);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Now Playing in VLC</div>
+          <div style="font-size:0.75rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+        <button id="npb-done-btn" style="padding:0.35rem 0.7rem;border-radius:8px;border:1px solid var(--accent-green);
+          background:rgba(16,185,129,0.15);color:var(--accent-green);font-size:0.72rem;font-weight:700;cursor:pointer;">
+          ✅ Done
+        </button>
+        <button id="npb-dismiss-btn" style="padding:0.35rem 0.7rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
+          background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.72rem;cursor:pointer;">
+          ✕
+        </button>
+      </div>`;
+    document.body.appendChild(banner);
+
+    banner.querySelector('#npb-done-btn').onclick = () => {
+      if (isTV && epCompletionData?.tvId) {
+        if (!isEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode)) {
+          toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
+        }
+        refreshTVStreamButton();
+        loadContinueWatching();
+        showToast(`✅ Marked ${epCode} watched`, 'success');
+      } else {
+        // Movie — remove from CW
+        if (currentMovieId) { removeCWMovie(currentMovieId); loadContinueWatching(); }
+        showToast('✅ Marked as finished', 'success');
+      }
+      banner.remove();
+    };
+
+    banner.querySelector('#npb-dismiss-btn').onclick = () => banner.remove();
+  }
+
+  // ── Infuse x-callback-url return handler ──────────────────────────────
+  // Infuse opens x-success URL in Safari when playback ends.
+  // We read the params on page load/focus and handle the callback.
+  async function handleInfuseCallback() {
+    const params = new URLSearchParams(location.search);
+    if (params.get('infuse_cb') !== '1') return;
+
+    // Clean the URL immediately so it doesn't re-trigger on refresh
+    const cleanUrl = location.pathname;
+    history.replaceState({}, '', cleanUrl);
+
+    const id       = params.get('id');
+    const type     = params.get('type');
+    const season   = params.get('season')  ? parseInt(params.get('season'))  : null;
+    const episode  = params.get('episode') ? parseInt(params.get('episode')) : null;
+    const cancelled= params.get('cancelled') === '1';
+
+    if (cancelled) {
+      // User cancelled — show banner so they can mark partial if they want
+      showToast('Playback cancelled in Infuse', 'info');
+      return;
+    }
+
+    // Wait for app to initialise fully before showing popup
+    await new Promise(r => setTimeout(r, 800));
+
+    if (type === 'tv' && season != null && episode != null && id) {
+      // Mark episode watched automatically and show the episode complete popup
+      const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
+      if (!isEpisodeWatched(id, season, episode)) {
+        toggleEpisodeWatched(id, season, episode);
+      }
+      loadContinueWatching();
+      // Set epCompletionData so the popup has context for "play next"
+      epCompletionData = { tvId: id, season, episode, title: '' };
+      // Try to get show title
+      try {
+        const d = await tmdb(`/tv/${id}`);
+        epCompletionData.title = d.name || d.original_name || '';
+      } catch {}
+      showToast(`✅ Infuse finished — ${epCompletionData.title} ${epCode}`, 'success');
+      showEpisodeCompletePopup();
+    } else if (type === 'movie' && id) {
+      // Movie finished in Infuse — remove from CW
+      removeCWMovie(id);
+      loadContinueWatching();
+      showToast('✅ Movie finished in Infuse', 'success');
+    }
+  }
+
+  // Run callback check on startup
+  handleInfuseCallback();
+
+  // ── visibilitychange: fallback for when x-callback didn't fire (e.g. VLC) ──
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible' || !_externalAppLaunch) return;
     const elapsed = Date.now() - _externalAppLaunch.time;
@@ -4911,6 +5049,8 @@
     if (elapsed < 10000) { _externalAppLaunch = null; return; }
     const { torrent, app } = _externalAppLaunch;
     _externalAppLaunch = null;
+    // VLC already has the Now Playing banner — don't double-popup
+    if (app === 'VLC') return;
     showExternalReturnPopup(torrent, app);
   });
 
@@ -5304,7 +5444,7 @@
 
       // Infuse button per quality
       const infuseBtn = document.createElement('a');
-      infuseBtn.href = buildInfuseUrl(link.url);
+      infuseBtn.href = buildInfuseUrl(link.url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
       infuseBtn.className = 'stream-ext-btn';
       infuseBtn.style.cssText = 'border-color: rgba(255,149,0,0.4); color: #ff9500; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       infuseBtn.title = 'Open in Infuse';
@@ -5385,7 +5525,10 @@
     const video = document.getElementById('rd-player');
     if (video?.src) {
       _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'Infuse' };
-      window.location.href = buildInfuseUrl(video.src);
+      window.location.href = buildInfuseUrl(
+        video.src,
+        currentMovieId, currentMediaType, currentSeason, currentEpisode
+      );
     }
   }
 
@@ -5396,6 +5539,7 @@
       const a = document.createElement('a');
       a.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(video.src)}`;
       a.click();
+      showNowPlayingBanner(torrentOverlayTitle || 'stream');
     }
   }
 
@@ -5623,7 +5767,7 @@
   async function tmdb(endpoint, params = {}) {
     const cacheKey = _tmdbCacheKey(endpoint, { ...params, _adult: 'false' });
     const cached = _tmdbCache.get(cacheKey);
-    if (cached && Date.now() - cached.ts < TMDB_CACHE_TTL) return cached.data;
+    if (cached && cached.hour === _tmdbCacheHour()) return cached.data;
 
     const url = new URL(API_PROXY, window.location.origin);
     url.searchParams.set('api', 'tmdb');
@@ -5634,7 +5778,7 @@
     const res = await fetch(url);
     if (!res.ok) throw new Error(`TMDB ${res.status}`);
     const data = await res.json();
-    _tmdbCache.set(cacheKey, { data, ts: Date.now() });
+    _tmdbCache.set(cacheKey, { data, hour: _tmdbCacheHour() });
     return data;
   }
 
@@ -6324,22 +6468,44 @@
 
     const popup = document.createElement('div');
     popup.id = 'cache-play-popup';
+
+    // Build Infuse URL with x-callback context
+    const infuseUrl = buildInfuseUrl(url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
+
     popup.innerHTML = `
       <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
       <div class="cache-popup-panel">
         <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="${infuseUrl}" class="cache-popup-btn infuse" id="cache-infuse-btn">
             📺 Infuse
           </a>
-          <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'VLC'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" id="cache-vlc-btn">
             🎬 VLC
           </a>
           <button class="cache-popup-btn browser" id="cache-browser-btn">🌐 Browser</button>
         </div>
         <button class="cache-popup-close" onclick="this.closest('#cache-play-popup').remove()">Cancel</button>
       </div>`;
-    // Attach browser click safely
+
+    // Infuse — set _externalAppLaunch then let href fire
+    popup.querySelector('#cache-infuse-btn').onclick = () => {
+      _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'Infuse' };
+      setTimeout(() => document.getElementById('cache-play-popup')?.remove(), 300);
+    };
+
+    // VLC — set launch state + show Now Playing banner (VLC has no x-callback x-success)
+    popup.querySelector('#cache-vlc-btn').onclick = (e) => {
+      e.preventDefault();
+      _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'VLC' };
+      const a = document.createElement('a');
+      a.href = `vlc-x-callback://x-callback-url/stream?url=${encodedUrl}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      document.getElementById('cache-play-popup')?.remove();
+      showNowPlayingBanner(safeTitle);
+    };
+
+    // Browser
     popup.querySelector('#cache-browser-btn').onclick = () => {
       window.open(url, '_blank');
       popup.remove();
@@ -7395,10 +7561,6 @@
       renderSearchHistory(); // show history when search is cleared
       loadHome(); return;
     }
-    // Save to search history (skip adult mode codes and single chars)
-    if (query !== '42069' && query !== '143' && query.length >= 2) {
-      saveSearchHistory(query);
-    }
     document.getElementById('search-history')?.classList.remove('visible');
     showLoading({ message: 'Searching…' });
     try {
@@ -7434,6 +7596,7 @@
           <button class="btn" onclick="backToHome()">← Back to Browse</button>`;
         sec.style.display = 'block';
         await renderVerticalGrid('search-grid', allResults, true);
+        if (allResults.length > 0) saveSearchHistory(query);
         document.querySelectorAll('.search-filter-btn').forEach(btn => {
           btn.onclick = async () => {
             document.querySelectorAll('.search-filter-btn').forEach(b => b.classList.remove('active'));
@@ -7466,6 +7629,7 @@
       html += '<div class="vertical-grid" id="search-grid"></div><button class="btn" onclick="backToHome()">← Back to Browse</button>';
       sec.innerHTML = html; sec.style.display = 'block';
       await renderVerticalGrid('search-grid', allResults, true);
+      if (allResults.length > 0) saveSearchHistory(query);
 
       document.querySelectorAll('.search-filter-btn').forEach(btn => {
         btn.onclick = async () => {
