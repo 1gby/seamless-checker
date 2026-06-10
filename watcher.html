@@ -199,6 +199,24 @@
     #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
     #search-input::placeholder { color: rgba(255,255,255,0.5); }
 
+    /* Search history chips */
+    #search-history {
+      display: none; flex-wrap: wrap; gap: 0.4rem;
+      padding: 0.5rem 0 0;
+    }
+    #search-history.visible { display: flex; }
+    .search-hist-chip {
+      padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      background: rgba(118,75,162,0.15); border: 1px solid rgba(118,75,162,0.35);
+      color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .search-hist-chip:hover { background: rgba(118,75,162,0.3); border-color: var(--accent-purple); color: #fff; }
+    .search-hist-chip .hist-x {
+      font-size: 0.65rem; opacity: 0.5; margin-left: 0.15rem; line-height: 1;
+    }
+    .search-hist-chip .hist-x:hover { opacity: 1; color: var(--accent-red); }
+
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-05  SECTIONS & GRIDS
        ═══════════════════════════════════════════════════════════════════ */
@@ -1318,6 +1336,7 @@
     <input type="text" id="search-input"
            placeholder="Movies, TV, Actors, Genres, or Year"
            autocomplete="off" />
+    <div id="search-history"></div>
   </div>
 </div>
 
@@ -1940,6 +1959,18 @@
 
   // File extensions considered "video" for filtering RD links
   const VIDEO_EXTS = new Set(['mkv','mp4','avi','mov','wmv','m4v','ts','webm','mpg','mpeg']);
+
+  /* ── § TMDB In-Memory Response Cache (5-min TTL) ─────────────────────
+     Keyed by "endpoint?param=value&…" string. Prevents re-fetching the
+     same TMDB data when the user navigates home multiple times per session.
+     ─────────────────────────────────────────────────────────────────── */
+  const TMDB_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  const _tmdbCache = new Map(); // key → { data, ts }
+
+  function _tmdbCacheKey(endpoint, params) {
+    const sorted = Object.entries(params).sort((a, b) => a[0].localeCompare(b[0]));
+    return endpoint + '?' + sorted.map(([k, v]) => `${k}=${v}`).join('&');
+  }
 
   // Toast notifications (replaces alert() for non-blocking feedback)
   function showToast(message, type = 'info') {
@@ -4439,6 +4470,10 @@
     // Pause video if playing
     const vid = document.getElementById('rd-player');
     if (vid) { vid.pause(); vid.src = ''; }
+    // Clear CW tracking interval
+    if (vid?._cwInterval) { clearInterval(vid._cwInterval); vid._cwInterval = null; }
+    // Clear auto-play next timer if overlay is closed manually
+    if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
   }
 
   // Called by the re-search input inside the overlay header
@@ -5313,7 +5348,29 @@
       if (epCompletionData && currentMediaType === 'tv' && currentSeason && currentEpisode) {
         showEpisodeCompletePopup();
       }
+      // If movie just ended, remove from CW (it's done)
+      if (currentMediaType === 'movie' && currentMovieId) {
+        removeCWMovie(currentMovieId);
+        loadContinueWatching();
+      }
     };
+
+    // Track movie progress every 10 seconds while playing
+    if (currentMediaType === 'movie' && currentMovieId && currentDetailItem) {
+      video._cwInterval = setInterval(() => {
+        if (!video.paused && video.duration > 0) {
+          saveCWMovie(
+            currentMovieId,
+            currentDetailItem.title || currentDetailItem.name || '',
+            currentDetailItem.poster_path || null,
+            video.currentTime / video.duration,
+            video.duration
+          );
+        }
+      }, 10000);
+      // Clear on ended or when player is hidden
+      video.addEventListener('ended', () => { clearInterval(video._cwInterval); }, { once: true });
+    }
 
     if (statusEl) {
       statusEl.innerHTML =
@@ -5348,6 +5405,7 @@
     if (_plyr) { _plyr.pause(); _plyr.source = { type: 'video', sources: [] }; }
     const video = document.getElementById('rd-player');
     if (video?._hls) { video._hls.destroy(); video._hls = null; }
+    if (video?._cwInterval) { clearInterval(video._cwInterval); video._cwInterval = null; }
     document.querySelectorAll('.tor-result-row').forEach(r => { r.classList.remove('selected'); r.classList.remove('dimmed'); });
   }
 
@@ -5563,6 +5621,10 @@
   }
 
   async function tmdb(endpoint, params = {}) {
+    const cacheKey = _tmdbCacheKey(endpoint, { ...params, _adult: 'false' });
+    const cached = _tmdbCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < TMDB_CACHE_TTL) return cached.data;
+
     const url = new URL(API_PROXY, window.location.origin);
     url.searchParams.set('api', 'tmdb');
     url.searchParams.set('endpoint', endpoint);
@@ -5571,7 +5633,9 @@
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
     const res = await fetch(url);
     if (!res.ok) throw new Error(`TMDB ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    _tmdbCache.set(cacheKey, { data, ts: Date.now() });
+    return data;
   }
 
   async function tmdbAdult(endpoint, params = {}) {
@@ -5616,15 +5680,21 @@
     const grid = document.getElementById(gridId);
     if (!grid) return;
     grid.innerHTML = '';
-    for (const item of items) {
-      if (!item.poster_path && !item.backdrop_path && !item.profile_path) continue;
+
+    // Batch all image fetches in parallel instead of sequentially
+    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    const imageUrls = await Promise.all(filtered.map(item => {
+      const isPerson = item.media_type === 'person' || !!item.known_for_department;
+      if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
+      return getImageUrl(item);
+    }));
+
+    filtered.forEach((item, idx) => {
+      const imageUrl = imageUrls[idx];
+      if (!imageUrl) return;
       const title    = item.title || item.name || 'Unknown';
       const year     = (item.release_date || item.first_air_date || '').slice(0, 4);
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
-      const imageUrl = isPerson
-        ? (item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null)
-        : await getImageUrl(item);
-      if (!imageUrl) continue;
       const type      = item.media_type || (isPerson ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
       const favorited = isFavorited(item.id, type);
       const card = document.createElement('div');
@@ -5639,7 +5709,7 @@
       card.dataset.navKey = navRegStore(item);
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
-    }
+    });
   }
 
   async function renderVerticalGrid(gridId, items, showActorNames = false) {
@@ -5647,15 +5717,21 @@
     if (!grid) return;
     grid.innerHTML = '';
     grid.className = 'vertical-grid';
-    for (const item of items) {
-      if (!item.poster_path && !item.backdrop_path && !item.profile_path) continue;
+
+    // Batch all image fetches in parallel
+    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    const imageUrls = await Promise.all(filtered.map(item => {
+      const isPerson = item.media_type === 'person' || !!item.known_for_department;
+      if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
+      return getImageUrl(item);
+    }));
+
+    filtered.forEach((item, idx) => {
+      const imageUrl = imageUrls[idx];
+      if (!imageUrl) return;
       const title    = item.title || item.name || 'Unknown';
       const year     = (item.release_date || item.first_air_date || '').slice(0, 4);
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
-      const imageUrl = isPerson
-        ? (item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null)
-        : await getImageUrl(item);
-      if (!imageUrl) continue;
       const type      = item.media_type || (isPerson ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
       const favorited = isFavorited(item.id, type);
       const infoHtml  = (showActorNames && isPerson)
@@ -5673,7 +5749,7 @@
       card.dataset.navKey = navRegStore(item);
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
-    }
+    });
   }
 
   function toggleFavoriteFromCard(id, type, btn, itemData) {
@@ -5963,23 +6039,24 @@
     }
   }
 
-  // ── Continue Watching — shows favorited TV shows with episode progress ──
+  // ── Continue Watching — TV shows with episode progress + in-progress movies ──
   async function loadContinueWatching() {
     const section = document.getElementById('section-continue-watching');
     const grid    = document.getElementById('continue-watching-grid');
     if (!section || !grid) return;
 
-    const favTv = (favorites.tv || []);
-    if (favTv.length === 0) { section.style.display = 'none'; return; }
+    const favTv    = (favorites.tv || []);
+    const cwMovies = getCWMovies();
 
-    // Find shows that have watch progress in localStorage
+    if (favTv.length === 0 && cwMovies.length === 0) { section.style.display = 'none'; return; }
+
+    // ── TV: Find shows with watch progress ──
     const showsWithProgress = [];
     for (const show of favTv) {
       const watched = getWatchedEpisodes(show.id);
       const keys = Object.keys(watched);
-      if (keys.length === 0) continue; // No episodes watched
+      if (keys.length === 0) continue;
 
-      // Find highest watched episode for display
       let maxSeason = 0, maxEp = 0, lastWatchedTs = 0;
       for (const key of keys) {
         const m = key.match(/^s(\d+)e(\d+)$/);
@@ -5995,31 +6072,21 @@
       }
     }
 
-    if (showsWithProgress.length === 0) { section.style.display = 'none'; return; }
-
-    // Sort by most recently watched
-    showsWithProgress.sort((a, b) => b._lastTs - a._lastTs);
-
-    // Fetch TMDB data in parallel (up to 15 shows) to get real next unwatched
+    // ── Enrich TV shows with real next episode via TMDB ──
     const enriched = [];
     const checks = showsWithProgress.slice(0, 15).map(async show => {
       try {
         const data = await tmdb(`/tv/${show.id}`);
         const seasons = (data.seasons || []).filter(s => s.season_number > 0);
         const nextEp = getNextUnwatched(show.id, seasons);
-
-        // If all watched, still show with "All caught up" label
         enriched.push({
-          ...show,
-          _nextEp: nextEp,
-          _allCaughtUp: !nextEp,
+          ...show, _type: 'tv', _nextEp: nextEp, _allCaughtUp: !nextEp,
           _totalSeasons: seasons.length,
           poster_path: data.poster_path || show.poster_path,
         });
       } catch {
-        // Fallback without TMDB: assume next episode is maxEp + 1
         enriched.push({
-          ...show,
+          ...show, _type: 'tv',
           _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
           _allCaughtUp: false,
         });
@@ -6027,41 +6094,72 @@
     });
     await Promise.all(checks);
 
-    // Split: active (episodes remaining) → Continue Watching
-    //        caught up → Recently Watched
-    const active   = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    // ── Merge active TV + in-progress movies, sort by recency ──
+    const active = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+
+    // Add movies (tag with _type:'movie')
+    const movieItems = cwMovies.map(m => ({ ...m, _type: 'movie' }));
+
+    // Merge and sort by timestamp
+    const combined = [...active, ...movieItems].sort((a, b) => (b._lastTs || b.ts || 0) - (a._lastTs || a.ts || 0));
+
+    // ── Caught-up TV for Recently Watched section ──
     const caughtUp = enriched.filter(s => s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
 
-    // ── Continue Watching (only shows with episodes remaining) ──
-    if (active.length === 0) {
+    // ── Render Continue Watching ──
+    if (combined.length === 0) {
       section.style.display = 'none';
     } else {
       section.style.display = 'block';
       grid.innerHTML = '';
-      for (const show of active) {
-        const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
+
+      for (const item of combined) {
+        const imgUrl = item.poster_path ? `${TMDB_IMG}${item.poster_path}` : null;
         if (!imgUrl) continue;
-        const ne = show._nextEp;
-        const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
-        const subLabel = `${show._watchedCount} watched`;
         const card = document.createElement('div');
         card.className = 'card';
-        card.dataset.navKey = navRegStore(show);
-        card.innerHTML = `
-          <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-          <div class="info">
-            <div class="cw-title">${show.name || show.original_name || ''}</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
-              <span class="cw-badge">${epLabel}</span>
-              <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
-            </div>
-          </div>`;
-        card.onclick = () => openTVDetail(show.id);
+
+        if (item._type === 'movie') {
+          // Movie card: show progress bar if we have duration
+          const pct = (item.duration && item.progress) ? Math.round(item.progress * 100) : null;
+          const pctLabel = pct != null ? `${pct}%` : 'In Progress';
+          const progressBar = (pct != null)
+            ? `<div style="width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.2rem;overflow:hidden;">
+                 <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--accent-green),var(--accent-purple));border-radius:2px;"></div>
+               </div>`
+            : '';
+          card.innerHTML = `
+            <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+            <div class="info">
+              <div class="cw-title">${item.title || ''}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
+                <span class="cw-badge" style="background:rgba(16,185,129,0.85);">🎬 ${pctLabel}</span>
+              </div>
+              ${progressBar}
+            </div>`;
+          card.onclick = () => openMovieDetail(item.id);
+        } else {
+          // TV show card
+          const ne = item._nextEp;
+          const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
+          const subLabel = `${item._watchedCount} watched`;
+          card.dataset.navKey = navRegStore(item);
+          card.innerHTML = `
+            <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+            <div class="info">
+              <div class="cw-title">${item.name || item.original_name || ''}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
+                <span class="cw-badge">${epLabel}</span>
+                <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
+              </div>
+            </div>`;
+          card.onclick = () => openTVDetail(item.id);
+        }
         grid.appendChild(card);
       }
     }
 
-    // ── Recently Watched (caught-up shows) ──
+    // ── Recently Watched (caught-up TV shows) ──
     const rwSection = document.getElementById('section-recently-watched');
     const rwGrid    = document.getElementById('recently-watched-grid');
     if (rwSection && rwGrid) {
@@ -6094,61 +6192,46 @@
 
   // ── Episode Completion Popup ──
   let epCompletionData = null; // stores { tvId, season, episode, title } when playing a TV episode
+  let _epAutoPlayTimer = null; // countdown interval handle
 
   function showEpisodeCompletePopup() {
     if (!epCompletionData || !epCompletionData.tvId) return;
     const { tvId, season, episode, title } = epCompletionData;
     const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
 
-    // Remove any existing popup
+    // Remove any existing popup + clear any running timer
     document.getElementById('ep-complete-popup')?.remove();
+    if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
 
     const popup = document.createElement('div');
     popup.className = 'ep-complete-popup';
     popup.id = 'ep-complete-popup';
 
     const nextEpCode = `S${String(season).padStart(2,'0')}E${String(episode + 1).padStart(2,'0')}`;
+    let countdown = 10;
 
     popup.innerHTML = `
       <div class="ep-popup-title">🎬 Episode finished!</div>
       <div class="ep-popup-sub">${title} — ${epCode}</div>
       <div class="ep-popup-btns">
         <button class="ep-popup-btn" id="ep-mark-btn">✅ Mark ${epCode} Complete</button>
-        <button class="ep-popup-btn next" id="ep-next-btn">▶ Play Next (${nextEpCode})</button>
-        <button class="ep-popup-btn secondary" onclick="closeEpCompletePopup()">Dismiss</button>
+        <button class="ep-popup-btn next" id="ep-next-btn">▶ Play Next <span id="ep-countdown">(${nextEpCode} · ${countdown}s)</span></button>
+        <button class="ep-popup-btn secondary" id="ep-dismiss-btn">✕ Dismiss</button>
       </div>`;
     document.body.appendChild(popup);
 
-    // Wire up mark complete
-    popup.querySelector('#ep-mark-btn').onclick = () => {
-      if (!tvId) { showToast('Cannot track — open the show detail first', 'error'); return; }
-      const wasWatched = isEpisodeWatched(tvId, season, episode);
-      if (!wasWatched) {
-        toggleEpisodeWatched(tvId, season, episode);
-        showToast(`✅ Marked ${epCode} watched`, 'success');
-      }
-      // Update button
-      const btn = popup.querySelector('#ep-mark-btn');
-      btn.textContent = '✅ Marked!';
-      btn.style.opacity = '0.5';
-      btn.style.pointerEvents = 'none';
-      // Refresh continue watching and stream button in background
-      refreshTVStreamButton();
-      loadContinueWatching();
-    };
-
-    // Wire up play next
-    popup.querySelector('#ep-next-btn').onclick = async () => {
-      // Mark current as watched if not already
+    // Shared play-next action (used by button AND timer)
+    async function doPlayNext() {
+      if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
+      // Mark current episode watched
       if (epCompletionData.tvId && !isEpisodeWatched(epCompletionData.tvId, season, episode)) {
         toggleEpisodeWatched(epCompletionData.tvId, season, episode);
       }
-
       closeEpCompletePopup();
       refreshTVStreamButton();
-      loadContinueWatching(); // refresh home section
+      loadContinueWatching();
 
-      // Try to find the real next unwatched episode via TMDB
+      // Resolve real next unwatched via TMDB
       let nextSeason = season, nextEpisode = episode + 1;
       if (epCompletionData.tvId) {
         try {
@@ -6158,18 +6241,73 @@
           if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
         } catch {}
       }
-
       const nextEpLabel = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
-      const nextSearch = `${title} ${nextEpLabel}`;
-      openTorrentOverlay(nextSearch, `${title} ${nextEpLabel}`, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
+      openTorrentOverlay(`${title} ${nextEpLabel}`, `${title} ${nextEpLabel}`, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
+    }
+
+    // ── Countdown timer ──
+    _epAutoPlayTimer = setInterval(() => {
+      countdown--;
+      const cdEl = document.getElementById('ep-countdown');
+      if (cdEl) cdEl.textContent = `(${nextEpCode} · ${countdown}s)`;
+      if (countdown <= 0) doPlayNext();
+    }, 1000);
+
+    // ── Wire up Mark Complete ──
+    popup.querySelector('#ep-mark-btn').onclick = () => {
+      if (!tvId) { showToast('Cannot track — open the show detail first', 'error'); return; }
+      if (!isEpisodeWatched(tvId, season, episode)) {
+        toggleEpisodeWatched(tvId, season, episode);
+        showToast(`✅ Marked ${epCode} watched`, 'success');
+      }
+      const btn = popup.querySelector('#ep-mark-btn');
+      btn.textContent = '✅ Marked!';
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+      refreshTVStreamButton();
+      loadContinueWatching();
     };
 
-    // Auto-dismiss after 30 seconds
-    setTimeout(() => { closeEpCompletePopup(); }, 30000);
+    // ── Wire up Play Next (instant, bypasses timer) ──
+    popup.querySelector('#ep-next-btn').onclick = doPlayNext;
+
+    // ── Wire up Dismiss ──
+    popup.querySelector('#ep-dismiss-btn').onclick = () => {
+      if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
+      closeEpCompletePopup();
+    };
   }
 
   function closeEpCompletePopup() {
     document.getElementById('ep-complete-popup')?.remove();
+  }
+
+  /* ── Movie Continue Watching helpers ─────────────────────────────────
+     Saves timestamp + duration when movie plays in the RD player.
+     Key format: cw_movie_<movieId>  →  { id, title, poster_path, ts, progress, duration }
+     ─────────────────────────────────────────────────────────────────── */
+  function saveCWMovie(movieId, title, posterPath, progress, duration) {
+    if (!movieId) return;
+    const entry = { id: movieId, title, poster_path: posterPath, ts: Date.now(), progress, duration };
+    localStorage.setItem(`cw_movie_${movieId}`, JSON.stringify(entry));
+  }
+
+  function getCWMovies() {
+    const movies = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('cw_movie_')) continue;
+      try { movies.push(JSON.parse(localStorage.getItem(key))); } catch {}
+    }
+    // Sort most recent first, only keep movies that are < 95% complete (still in progress)
+    return movies
+      .filter(m => !m.duration || m.progress < 0.95)
+      .sort((a, b) => b.ts - a.ts)
+      .slice(0, 10);
+  }
+
+  function removeCWMovie(movieId) {
+    localStorage.removeItem(`cw_movie_${movieId}`);
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -7190,13 +7328,78 @@
   /* ═══════════════════════════════════════════════════════════════════
      § 17  SEARCH
      ═══════════════════════════════════════════════════════════════════ */
+
+  // ── Search History (last 5 unique queries) ──────────────────────────
+  const SEARCH_HISTORY_KEY = 'watcher_search_history';
+  const SEARCH_HISTORY_MAX = 5;
+
+  function getSearchHistory() {
+    try { return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch { return []; }
+  }
+
+  function saveSearchHistory(query) {
+    if (!query || query.length < 2) return;
+    let hist = getSearchHistory().filter(q => q.toLowerCase() !== query.toLowerCase());
+    hist.unshift(query);
+    hist = hist.slice(0, SEARCH_HISTORY_MAX);
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(hist));
+  }
+
+  function removeFromSearchHistory(query) {
+    const hist = getSearchHistory().filter(q => q !== query);
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(hist));
+    renderSearchHistory();
+  }
+
+  function renderSearchHistory() {
+    const container = document.getElementById('search-history');
+    if (!container) return;
+    const hist = getSearchHistory();
+    const searchInp = document.getElementById('search-input');
+    const currentVal = searchInp?.value?.trim() || '';
+    // Hide when user is actively typing or history is empty
+    if (hist.length === 0 || currentVal.length > 0) {
+      container.classList.remove('visible');
+      container.innerHTML = '';
+      return;
+    }
+    container.classList.add('visible');
+    container.innerHTML = hist.map(q =>
+      `<span class="search-hist-chip" data-q="${q.replace(/"/g,'&quot;')}">
+         🕐 ${q}
+         <span class="hist-x" data-remove="${q.replace(/"/g,'&quot;')}">✕</span>
+       </span>`
+    ).join('');
+    // Wire chip clicks
+    container.querySelectorAll('.search-hist-chip').forEach(chip => {
+      chip.onclick = (e) => {
+        if (e.target.classList.contains('hist-x')) {
+          e.stopPropagation();
+          removeFromSearchHistory(e.target.dataset.remove);
+          return;
+        }
+        const q = chip.dataset.q;
+        if (searchInp) searchInp.value = q;
+        container.classList.remove('visible');
+        clearTimeout(searchTimeout);
+        performSearch(q);
+      };
+    });
+  }
+
   async function performSearch(query) {
     if (!query) {
       const s = document.getElementById('search-results');
       if (s) s.remove();
       document.getElementById('genre-buttons-container').style.display = 'block';
+      renderSearchHistory(); // show history when search is cleared
       loadHome(); return;
     }
+    // Save to search history (skip adult mode codes and single chars)
+    if (query !== '42069' && query !== '143' && query.length >= 2) {
+      saveSearchHistory(query);
+    }
+    document.getElementById('search-history')?.classList.remove('visible');
     showLoading({ message: 'Searching…' });
     try {
       const apiFunc    = isAdultMode ? tmdbAdult : tmdb;
@@ -7287,10 +7490,13 @@
   }
 
   const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('focus', () => { renderSearchHistory(); });
+  searchInput.addEventListener('blur',  () => { setTimeout(() => { document.getElementById('search-history')?.classList.remove('visible'); }, 200); });
   searchInput.addEventListener('input', (e) => {
     const q = e.target.value.trim();
     if (q === '42069') { toggleAdultMode(true);  searchInput.value = ''; return; }
     if (q === '143')   { toggleAdultMode(false); searchInput.value = ''; return; }
+    if (!q) { renderSearchHistory(); } else { document.getElementById('search-history')?.classList.remove('visible'); }
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => performSearch(q), 500);
   });
