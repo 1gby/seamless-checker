@@ -4910,9 +4910,27 @@
   // calls back to the PWA when playback ends.  Falls back to a plain URL when
   // no callback context is available.
   function buildInfuseUrl(videoUrl, mediaId, mediaType, season, episode) {
-    const base = `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
+    // Base play URL
+    const params = new URLSearchParams({ url: videoUrl });
+
+    // Infuse metadata params — help Infuse match artwork, track in its own library,
+    // and display correctly in Now Playing. All optional but improve the experience.
+    if (mediaId)  params.set('tmdb', mediaId);
+    if (season != null)  params.set('season',  season);
+    if (episode != null) params.set('episode', episode);
+
+    // Clean filename for Infuse's Now Playing display
+    if (epCompletionData?.title && season != null && episode != null) {
+      const ep = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
+      params.set('filename', `${epCompletionData.title} ${ep}`);
+    } else if (mediaType === 'movie' && currentDetailItem?.title) {
+      params.set('filename', currentDetailItem.title);
+    }
+
+    const base = `infuse://x-callback-url/play?${params}`;
     if (!mediaId || !mediaType) return base;
-    // x-success fires when Infuse finishes — opens Watcher URL in Safari.
+
+    // x-success/x-cancel — opens Watcher URL in Safari when Infuse finishes.
     // handleInfuseCallback() reads the params on load and processes them.
     const cbp = new URLSearchParams({ infuse_cb: '1', id: mediaId, type: mediaType });
     if (season  != null) cbp.set('season',  season);
@@ -6464,11 +6482,12 @@
       refreshTVStreamButton();
       loadContinueWatching();
 
-      // Resolve clean show title + real next unwatched episode via TMDB
-      let nextSeason = season, nextEpisode = episode + 1;
-      let cleanTitle = title;
-      // Resolve IMDB ID — required for addon stream lookups (tt... format)
-      // Priority: epCompletionData.imdbId → currentImdbId → fetch from TMDB external_ids
+      // Next episode is ALWAYS the one immediately after what just played.
+      // We do NOT use getNextUnwatched here — that would skip episodes
+      // if the user is rewatching. Sequential order only.
+      let nextSeason  = season;
+      let nextEpisode = episode + 1;
+      let cleanTitle  = title;
       let resolvedImdbId = epCompletionData.imdbId || currentImdbId || null;
 
       if (epCompletionData.tvId) {
@@ -6478,17 +6497,25 @@
             resolvedImdbId ? Promise.resolve(null) : tmdb(`/tv/${epCompletionData.tvId}/external_ids`)
           ]);
           cleanTitle = showData.name || showData.original_name || title;
-          if (!resolvedImdbId && extData?.imdb_id) resolvedImdbId = extData.imdb_id;
-          if (!resolvedImdbId && showData.external_ids?.imdb_id) resolvedImdbId = showData.external_ids.imdb_id;
-          const seasons = (showData.seasons || []).filter(s => s.season_number > 0);
-          const realNext = getNextUnwatched(epCompletionData.tvId, seasons);
-          if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
+          if (!resolvedImdbId) resolvedImdbId = extData?.imdb_id || showData.external_ids?.imdb_id || null;
+
+          // Only advance to next season if this episode was the season finale
+          const thisSeason = (showData.seasons || []).find(s => s.season_number === season);
+          if (thisSeason && episode >= thisSeason.episode_count) {
+            // Last episode of season — advance to next season E1
+            const nextSeasonData = (showData.seasons || []).find(s => s.season_number === season + 1);
+            if (nextSeasonData) { nextSeason = season + 1; nextEpisode = 1; }
+            else {
+              showToast(`🎉 You've finished ${cleanTitle}!`, 'success');
+              return; // show is complete
+            }
+          }
         } catch (e) { console.warn('[doPlayNext] TMDB fetch failed:', e); }
       }
 
       // Strip torrent junk from title if TMDB fetch failed
       if (cleanTitle === title) {
-        cleanTitle = title.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s*(S\d+E\d+).*$/i, '').replace(/\s+/g, ' ').trim();
+        cleanTitle = title.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i,'').replace(/[._]/g,' ').replace(/\s*(S\d+E\d+).*$/i,'').replace(/\s+/g,' ').trim();
       }
 
       if (!resolvedImdbId) {
@@ -6496,12 +6523,9 @@
         return;
       }
 
-      // Update global so the new overlay session has the correct IMDB ID
       currentImdbId = resolvedImdbId;
-
       const nextEpLabel  = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
       const displayTitle = `${cleanTitle} ${nextEpLabel}`;
-      // Pass resolvedImdbId (tt...) and season/episode — addons use these directly, not the text query
       openTorrentOverlay(displayTitle, displayTitle, resolvedImdbId, 'tv', nextSeason, nextEpisode, 'streams');
     }
 
@@ -7712,7 +7736,7 @@
           <button class="btn" onclick="backToHome()">← Back to Browse</button>`;
         sec.style.display = 'block';
         await renderVerticalGrid('search-grid', allResults, true);
-        if (allResults.length > 0) saveSearchHistory(query);
+        if (allResults.length > 0) setTimeout(() => saveSearchHistory(query), 3000);
         document.querySelectorAll('.search-filter-btn').forEach(btn => {
           btn.onclick = async () => {
             document.querySelectorAll('.search-filter-btn').forEach(b => b.classList.remove('active'));
@@ -7745,7 +7769,7 @@
       html += '<div class="vertical-grid" id="search-grid"></div><button class="btn" onclick="backToHome()">← Back to Browse</button>';
       sec.innerHTML = html; sec.style.display = 'block';
       await renderVerticalGrid('search-grid', allResults, true);
-      if (allResults.length > 0) saveSearchHistory(query);
+      if (allResults.length > 0) setTimeout(() => saveSearchHistory(query), 3000);
 
       document.querySelectorAll('.search-filter-btn').forEach(btn => {
         btn.onclick = async () => {
