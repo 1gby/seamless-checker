@@ -4400,7 +4400,7 @@
       // Clean title — strip torrent filename junk if no proper title available
       const rawTitle = displayTitle || searchQuery || '';
       const epClean = rawTitle.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s*(S\d+E\d+).*$/i, '').replace(/\s+/g, ' ').trim();
-      epCompletionData = { tvId: null, season, episode, title: epClean };
+      epCompletionData = { tvId: null, imdbId: imdbId || currentImdbId || null, season, episode, title: epClean };
       // Try to get tvId from currentDetailItem
       if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
         epCompletionData.tvId = currentDetailItem.id;
@@ -5029,12 +5029,14 @@
       if (!isEpisodeWatched(action.tvId, action.season, action.episode)) {
         toggleEpisodeWatched(action.tvId, action.season, action.episode);
       }
+      // Restore global state so the episode complete popup + doPlayNext work correctly
+      if (action.imdbId) currentImdbId = action.imdbId;
+      epCompletionData = { tvId: action.tvId, imdbId: action.imdbId || null, season: action.season, episode: action.episode, title: action.title || '' };
       refreshTVStreamButton();
       loadContinueWatching();
       const epCode = `S${String(action.season).padStart(2,'0')}E${String(action.episode).padStart(2,'0')}`;
       showToast(`✅ ${action.title || ''} ${epCode} marked watched (from Infuse)`, 'success');
       // Show the next-episode popup so user can continue
-      epCompletionData = { tvId: action.tvId, season: action.season, episode: action.episode, title: action.title || '' };
       showEpisodeCompletePopup();
     } else if (action.type === 'removeMovie' && action.movieId) {
       removeCWMovie(action.movieId);
@@ -5066,7 +5068,7 @@
 
     history.replaceState({}, '', location.pathname);
 
-    const id       = params.get('id');
+    const id       = params.get('id');       // TMDB ID
     const type     = params.get('type');
     const season   = params.get('season')  ? parseInt(params.get('season'))  : null;
     const episode  = params.get('episode') ? parseInt(params.get('episode')) : null;
@@ -5074,20 +5076,34 @@
 
     if (cancelled) { showToast('Playback cancelled in Infuse', 'info'); return; }
 
-    // Fetch clean show title from TMDB
-    let cleanTitle = '';
+    // Fetch clean show title AND IMDB ID (tt...) from TMDB
+    let cleanTitle = '', imdbId = null;
     if (type === 'tv' && id) {
-      try { const d = await tmdb(`/tv/${id}`); cleanTitle = d.name || d.original_name || ''; } catch {}
+      try {
+        const [showData, extData] = await Promise.all([
+          tmdb(`/tv/${id}`),
+          tmdb(`/tv/${id}/external_ids`)
+        ]);
+        cleanTitle = showData.name || showData.original_name || '';
+        imdbId     = extData?.imdb_id || showData.external_ids?.imdb_id || null;
+      } catch (e) { console.warn('[infuse_cb] TMDB fetch failed:', e); }
+    } else if (type === 'movie' && id) {
+      try {
+        const data = await tmdb(`/movie/${id}`, { append_to_response: 'external_ids' });
+        cleanTitle = data.title || data.name || '';
+        imdbId     = data.external_ids?.imdb_id || data.imdb_id || null;
+      } catch {}
     }
 
     if (type === 'tv' && season != null && episode != null && id) {
       const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
-      // Write to shared Cache Storage so the PWA picks it up on next focus
-      await writeSharedAction({ type: 'markEpisodeWatched', tvId: id, season, episode, title: cleanTitle });
-      // Also mark locally (Safari context)
+      // Write to Cache Storage — includes imdbId so PWA can use it for addon lookups
+      await writeSharedAction({ type: 'markEpisodeWatched', tvId: id, imdbId, season, episode, title: cleanTitle });
+      // Mark locally (Safari context)
       if (!isEpisodeWatched(id, season, episode)) toggleEpisodeWatched(id, season, episode);
       loadContinueWatching();
-      epCompletionData = { tvId: id, season, episode, title: cleanTitle };
+      epCompletionData = { tvId: id, imdbId, season, episode, title: cleanTitle };
+      if (imdbId) currentImdbId = imdbId; // ensure overlay can use it
       showToast(`✅ ${cleanTitle} ${epCode} — marked watched`, 'success');
       showEpisodeCompletePopup();
     } else if (type === 'movie' && id) {
@@ -6448,26 +6464,45 @@
       refreshTVStreamButton();
       loadContinueWatching();
 
-      // Resolve real next unwatched + clean show title via TMDB
+      // Resolve clean show title + real next unwatched episode via TMDB
       let nextSeason = season, nextEpisode = episode + 1;
-      let cleanTitle = title; // may be raw filename — will be overwritten below
+      let cleanTitle = title;
+      // Resolve IMDB ID — required for addon stream lookups (tt... format)
+      // Priority: epCompletionData.imdbId → currentImdbId → fetch from TMDB external_ids
+      let resolvedImdbId = epCompletionData.imdbId || currentImdbId || null;
+
       if (epCompletionData.tvId) {
         try {
-          const data = await tmdb(`/tv/${epCompletionData.tvId}`);
-          cleanTitle = data.name || data.original_name || title;
-          const seasons = (data.seasons || []).filter(s => s.season_number > 0);
+          const [showData, extData] = await Promise.all([
+            tmdb(`/tv/${epCompletionData.tvId}`),
+            resolvedImdbId ? Promise.resolve(null) : tmdb(`/tv/${epCompletionData.tvId}/external_ids`)
+          ]);
+          cleanTitle = showData.name || showData.original_name || title;
+          if (!resolvedImdbId && extData?.imdb_id) resolvedImdbId = extData.imdb_id;
+          if (!resolvedImdbId && showData.external_ids?.imdb_id) resolvedImdbId = showData.external_ids.imdb_id;
+          const seasons = (showData.seasons || []).filter(s => s.season_number > 0);
           const realNext = getNextUnwatched(epCompletionData.tvId, seasons);
           if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
-        } catch {}
+        } catch (e) { console.warn('[doPlayNext] TMDB fetch failed:', e); }
       }
-      // Strip common torrent junk from title if TMDB fetch failed
+
+      // Strip torrent junk from title if TMDB fetch failed
       if (cleanTitle === title) {
-        cleanTitle = title.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s+/g, ' ').trim();
+        cleanTitle = title.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s*(S\d+E\d+).*$/i, '').replace(/\s+/g, ' ').trim();
       }
-      const nextEpLabel = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
+
+      if (!resolvedImdbId) {
+        showToast('⚠️ Could not resolve IMDB ID — try opening the show detail first', 'error');
+        return;
+      }
+
+      // Update global so the new overlay session has the correct IMDB ID
+      currentImdbId = resolvedImdbId;
+
+      const nextEpLabel  = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
       const displayTitle = `${cleanTitle} ${nextEpLabel}`;
-      // Pass IMDB ID (currentImdbId) and season/episode directly — addons use these, not the text query
-      openTorrentOverlay(displayTitle, displayTitle, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
+      // Pass resolvedImdbId (tt...) and season/episode — addons use these directly, not the text query
+      openTorrentOverlay(displayTitle, displayTitle, resolvedImdbId, 'tv', nextSeason, nextEpisode, 'streams');
     }
 
     // ── Countdown timer ──
