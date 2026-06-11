@@ -4397,13 +4397,19 @@
 
     // Track episode for completion prompt (TV episodes only)
     if (mediaType === 'tv' && season && episode) {
-      // Clean title — strip torrent filename junk if no proper title available
       const rawTitle = displayTitle || searchQuery || '';
       const epClean = rawTitle.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s*(S\d+E\d+).*$/i, '').replace(/\s+/g, ' ').trim();
-      epCompletionData = { tvId: null, imdbId: imdbId || currentImdbId || null, season, episode, title: epClean };
-      // Try to get tvId from currentDetailItem
+      // Preserve existing tvId/imdbId from previous epCompletionData if currentDetailItem is absent
+      // (happens in Safari session after Infuse callback — detail page was never opened)
+      const prevTvId   = epCompletionData?.tvId   || null;
+      const prevImdbId = epCompletionData?.imdbId  || null;
+      epCompletionData = { tvId: prevTvId, imdbId: imdbId || prevImdbId || currentImdbId || null, season, episode, title: epClean };
+      // Prefer currentDetailItem if available (normal in-PWA flow)
       if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
         epCompletionData.tvId = currentDetailItem.id;
+      } else if (currentMovieId) {
+        // currentMovieId is set for both movies and TV shows by openTVDetail / handleInfuseCallback
+        epCompletionData.tvId = epCompletionData.tvId || currentMovieId;
       }
     } else {
       epCompletionData = null;
@@ -5047,14 +5053,17 @@
       if (!isEpisodeWatched(action.tvId, action.season, action.episode)) {
         toggleEpisodeWatched(action.tvId, action.season, action.episode);
       }
-      // Restore global state so the episode complete popup + doPlayNext work correctly
+      // Restore all globals so episode complete popup + doPlayNext + Infuse buttons all work
+      currentMovieId   = action.tvId;
+      currentMediaType = 'tv';
+      currentSeason    = action.season;
+      currentEpisode   = action.episode;
       if (action.imdbId) currentImdbId = action.imdbId;
       epCompletionData = { tvId: action.tvId, imdbId: action.imdbId || null, season: action.season, episode: action.episode, title: action.title || '' };
       refreshTVStreamButton();
       loadContinueWatching();
       const epCode = `S${String(action.season).padStart(2,'0')}E${String(action.episode).padStart(2,'0')}`;
       showToast(`✅ ${action.title || ''} ${epCode} marked watched (from Infuse)`, 'success');
-      // Show the next-episode popup so user can continue
       showEpisodeCompletePopup();
     } else if (action.type === 'removeMovie' && action.movieId) {
       removeCWMovie(action.movieId);
@@ -5120,8 +5129,13 @@
       // Mark locally (Safari context)
       if (!isEpisodeWatched(id, season, episode)) toggleEpisodeWatched(id, season, episode);
       loadContinueWatching();
+      // Set globals so Infuse buttons in the next overlay have correct context for x-success
+      currentMovieId   = id;          // used by buildInfuseUrl
+      currentMediaType = 'tv';
+      currentSeason    = season;
+      currentEpisode   = episode;
+      if (imdbId) currentImdbId = imdbId;
       epCompletionData = { tvId: id, imdbId, season, episode, title: cleanTitle };
-      if (imdbId) currentImdbId = imdbId; // ensure overlay can use it
       showToast(`✅ ${cleanTitle} ${epCode} — marked watched`, 'success');
       showEpisodeCompletePopup();
     } else if (type === 'movie' && id) {
