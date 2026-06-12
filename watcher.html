@@ -4930,9 +4930,6 @@
       params.set('filename', currentDetailItem.title);
     }
 
-    // DEBUG — remove before release
-    showToast(`🔧 Infuse launch: id=${mediaId} s=${season} e=${episode}`, 'info');
-
     const base = `infuse://x-callback-url/play?${params}`;
     if (!mediaId || !mediaType) return base;
 
@@ -5086,9 +5083,6 @@
 
     if (cancelled) { showToast('Playback cancelled in Infuse', 'info'); return; }
 
-    // DEBUG — remove before release
-    showToast(`🔧 Infuse CB: id=${id} type=${type} s=${season} e=${episode}`, 'info');
-
     // Fetch clean show title AND IMDB ID (tt...) from TMDB
     let cleanTitle = '', imdbId = null;
     if (type === 'tv' && id) {
@@ -5110,7 +5104,9 @@
 
     if (type === 'tv' && season != null && episode != null && id) {
       const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
-      // Write to Cache Storage — includes imdbId so PWA can use it for addon lookups
+      // Clear any previous pending action before writing the new one —
+      // prevents the PWA from picking up a stale earlier episode on next focus
+      await readAndClearSharedAction();
       await writeSharedAction({ type: 'markEpisodeWatched', tvId: id, imdbId, season, episode, title: cleanTitle });
       // Mark locally (Safari context)
       if (!isEpisodeWatched(id, season, episode)) toggleEpisodeWatched(id, season, episode);
@@ -5135,8 +5131,13 @@
   // Run on startup — handles Safari x-success callback
   handleInfuseCallback();
 
-  // Also check Cache Storage on startup in case Safari wrote an action while PWA was closed
-  readAndClearSharedAction().then(action => { if (action) setTimeout(() => applySharedAction(action), 1200); });
+  // Check Cache Storage on startup ONLY if this is NOT an Infuse callback page load.
+  // When infuse_cb=1 is in the URL, handleInfuseCallback is authoritative — running
+  // applySharedAction too would show the wrong (previous) episode's popup.
+  const _isInfuseCb = new URLSearchParams(location.search).get('infuse_cb') === '1';
+  if (!_isInfuseCb) {
+    readAndClearSharedAction().then(action => { if (action) setTimeout(() => applySharedAction(action), 1200); });
+  }
 
   // visibilitychange — PWA returning from background:
   // 1. Check Cache Storage for watched actions written by Safari's Infuse callback
