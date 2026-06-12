@@ -5072,21 +5072,6 @@
     }
   }
 
-  // Check for pending shared action on focus (PWA returning from background)
-  document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState !== 'visible') return;
-    // Check shared cache for actions written by Safari's infuse callback
-    const action = await readAndClearSharedAction();
-    if (action) { applySharedAction(action); return; }
-    // Fallback: visibilitychange for non-VLC external app returns
-    if (!_externalAppLaunch) return;
-    const elapsed = Date.now() - _externalAppLaunch.time;
-    if (elapsed < 10000) { _externalAppLaunch = null; return; }
-    const { torrent, app } = _externalAppLaunch;
-    _externalAppLaunch = null;
-    if (app === 'VLC') return; // VLC has Now Playing banner
-    showExternalReturnPopup(torrent, app);
-  });
   // Infuse opens x-success URL in Safari when playback ends.
   // We read the params on page load/focus and handle the callback.
   async function handleInfuseCallback() {
@@ -5152,20 +5137,26 @@
   // Also check Cache Storage on startup in case Safari wrote an action while PWA was closed
   readAndClearSharedAction().then(action => { if (action) setTimeout(() => applySharedAction(action), 1200); });
 
-  // visibilitychange — check Cache Storage (PWA returning from background) + VLC fallback
+  // visibilitychange — PWA returning from background:
+  // 1. Check Cache Storage for watched actions written by Safari's Infuse callback
+  // 2. Refresh home screen so any changes made in Safari are reflected
+  // 3. VLC-only fallback: show Now Playing banner if it somehow got dismissed
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState !== 'visible') return;
-    // Check if Safari wrote a watched action while we were in Infuse
+    // Apply any pending action from Safari (Cache Storage bus)
     const action = await readAndClearSharedAction();
     if (action) { applySharedAction(action); return; }
-    // Fallback popup for Infuse without x-callback (shouldn't normally happen)
-    if (!_externalAppLaunch) return;
-    const elapsed = Date.now() - _externalAppLaunch.time;
-    if (elapsed < 10000) { _externalAppLaunch = null; return; }
-    const { torrent, app } = _externalAppLaunch;
-    _externalAppLaunch = null;
-    if (app === 'VLC') return; // VLC has Now Playing banner
-    showExternalReturnPopup(torrent, app);
+    // Refresh continue watching so Safari-side changes show up immediately
+    loadContinueWatching();
+    // Clear _externalAppLaunch silently — Infuse uses x-success, no popup needed
+    if (_externalAppLaunch) {
+      const { app } = _externalAppLaunch;
+      _externalAppLaunch = null;
+      // VLC doesn't have x-callback — show banner if it was dismissed
+      if (app === 'VLC' && !document.getElementById('now-playing-banner')) {
+        // Banner was dismissed, nothing to do — user chose to dismiss it
+      }
+    }
   });
 
   function showExternalReturnPopup(torrent, appName) {
@@ -5563,14 +5554,20 @@
       group.appendChild(extBtn);
       linksEl.appendChild(group);
 
-      // Infuse button per quality
+      // Infuse button per quality — build URL lazily in onclick so it always
+      // reads the current season/episode globals, not stale render-time values
       const infuseBtn = document.createElement('a');
-      infuseBtn.href = buildInfuseUrl(link.url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
+      infuseBtn.href = '#';
       infuseBtn.className = 'stream-ext-btn';
       infuseBtn.style.cssText = 'border-color: rgba(255,149,0,0.4); color: #ff9500; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       infuseBtn.title = 'Open in Infuse';
       infuseBtn.textContent = '📺';
-      infuseBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'Infuse' }; };
+      infuseBtn.onclick = (e) => {
+        e.preventDefault();
+        _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'Infuse' };
+        // Build URL fresh so x-success always carries the correct episode number
+        location.href = buildInfuseUrl(link.url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
+      };
       linksEl.appendChild(infuseBtn);
 
       // VLC button per quality
@@ -6631,7 +6628,7 @@
       <div class="cache-popup-panel">
         <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="${infuseUrl}" class="cache-popup-btn infuse" id="cache-infuse-btn">
+          <a href="#" class="cache-popup-btn infuse" id="cache-infuse-btn">
             📺 Infuse
           </a>
           <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" id="cache-vlc-btn">
@@ -6642,9 +6639,11 @@
         <button class="cache-popup-close" onclick="this.closest('#cache-play-popup').remove()">Cancel</button>
       </div>`;
 
-    // Infuse — set _externalAppLaunch then let href fire
-    popup.querySelector('#cache-infuse-btn').onclick = () => {
+    // Infuse — build URL lazily in onclick so x-success always has correct episode
+    popup.querySelector('#cache-infuse-btn').onclick = (e) => {
+      e.preventDefault();
       _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'Infuse' };
+      location.href = buildInfuseUrl(url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
       setTimeout(() => document.getElementById('cache-play-popup')?.remove(), 300);
     };
 
