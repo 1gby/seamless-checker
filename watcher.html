@@ -5073,6 +5073,7 @@
     const params = new URLSearchParams(location.search);
     if (params.get('infuse_cb') !== '1') return;
 
+    // Clean URL immediately
     history.replaceState({}, '', location.pathname);
 
     const id       = params.get('id');       // TMDB ID
@@ -5083,36 +5084,52 @@
 
     if (cancelled) { showToast('Playback cancelled in Infuse', 'info'); return; }
 
-    // Fetch clean show title AND IMDB ID (tt...) from TMDB
-    let cleanTitle = '', imdbId = null;
+    // ── Clear stale shared cache SYNCHRONOUSLY before any async work ──────
+    // visibilitychange can fire while we're awaiting TMDB below and would
+    // pick up the previous episode's stale action. Clear it now so it can't.
+    try {
+      const cache = await caches.open(SHARED_CACHE);
+      await cache.delete(SHARED_KEY);
+    } catch {}
+
+    // ── Persist IMDB ID in localStorage so it survives across page loads ──
+    // Key: watcher_imdb_<tmdbId>_<type>
+    const imdbCacheKey = `watcher_imdb_${id}_${type}`;
+    let imdbId = localStorage.getItem(imdbCacheKey) || null;
+
+    // Fetch clean show title AND IMDB ID from TMDB (use cached imdbId if available)
+    let cleanTitle = '';
     if (type === 'tv' && id) {
       try {
-        const [showData, extData] = await Promise.all([
-          tmdb(`/tv/${id}`),
-          tmdb(`/tv/${id}/external_ids`)
-        ]);
+        const fetches = [tmdb(`/tv/${id}`)];
+        if (!imdbId) fetches.push(tmdb(`/tv/${id}/external_ids`));
+        const [showData, extData] = await Promise.all(fetches);
         cleanTitle = showData.name || showData.original_name || '';
-        imdbId     = extData?.imdb_id || showData.external_ids?.imdb_id || null;
+        if (!imdbId) {
+          imdbId = extData?.imdb_id || showData.external_ids?.imdb_id || null;
+          if (imdbId) localStorage.setItem(imdbCacheKey, imdbId);
+        }
       } catch (e) { console.warn('[infuse_cb] TMDB fetch failed:', e); }
     } else if (type === 'movie' && id) {
       try {
         const data = await tmdb(`/movie/${id}`, { append_to_response: 'external_ids' });
         cleanTitle = data.title || data.name || '';
-        imdbId     = data.external_ids?.imdb_id || data.imdb_id || null;
+        if (!imdbId) {
+          imdbId = data.external_ids?.imdb_id || data.imdb_id || null;
+          if (imdbId) localStorage.setItem(imdbCacheKey, imdbId);
+        }
       } catch {}
     }
 
     if (type === 'tv' && season != null && episode != null && id) {
       const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
-      // Clear any previous pending action before writing the new one —
-      // prevents the PWA from picking up a stale earlier episode on next focus
-      await readAndClearSharedAction();
+      // Write fresh action for PWA to pick up on next focus
       await writeSharedAction({ type: 'markEpisodeWatched', tvId: id, imdbId, season, episode, title: cleanTitle });
       // Mark locally (Safari context)
       if (!isEpisodeWatched(id, season, episode)) toggleEpisodeWatched(id, season, episode);
       loadContinueWatching();
-      // Set globals so Infuse buttons in the next overlay have correct context for x-success
-      currentMovieId   = id;          // used by buildInfuseUrl
+      // Set all globals so Infuse buttons + doPlayNext work correctly this session
+      currentMovieId   = id;
       currentMediaType = 'tv';
       currentSeason    = season;
       currentEpisode   = episode;
@@ -6503,6 +6520,11 @@
       let cleanTitle  = title;
       let resolvedImdbId = epCompletionData.imdbId || currentImdbId || null;
 
+      // Check localStorage persisted IMDB ID as additional fallback
+      if (!resolvedImdbId && epCompletionData.tvId) {
+        resolvedImdbId = localStorage.getItem(`watcher_imdb_${epCompletionData.tvId}_tv`) || null;
+      }
+
       if (epCompletionData.tvId) {
         try {
           const [showData, extData] = await Promise.all([
@@ -6537,6 +6559,8 @@
       }
 
       currentImdbId = resolvedImdbId;
+      // Persist so future Safari page loads don't need to re-fetch external_ids
+      if (epCompletionData.tvId) localStorage.setItem(`watcher_imdb_${epCompletionData.tvId}_tv`, resolvedImdbId);
       const nextEpLabel  = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
       const displayTitle = `${cleanTitle} ${nextEpLabel}`;
       openTorrentOverlay(displayTitle, displayTitle, resolvedImdbId, 'tv', nextSeason, nextEpisode, 'streams');
