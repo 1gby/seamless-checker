@@ -4919,13 +4919,10 @@
     // Base play URL
     const params = new URLSearchParams({ url: videoUrl });
 
-    // Infuse metadata params — help Infuse match artwork, track in its own library,
-    // and display correctly in Now Playing. All optional but improve the experience.
     if (mediaId)  params.set('tmdb', mediaId);
     if (season != null)  params.set('season',  season);
     if (episode != null) params.set('episode', episode);
 
-    // Clean filename for Infuse's Now Playing display
     if (epCompletionData?.title && season != null && episode != null) {
       const ep = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
       params.set('filename', `${epCompletionData.title} ${ep}`);
@@ -4933,11 +4930,12 @@
       params.set('filename', currentDetailItem.title);
     }
 
+    // DEBUG — remove before release
+    showToast(`🔧 Infuse launch: id=${mediaId} s=${season} e=${episode}`, 'info');
+
     const base = `infuse://x-callback-url/play?${params}`;
     if (!mediaId || !mediaType) return base;
 
-    // x-success/x-cancel — opens Watcher URL in Safari when Infuse finishes.
-    // handleInfuseCallback() reads the params on load and processes them.
     const cbp = new URLSearchParams({ infuse_cb: '1', id: mediaId, type: mediaType });
     if (season  != null) cbp.set('season',  season);
     if (episode != null) cbp.set('episode', episode);
@@ -5087,6 +5085,9 @@
     const cancelled= params.get('cancelled') === '1';
 
     if (cancelled) { showToast('Playback cancelled in Infuse', 'info'); return; }
+
+    // DEBUG — remove before release
+    showToast(`🔧 Infuse CB: id=${id} type=${type} s=${season} e=${episode}`, 'info');
 
     // Fetch clean show title AND IMDB ID (tt...) from TMDB
     let cleanTitle = '', imdbId = null;
