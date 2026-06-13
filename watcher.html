@@ -2328,7 +2328,7 @@
     document.querySelectorAll('.settings-submenu').forEach(el => el.classList.remove('active'));
     const sub = document.getElementById(id);
     if (sub) sub.classList.add('active');
-    if (id === 'submenu-sources') renderAddonList();
+    if (id === 'submenu-sources') { renderAddonList(); refreshAddonNames(); }
   }
 
   function closeSettingsSubmenu() {
@@ -2667,6 +2667,65 @@
     return name;
   }
 
+  // Build addon name using manifest data — detects debrid from description/name for
+  // Comet, MediaFusion and others that don't encode debrid in the URL
+  function buildAddonNameFromManifest(url, manifest) {
+    let baseName = 'Addon';
+    try {
+      const host = new URL(url).hostname;
+      if (host.includes('torrentio'))        baseName = 'Torrentio';
+      else if (host.includes('comet'))       baseName = 'Comet';
+      else if (host.includes('mediafusion')) baseName = 'MediaFusion';
+      else if (host.includes('peerflix'))    baseName = 'Peerflix';
+      else if (host.includes('torrent') && host.includes('db')) baseName = 'TorrentsDB';
+      else if (manifest.name) baseName = manifest.name.split(' ')[0]; // first word of manifest name
+      else baseName = host.split('.')[0].charAt(0).toUpperCase() + host.split('.')[0].slice(1);
+    } catch {}
+
+    // Try URL-based debrid detection first (works for Torrentio)
+    let debrid = detectDebridFromUrl(url);
+
+    // For Comet/MediaFusion, debrid is in manifest description or name
+    if (!debrid) {
+      const searchText = `${manifest.description || ''} ${manifest.name || ''}`.toLowerCase();
+      if (searchText.includes('real-debrid') || searchText.includes('realdebrid')) debrid = 'RD';
+      else if (searchText.includes('torbox')) debrid = 'TB';
+      else if (searchText.includes('alldebrid') || searchText.includes('all-debrid')) debrid = 'AD';
+      else if (searchText.includes('premiumize')) debrid = 'PM';
+      else if (searchText.includes('debrid-link') || searchText.includes('debridlink')) debrid = 'DL';
+      else if (searchText.includes('offcloud')) debrid = 'OC';
+    }
+
+    return debrid ? `${baseName} (${debrid})` : baseName;
+  }
+
+  // Refresh names of existing addons that are missing debrid labels by re-fetching their manifests
+  async function refreshAddonNames() {
+    const addons = appSettings.stremioAddons || [];
+    let updated = false;
+    await Promise.all(addons.map(async (addon, idx) => {
+      // Only re-fetch if name doesn't already have a debrid label
+      if (/\((RD|TB|AD|PM|DL|OC)\)/.test(addon.name)) return;
+      try {
+        const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
+        let manifest;
+        try {
+          const r = await fetch(manifestUrl, { signal: safeFetchSignal(8000) });
+          if (r.ok) manifest = await r.json();
+        } catch {}
+        if (!manifest) {
+          const r = await corsGet(manifestUrl, 8000);
+          manifest = await r.json();
+        }
+        if (manifest) {
+          const newName = buildAddonNameFromManifest(addon.url, manifest);
+          if (newName !== addon.name) { addons[idx].name = newName; updated = true; }
+        }
+      } catch {}
+    }));
+    if (updated) { appSettings.stremioAddons = addons; saveSettings(); renderAddonList(); }
+  }
+
   function addCustomAddon() {
     const inp = document.getElementById('addon-custom-url');
     let url = (inp?.value || '').trim();
@@ -2699,23 +2758,39 @@
     renderAddonList();
   }
 
-  function addAddonFromInput() {
+  async function addAddonFromInput() {
     const inp = document.getElementById('addon-url-input');
     if (!inp) return;
     let url = inp.value.trim();
     if (!url) { showToast('Paste a manifest URL first', 'error'); return; }
     if (!url.startsWith('http')) { showToast('URL must start with http/https', 'error'); return; }
-    // Strip /manifest.json suffix so stream URLs build correctly
     url = url.replace(/\/manifest\.json\/?$/, '');
     const addons = appSettings.stremioAddons || [];
     if (addons.find(a => a.url === url)) { showToast('Addon already added', 'error'); return; }
-    const name = buildAddonName(url);
+
+    // Build initial name from URL, then try to enrich from manifest
+    let name = buildAddonName(url);
+    showToast('⏳ Fetching addon info…', 'info');
+    try {
+      const manifestUrl = url + '/manifest.json';
+      let manifest;
+      try {
+        const r = await fetch(manifestUrl, { signal: safeFetchSignal(8000) });
+        if (r.ok) manifest = await r.json();
+      } catch {}
+      if (!manifest) {
+        const r = await corsGet(manifestUrl, 8000);
+        manifest = await r.json();
+      }
+      if (manifest) name = buildAddonNameFromManifest(url, manifest);
+    } catch (e) { console.warn('[addAddon] manifest fetch failed:', e); }
+
     addons.push({ url, name, enabled: true });
     appSettings.stremioAddons = addons;
     saveSettings();
     inp.value = '';
     renderAddonList();
-    showToast('✅ Addon added!', 'success');
+    showToast(`✅ ${name} added!`, 'success');
   }
 
   function renderAddonList() {
@@ -2852,9 +2927,11 @@
     let allStreams = [];
     const existingHashes = new Set();
 
-    // Fire all addons simultaneously but render each one as it resolves
-    const addonPromises = addons.map(addon =>
-      fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
+    // Fire addons with a small stagger to avoid hitting Torrentio rate limits
+    // when multiple addons share the same domain (e.g. Torrentio RD + TB)
+    const addonPromises = addons.map((addon, idx) =>
+      new Promise(resolve => setTimeout(resolve, idx * 300)).then(() =>
+        fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
         if (!streams?.length) return;
         // Dedupe by hash
         const unique = streams.filter(s => {
@@ -2868,6 +2945,7 @@
         const sorted = sortTorrentResults(allStreams);
         onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} found`, sorted);
       }).catch(e => console.warn(`[Addon:${addon.name}] failed:`, e))
+      )
     );
 
     // Wait for all to finish then return final set
@@ -2877,8 +2955,8 @@
 
   /* ── Stremio Addon Catalog Browser ──────────────────────────────── */
   async function browseAddonCatalogs() {
-    const panel   = document.getElementById('addon-catalog-panel');
-    const tabsEl  = document.getElementById('addon-catalog-tabs');
+    const panel     = document.getElementById('addon-catalog-panel');
+    const tabsEl    = document.getElementById('addon-catalog-tabs');
     const resultsEl = document.getElementById('addon-catalog-results');
     const statusEl  = document.getElementById('addon-catalog-status');
     if (!panel) return;
@@ -2896,26 +2974,44 @@
       return;
     }
 
-    // Gather all catalogs from all enabled addons
     const allCatalogs = [];
+
+    // Sequential fetching — avoids rate limiting when multiple Torrentio configs exist
     for (const addon of enabledAddons) {
+      if (statusEl) statusEl.textContent = `⏳ Checking ${addon.name}…`;
       try {
         const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
         let manifestData;
         try {
-          const r = await fetch(manifestUrl, { signal: safeFetchSignal(5000) });
+          const r = await fetch(manifestUrl, { signal: safeFetchSignal(10000) });
           if (r.ok) manifestData = await r.json();
+          else if (r.status === 400) {
+            // Some Torrentio configs return 400 on manifest — try without trailing path params
+            const cleanUrl = addon.url.split('|')[0].replace(/\/manifest\.json$/, '') + '/manifest.json';
+            const r2 = await fetch(cleanUrl, { signal: safeFetchSignal(10000) });
+            if (r2.ok) manifestData = await r2.json();
+          }
         } catch {}
         if (!manifestData) {
-          const r = await corsGet(manifestUrl, 5000);
-          manifestData = await r.json();
+          try {
+            const r = await corsGet(manifestUrl, 10000);
+            manifestData = await r.json();
+          } catch {}
         }
         if (manifestData?.catalogs?.length) {
           for (const cat of manifestData.catalogs) {
-            allCatalogs.push({ addon, catalog: cat, addonName: manifestData.name || addon.name });
+            allCatalogs.push({ addon, catalog: cat, addonName: addon.name || manifestData.name || addon.name });
           }
+          if (statusEl) statusEl.textContent = `✅ ${addon.name} — ${manifestData.catalogs.length} catalog(s) found`;
+        } else {
+          if (statusEl) statusEl.textContent = `⚠️ ${addon.name} — no catalogs`;
         }
-      } catch (e) { console.warn('[Catalog] Failed to fetch manifest for', addon.name, e); }
+      } catch (e) {
+        console.warn('[Catalog] Failed to fetch manifest for', addon.name, e);
+        if (statusEl) statusEl.textContent = `❌ ${addon.name} — ${e.message || 'failed'}`;
+      }
+      // Small pause between requests to avoid rate limiting
+      await new Promise(r => setTimeout(r, 200));
     }
 
     if (allCatalogs.length === 0) {
@@ -2925,7 +3021,6 @@
 
     if (statusEl) statusEl.textContent = `Found ${allCatalogs.length} catalog(s). Select one:`;
 
-    // Render catalog tabs
     if (tabsEl) {
       allCatalogs.forEach((entry, i) => {
         const btn = document.createElement('button');
@@ -6090,36 +6185,56 @@
     const grid    = document.getElementById('continue-watching-grid');
     if (!section || !grid) return;
 
-    const favTv    = (favorites.tv || []);
     const cwMovies = getCWMovies();
 
-    if (favTv.length === 0 && cwMovies.length === 0) { section.style.display = 'none'; return; }
+    // ── Scan ALL watched_ localStorage keys — not just favorited shows ──
+    const watchedShowIds = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith('watched_')) continue;
+      const id = key.replace('watched_', '');
+      if (!id || isNaN(Number(id))) continue;
+      const data = getWatchedEpisodes(id);
+      if (Object.keys(data).length === 0) continue;
+      watchedShowIds.push(id);
+    }
 
-    // ── TV: Find shows with watch progress ──
+    if (watchedShowIds.length === 0 && cwMovies.length === 0) {
+      section.style.display = 'none'; return;
+    }
+
+    // ── Build showsWithProgress from all watched shows ──
     const showsWithProgress = [];
-    for (const show of favTv) {
-      const watched = getWatchedEpisodes(show.id);
+    for (const id of watchedShowIds) {
+      const watched = getWatchedEpisodes(id);
       const keys = Object.keys(watched);
       if (keys.length === 0) continue;
-
       let maxSeason = 0, maxEp = 0, lastWatchedTs = 0;
       for (const key of keys) {
         const m = key.match(/^s(\d+)e(\d+)$/);
         if (m) {
           const s = parseInt(m[1]), e = parseInt(m[2]);
           const ts = watched[key] || 0;
-          if (ts > lastWatchedTs) { lastWatchedTs = ts; }
+          if (ts > lastWatchedTs) lastWatchedTs = ts;
           if (s > maxSeason || (s === maxSeason && e > maxEp)) { maxSeason = s; maxEp = e; }
         }
       }
       if (maxSeason > 0) {
-        showsWithProgress.push({ ...show, _maxSeason: maxSeason, _maxEp: maxEp, _lastTs: lastWatchedTs, _watchedCount: keys.length });
+        const favMatch = (favorites.tv || []).find(f => String(f.id) === String(id));
+        showsWithProgress.push({
+          id: parseInt(id),
+          ...(favMatch || {}),
+          _maxSeason: maxSeason, _maxEp: maxEp,
+          _lastTs: lastWatchedTs, _watchedCount: keys.length
+        });
       }
     }
 
-    // ── Enrich TV shows with real next episode via TMDB ──
+    showsWithProgress.sort((a, b) => b._lastTs - a._lastTs);
+
+    // ── Enrich with TMDB data ──
     const enriched = [];
-    const checks = showsWithProgress.slice(0, 15).map(async show => {
+    await Promise.all(showsWithProgress.map(async show => {
       try {
         const data = await tmdb(`/tv/${show.id}`);
         const seasons = (data.seasons || []).filter(s => s.season_number > 0);
@@ -6127,29 +6242,23 @@
         enriched.push({
           ...show, _type: 'tv', _nextEp: nextEp, _allCaughtUp: !nextEp,
           _totalSeasons: seasons.length,
-          poster_path: data.poster_path || show.poster_path,
+          name: data.name || data.original_name || show.name || `Show ${show.id}`,
+          poster_path: data.poster_path || show.poster_path || null,
         });
       } catch {
         enriched.push({
           ...show, _type: 'tv',
           _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
           _allCaughtUp: false,
+          name: show.name || `Show ${show.id}`,
         });
       }
-    });
-    await Promise.all(checks);
+    }));
 
-    // ── Merge active TV + in-progress movies, sort by recency ──
-    const active = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
-
-    // Add movies (tag with _type:'movie')
-    const movieItems = cwMovies.map(m => ({ ...m, _type: 'movie' }));
-
-    // Merge and sort by timestamp
-    const combined = [...active, ...movieItems].sort((a, b) => (b._lastTs || b.ts || 0) - (a._lastTs || a.ts || 0));
-
-    // ── Caught-up TV for Recently Watched section ──
+    const active   = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
     const caughtUp = enriched.filter(s => s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    const movieItems = cwMovies.map(m => ({ ...m, _type: 'movie' }));
+    const combined = [...active, ...movieItems].sort((a, b) => (b._lastTs || b.ts || 0) - (a._lastTs || a.ts || 0));
 
     // ── Render Continue Watching ──
     if (combined.length === 0) {
@@ -6157,21 +6266,16 @@
     } else {
       section.style.display = 'block';
       grid.innerHTML = '';
-
       for (const item of combined) {
         const imgUrl = item.poster_path ? `${TMDB_IMG}${item.poster_path}` : null;
         if (!imgUrl) continue;
         const card = document.createElement('div');
         card.className = 'card';
-
         if (item._type === 'movie') {
-          // Movie card: show progress bar if we have duration
           const pct = (item.duration && item.progress) ? Math.round(item.progress * 100) : null;
           const pctLabel = pct != null ? `${pct}%` : 'In Progress';
           const progressBar = (pct != null)
-            ? `<div style="width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.2rem;overflow:hidden;">
-                 <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--accent-green),var(--accent-purple));border-radius:2px;"></div>
-               </div>`
+            ? `<div style="width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.2rem;overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--accent-green),var(--accent-purple));border-radius:2px;"></div></div>`
             : '';
           card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
@@ -6184,7 +6288,6 @@
             </div>`;
           card.onclick = () => openMovieDetail(item.id);
         } else {
-          // TV show card
           const ne = item._nextEp;
           const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
           const subLabel = `${item._watchedCount} watched`;
@@ -6192,7 +6295,7 @@
           card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
             <div class="info">
-              <div class="cw-title">${item.name || item.original_name || ''}</div>
+              <div class="cw-title">${item.name || ''}</div>
               <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
                 <span class="cw-badge">${epLabel}</span>
                 <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
@@ -6204,7 +6307,7 @@
       }
     }
 
-    // ── Recently Watched (caught-up TV shows) ──
+    // ── Recently Watched (caught-up shows) ──
     const rwSection = document.getElementById('section-recently-watched');
     const rwGrid    = document.getElementById('recently-watched-grid');
     if (rwSection && rwGrid) {
@@ -6222,7 +6325,7 @@
           card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
             <div class="info">
-              <div class="cw-title">${show.name || show.original_name || ''}</div>
+              <div class="cw-title">${show.name || ''}</div>
               <div style="margin-top:0.2rem;">
                 <span class="cw-badge" style="background:rgba(16,185,129,0.85);">✅ Caught Up</span>
               </div>
@@ -6234,6 +6337,7 @@
       }
     }
   }
+
 
   // ── Episode Completion Popup ──
   let epCompletionData = null; // stores { tvId, season, episode, title } when playing a TV episode
