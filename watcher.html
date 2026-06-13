@@ -4928,7 +4928,13 @@
       if (elapsed < 10000) { _externalAppLaunch = null; return; }
       const { torrent, app } = _externalAppLaunch;
       _externalAppLaunch = null;
-      showExternalReturnPopup(torrent, app);
+      // If we have TV episode context, show the full episode complete popup
+      // (with 10s countdown + Play Next) instead of the simple finished/not yet prompt
+      if (epCompletionData && epCompletionData.tvId) {
+        showEpisodeCompletePopup();
+      } else {
+        showExternalReturnPopup(torrent, app);
+      }
     }
   });
 
