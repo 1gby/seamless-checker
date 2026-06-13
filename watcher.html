@@ -199,6 +199,26 @@
     #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
     #search-input::placeholder { color: rgba(255,255,255,0.5); }
 
+    /* Search history chips */
+    #search-history {      display: none; flex-wrap: wrap; gap: 0.5rem;
+      padding: 0.65rem 0 0.25rem;
+    }
+    #search-history.visible { display: flex; }
+    .search-hist-chip {
+      padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+      background: rgba(118,75,162,0.18); border: 1.5px solid rgba(118,75,162,0.4);
+      color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.45rem; min-height: 40px;
+    }
+    .search-hist-chip:hover { background: rgba(118,75,162,0.35); border-color: var(--accent-purple); color: #fff; }
+    .search-hist-chip .hist-x {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      font-size: 0.8rem; font-weight: 700; opacity: 0.7; flex-shrink: 0; line-height: 1;
+    }
+    .search-hist-chip .hist-x:hover { opacity: 1; background: rgba(239,68,68,0.25); color: var(--accent-red); }
+
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-05  SECTIONS & GRIDS
        ═══════════════════════════════════════════════════════════════════ */
@@ -1318,6 +1338,7 @@
     <input type="text" id="search-input"
            placeholder="Movies, TV, Actors, Genres, or Year"
            autocomplete="off" />
+    <div id="search-history"></div>
   </div>
 </div>
 
@@ -1940,6 +1961,23 @@
 
   // File extensions considered "video" for filtering RD links
   const VIDEO_EXTS = new Set(['mkv','mp4','avi','mov','wmv','m4v','ts','webm','mpg','mpeg']);
+
+  /* ── § TMDB In-Memory Response Cache (expires on the hour) ───────────
+     Keyed by "endpoint?param=value&…" string. Prevents re-fetching the
+     same TMDB data when the user navigates home multiple times per session.
+     Cache busts at the top of each hour so data stays reasonably fresh.
+     ─────────────────────────────────────────────────────────────────── */
+  const _tmdbCache = new Map(); // key → { data, hour }
+
+  function _tmdbCacheHour() {
+    const n = new Date();
+    return n.getFullYear() * 100000 + (n.getMonth()+1) * 1000 + n.getDate() * 10 + n.getHours();
+  }
+
+  function _tmdbCacheKey(endpoint, params) {
+    const sorted = Object.entries(params).sort((a, b) => a[0].localeCompare(b[0]));
+    return endpoint + '?' + sorted.map(([k, v]) => `${k}=${v}`).join('&');
+  }
 
   // Toast notifications (replaces alert() for non-blocking feedback)
   function showToast(message, type = 'info') {
@@ -2710,7 +2748,6 @@
   async function fetchAddonStreams(addon, type, imdbId, season, episode) {
     if (!addon?.url || !addon.enabled || !imdbId) return [];
     try {
-      // Build the stream URL per Stremio addon protocol
       let streamId = imdbId;
       if (type === 'series' && season != null && episode != null) {
         streamId = `${imdbId}:${season}:${episode}`;
@@ -2718,18 +2755,20 @@
       const streamUrl = `${addon.url}/stream/${type}/${streamId}.json`;
       console.log(`[Addon:${addon.name}] Fetching:`, streamUrl);
 
-      // Try direct fetch first, then CORS proxy
+      // Addon URLs (Torrentio, Comet etc) need CORS proxy — skip direct fetch
+      // which would just burn timeout on a guaranteed CORS failure.
+      // Use 25s timeout: RD resolution is slow, especially for many results.
       let data;
       try {
-        const res = await fetch(streamUrl, { signal: safeFetchSignal(12000) });
+        const res = await fetch(streamUrl, { signal: safeFetchSignal(25000) });
         if (res.ok) data = await res.json();
+        else throw new Error(`HTTP ${res.status}`);
       } catch {
-        // Fallback to CORS proxy
         try {
-          const res = await corsGet(streamUrl, 12000);
+          const res = await corsGet(streamUrl, 25000);
           data = await res.json();
         } catch (e) {
-          console.warn(`[Addon:${addon.name}] CORS proxy also failed:`, e.message);
+          console.warn(`[Addon:${addon.name}] Failed:`, e.message);
           return [];
         }
       }
@@ -2760,16 +2799,13 @@
         if (sizeMatch) size = sizeMatch[1];
         const seedMatch = part.match(/👤\s*(\d+)/);
         if (seedMatch) seeds = parseInt(seedMatch[1], 10);
-        // Also look for "S:" or "Seeds:" patterns
         const seedAlt = part.match(/(?:seeds?|peers?|S)\s*[:=]\s*(\d+)/i);
         if (seedAlt && seeds === 0) seeds = parseInt(seedAlt[1], 10);
       }
 
-      // Determine quality from the stream name or title
       const combined = `${s.name || ''} ${mainTitle}`;
       const quality = guessQuality(combined);
 
-      // Check if this is a direct URL (debrid-resolved) or needs magnet processing
       const hasDirectUrl = !!s.url && !s.url.startsWith('magnet:');
       const hasInfoHash  = !!s.infoHash;
 
@@ -2796,37 +2832,47 @@
         result.magnet = buildMagnet(s.infoHash.toLowerCase(), mainTitle);
       }
 
-      // If stream has behaviorHints with filename, use it
       if (s.behaviorHints?.filename) {
         result.title   = s.behaviorHints.filename;
         result.quality = guessQuality(s.behaviorHints.filename);
       }
 
       return result;
-    }).filter(r => r._directUrl || r.magnet); // Must have either a direct URL or a magnet
+    }).filter(r => r._directUrl || r.magnet || r.hash);
   }
 
-  // Search all enabled Stremio addons in parallel
+  // Search all enabled Stremio addons — streams results progressively as each addon responds
   async function searchStremioAddons(imdbId, mediaType, season, episode, onStatus) {
     const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
     if (addons.length === 0 || !imdbId) return [];
 
     const type = mediaType === 'tv' ? 'series' : 'movie';
-    onStatus('searching', `🧩 Querying ${addons.length} Stremio addon${addons.length > 1 ? 's' : ''}…`);
+    onStatus('searching', `🧩 Querying ${addons.length} addon${addons.length > 1 ? 's' : ''}… (RD streams may take up to 25s)`);
 
-    const results = await Promise.allSettled(
-      addons.map(addon => fetchAddonStreams(addon, type, imdbId, season, episode))
+    let allStreams = [];
+    const existingHashes = new Set();
+
+    // Fire all addons simultaneously but render each one as it resolves
+    const addonPromises = addons.map(addon =>
+      fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
+        if (!streams?.length) return;
+        // Dedupe by hash
+        const unique = streams.filter(s => {
+          if (s.hash && existingHashes.has(s.hash)) return false;
+          if (s.hash) existingHashes.add(s.hash);
+          return true;
+        });
+        if (!unique.length) return;
+        allStreams = [...allStreams, ...unique];
+        // Emit progressive update so UI renders immediately
+        const sorted = sortTorrentResults(allStreams);
+        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} found`, sorted);
+      }).catch(e => console.warn(`[Addon:${addon.name}] failed:`, e))
     );
 
-    const allStreams = [];
-    for (const r of results) {
-      if (r.status === 'fulfilled' && r.value?.length > 0) {
-        allStreams.push(...r.value);
-      }
-    }
-
-    console.log(`[Stremio Addons] Total: ${allStreams.length} streams from ${addons.length} addon(s)`);
-    return allStreams;
+    // Wait for all to finish then return final set
+    await Promise.allSettled(addonPromises);
+    return sortTorrentResults(allStreams);
   }
 
   /* ── Stremio Addon Catalog Browser ──────────────────────────────── */
@@ -3607,8 +3653,8 @@
 
     return results.filter(r => {
       const tl = r.title.toLowerCase();
-      // Min seeders
-      if (s.minSeeds > 0 && r.seeds < s.minSeeds) return false;
+      // Min seeders — skip this check for direct/debrid-resolved streams (seeds=0 is normal for RD)
+      if (s.minSeeds > 0 && r.seeds < s.minSeeds && !r._isDirect) return false;
       // Exclude keywords (checkbox-based)
       if (s.seCam      && /\bcam\b|hdcam|camrip/.test(tl))   return false;
       if (s.seScreener && /screener|scr\b/.test(tl))           return false;
@@ -3670,22 +3716,42 @@
         const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
         if (enabledAddons.length > 0 && imdbId) {
           try {
-            const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
+            let gotResults = false;
+            // searchStremioAddons fires onStatus('results') progressively per addon
+            // Wrap to apply filters and track whether anything came through
+            const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode,
+              (type, msg, data) => {
+                if (type === 'results' && data?.length > 0) {
+                  const filtered = applySettingsFilters(filterTorrentResults(data));
+                  if (filtered.length > 0) {
+                    gotResults = true;
+                    onStatus('results', `⚡ ${filtered.length} stream${filtered.length !== 1 ? 's' : ''} found`, filtered);
+                  }
+                } else if (type !== 'results') {
+                  onStatus(type, msg);
+                }
+              }
+            );
+            // Final pass with full result set (catches any missed by progressive updates)
             if (addonResults.length > 0) {
-              dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
+              const final = applySettingsFilters(filterTorrentResults(addonResults));
+              if (final.length > 0) {
+                gotResults = true;
+                onStatus('results', `⚡ ${final.length} stream${final.length !== 1 ? 's' : ''} found`, final);
+                return final;
+              }
             }
+            // Only show empty if nothing came through at all
+            if (!gotResults) {
+              onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
+            }
+            return addonResults;
           } catch (e) { console.warn('[search] Stremio addons:', e); }
         } else if (!imdbId) {
           onStatus('info', '⚠️ No IMDB ID — addons need an IMDB ID to search. Try the 🧲 Torrents tab instead.');
         } else if (enabledAddons.length === 0) {
           onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or MediaFusion in Settings ⚙️');
         }
-      }
-
-      if (allResults.length > 0) {
-        const sorted = sortTorrentResults(allResults);
-        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} from addons`, sorted);
-        return sorted;
       }
       onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
       return [];
@@ -4124,7 +4190,7 @@
     links.forEach((link, i) => {
       const label = link.quality || `File ${i+1}`;
       const enc = encodeURIComponent(link.url);
-      const infuseUrl = buildInfuseUrl(link.url);
+      const infuseUrl = buildInfuseUrl(link.url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
       const vlcUrl = `vlc-x-callback://x-callback-url/stream?url=${enc}`;
       qualityRows += `
         <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -4346,10 +4412,19 @@
 
     // Track episode for completion prompt (TV episodes only)
     if (mediaType === 'tv' && season && episode) {
-      epCompletionData = { tvId: null, season, episode, title: displayTitle || searchQuery };
-      // Try to get tvId from currentDetailItem
+      const rawTitle = displayTitle || searchQuery || '';
+      const epClean = rawTitle.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').replace(/\s*(S\d+E\d+).*$/i, '').replace(/\s+/g, ' ').trim();
+      // Preserve existing tvId/imdbId from previous epCompletionData if currentDetailItem is absent
+      // (happens in Safari session after Infuse callback — detail page was never opened)
+      const prevTvId   = epCompletionData?.tvId   || null;
+      const prevImdbId = epCompletionData?.imdbId  || null;
+      epCompletionData = { tvId: prevTvId, imdbId: imdbId || prevImdbId || currentImdbId || null, season, episode, title: epClean };
+      // Prefer currentDetailItem if available (normal in-PWA flow)
       if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
         epCompletionData.tvId = currentDetailItem.id;
+      } else if (currentMovieId) {
+        // currentMovieId is set for both movies and TV shows by openTVDetail
+        epCompletionData.tvId = epCompletionData.tvId || currentMovieId;
       }
     } else {
       epCompletionData = null;
@@ -4439,6 +4514,10 @@
     // Pause video if playing
     const vid = document.getElementById('rd-player');
     if (vid) { vid.pause(); vid.src = ''; }
+    // Clear CW tracking interval
+    if (vid?._cwInterval) { clearInterval(vid._cwInterval); vid._cwInterval = null; }
+    // Clear auto-play next timer if overlay is closed manually
+    if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
   }
 
   // Called by the re-search input inside the overlay header
@@ -4847,7 +4926,7 @@
   // ── External App Return Tracking ──
   let _externalAppLaunch = null; // { time, torrent, app }
 
-  // Build Infuse URL for playback
+  // Build plain Infuse URL for playback
   function buildInfuseUrl(videoUrl) {
     return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
   }
@@ -4868,25 +4947,31 @@
     a.click();
   }
 
-  // Listen for return from external app
+  // visibilitychange — refresh continue watching when PWA returns to foreground
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible' || !_externalAppLaunch) return;
-    const elapsed = Date.now() - _externalAppLaunch.time;
-    // Only show if they were gone for at least 10 seconds (actually watched something)
-    if (elapsed < 10000) { _externalAppLaunch = null; return; }
-    const { torrent, app } = _externalAppLaunch;
-    _externalAppLaunch = null;
-    showExternalReturnPopup(torrent, app);
+    if (document.visibilityState !== 'visible') return;
+    loadContinueWatching();
+    if (_externalAppLaunch) {
+      const elapsed = Date.now() - _externalAppLaunch.time;
+      if (elapsed < 10000) { _externalAppLaunch = null; return; }
+      const { torrent, app } = _externalAppLaunch;
+      _externalAppLaunch = null;
+      // If we have TV episode context, show the full episode complete popup
+      // (with 10s countdown + Play Next) instead of the simple finished/not yet prompt
+      if (epCompletionData && epCompletionData.tvId) {
+        showEpisodeCompletePopup();
+      } else {
+        showExternalReturnPopup(torrent, app);
+      }
+    }
   });
 
   function showExternalReturnPopup(torrent, appName) {
-    // Remove any existing popup
     document.getElementById('external-return-popup')?.remove();
-
-    const isTV = epCompletionData && epCompletionData.tvId;
+    const isTV   = epCompletionData && epCompletionData.tvId;
     const epCode = isTV ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}` : '';
-    const titleText = isTV ? `${epCompletionData.title || torrent.title} ${epCode}` : (torrent.title || 'this content');
-
+    const rawTitle = isTV ? (epCompletionData.title || '').trim() : (torrent.title || '').replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').trim();
+    const titleText = isTV ? `${rawTitle || 'this episode'} ${epCode}` : (rawTitle || 'this content');
     const popup = document.createElement('div');
     popup.id = 'external-return-popup';
     popup.style.cssText = `position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);
@@ -4908,25 +4993,21 @@
         </div>
       </div>`;
     document.body.appendChild(popup);
-
     popup.querySelector('#ext-return-done').onclick = () => {
       if (isTV && epCompletionData.tvId) {
-        toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
-        refreshEpisodeUI(epCompletionData.tvId, epCompletionData.season);
+        if (!isEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode)) {
+          toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
+        }
         refreshTVStreamButton();
         loadContinueWatching();
         showToast(`✅ Marked ${epCode} watched`, 'success');
       } else {
+        if (currentMovieId) { removeCWMovie(currentMovieId); loadContinueWatching(); }
         showToast('✅ Marked as finished', 'success');
       }
       popup.remove();
     };
-
-    popup.querySelector('#ext-return-dismiss').onclick = () => {
-      popup.remove();
-    };
-
-    // Close on backdrop click
+    popup.querySelector('#ext-return-dismiss').onclick = () => popup.remove();
     popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
   }
 
@@ -5267,7 +5348,6 @@
       group.appendChild(extBtn);
       linksEl.appendChild(group);
 
-      // Infuse button per quality
       const infuseBtn = document.createElement('a');
       infuseBtn.href = buildInfuseUrl(link.url);
       infuseBtn.className = 'stream-ext-btn';
@@ -5313,7 +5393,29 @@
       if (epCompletionData && currentMediaType === 'tv' && currentSeason && currentEpisode) {
         showEpisodeCompletePopup();
       }
+      // If movie just ended, remove from CW (it's done)
+      if (currentMediaType === 'movie' && currentMovieId) {
+        removeCWMovie(currentMovieId);
+        loadContinueWatching();
+      }
     };
+
+    // Track movie progress every 10 seconds while playing
+    if (currentMediaType === 'movie' && currentMovieId && currentDetailItem) {
+      video._cwInterval = setInterval(() => {
+        if (!video.paused && video.duration > 0) {
+          saveCWMovie(
+            currentMovieId,
+            currentDetailItem.title || currentDetailItem.name || '',
+            currentDetailItem.poster_path || null,
+            video.currentTime / video.duration,
+            video.duration
+          );
+        }
+      }, 10000);
+      // Clear on ended or when player is hidden
+      video.addEventListener('ended', () => { clearInterval(video._cwInterval); }, { once: true });
+    }
 
     if (statusEl) {
       statusEl.innerHTML =
@@ -5348,6 +5450,7 @@
     if (_plyr) { _plyr.pause(); _plyr.source = { type: 'video', sources: [] }; }
     const video = document.getElementById('rd-player');
     if (video?._hls) { video._hls.destroy(); video._hls = null; }
+    if (video?._cwInterval) { clearInterval(video._cwInterval); video._cwInterval = null; }
     document.querySelectorAll('.tor-result-row').forEach(r => { r.classList.remove('selected'); r.classList.remove('dimmed'); });
   }
 
@@ -5563,6 +5666,10 @@
   }
 
   async function tmdb(endpoint, params = {}) {
+    const cacheKey = _tmdbCacheKey(endpoint, { ...params, _adult: 'false' });
+    const cached = _tmdbCache.get(cacheKey);
+    if (cached && cached.hour === _tmdbCacheHour()) return cached.data;
+
     const url = new URL(API_PROXY, window.location.origin);
     url.searchParams.set('api', 'tmdb');
     url.searchParams.set('endpoint', endpoint);
@@ -5571,7 +5678,9 @@
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
     const res = await fetch(url);
     if (!res.ok) throw new Error(`TMDB ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    _tmdbCache.set(cacheKey, { data, hour: _tmdbCacheHour() });
+    return data;
   }
 
   async function tmdbAdult(endpoint, params = {}) {
@@ -5616,15 +5725,21 @@
     const grid = document.getElementById(gridId);
     if (!grid) return;
     grid.innerHTML = '';
-    for (const item of items) {
-      if (!item.poster_path && !item.backdrop_path && !item.profile_path) continue;
+
+    // Batch all image fetches in parallel instead of sequentially
+    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    const imageUrls = await Promise.all(filtered.map(item => {
+      const isPerson = item.media_type === 'person' || !!item.known_for_department;
+      if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
+      return getImageUrl(item);
+    }));
+
+    filtered.forEach((item, idx) => {
+      const imageUrl = imageUrls[idx];
+      if (!imageUrl) return;
       const title    = item.title || item.name || 'Unknown';
       const year     = (item.release_date || item.first_air_date || '').slice(0, 4);
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
-      const imageUrl = isPerson
-        ? (item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null)
-        : await getImageUrl(item);
-      if (!imageUrl) continue;
       const type      = item.media_type || (isPerson ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
       const favorited = isFavorited(item.id, type);
       const card = document.createElement('div');
@@ -5639,7 +5754,7 @@
       card.dataset.navKey = navRegStore(item);
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
-    }
+    });
   }
 
   async function renderVerticalGrid(gridId, items, showActorNames = false) {
@@ -5647,15 +5762,21 @@
     if (!grid) return;
     grid.innerHTML = '';
     grid.className = 'vertical-grid';
-    for (const item of items) {
-      if (!item.poster_path && !item.backdrop_path && !item.profile_path) continue;
+
+    // Batch all image fetches in parallel
+    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    const imageUrls = await Promise.all(filtered.map(item => {
+      const isPerson = item.media_type === 'person' || !!item.known_for_department;
+      if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
+      return getImageUrl(item);
+    }));
+
+    filtered.forEach((item, idx) => {
+      const imageUrl = imageUrls[idx];
+      if (!imageUrl) return;
       const title    = item.title || item.name || 'Unknown';
       const year     = (item.release_date || item.first_air_date || '').slice(0, 4);
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
-      const imageUrl = isPerson
-        ? (item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null)
-        : await getImageUrl(item);
-      if (!imageUrl) continue;
       const type      = item.media_type || (isPerson ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
       const favorited = isFavorited(item.id, type);
       const infoHtml  = (showActorNames && isPerson)
@@ -5673,7 +5794,7 @@
       card.dataset.navKey = navRegStore(item);
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
-    }
+    });
   }
 
   function toggleFavoriteFromCard(id, type, btn, itemData) {
@@ -5963,23 +6084,24 @@
     }
   }
 
-  // ── Continue Watching — shows favorited TV shows with episode progress ──
+  // ── Continue Watching — TV shows with episode progress + in-progress movies ──
   async function loadContinueWatching() {
     const section = document.getElementById('section-continue-watching');
     const grid    = document.getElementById('continue-watching-grid');
     if (!section || !grid) return;
 
-    const favTv = (favorites.tv || []);
-    if (favTv.length === 0) { section.style.display = 'none'; return; }
+    const favTv    = (favorites.tv || []);
+    const cwMovies = getCWMovies();
 
-    // Find shows that have watch progress in localStorage
+    if (favTv.length === 0 && cwMovies.length === 0) { section.style.display = 'none'; return; }
+
+    // ── TV: Find shows with watch progress ──
     const showsWithProgress = [];
     for (const show of favTv) {
       const watched = getWatchedEpisodes(show.id);
       const keys = Object.keys(watched);
-      if (keys.length === 0) continue; // No episodes watched
+      if (keys.length === 0) continue;
 
-      // Find highest watched episode for display
       let maxSeason = 0, maxEp = 0, lastWatchedTs = 0;
       for (const key of keys) {
         const m = key.match(/^s(\d+)e(\d+)$/);
@@ -5995,31 +6117,21 @@
       }
     }
 
-    if (showsWithProgress.length === 0) { section.style.display = 'none'; return; }
-
-    // Sort by most recently watched
-    showsWithProgress.sort((a, b) => b._lastTs - a._lastTs);
-
-    // Fetch TMDB data in parallel (up to 15 shows) to get real next unwatched
+    // ── Enrich TV shows with real next episode via TMDB ──
     const enriched = [];
     const checks = showsWithProgress.slice(0, 15).map(async show => {
       try {
         const data = await tmdb(`/tv/${show.id}`);
         const seasons = (data.seasons || []).filter(s => s.season_number > 0);
         const nextEp = getNextUnwatched(show.id, seasons);
-
-        // If all watched, still show with "All caught up" label
         enriched.push({
-          ...show,
-          _nextEp: nextEp,
-          _allCaughtUp: !nextEp,
+          ...show, _type: 'tv', _nextEp: nextEp, _allCaughtUp: !nextEp,
           _totalSeasons: seasons.length,
           poster_path: data.poster_path || show.poster_path,
         });
       } catch {
-        // Fallback without TMDB: assume next episode is maxEp + 1
         enriched.push({
-          ...show,
+          ...show, _type: 'tv',
           _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
           _allCaughtUp: false,
         });
@@ -6027,41 +6139,72 @@
     });
     await Promise.all(checks);
 
-    // Split: active (episodes remaining) → Continue Watching
-    //        caught up → Recently Watched
-    const active   = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+    // ── Merge active TV + in-progress movies, sort by recency ──
+    const active = enriched.filter(s => !s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
+
+    // Add movies (tag with _type:'movie')
+    const movieItems = cwMovies.map(m => ({ ...m, _type: 'movie' }));
+
+    // Merge and sort by timestamp
+    const combined = [...active, ...movieItems].sort((a, b) => (b._lastTs || b.ts || 0) - (a._lastTs || a.ts || 0));
+
+    // ── Caught-up TV for Recently Watched section ──
     const caughtUp = enriched.filter(s => s._allCaughtUp).sort((a, b) => b._lastTs - a._lastTs);
 
-    // ── Continue Watching (only shows with episodes remaining) ──
-    if (active.length === 0) {
+    // ── Render Continue Watching ──
+    if (combined.length === 0) {
       section.style.display = 'none';
     } else {
       section.style.display = 'block';
       grid.innerHTML = '';
-      for (const show of active) {
-        const imgUrl = show.poster_path ? `${TMDB_IMG}${show.poster_path}` : null;
+
+      for (const item of combined) {
+        const imgUrl = item.poster_path ? `${TMDB_IMG}${item.poster_path}` : null;
         if (!imgUrl) continue;
-        const ne = show._nextEp;
-        const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
-        const subLabel = `${show._watchedCount} watched`;
         const card = document.createElement('div');
         card.className = 'card';
-        card.dataset.navKey = navRegStore(show);
-        card.innerHTML = `
-          <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-          <div class="info">
-            <div class="cw-title">${show.name || show.original_name || ''}</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
-              <span class="cw-badge">${epLabel}</span>
-              <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
-            </div>
-          </div>`;
-        card.onclick = () => openTVDetail(show.id);
+
+        if (item._type === 'movie') {
+          // Movie card: show progress bar if we have duration
+          const pct = (item.duration && item.progress) ? Math.round(item.progress * 100) : null;
+          const pctLabel = pct != null ? `${pct}%` : 'In Progress';
+          const progressBar = (pct != null)
+            ? `<div style="width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.2rem;overflow:hidden;">
+                 <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--accent-green),var(--accent-purple));border-radius:2px;"></div>
+               </div>`
+            : '';
+          card.innerHTML = `
+            <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+            <div class="info">
+              <div class="cw-title">${item.title || ''}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
+                <span class="cw-badge" style="background:rgba(16,185,129,0.85);">🎬 ${pctLabel}</span>
+              </div>
+              ${progressBar}
+            </div>`;
+          card.onclick = () => openMovieDetail(item.id);
+        } else {
+          // TV show card
+          const ne = item._nextEp;
+          const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
+          const subLabel = `${item._watchedCount} watched`;
+          card.dataset.navKey = navRegStore(item);
+          card.innerHTML = `
+            <img class="poster" src="${imgUrl}" loading="lazy" alt="">
+            <div class="info">
+              <div class="cw-title">${item.name || item.original_name || ''}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
+                <span class="cw-badge">${epLabel}</span>
+                <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
+              </div>
+            </div>`;
+          card.onclick = () => openTVDetail(item.id);
+        }
         grid.appendChild(card);
       }
     }
 
-    // ── Recently Watched (caught-up shows) ──
+    // ── Recently Watched (caught-up TV shows) ──
     const rwSection = document.getElementById('section-recently-watched');
     const rwGrid    = document.getElementById('recently-watched-grid');
     if (rwSection && rwGrid) {
@@ -6094,82 +6237,155 @@
 
   // ── Episode Completion Popup ──
   let epCompletionData = null; // stores { tvId, season, episode, title } when playing a TV episode
+  let _epAutoPlayTimer = null; // countdown interval handle
 
   function showEpisodeCompletePopup() {
     if (!epCompletionData || !epCompletionData.tvId) return;
     const { tvId, season, episode, title } = epCompletionData;
     const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
 
-    // Remove any existing popup
+    // Remove any existing popup + clear any running timer
     document.getElementById('ep-complete-popup')?.remove();
+    if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
 
     const popup = document.createElement('div');
     popup.className = 'ep-complete-popup';
     popup.id = 'ep-complete-popup';
 
     const nextEpCode = `S${String(season).padStart(2,'0')}E${String(episode + 1).padStart(2,'0')}`;
+    let countdown = 10;
 
     popup.innerHTML = `
       <div class="ep-popup-title">🎬 Episode finished!</div>
       <div class="ep-popup-sub">${title} — ${epCode}</div>
       <div class="ep-popup-btns">
         <button class="ep-popup-btn" id="ep-mark-btn">✅ Mark ${epCode} Complete</button>
-        <button class="ep-popup-btn next" id="ep-next-btn">▶ Play Next (${nextEpCode})</button>
-        <button class="ep-popup-btn secondary" onclick="closeEpCompletePopup()">Dismiss</button>
+        <button class="ep-popup-btn next" id="ep-next-btn">▶ Play Next <span id="ep-countdown">(${nextEpCode} · ${countdown}s)</span></button>
+        <button class="ep-popup-btn secondary" id="ep-dismiss-btn">✕ Dismiss</button>
       </div>`;
     document.body.appendChild(popup);
 
-    // Wire up mark complete
+    // Shared play-next action (used by button AND timer)
+    async function doPlayNext() {
+      if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
+      // Mark current episode watched
+      if (epCompletionData.tvId && !isEpisodeWatched(epCompletionData.tvId, season, episode)) {
+        toggleEpisodeWatched(epCompletionData.tvId, season, episode);
+      }
+      closeEpCompletePopup();
+      refreshTVStreamButton();
+      loadContinueWatching();
+
+      // Next episode is ALWAYS the one immediately after what just played.
+      // We do NOT use getNextUnwatched here — that would skip episodes
+      // if the user is rewatching. Sequential order only.
+      let nextSeason  = season;
+      let nextEpisode = episode + 1;
+      let cleanTitle  = title;
+      let resolvedImdbId = epCompletionData.imdbId || currentImdbId || null;
+
+      if (epCompletionData.tvId) {
+        try {
+          const [showData, extData] = await Promise.all([
+            tmdb(`/tv/${epCompletionData.tvId}`),
+            resolvedImdbId ? Promise.resolve(null) : tmdb(`/tv/${epCompletionData.tvId}/external_ids`)
+          ]);
+          cleanTitle = showData.name || showData.original_name || title;
+          if (!resolvedImdbId) resolvedImdbId = extData?.imdb_id || showData.external_ids?.imdb_id || null;
+
+          // Only advance to next season if this episode was the season finale
+          const thisSeason = (showData.seasons || []).find(s => s.season_number === season);
+          if (thisSeason && episode >= thisSeason.episode_count) {
+            // Last episode of season — advance to next season E1
+            const nextSeasonData = (showData.seasons || []).find(s => s.season_number === season + 1);
+            if (nextSeasonData) { nextSeason = season + 1; nextEpisode = 1; }
+            else {
+              showToast(`🎉 You've finished ${cleanTitle}!`, 'success');
+              return; // show is complete
+            }
+          }
+        } catch (e) { console.warn('[doPlayNext] TMDB fetch failed:', e); }
+      }
+
+      // Strip torrent junk from title if TMDB fetch failed
+      if (cleanTitle === title) {
+        cleanTitle = title.replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i,'').replace(/[._]/g,' ').replace(/\s*(S\d+E\d+).*$/i,'').replace(/\s+/g,' ').trim();
+      }
+
+      if (!resolvedImdbId) {
+        showToast('⚠️ Could not resolve IMDB ID — try opening the show detail first', 'error');
+        return;
+      }
+
+      currentImdbId = resolvedImdbId;
+      const nextEpLabel  = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
+      const displayTitle = `${cleanTitle} ${nextEpLabel}`;
+      openTorrentOverlay(displayTitle, displayTitle, resolvedImdbId, 'tv', nextSeason, nextEpisode, 'streams');
+    }
+
+    // ── Countdown timer ──
+    _epAutoPlayTimer = setInterval(() => {
+      countdown--;
+      const cdEl = document.getElementById('ep-countdown');
+      if (cdEl) cdEl.textContent = `(${nextEpCode} · ${countdown}s)`;
+      if (countdown <= 0) doPlayNext();
+    }, 1000);
+
+    // ── Wire up Mark Complete ──
     popup.querySelector('#ep-mark-btn').onclick = () => {
       if (!tvId) { showToast('Cannot track — open the show detail first', 'error'); return; }
-      const wasWatched = isEpisodeWatched(tvId, season, episode);
-      if (!wasWatched) {
+      if (!isEpisodeWatched(tvId, season, episode)) {
         toggleEpisodeWatched(tvId, season, episode);
         showToast(`✅ Marked ${epCode} watched`, 'success');
       }
-      // Update button
       const btn = popup.querySelector('#ep-mark-btn');
       btn.textContent = '✅ Marked!';
       btn.style.opacity = '0.5';
       btn.style.pointerEvents = 'none';
-      // Refresh continue watching and stream button in background
       refreshTVStreamButton();
       loadContinueWatching();
     };
 
-    // Wire up play next
-    popup.querySelector('#ep-next-btn').onclick = async () => {
-      // Mark current as watched if not already
-      if (epCompletionData.tvId && !isEpisodeWatched(epCompletionData.tvId, season, episode)) {
-        toggleEpisodeWatched(epCompletionData.tvId, season, episode);
-      }
+    // ── Wire up Play Next (instant, bypasses timer) ──
+    popup.querySelector('#ep-next-btn').onclick = doPlayNext;
 
+    // ── Wire up Dismiss ──
+    popup.querySelector('#ep-dismiss-btn').onclick = () => {
+      if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
       closeEpCompletePopup();
-      refreshTVStreamButton();
-      loadContinueWatching(); // refresh home section
-
-      // Try to find the real next unwatched episode via TMDB
-      let nextSeason = season, nextEpisode = episode + 1;
-      if (epCompletionData.tvId) {
-        try {
-          const data = await tmdb(`/tv/${epCompletionData.tvId}`);
-          const seasons = (data.seasons || []).filter(s => s.season_number > 0);
-          const realNext = getNextUnwatched(epCompletionData.tvId, seasons);
-          if (realNext) { nextSeason = realNext.season; nextEpisode = realNext.episode; }
-        } catch {}
-      }
-
-      const nextEpLabel = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
-      const nextSearch = `${title} ${nextEpLabel}`;
-      openTorrentOverlay(nextSearch, `${title} ${nextEpLabel}`, currentImdbId || '', 'tv', nextSeason, nextEpisode, 'streams');
     };
-
-    // Auto-dismiss after 30 seconds
-    setTimeout(() => { closeEpCompletePopup(); }, 30000);
   }
 
   function closeEpCompletePopup() {
     document.getElementById('ep-complete-popup')?.remove();
+  }
+
+  /* ── Movie Continue Watching helpers ─────────────────────────────────
+     Saves timestamp + duration when movie plays in the RD player.
+     Key format: cw_movie_<movieId>  →  { id, title, poster_path, ts, progress, duration }
+     ─────────────────────────────────────────────────────────────────── */
+  function saveCWMovie(movieId, title, posterPath, progress, duration) {
+    if (!movieId) return;
+    const entry = { id: movieId, title, poster_path: posterPath, ts: Date.now(), progress, duration };
+    localStorage.setItem(`cw_movie_${movieId}`, JSON.stringify(entry));
+  }
+
+  function getCWMovies() {
+    const movies = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('cw_movie_')) continue;
+      try { movies.push(JSON.parse(localStorage.getItem(key))); } catch {}
+    }
+    // Sort most recent first, only keep movies that are < 95% complete (still in progress)
+    return movies
+      .filter(m => !m.duration || m.progress < 0.95)
+      .sort((a, b) => b.ts - a.ts)
+      .slice(0, 10);
+  }
+
+  function removeCWMovie(movieId) {
+    localStorage.removeItem(`cw_movie_${movieId}`);
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -6186,22 +6402,37 @@
 
     const popup = document.createElement('div');
     popup.id = 'cache-play-popup';
+
+    // Build Infuse URL with x-callback context
+    const infuseUrl = buildInfuseUrl(url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
+
     popup.innerHTML = `
       <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
       <div class="cache-popup-panel">
         <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'Infuse'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" id="cache-infuse-btn">
             📺 Infuse
           </a>
-          <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" onclick="_externalAppLaunch={time:Date.now(),torrent:{title:'${safeTitle.replace(/'/g,"\\'")}'},app:'VLC'};setTimeout(()=>document.getElementById('cache-play-popup')?.remove(),300)">
+          <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" id="cache-vlc-btn">
             🎬 VLC
           </a>
           <button class="cache-popup-btn browser" id="cache-browser-btn">🌐 Browser</button>
         </div>
         <button class="cache-popup-close" onclick="this.closest('#cache-play-popup').remove()">Cancel</button>
       </div>`;
-    // Attach browser click safely
+
+    popup.querySelector('#cache-infuse-btn').onclick = () => {
+      _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'Infuse' };
+      setTimeout(() => document.getElementById('cache-play-popup')?.remove(), 300);
+    };
+
+    popup.querySelector('#cache-vlc-btn').onclick = () => {
+      _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'VLC' };
+      setTimeout(() => document.getElementById('cache-play-popup')?.remove(), 300);
+    };
+
+    // Browser
     popup.querySelector('#cache-browser-btn').onclick = () => {
       window.open(url, '_blank');
       popup.remove();
@@ -7190,13 +7421,74 @@
   /* ═══════════════════════════════════════════════════════════════════
      § 17  SEARCH
      ═══════════════════════════════════════════════════════════════════ */
+
+  // ── Search History (last 5 unique queries) ──────────────────────────
+  const SEARCH_HISTORY_KEY = 'watcher_search_history';
+  const SEARCH_HISTORY_MAX = 5;
+
+  function getSearchHistory() {
+    try { return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch { return []; }
+  }
+
+  function saveSearchHistory(query) {
+    if (!query || query.length < 2) return;
+    let hist = getSearchHistory().filter(q => q.toLowerCase() !== query.toLowerCase());
+    hist.unshift(query);
+    hist = hist.slice(0, SEARCH_HISTORY_MAX);
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(hist));
+  }
+
+  function removeFromSearchHistory(query) {
+    const hist = getSearchHistory().filter(q => q !== query);
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(hist));
+    renderSearchHistory();
+  }
+
+  function renderSearchHistory() {
+    const container = document.getElementById('search-history');
+    if (!container) return;
+    const hist = getSearchHistory();
+    const searchInp = document.getElementById('search-input');
+    const currentVal = searchInp?.value?.trim() || '';
+    // Hide when user is actively typing or history is empty
+    if (hist.length === 0 || currentVal.length > 0) {
+      container.classList.remove('visible');
+      container.innerHTML = '';
+      return;
+    }
+    container.classList.add('visible');
+    container.innerHTML = hist.map(q =>
+      `<span class="search-hist-chip" data-q="${q.replace(/"/g,'&quot;')}">
+         🕐 ${q}
+         <span class="hist-x" data-remove="${q.replace(/"/g,'&quot;')}">✕</span>
+       </span>`
+    ).join('');
+    // Wire chip clicks
+    container.querySelectorAll('.search-hist-chip').forEach(chip => {
+      chip.onclick = (e) => {
+        if (e.target.classList.contains('hist-x')) {
+          e.stopPropagation();
+          removeFromSearchHistory(e.target.dataset.remove);
+          return;
+        }
+        const q = chip.dataset.q;
+        if (searchInp) searchInp.value = q;
+        container.classList.remove('visible');
+        clearTimeout(searchTimeout);
+        performSearch(q);
+      };
+    });
+  }
+
   async function performSearch(query) {
     if (!query) {
       const s = document.getElementById('search-results');
       if (s) s.remove();
       document.getElementById('genre-buttons-container').style.display = 'block';
+      renderSearchHistory(); // show history when search is cleared
       loadHome(); return;
     }
+    document.getElementById('search-history')?.classList.remove('visible');
     showLoading({ message: 'Searching…' });
     try {
       const apiFunc    = isAdultMode ? tmdbAdult : tmdb;
@@ -7231,6 +7523,7 @@
           <button class="btn" onclick="backToHome()">← Back to Browse</button>`;
         sec.style.display = 'block';
         await renderVerticalGrid('search-grid', allResults, true);
+        if (allResults.length > 0) setTimeout(() => saveSearchHistory(query), 3000);
         document.querySelectorAll('.search-filter-btn').forEach(btn => {
           btn.onclick = async () => {
             document.querySelectorAll('.search-filter-btn').forEach(b => b.classList.remove('active'));
@@ -7263,6 +7556,7 @@
       html += '<div class="vertical-grid" id="search-grid"></div><button class="btn" onclick="backToHome()">← Back to Browse</button>';
       sec.innerHTML = html; sec.style.display = 'block';
       await renderVerticalGrid('search-grid', allResults, true);
+      if (allResults.length > 0) setTimeout(() => saveSearchHistory(query), 3000);
 
       document.querySelectorAll('.search-filter-btn').forEach(btn => {
         btn.onclick = async () => {
@@ -7287,12 +7581,15 @@
   }
 
   const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('focus', () => { renderSearchHistory(); });
+  searchInput.addEventListener('blur',  () => { setTimeout(() => { document.getElementById('search-history')?.classList.remove('visible'); }, 200); });
   searchInput.addEventListener('input', (e) => {
     const q = e.target.value.trim();
     if (q === '42069') { toggleAdultMode(true);  searchInput.value = ''; return; }
     if (q === '143')   { toggleAdultMode(false); searchInput.value = ''; return; }
+    if (!q) { renderSearchHistory(); } else { document.getElementById('search-history')?.classList.remove('visible'); }
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => performSearch(q), 500);
+    searchTimeout = setTimeout(() => performSearch(q), 900);
   });
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') { clearTimeout(searchTimeout); performSearch(searchInput.value.trim()); }
@@ -7326,7 +7623,10 @@
   async function getWeather() {
     const widget = document.getElementById('weatherWidget');
     widget.classList.add('visible');
-    if (!navigator.geolocation) { document.getElementById('weatherCondition').textContent = 'Location unavailable'; return; }
+    if (!navigator.geolocation) {
+      await getWeatherByIP();
+      return;
+    }
     navigator.geolocation.getCurrentPosition(async ({ coords: { latitude, longitude } }) => {
       try {
         const [weatherRes, cityName] = await Promise.all([
@@ -7344,10 +7644,34 @@
           document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(data.current_weather.weathercode);
         }
       } catch { document.getElementById('weatherCondition').textContent = 'Unavailable'; }
-    }, () => {
+    }, async () => {
+      // Geolocation denied — fall back to IP-based location via ip-api.com
+      await getWeatherByIP();
+    });
+  }
+
+  async function getWeatherByIP() {
+    try {
+      // ip-api.com free tier — no key needed, ~45 requests/min limit
+      const ipRes  = await fetch('https://ip-api.com/json/?fields=lat,lon,city,countryCode');
+      const ipData = await ipRes.json();
+      if (!ipData.lat || !ipData.lon) throw new Error('No location from IP');
+      const { lat, lon, city, countryCode } = ipData;
+      const weatherRes  = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const weatherData = await weatherRes.json();
+      if (weatherData.current_weather) {
+        const tempC = Math.round(weatherData.current_weather.temperature);
+        const isUS  = countryCode === 'US';
+        const temp  = isUS ? Math.round(tempC*9/5+32) : tempC;
+        document.getElementById('weatherTemp').textContent      = `${temp}${isUS ? '°F' : '°C'}`;
+        document.getElementById('weatherCondition').textContent = getRudeboyWeatherCondition(weatherData.current_weather.weathercode);
+        document.getElementById('weatherLocation').textContent  = city || 'Nearby';
+        document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(weatherData.current_weather.weathercode);
+      }
+    } catch {
       document.getElementById('weatherCondition').textContent = 'Location denied';
       document.getElementById('weatherIcon').textContent = '📍';
-    });
+    }
   }
 
   function getWeatherIconFromCode(code) {
