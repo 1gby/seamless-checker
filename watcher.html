@@ -199,19 +199,6 @@
     #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
     #search-input::placeholder { color: rgba(255,255,255,0.5); }
 
-    /* Now Playing banner (VLC external launch) */
-    #now-playing-banner {
-      position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 70px); left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 2rem); max-width: 480px;
-      background: rgba(10,10,30,0.97); border: 1.5px solid var(--accent-green);
-      border-radius: 14px; padding: 0.75rem 1rem;
-      display: flex; align-items: center; gap: 0.75rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(16,185,129,0.2);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      z-index: 9000; animation: slideUpFade 0.3s ease;
-    }
-
     /* Search history chips */
     #search-history {      display: none; flex-wrap: wrap; gap: 0.5rem;
       padding: 0.65rem 0 0.25rem;
@@ -4408,7 +4395,7 @@
       if (currentDetailItem?.id && (currentDetailItem.media_type === 'tv' || currentDetailItem.first_air_date)) {
         epCompletionData.tvId = currentDetailItem.id;
       } else if (currentMovieId) {
-        // currentMovieId is set for both movies and TV shows by openTVDetail / handleInfuseCallback
+        // currentMovieId is set for both movies and TV shows by openTVDetail
         epCompletionData.tvId = epCompletionData.tvId || currentMovieId;
       }
     } else {
@@ -4911,44 +4898,16 @@
   // ── External App Return Tracking ──
   let _externalAppLaunch = null; // { time, torrent, app }
 
-  // Build Infuse URL with optional x-callback-url support.
-  // When mediaId + mediaType are supplied we embed an x-success URL so Infuse
-  // calls back to the PWA when playback ends.  Falls back to a plain URL when
-  // no callback context is available.
-  function buildInfuseUrl(videoUrl, mediaId, mediaType, season, episode) {
-    // Base play URL
-    const params = new URLSearchParams({ url: videoUrl });
-
-    if (mediaId)  params.set('tmdb', mediaId);
-    if (season != null)  params.set('season',  season);
-    if (episode != null) params.set('episode', episode);
-
-    if (epCompletionData?.title && season != null && episode != null) {
-      const ep = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
-      params.set('filename', `${epCompletionData.title} ${ep}`);
-    } else if (mediaType === 'movie' && currentDetailItem?.title) {
-      params.set('filename', currentDetailItem.title);
-    }
-
-    const base = `infuse://x-callback-url/play?${params}`;
-    if (!mediaId || !mediaType) return base;
-
-    const cbp = new URLSearchParams({ infuse_cb: '1', id: mediaId, type: mediaType });
-    if (season  != null) cbp.set('season',  season);
-    if (episode != null) cbp.set('episode', episode);
-    const successUrl = `${location.origin}/watcher?${cbp}`;
-    const cancelUrl  = `${location.origin}/watcher?${cbp}&cancelled=1`;
-    return `${base}&x-success=${encodeURIComponent(successUrl)}&x-cancel=${encodeURIComponent(cancelUrl)}`;
+  // Build plain Infuse URL for playback
+  function buildInfuseUrl(videoUrl) {
+    return `infuse://x-callback-url/play?url=${encodeURIComponent(videoUrl)}`;
   }
 
   // ── Open in Infuse (direct streams only) ──
   function handleTorrentInfuse(torrent, rowEl) {
     if (!torrent._directUrl) return;
     _externalAppLaunch = { time: Date.now(), torrent, app: 'Infuse' };
-    window.location.href = buildInfuseUrl(
-      torrent._directUrl,
-      currentMovieId, currentMediaType, currentSeason, currentEpisode
-    );
+    window.location.href = buildInfuseUrl(torrent._directUrl);
   }
 
   function handleTorrentVLC(torrent, rowEl) {
@@ -4958,241 +4917,27 @@
     const a = document.createElement('a');
     a.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(url)}`;
     a.click();
-    showNowPlayingBanner(torrent.title || 'stream');
   }
 
-  /* ── Now Playing Banner (VLC — no x-success support) ─────────────────
-     A persistent bottom banner that stays visible while the user is away
-     in VLC.  Lets them mark watched or dismiss on return.
-     ─────────────────────────────────────────────────────────────────── */
-  function showNowPlayingBanner(title) {
-    document.getElementById('now-playing-banner')?.remove();
-
-    const isTV   = epCompletionData && epCompletionData.tvId;
-    const epCode = isTV
-      ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}`
-      : '';
-    const label  = isTV ? `${epCompletionData.title || title} · ${epCode}` : title;
-
-    const banner = document.createElement('div');
-    banner.id = 'now-playing-banner';
-    banner.innerHTML = `
-      <div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;">
-        <span style="font-size:1rem;flex-shrink:0;">🎬</span>
-        <div style="min-width:0;">
-          <div style="font-size:0.65rem;color:var(--accent-green);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Now Playing in VLC</div>
-          <div style="font-size:0.75rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:0.4rem;flex-shrink:0;">
-        <button id="npb-done-btn" style="padding:0.35rem 0.7rem;border-radius:8px;border:1px solid var(--accent-green);
-          background:rgba(16,185,129,0.15);color:var(--accent-green);font-size:0.72rem;font-weight:700;cursor:pointer;">
-          ✅ Done
-        </button>
-        <button id="npb-dismiss-btn" style="padding:0.35rem 0.7rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
-          background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:0.72rem;cursor:pointer;">
-          ✕
-        </button>
-      </div>`;
-    document.body.appendChild(banner);
-
-    banner.querySelector('#npb-done-btn').onclick = () => {
-      if (isTV && epCompletionData?.tvId) {
-        if (!isEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode)) {
-          toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
-        }
-        refreshTVStreamButton();
-        loadContinueWatching();
-        showToast(`✅ Marked ${epCode} watched`, 'success');
-      } else {
-        // Movie — remove from CW
-        if (currentMovieId) { removeCWMovie(currentMovieId); loadContinueWatching(); }
-        showToast('✅ Marked as finished', 'success');
-      }
-      banner.remove();
-    };
-
-    banner.querySelector('#npb-dismiss-btn').onclick = () => banner.remove();
-  }
-
-  // ── Shared Cache Storage message bus ─────────────────────────────────
-  // iOS keeps localStorage separate between Safari and the installed PWA,
-  // but Cache Storage IS shared across both contexts on the same origin.
-  // We use it as a one-shot message bus: Safari writes a pending action,
-  // the PWA reads + applies + deletes it on next load/focus.
-  const SHARED_CACHE = 'watcher-shared-v1';
-  const SHARED_KEY   = 'https://rud3boy.vercel.app/_watcher_pending_action';
-
-  async function writeSharedAction(action) {
-    try {
-      const cache = await caches.open(SHARED_CACHE);
-      await cache.put(SHARED_KEY, new Response(JSON.stringify(action), { headers: { 'Content-Type': 'application/json' } }));
-    } catch (e) { console.warn('[SharedCache] write failed', e); }
-  }
-
-  async function readAndClearSharedAction() {
-    try {
-      const cache = await caches.open(SHARED_CACHE);
-      const res = await cache.match(SHARED_KEY);
-      if (!res) return null;
-      const action = await res.json();
-      await cache.delete(SHARED_KEY);
-      return action;
-    } catch { return null; }
-  }
-
-  // Apply a pending shared action (mark episode/movie watched)
-  async function applySharedAction(action) {
-    if (!action) return;
-    if (action.type === 'markEpisodeWatched' && action.tvId && action.season && action.episode) {
-      if (!isEpisodeWatched(action.tvId, action.season, action.episode)) {
-        toggleEpisodeWatched(action.tvId, action.season, action.episode);
-      }
-      // Restore all globals so episode complete popup + doPlayNext + Infuse buttons all work
-      currentMovieId   = action.tvId;
-      currentMediaType = 'tv';
-      currentSeason    = action.season;
-      currentEpisode   = action.episode;
-      if (action.imdbId) currentImdbId = action.imdbId;
-      epCompletionData = { tvId: action.tvId, imdbId: action.imdbId || null, season: action.season, episode: action.episode, title: action.title || '' };
-      refreshTVStreamButton();
-      loadContinueWatching();
-      const epCode = `S${String(action.season).padStart(2,'0')}E${String(action.episode).padStart(2,'0')}`;
-      showToast(`✅ ${action.title || ''} ${epCode} marked watched (from Infuse)`, 'success');
-      showEpisodeCompletePopup();
-    } else if (action.type === 'removeMovie' && action.movieId) {
-      removeCWMovie(action.movieId);
-      loadContinueWatching();
-      showToast('✅ Movie finished (from Infuse)', 'success');
-    }
-  }
-
-  // Infuse opens x-success URL in Safari when playback ends.
-  // We read the params on page load/focus and handle the callback.
-  async function handleInfuseCallback() {
-    const params = new URLSearchParams(location.search);
-    if (params.get('infuse_cb') !== '1') return;
-
-    // Clean URL immediately
-    history.replaceState({}, '', location.pathname);
-
-    const id       = params.get('id');       // TMDB ID
-    const type     = params.get('type');
-    const season   = params.get('season')  ? parseInt(params.get('season'))  : null;
-    const episode  = params.get('episode') ? parseInt(params.get('episode')) : null;
-    const cancelled= params.get('cancelled') === '1';
-
-    if (cancelled) { showToast('Playback cancelled in Infuse', 'info'); return; }
-
-    // ── Clear stale shared cache SYNCHRONOUSLY before any async work ──────
-    // visibilitychange can fire while we're awaiting TMDB below and would
-    // pick up the previous episode's stale action. Clear it now so it can't.
-    try {
-      const cache = await caches.open(SHARED_CACHE);
-      await cache.delete(SHARED_KEY);
-    } catch {}
-
-    // ── Persist IMDB ID in localStorage so it survives across page loads ──
-    // Key: watcher_imdb_<tmdbId>_<type>
-    const imdbCacheKey = `watcher_imdb_${id}_${type}`;
-    let imdbId = localStorage.getItem(imdbCacheKey) || null;
-
-    // Fetch clean show title AND IMDB ID from TMDB (use cached imdbId if available)
-    let cleanTitle = '';
-    if (type === 'tv' && id) {
-      try {
-        const fetches = [tmdb(`/tv/${id}`)];
-        if (!imdbId) fetches.push(tmdb(`/tv/${id}/external_ids`));
-        const [showData, extData] = await Promise.all(fetches);
-        cleanTitle = showData.name || showData.original_name || '';
-        if (!imdbId) {
-          imdbId = extData?.imdb_id || showData.external_ids?.imdb_id || null;
-          if (imdbId) localStorage.setItem(imdbCacheKey, imdbId);
-        }
-      } catch (e) { console.warn('[infuse_cb] TMDB fetch failed:', e); }
-    } else if (type === 'movie' && id) {
-      try {
-        const data = await tmdb(`/movie/${id}`, { append_to_response: 'external_ids' });
-        cleanTitle = data.title || data.name || '';
-        if (!imdbId) {
-          imdbId = data.external_ids?.imdb_id || data.imdb_id || null;
-          if (imdbId) localStorage.setItem(imdbCacheKey, imdbId);
-        }
-      } catch {}
-    }
-
-    if (type === 'tv' && season != null && episode != null && id) {
-      const epCode = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
-      // Write fresh action for PWA to pick up on next focus
-      await writeSharedAction({ type: 'markEpisodeWatched', tvId: id, imdbId, season, episode, title: cleanTitle });
-      // Mark locally (Safari context)
-      if (!isEpisodeWatched(id, season, episode)) toggleEpisodeWatched(id, season, episode);
-      loadContinueWatching();
-      // Set all globals so Infuse buttons + doPlayNext work correctly this session
-      currentMovieId   = id;
-      currentMediaType = 'tv';
-      currentSeason    = season;
-      currentEpisode   = episode;
-      if (imdbId) currentImdbId = imdbId;
-      epCompletionData = { tvId: id, imdbId, season, episode, title: cleanTitle };
-      showToast(`✅ ${cleanTitle} ${epCode} — marked watched`, 'success');
-      showEpisodeCompletePopup();
-    } else if (type === 'movie' && id) {
-      await writeSharedAction({ type: 'removeMovie', movieId: id });
-      removeCWMovie(id);
-      loadContinueWatching();
-      showToast('✅ Movie finished in Infuse', 'success');
-    }
-  }
-
-  // Run on startup — handles Safari x-success callback
-  handleInfuseCallback();
-
-  // Check Cache Storage on startup ONLY if this is NOT an Infuse callback page load.
-  // When infuse_cb=1 is in the URL, handleInfuseCallback is authoritative — running
-  // applySharedAction too would show the wrong (previous) episode's popup.
-  const _isInfuseCb = new URLSearchParams(location.search).get('infuse_cb') === '1';
-  if (!_isInfuseCb) {
-    readAndClearSharedAction().then(action => { if (action) setTimeout(() => applySharedAction(action), 1200); });
-  }
-
-  // visibilitychange — PWA returning from background:
-  // 1. Check Cache Storage for watched actions written by Safari's Infuse callback
-  // 2. Refresh home screen so any changes made in Safari are reflected
-  // 3. VLC-only fallback: show Now Playing banner if it somehow got dismissed
-  document.addEventListener('visibilitychange', async () => {
+  // visibilitychange — refresh continue watching when PWA returns to foreground
+  document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
-    // Apply any pending action from Safari (Cache Storage bus)
-    const action = await readAndClearSharedAction();
-    if (action) { applySharedAction(action); return; }
-    // Refresh continue watching so Safari-side changes show up immediately
     loadContinueWatching();
-    // Clear _externalAppLaunch silently — Infuse uses x-success, no popup needed
     if (_externalAppLaunch) {
-      const { app } = _externalAppLaunch;
+      const elapsed = Date.now() - _externalAppLaunch.time;
+      if (elapsed < 10000) { _externalAppLaunch = null; return; }
+      const { torrent, app } = _externalAppLaunch;
       _externalAppLaunch = null;
-      // VLC doesn't have x-callback — show banner if it was dismissed
-      if (app === 'VLC' && !document.getElementById('now-playing-banner')) {
-        // Banner was dismissed, nothing to do — user chose to dismiss it
-      }
+      showExternalReturnPopup(torrent, app);
     }
   });
 
   function showExternalReturnPopup(torrent, appName) {
-    // Remove any existing popup
     document.getElementById('external-return-popup')?.remove();
-
     const isTV   = epCompletionData && epCompletionData.tvId;
     const epCode = isTV ? `S${String(epCompletionData.season).padStart(2,'0')}E${String(epCompletionData.episode).padStart(2,'0')}` : '';
-
-    // Prefer the clean show title from epCompletionData over the raw torrent filename
-    const cleanTitle = isTV
-      ? (epCompletionData.title || '').trim()
-      : (torrent.title || '').replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').trim();
-    const titleText = isTV
-      ? `${cleanTitle || 'this episode'} ${epCode}`
-      : (cleanTitle || 'this content');
-
+    const rawTitle = isTV ? (epCompletionData.title || '').trim() : (torrent.title || '').replace(/\.(mkv|mp4|avi|mov|wmv|m4v|ts)$/i, '').replace(/[._]/g, ' ').trim();
+    const titleText = isTV ? `${rawTitle || 'this episode'} ${epCode}` : (rawTitle || 'this content');
     const popup = document.createElement('div');
     popup.id = 'external-return-popup';
     popup.style.cssText = `position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);
@@ -5214,25 +4959,21 @@
         </div>
       </div>`;
     document.body.appendChild(popup);
-
     popup.querySelector('#ext-return-done').onclick = () => {
       if (isTV && epCompletionData.tvId) {
-        toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
-        refreshEpisodeUI(epCompletionData.tvId, epCompletionData.season);
+        if (!isEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode)) {
+          toggleEpisodeWatched(epCompletionData.tvId, epCompletionData.season, epCompletionData.episode);
+        }
         refreshTVStreamButton();
         loadContinueWatching();
         showToast(`✅ Marked ${epCode} watched`, 'success');
       } else {
+        if (currentMovieId) { removeCWMovie(currentMovieId); loadContinueWatching(); }
         showToast('✅ Marked as finished', 'success');
       }
       popup.remove();
     };
-
-    popup.querySelector('#ext-return-dismiss').onclick = () => {
-      popup.remove();
-    };
-
-    // Close on backdrop click
+    popup.querySelector('#ext-return-dismiss').onclick = () => popup.remove();
     popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
   }
 
@@ -5573,20 +5314,13 @@
       group.appendChild(extBtn);
       linksEl.appendChild(group);
 
-      // Infuse button per quality — build URL lazily in onclick so it always
-      // reads the current season/episode globals, not stale render-time values
       const infuseBtn = document.createElement('a');
-      infuseBtn.href = '#';
+      infuseBtn.href = buildInfuseUrl(link.url);
       infuseBtn.className = 'stream-ext-btn';
       infuseBtn.style.cssText = 'border-color: rgba(255,149,0,0.4); color: #ff9500; font-size: 0.65rem; padding: 0.4rem 0.5rem;';
       infuseBtn.title = 'Open in Infuse';
       infuseBtn.textContent = '📺';
-      infuseBtn.onclick = (e) => {
-        e.preventDefault();
-        _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'Infuse' };
-        // Build URL fresh so x-success always carries the correct episode number
-        location.href = buildInfuseUrl(link.url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
-      };
+      infuseBtn.onclick = () => { _externalAppLaunch = { time: Date.now(), torrent: { title: link.filename || title }, app: 'Infuse' }; };
       linksEl.appendChild(infuseBtn);
 
       // VLC button per quality
@@ -5662,10 +5396,7 @@
     const video = document.getElementById('rd-player');
     if (video?.src) {
       _externalAppLaunch = { time: Date.now(), torrent: { title: torrentOverlayTitle || 'stream' }, app: 'Infuse' };
-      window.location.href = buildInfuseUrl(
-        video.src,
-        currentMovieId, currentMediaType, currentSeason, currentEpisode
-      );
+      window.location.href = buildInfuseUrl(video.src);
     }
   }
 
@@ -5676,7 +5407,6 @@
       const a = document.createElement('a');
       a.href = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(video.src)}`;
       a.click();
-      showNowPlayingBanner(torrentOverlayTitle || 'stream');
     }
   }
 
@@ -6520,11 +6250,6 @@
       let cleanTitle  = title;
       let resolvedImdbId = epCompletionData.imdbId || currentImdbId || null;
 
-      // Check localStorage persisted IMDB ID as additional fallback
-      if (!resolvedImdbId && epCompletionData.tvId) {
-        resolvedImdbId = localStorage.getItem(`watcher_imdb_${epCompletionData.tvId}_tv`) || null;
-      }
-
       if (epCompletionData.tvId) {
         try {
           const [showData, extData] = await Promise.all([
@@ -6559,8 +6284,6 @@
       }
 
       currentImdbId = resolvedImdbId;
-      // Persist so future Safari page loads don't need to re-fetch external_ids
-      if (epCompletionData.tvId) localStorage.setItem(`watcher_imdb_${epCompletionData.tvId}_tv`, resolvedImdbId);
       const nextEpLabel  = `S${String(nextSeason).padStart(2,'0')}E${String(nextEpisode).padStart(2,'0')}`;
       const displayTitle = `${cleanTitle} ${nextEpLabel}`;
       openTorrentOverlay(displayTitle, displayTitle, resolvedImdbId, 'tv', nextSeason, nextEpisode, 'streams');
@@ -6654,7 +6377,7 @@
       <div class="cache-popup-panel">
         <div class="cache-popup-title">${displayTitle}</div>
         <div class="cache-popup-buttons">
-          <a href="#" class="cache-popup-btn infuse" id="cache-infuse-btn">
+          <a href="${buildInfuseUrl(url)}" class="cache-popup-btn infuse" id="cache-infuse-btn">
             📺 Infuse
           </a>
           <a href="vlc-x-callback://x-callback-url/stream?url=${encodedUrl}" class="cache-popup-btn vlc" id="cache-vlc-btn">
@@ -6665,23 +6388,14 @@
         <button class="cache-popup-close" onclick="this.closest('#cache-play-popup').remove()">Cancel</button>
       </div>`;
 
-    // Infuse — build URL lazily in onclick so x-success always has correct episode
-    popup.querySelector('#cache-infuse-btn').onclick = (e) => {
-      e.preventDefault();
+    popup.querySelector('#cache-infuse-btn').onclick = () => {
       _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'Infuse' };
-      location.href = buildInfuseUrl(url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
       setTimeout(() => document.getElementById('cache-play-popup')?.remove(), 300);
     };
 
-    // VLC — set launch state + show Now Playing banner (VLC has no x-callback x-success)
-    popup.querySelector('#cache-vlc-btn').onclick = (e) => {
-      e.preventDefault();
+    popup.querySelector('#cache-vlc-btn').onclick = () => {
       _externalAppLaunch = { time: Date.now(), torrent: { title: safeTitle }, app: 'VLC' };
-      const a = document.createElement('a');
-      a.href = `vlc-x-callback://x-callback-url/stream?url=${encodedUrl}`;
-      document.body.appendChild(a); a.click(); a.remove();
-      document.getElementById('cache-play-popup')?.remove();
-      showNowPlayingBanner(safeTitle);
+      setTimeout(() => document.getElementById('cache-play-popup')?.remove(), 300);
     };
 
     // Browser
@@ -7875,7 +7589,10 @@
   async function getWeather() {
     const widget = document.getElementById('weatherWidget');
     widget.classList.add('visible');
-    if (!navigator.geolocation) { document.getElementById('weatherCondition').textContent = 'Location unavailable'; return; }
+    if (!navigator.geolocation) {
+      await getWeatherByIP();
+      return;
+    }
     navigator.geolocation.getCurrentPosition(async ({ coords: { latitude, longitude } }) => {
       try {
         const [weatherRes, cityName] = await Promise.all([
@@ -7893,10 +7610,34 @@
           document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(data.current_weather.weathercode);
         }
       } catch { document.getElementById('weatherCondition').textContent = 'Unavailable'; }
-    }, () => {
+    }, async () => {
+      // Geolocation denied — fall back to IP-based location via ip-api.com
+      await getWeatherByIP();
+    });
+  }
+
+  async function getWeatherByIP() {
+    try {
+      // ip-api.com free tier — no key needed, ~45 requests/min limit
+      const ipRes  = await fetch('https://ip-api.com/json/?fields=lat,lon,city,countryCode');
+      const ipData = await ipRes.json();
+      if (!ipData.lat || !ipData.lon) throw new Error('No location from IP');
+      const { lat, lon, city, countryCode } = ipData;
+      const weatherRes  = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const weatherData = await weatherRes.json();
+      if (weatherData.current_weather) {
+        const tempC = Math.round(weatherData.current_weather.temperature);
+        const isUS  = countryCode === 'US';
+        const temp  = isUS ? Math.round(tempC*9/5+32) : tempC;
+        document.getElementById('weatherTemp').textContent      = `${temp}${isUS ? '°F' : '°C'}`;
+        document.getElementById('weatherCondition').textContent = getRudeboyWeatherCondition(weatherData.current_weather.weathercode);
+        document.getElementById('weatherLocation').textContent  = city || 'Nearby';
+        document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(weatherData.current_weather.weathercode);
+      }
+    } catch {
       document.getElementById('weatherCondition').textContent = 'Location denied';
       document.getElementById('weatherIcon').textContent = '📍';
-    });
+    }
   }
 
   function getWeatherIconFromCode(code) {
