@@ -2748,7 +2748,6 @@
   async function fetchAddonStreams(addon, type, imdbId, season, episode) {
     if (!addon?.url || !addon.enabled || !imdbId) return [];
     try {
-      // Build the stream URL per Stremio addon protocol
       let streamId = imdbId;
       if (type === 'series' && season != null && episode != null) {
         streamId = `${imdbId}:${season}:${episode}`;
@@ -2756,18 +2755,20 @@
       const streamUrl = `${addon.url}/stream/${type}/${streamId}.json`;
       console.log(`[Addon:${addon.name}] Fetching:`, streamUrl);
 
-      // Try direct fetch first, then CORS proxy
+      // Addon URLs (Torrentio, Comet etc) need CORS proxy — skip direct fetch
+      // which would just burn timeout on a guaranteed CORS failure.
+      // Use 25s timeout: RD resolution is slow, especially for many results.
       let data;
       try {
-        const res = await fetch(streamUrl, { signal: safeFetchSignal(12000) });
+        const res = await fetch(streamUrl, { signal: safeFetchSignal(25000) });
         if (res.ok) data = await res.json();
+        else throw new Error(`HTTP ${res.status}`);
       } catch {
-        // Fallback to CORS proxy
         try {
-          const res = await corsGet(streamUrl, 12000);
+          const res = await corsGet(streamUrl, 25000);
           data = await res.json();
         } catch (e) {
-          console.warn(`[Addon:${addon.name}] CORS proxy also failed:`, e.message);
+          console.warn(`[Addon:${addon.name}] Failed:`, e.message);
           return [];
         }
       }
@@ -2841,7 +2842,7 @@
       }
 
       return result;
-    }).filter(r => r._directUrl || r.magnet); // Must have either a direct URL or a magnet
+    }).filter(r => r._directUrl || r.magnet || r.hash); // Keep direct URLs, magnets, or hash-only streams
   }
 
   // Search all enabled Stremio addons in parallel
@@ -2850,8 +2851,9 @@
     if (addons.length === 0 || !imdbId) return [];
 
     const type = mediaType === 'tv' ? 'series' : 'movie';
-    onStatus('searching', `🧩 Querying ${addons.length} Stremio addon${addons.length > 1 ? 's' : ''}…`);
+    onStatus('searching', `🧩 Querying ${addons.length} addon${addons.length > 1 ? 's' : ''}… (RD streams may take up to 25s)`);
 
+    // Run all addons in parallel — each has its own 25s timeout
     const results = await Promise.allSettled(
       addons.map(addon => fetchAddonStreams(addon, type, imdbId, season, episode))
     );
@@ -3645,8 +3647,8 @@
 
     return results.filter(r => {
       const tl = r.title.toLowerCase();
-      // Min seeders
-      if (s.minSeeds > 0 && r.seeds < s.minSeeds) return false;
+      // Min seeders — skip this check for direct/debrid-resolved streams (seeds=0 is normal for RD)
+      if (s.minSeeds > 0 && r.seeds < s.minSeeds && !r._isDirect) return false;
       // Exclude keywords (checkbox-based)
       if (s.seCam      && /\bcam\b|hdcam|camrip/.test(tl))   return false;
       if (s.seScreener && /screener|scr\b/.test(tl))           return false;
