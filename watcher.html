@@ -2799,16 +2799,13 @@
         if (sizeMatch) size = sizeMatch[1];
         const seedMatch = part.match(/👤\s*(\d+)/);
         if (seedMatch) seeds = parseInt(seedMatch[1], 10);
-        // Also look for "S:" or "Seeds:" patterns
         const seedAlt = part.match(/(?:seeds?|peers?|S)\s*[:=]\s*(\d+)/i);
         if (seedAlt && seeds === 0) seeds = parseInt(seedAlt[1], 10);
       }
 
-      // Determine quality from the stream name or title
       const combined = `${s.name || ''} ${mainTitle}`;
       const quality = guessQuality(combined);
 
-      // Check if this is a direct URL (debrid-resolved) or needs magnet processing
       const hasDirectUrl = !!s.url && !s.url.startsWith('magnet:');
       const hasInfoHash  = !!s.infoHash;
 
@@ -2835,17 +2832,16 @@
         result.magnet = buildMagnet(s.infoHash.toLowerCase(), mainTitle);
       }
 
-      // If stream has behaviorHints with filename, use it
       if (s.behaviorHints?.filename) {
         result.title   = s.behaviorHints.filename;
         result.quality = guessQuality(s.behaviorHints.filename);
       }
 
       return result;
-    }).filter(r => r._directUrl || r.magnet || r.hash); // Keep direct URLs, magnets, or hash-only streams
+    }).filter(r => r._directUrl || r.magnet || r.hash);
   }
 
-  // Search all enabled Stremio addons in parallel
+  // Search all enabled Stremio addons — streams results progressively as each addon responds
   async function searchStremioAddons(imdbId, mediaType, season, episode, onStatus) {
     const addons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
     if (addons.length === 0 || !imdbId) return [];
@@ -2853,20 +2849,30 @@
     const type = mediaType === 'tv' ? 'series' : 'movie';
     onStatus('searching', `🧩 Querying ${addons.length} addon${addons.length > 1 ? 's' : ''}… (RD streams may take up to 25s)`);
 
-    // Run all addons in parallel — each has its own 25s timeout
-    const results = await Promise.allSettled(
-      addons.map(addon => fetchAddonStreams(addon, type, imdbId, season, episode))
+    let allStreams = [];
+    const existingHashes = new Set();
+
+    // Fire all addons simultaneously but render each one as it resolves
+    const addonPromises = addons.map(addon =>
+      fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
+        if (!streams?.length) return;
+        // Dedupe by hash
+        const unique = streams.filter(s => {
+          if (s.hash && existingHashes.has(s.hash)) return false;
+          if (s.hash) existingHashes.add(s.hash);
+          return true;
+        });
+        if (!unique.length) return;
+        allStreams = [...allStreams, ...unique];
+        // Emit progressive update so UI renders immediately
+        const sorted = sortTorrentResults(allStreams);
+        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} found`, sorted);
+      }).catch(e => console.warn(`[Addon:${addon.name}] failed:`, e))
     );
 
-    const allStreams = [];
-    for (const r of results) {
-      if (r.status === 'fulfilled' && r.value?.length > 0) {
-        allStreams.push(...r.value);
-      }
-    }
-
-    console.log(`[Stremio Addons] Total: ${allStreams.length} streams from ${addons.length} addon(s)`);
-    return allStreams;
+    // Wait for all to finish then return final set
+    await Promise.allSettled(addonPromises);
+    return sortTorrentResults(allStreams);
   }
 
   /* ── Stremio Addon Catalog Browser ──────────────────────────────── */
@@ -3710,22 +3716,42 @@
         const enabledAddons = (appSettings.stremioAddons || []).filter(a => a.enabled && a.url);
         if (enabledAddons.length > 0 && imdbId) {
           try {
-            const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode, onStatus);
+            let gotResults = false;
+            // searchStremioAddons fires onStatus('results') progressively per addon
+            // Wrap to apply filters and track whether anything came through
+            const addonResults = await searchStremioAddons(imdbId, mediaType, season, episode,
+              (type, msg, data) => {
+                if (type === 'results' && data?.length > 0) {
+                  const filtered = applySettingsFilters(filterTorrentResults(data));
+                  if (filtered.length > 0) {
+                    gotResults = true;
+                    onStatus('results', `⚡ ${filtered.length} stream${filtered.length !== 1 ? 's' : ''} found`, filtered);
+                  }
+                } else if (type !== 'results') {
+                  onStatus(type, msg);
+                }
+              }
+            );
+            // Final pass with full result set (catches any missed by progressive updates)
             if (addonResults.length > 0) {
-              dedupeAndMerge(applySettingsFilters(filterTorrentResults(addonResults)));
+              const final = applySettingsFilters(filterTorrentResults(addonResults));
+              if (final.length > 0) {
+                gotResults = true;
+                onStatus('results', `⚡ ${final.length} stream${final.length !== 1 ? 's' : ''} found`, final);
+                return final;
+              }
             }
+            // Only show empty if nothing came through at all
+            if (!gotResults) {
+              onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
+            }
+            return addonResults;
           } catch (e) { console.warn('[search] Stremio addons:', e); }
         } else if (!imdbId) {
           onStatus('info', '⚠️ No IMDB ID — addons need an IMDB ID to search. Try the 🧲 Torrents tab instead.');
         } else if (enabledAddons.length === 0) {
           onStatus('info', '⚠️ No addons configured. Add Torrentio, Comet, or MediaFusion in Settings ⚙️');
         }
-      }
-
-      if (allResults.length > 0) {
-        const sorted = sortTorrentResults(allResults);
-        onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} from addons`, sorted);
-        return sorted;
       }
       onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
       return [];
