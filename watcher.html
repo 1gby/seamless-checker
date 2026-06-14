@@ -1016,7 +1016,7 @@
     /* RD status indicator */
     #settings-tb-status {
       padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
-      display: inline-block; margin-bottom: 0.25rem;
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem;
     }
     #settings-tb-status.connected    { background: rgba(16,185,129,0.12); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.35); }
     #settings-tb-status.disconnected { background: rgba(239,68,68,0.1);   color: var(--accent-red);   border: 1px solid rgba(239,68,68,0.3); }
@@ -1026,6 +1026,31 @@
     }
     #settings-rd-status.connected    { background: rgba(118,75,162,0.15); color: var(--accent-purple); border: 1px solid rgba(118,75,162,0.4); }
     #settings-rd-status.disconnected { background: rgba(239,68,68,0.1);   color: var(--accent-red);    border: 1px solid rgba(239,68,68,0.3); }
+
+    /* Pulse dot for connected status */
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block;
+    }
+    .status-dot.rd-dot {
+      background: var(--accent-green);
+      box-shadow: 0 0 0 0 rgba(16,185,129,0.6);
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+    .status-dot.tb-dot {
+      background: var(--accent-purple);
+      box-shadow: 0 0 0 0 rgba(118,75,162,0.6);
+      animation: pulse-purple 2s ease-in-out infinite;
+    }
+    @keyframes pulse-green {
+      0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+      50%  { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+    }
+    @keyframes pulse-purple {
+      0%   { box-shadow: 0 0 0 0 rgba(118,75,162,0.7); }
+      50%  { box-shadow: 0 0 0 5px rgba(118,75,162,0); }
+      100% { box-shadow: 0 0 0 0 rgba(118,75,162,0); }
+    }
 
     /* ── Stremio addon manager ── */
     .addon-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
@@ -1635,7 +1660,7 @@
     <div class="settings-section" style="margin-bottom:1.25rem;">
       <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid API Token</div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;margin-top:0.25rem;">
-        <div id="settings-rd-status" class="disconnected">● Not connected</div>
+        <div id="settings-rd-status" class="disconnected"><span class="status-dot rd-dot"></span> Not connected</div>
         <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
            style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
       </div>
@@ -1668,7 +1693,7 @@
     <div class="settings-section" style="margin-bottom:1.25rem;">
       <div class="settings-section-title">Torbox API Token</div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;margin-top:0.25rem;">
-        <div id="settings-tb-status" class="disconnected">● Not connected</div>
+        <div id="settings-tb-status" class="disconnected"><span class="status-dot tb-dot"></span> Not connected</div>
         <a href="https://torbox.app/settings" target="_blank" rel="noopener"
            style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
       </div>
@@ -1680,7 +1705,7 @@
         <button class="settings-btn purple" onclick="testTBToken()">Test</button>
         <button class="settings-btn red"    onclick="deleteTBToken()">Clear</button>
       </div>
-      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
+      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(16,185,129,0.4);color:var(--accent-green);background:rgba(16,185,129,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
     </div>
     <div class="settings-section">
       <div class="settings-section-title">Torbox Library</div>
@@ -2308,12 +2333,13 @@
   function updateRDStatusBadge() {
     const badge = document.getElementById('settings-rd-status');
     if (!badge) return;
+    const dot = '<span class="status-dot rd-dot"></span>';
     if (getRDToken()) {
       badge.className = 'connected';
-      badge.textContent = '● Connected';
+      badge.innerHTML = `${dot} Connected`;
     } else {
       badge.className = 'disconnected';
-      badge.textContent = '● Not connected';
+      badge.innerHTML = `${dot} Not connected`;
     }
   }
 
@@ -2439,9 +2465,10 @@
   function updateTBStatusBadge() {
     const el = document.getElementById('settings-tb-status');
     if (!el) return;
+    const dot = '<span class="status-dot tb-dot"></span>';
     const tok = getTBToken();
-    if (tok) { el.className = 'connected'; el.textContent = '● Connected'; }
-    else      { el.className = 'disconnected'; el.textContent = '● Not connected'; }
+    if (tok) { el.className = 'connected'; el.innerHTML = `${dot} Connected`; }
+    else      { el.className = 'disconnected'; el.innerHTML = `${dot} Not connected`; }
   }
 
   function saveTBToken() {
