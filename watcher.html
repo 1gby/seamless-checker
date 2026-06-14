@@ -1613,69 +1613,83 @@
   <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
   <div class="settings-submenu-title">🔐 Debrid Services</div>
 
-  <!-- RD Token -->
-  <div class="settings-section">
-    <div class="settings-section-title">Real-Debrid API Token</div>
-    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
-      <div id="settings-rd-status" class="disconnected">● Not connected</div>
-      <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
-         style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
-    </div>
-    <div class="settings-token-row">
-      <input type="password" id="settings-token-input" class="settings-token-input"
-             placeholder="Paste API token here…" autocomplete="off" spellcheck="false">
-      <button class="token-eye-btn" onclick="toggleTokenVisibility()" id="token-eye-btn">👁</button>
-      <button class="settings-btn green"  onclick="saveRDToken()">Save</button>
-      <button class="settings-btn purple" onclick="testRDToken()">Test</button>
-      <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
-    </div>
-    <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
+  <!-- Pill toggle -->
+  <div style="display:flex;gap:0;background:rgba(255,255,255,0.05);border-radius:999px;padding:3px;margin-bottom:1.25rem;border:1px solid rgba(255,255,255,0.08);">
+    <button id="debrid-tab-rd" onclick="switchDebridTab('rd')"
+      style="flex:1;padding:0.5rem 1rem;border-radius:999px;border:none;font-size:0.82rem;font-weight:700;
+             letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;background:var(--accent-green);color:#000;">
+      RD
+    </button>
+    <button id="debrid-tab-tb" onclick="switchDebridTab('tb')"
+      style="flex:1;padding:0.5rem 1rem;border-radius:999px;border:none;font-size:0.82rem;font-weight:700;
+             letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;background:transparent;color:rgba(255,255,255,0.4);">
+      TB
+    </button>
   </div>
 
-  <!-- RD Library -->
-  <div class="settings-section">
-    <div class="settings-section-title">Real-Debrid Library</div>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <button class="settings-btn green"  onclick="openRDLibrary()">📂 View Library</button>
-      <button class="settings-btn purple" onclick="openRDLibrary()">🔄 Refresh</button>
-      <button class="settings-btn red"    onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close</button>
+  <!-- RD Panel -->
+  <div id="debrid-panel-rd">
+    <div class="settings-section">
+      <div class="settings-section-title">Real-Debrid API Token</div>
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <div id="settings-rd-status" class="disconnected">● Not connected</div>
+        <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
+           style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
+      </div>
+      <div class="settings-token-row">
+        <input type="password" id="settings-token-input" class="settings-token-input"
+               placeholder="Paste API token here…" autocomplete="off" spellcheck="false">
+        <button class="token-eye-btn" onclick="toggleTokenVisibility()" id="token-eye-btn">👁</button>
+        <button class="settings-btn green"  onclick="saveRDToken()">Save</button>
+        <button class="settings-btn purple" onclick="testRDToken()">Test</button>
+        <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
+      </div>
+      <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
     </div>
-    <div id="rd-library-panel">
-      <div id="rd-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
-      <div id="rd-library-list"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">Real-Debrid Library</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="settings-btn green"  onclick="openRDLibrary()">📂 View Library</button>
+        <button class="settings-btn purple" onclick="openRDLibrary()">🔄 Refresh</button>
+        <button class="settings-btn red"    onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close</button>
+      </div>
+      <div id="rd-library-panel">
+        <div id="rd-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
+        <div id="rd-library-list"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Torbox Token -->
-  <div class="settings-section">
-    <div class="settings-section-title">Torbox API Token</div>
-    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
-      <div id="settings-tb-status" class="disconnected">● Not connected</div>
-      <a href="https://torbox.app/settings" target="_blank" rel="noopener"
-         style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
+  <!-- TB Panel -->
+  <div id="debrid-panel-tb" style="display:none;">
+    <div class="settings-section">
+      <div class="settings-section-title">Torbox API Token</div>
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+        <div id="settings-tb-status" class="disconnected">● Not connected</div>
+        <a href="https://torbox.app/settings" target="_blank" rel="noopener"
+           style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
+      </div>
+      <div class="settings-token-row">
+        <input type="password" id="settings-tb-token-input" class="settings-token-input"
+               placeholder="Paste Torbox API token here…" autocomplete="off" spellcheck="false">
+        <button class="token-eye-btn" onclick="toggleTBTokenVisibility()">👁</button>
+        <button class="settings-btn green"  onclick="saveTBToken()">Save</button>
+        <button class="settings-btn purple" onclick="testTBToken()">Test</button>
+        <button class="settings-btn red"    onclick="deleteTBToken()">Clear</button>
+      </div>
+      <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
     </div>
-    <div class="settings-token-row">
-      <input type="password" id="settings-tb-token-input" class="settings-token-input"
-             placeholder="Paste Torbox API token here…" autocomplete="off" spellcheck="false">
-      <button class="token-eye-btn" onclick="toggleTBTokenVisibility()">👁</button>
-      <button class="settings-btn green"  onclick="saveTBToken()">Save</button>
-      <button class="settings-btn purple" onclick="testTBToken()">Test</button>
-      <button class="settings-btn red"    onclick="deleteTBToken()">Clear</button>
-    </div>
-    <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
-  </div>
-
-  <!-- Torbox Library -->
-  <div class="settings-section">
-    <div class="settings-section-title">Torbox Library</div>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <button class="settings-btn green"  onclick="openTBLibrary()">📂 View Library</button>
-      <button class="settings-btn purple" onclick="openTBLibrary()">🔄 Refresh</button>
-      <button class="settings-btn red"    onclick="closeTBLibrary()" id="tb-library-close-btn" style="display:none;">✕ Close</button>
-    </div>
-    <div id="tb-library-panel" style="display:none;">
-      <div id="tb-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
-      <div id="tb-library-list"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">Torbox Library</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="settings-btn green"  onclick="openTBLibrary()">📂 View Library</button>
+        <button class="settings-btn purple" onclick="openTBLibrary()">🔄 Refresh</button>
+        <button class="settings-btn red"    onclick="closeTBLibrary()" id="tb-library-close-btn" style="display:none;">✕ Close</button>
+      </div>
+      <div id="tb-library-panel" style="display:none;">
+        <div id="tb-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
+        <div id="tb-library-list"></div>
+      </div>
     </div>
   </div>
 
@@ -2347,12 +2361,47 @@
   }
 
   // ── Settings Submenu Navigation ──────────────────────────────────────
+  function switchDebridTab(tab) {
+    const rdPanel  = document.getElementById('debrid-panel-rd');
+    const tbPanel  = document.getElementById('debrid-panel-tb');
+    const rdBtn    = document.getElementById('debrid-tab-rd');
+    const tbBtn    = document.getElementById('debrid-tab-tb');
+    if (!rdPanel || !tbPanel) return;
+
+    const isRD = tab === 'rd';
+    rdPanel.style.display = isRD ? 'block' : 'none';
+    tbPanel.style.display = isRD ? 'none'  : 'block';
+
+    // Active tab: green pill, dark text. Inactive: transparent, muted text
+    if (rdBtn) {
+      rdBtn.style.background = isRD ? 'var(--accent-green)' : 'transparent';
+      rdBtn.style.color      = isRD ? '#000' : 'rgba(255,255,255,0.4)';
+    }
+    if (tbBtn) {
+      tbBtn.style.background = !isRD ? 'var(--accent-green)' : 'transparent';
+      tbBtn.style.color      = !isRD ? '#000' : 'rgba(255,255,255,0.4)';
+    }
+
+    // Remember choice
+    try { localStorage.setItem('watcher_debrid_tab', tab); } catch {}
+  }
+
+  // Auto-select debrid tab when the submenu opens:
+  // prefer the tab whose service is connected, fallback to last used, default RD
+  function initDebridTab() {
+    const lastTab = (() => { try { return localStorage.getItem('watcher_debrid_tab'); } catch { return null; } })();
+    const rdConnected = !!(appSettings.rdApiKey);
+    const tbConnected = !!(appSettings.tbApiKey);
+    const tab = lastTab || (rdConnected ? 'rd' : tbConnected ? 'tb' : 'rd');
+    switchDebridTab(tab);
+  }
   function openSettingsSubmenu(id) {
     document.getElementById('settings-main-nav').style.display = 'none';
     document.querySelectorAll('.settings-submenu').forEach(el => el.classList.remove('active'));
     const sub = document.getElementById(id);
     if (sub) sub.classList.add('active');
     if (id === 'submenu-sources') { renderAddonList(); refreshAddonNames(); }
+    if (id === 'submenu-debrid') initDebridTab();
   }
 
   function closeSettingsSubmenu() {
