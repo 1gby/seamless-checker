@@ -2640,12 +2640,34 @@
 
   function detectDebridFromUrl(url) {
     const u = url.toLowerCase();
+    // Torrentio encodes debrid directly in URL path params
     if (u.includes('realdebrid') || u.includes('real_debrid') || u.includes('rd_api') || u.includes('debridapikey') || u.includes('debrid_key')) return 'RD';
     if (u.includes('torbox') || u.includes('torbox_api') || u.includes('tbapi')) return 'TB';
     if (u.includes('alldebrid') || u.includes('all_debrid') || u.includes('ad_api')) return 'AD';
     if (u.includes('premiumize')) return 'PM';
     if (u.includes('debridlink') || u.includes('debrid_link')) return 'DL';
     if (u.includes('offcloud')) return 'OC';
+
+    // Comet and MediaFusion encode config as a base64 JSON blob in the URL path
+    // e.g. comet.feels.legal/eyJkZWJyaWRTZXJ2aWNlIjoicmVhbGRlYnJpZCJ9/manifest.json
+    try {
+      const pathParts = new URL(url).pathname.split('/').filter(Boolean);
+      for (const part of pathParts) {
+        // base64 segments are long (>20 chars) and don't look like normal path segments
+        if (part.length < 20 || part === 'manifest.json') continue;
+        try {
+          const decoded = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
+          const config = JSON.parse(decoded);
+          const debrid = (config.debridService || config.debrid_service || config.debridservice || '').toLowerCase();
+          if (debrid.includes('realdebrid') || debrid.includes('real-debrid') || debrid === 'rd') return 'RD';
+          if (debrid.includes('torbox') || debrid === 'tb') return 'TB';
+          if (debrid.includes('alldebrid') || debrid.includes('all-debrid') || debrid === 'ad') return 'AD';
+          if (debrid.includes('premiumize') || debrid === 'pm') return 'PM';
+          if (debrid.includes('debridlink') || debrid.includes('debrid-link') || debrid === 'dl') return 'DL';
+          if (debrid.includes('offcloud') || debrid === 'oc') return 'OC';
+        } catch {} // not valid base64/JSON, skip
+      }
+    } catch {}
     return null;
   }
 
@@ -2703,8 +2725,15 @@
   async function refreshAddonNames() {
     const addons = appSettings.stremioAddons || [];
     let updated = false;
+    // First pass: re-run buildAddonName with improved URL detection (catches Comet/MF base64)
+    addons.forEach((addon, idx) => {
+      const newName = buildAddonName(addon.url);
+      if (newName !== addon.name && newName !== 'Addon') { addons[idx].name = newName; updated = true; }
+    });
+    if (updated) { appSettings.stremioAddons = addons; saveSettings(); renderAddonList(); updated = false; }
+
+    // Second pass: fetch manifests for any still missing debrid labels
     await Promise.all(addons.map(async (addon, idx) => {
-      // Only re-fetch if name doesn't already have a debrid label
       if (/\((RD|TB|AD|PM|DL|OC)\)/.test(addon.name)) return;
       try {
         const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
@@ -5558,7 +5587,12 @@
     catch { return {}; }
   }
   function saveWatchedEpisodes(tvId, data) {
-    localStorage.setItem(`watched_${tvId}`, JSON.stringify(data));
+    if (Object.keys(data).length === 0) {
+      // Remove the key entirely so CW doesn't pick up empty shows
+      localStorage.removeItem(`watched_${tvId}`);
+    } else {
+      localStorage.setItem(`watched_${tvId}`, JSON.stringify(data));
+    }
   }
   function isEpisodeWatched(tvId, season, episode) {
     const d = getWatchedEpisodes(tvId);
