@@ -1032,13 +1032,37 @@
     .addon-item {
       display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(118,75,162,0.25);
-      border-radius: 10px; transition: all 0.2s;
+      border-radius: 10px; transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 0.4rem;
     }
     .addon-item:hover { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.04); }
+    .addon-item.drag-over { border-color: var(--accent-green); background: rgba(16,185,129,0.1); transform: scale(1.01); }
+    .addon-item.dragging { opacity: 0.35; }
+    .addon-drag-handle {
+      cursor: grab; font-size: 1.1rem; color: rgba(255,255,255,0.22);
+      flex-shrink: 0; line-height: 1; padding: 0 0.1rem; user-select: none;
+    }
+    .addon-drag-handle:active { cursor: grabbing; color: rgba(255,255,255,0.5); }
     .addon-item .addon-icon { font-size: 1.2rem; flex-shrink: 0; }
     .addon-item .addon-info { flex: 1; min-width: 0; }
-    .addon-item .addon-name { font-size: 0.82rem; font-weight: 700; color: #c084fc; }
+    .addon-item .addon-name { font-size: 0.82rem; font-weight: 700; color: #c084fc; cursor: pointer; display: inline-block; }
+    .addon-item .addon-name:hover { color: #e0aaff; text-decoration: underline dotted rgba(118,75,162,0.6); }
+    .addon-name-input {
+      background: rgba(118,75,162,0.15); border: 1.5px solid rgba(118,75,162,0.5);
+      border-radius: 6px; color: #e0aaff; font-size: 0.82rem; font-weight: 700;
+      padding: 0.15rem 0.4rem; width: 100%; outline: none; font-family: inherit;
+    }
+    .addon-name-input:focus { border-color: var(--accent-purple); box-shadow: 0 0 8px rgba(118,75,162,0.3); }
     .addon-item .addon-url-label { font-size: 0.68rem; color: rgba(255,255,255,0.35); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .addon-reorder-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .addon-reorder-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px; color: rgba(255,255,255,0.35); font-size: 0.55rem;
+      width: 20px; height: 18px; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; padding: 0; transition: all 0.15s; flex-shrink: 0;
+    }
+    .addon-reorder-btn:hover:not(:disabled) { background: rgba(16,185,129,0.15); border-color: var(--accent-green); color: var(--accent-green); }
+    .addon-reorder-btn:disabled { opacity: 0.15; cursor: default; }
     .addon-toggle {
       width: 40px; height: 22px; border-radius: 11px; border: none; cursor: pointer;
       background: rgba(255,255,255,0.15); position: relative; transition: background 0.3s; flex-shrink: 0;
@@ -2648,24 +2672,41 @@
     if (u.includes('debridlink') || u.includes('debrid_link')) return 'DL';
     if (u.includes('offcloud')) return 'OC';
 
-    // Comet and MediaFusion encode config as a base64 JSON blob in the URL path
-    // e.g. comet.feels.legal/eyJkZWJyaWRTZXJ2aWNlIjoicmVhbGRlYnJpZCJ9/manifest.json
+    // Comet encodes config as base64 JSON in the URL path.
+    // Note: MediaFusion uses *encrypted* base64 — cannot be decoded here.
+    // URL pattern: host/{b64config}/manifest.json or host/{b64config}/stream/...
     try {
       const pathParts = new URL(url).pathname.split('/').filter(Boolean);
       for (const part of pathParts) {
-        // base64 segments are long (>20 chars) and don't look like normal path segments
         if (part.length < 20 || part === 'manifest.json') continue;
         try {
+          // Try both standard and URL-safe base64
           const decoded = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
           const config = JSON.parse(decoded);
-          const debrid = (config.debridService || config.debrid_service || config.debridservice || '').toLowerCase();
-          if (debrid.includes('realdebrid') || debrid.includes('real-debrid') || debrid === 'rd') return 'RD';
-          if (debrid.includes('torbox') || debrid === 'tb') return 'TB';
-          if (debrid.includes('alldebrid') || debrid.includes('all-debrid') || debrid === 'ad') return 'AD';
-          if (debrid.includes('premiumize') || debrid === 'pm') return 'PM';
-          if (debrid.includes('debridlink') || debrid.includes('debrid-link') || debrid === 'dl') return 'DL';
-          if (debrid.includes('offcloud') || debrid === 'oc') return 'OC';
-        } catch {} // not valid base64/JSON, skip
+
+          // Comet older format: single debridService string
+          const single = (config.debridService || '').toLowerCase();
+          if (single) {
+            if (single.includes('realdebrid') || single.includes('real-debrid') || single === 'rd') return 'RD';
+            if (single.includes('torbox') || single === 'tb') return 'TB';
+            if (single.includes('alldebrid') || single.includes('all-debrid') || single === 'ad') return 'AD';
+            if (single.includes('premiumize') || single === 'pm') return 'PM';
+            if (single.includes('debridlink') || single.includes('debrid-link') || single === 'dl') return 'DL';
+            if (single.includes('offcloud') || single === 'oc') return 'OC';
+          }
+
+          // Comet newer format: debridServices is a list of objects [{name: "realdebrid", ...}]
+          const services = config.debridServices || config._debridEntries || [];
+          if (Array.isArray(services) && services.length > 0) {
+            const first = (services[0]?.name || services[0]?.service || services[0] || '').toLowerCase();
+            if (first.includes('realdebrid') || first.includes('real-debrid')) return 'RD';
+            if (first.includes('torbox')) return 'TB';
+            if (first.includes('alldebrid') || first.includes('all-debrid')) return 'AD';
+            if (first.includes('premiumize')) return 'PM';
+            if (first.includes('debridlink') || first.includes('debrid-link')) return 'DL';
+            if (first.includes('offcloud')) return 'OC';
+          }
+        } catch {} // not valid base64/JSON (e.g. MediaFusion encrypted blob) — skip
       }
     } catch {}
     return null;
@@ -2689,33 +2730,44 @@
     return name;
   }
 
-  // Build addon name using manifest data — detects debrid from description/name for
-  // Comet, MediaFusion and others that don't encode debrid in the URL
   function buildAddonNameFromManifest(url, manifest) {
     let baseName = 'Addon';
-    try {
-      const host = new URL(url).hostname;
-      if (host.includes('torrentio'))        baseName = 'Torrentio';
-      else if (host.includes('comet'))       baseName = 'Comet';
-      else if (host.includes('mediafusion')) baseName = 'MediaFusion';
-      else if (host.includes('peerflix'))    baseName = 'Peerflix';
-      else if (host.includes('torrent') && host.includes('db')) baseName = 'TorrentsDB';
-      else if (manifest.name) baseName = manifest.name.split(' ')[0]; // first word of manifest name
-      else baseName = host.split('.')[0].charAt(0).toUpperCase() + host.split('.')[0].slice(1);
-    } catch {}
+    const host = (() => { try { return new URL(url).hostname; } catch { return ''; } })();
+    const isComet = host.includes('comet');
+    const isMF    = host.includes('mediafusion');
+    const isTorrentio = host.includes('torrentio');
 
-    // Try URL-based debrid detection first (works for Torrentio)
+    if (isTorrentio)    baseName = 'Torrentio';
+    else if (isComet)   baseName = 'Comet';
+    else if (isMF)      baseName = 'MediaFusion';
+    else if (host.includes('peerflix'))  baseName = 'Peerflix';
+    else if (host.includes('torrent') && host.includes('db')) baseName = 'TorrentsDB';
+    else if (manifest.name) baseName = manifest.name.split(' ')[0];
+    else baseName = host.split('.')[0].charAt(0).toUpperCase() + host.split('.')[0].slice(1);
+
+    // Try URL-based detection first (works for Torrentio and Comet plain JSON)
     let debrid = detectDebridFromUrl(url);
 
-    // For Comet/MediaFusion, debrid is in manifest description or name
     if (!debrid) {
-      const searchText = `${manifest.description || ''} ${manifest.name || ''}`.toLowerCase();
-      if (searchText.includes('real-debrid') || searchText.includes('realdebrid')) debrid = 'RD';
-      else if (searchText.includes('torbox')) debrid = 'TB';
-      else if (searchText.includes('alldebrid') || searchText.includes('all-debrid')) debrid = 'AD';
-      else if (searchText.includes('premiumize')) debrid = 'PM';
-      else if (searchText.includes('debrid-link') || searchText.includes('debridlink')) debrid = 'DL';
-      else if (searchText.includes('offcloud')) debrid = 'OC';
+      // MediaFusion: configured manifest name often includes the provider
+      // e.g. "MediaFusion (RD)" or "MediaFusion - Real Debrid"
+      const manifestName = (manifest.name || '').toLowerCase();
+      const manifestDesc = (manifest.description || '').toLowerCase();
+      const searchText   = `${manifestName} ${manifestDesc}`;
+
+      if (searchText.includes('real-debrid') || searchText.includes('realdebrid') || searchText.includes('(rd)')) debrid = 'RD';
+      else if (searchText.includes('torbox') || searchText.includes('(tb)')) debrid = 'TB';
+      else if (searchText.includes('alldebrid') || searchText.includes('all-debrid') || searchText.includes('(ad)')) debrid = 'AD';
+      else if (searchText.includes('premiumize') || searchText.includes('(pm)')) debrid = 'PM';
+      else if (searchText.includes('debrid-link') || searchText.includes('debridlink') || searchText.includes('(dl)')) debrid = 'DL';
+      else if (searchText.includes('offcloud') || searchText.includes('(oc)')) debrid = 'OC';
+
+      // Also check behaviorHints or extra fields some addons add
+      if (!debrid && manifest.behaviorHints) {
+        const hints = JSON.stringify(manifest.behaviorHints).toLowerCase();
+        if (hints.includes('realdebrid') || hints.includes('real-debrid')) debrid = 'RD';
+        else if (hints.includes('torbox')) debrid = 'TB';
+      }
     }
 
     return debrid ? `${baseName} (${debrid})` : baseName;
@@ -2831,18 +2883,107 @@
       return;
     }
     container.innerHTML = '';
+    let dragSrcIdx = null;
+
     addons.forEach((addon, i) => {
       const item = document.createElement('div');
       item.className = 'addon-item';
-      const isRD = addon.url?.includes('realdebrid=') || addon.url?.includes('debridApiKey') || addon.name?.includes('RD');
+      item.draggable = true;
+      item.dataset.idx = i;
+
+      const debridLabel = addon.name?.match(/\((RD|TB|AD|PM|DL|OC)\)/)?.[1] || '';
+      const icon = addon.url?.includes('torrentio') ? '⚡'
+        : addon.url?.includes('comet') ? '🎯'
+        : addon.url?.includes('mediafusion') ? '🌊'
+        : '🧩';
+      const shortUrl = (addon.url || '').replace(/^https?:\/\//, '').slice(0, 40) + ((addon.url || '').length > 40 ? '…' : '');
+
       item.innerHTML = `
-        <div class="addon-icon">${isRD ? '⚡' : '🧩'}</div>
+        <span class="addon-drag-handle" title="Drag to reorder">⠿</span>
+        <div class="addon-icon">${icon}</div>
         <div class="addon-info">
-          <div class="addon-name">${addon.name}</div>
-          <div class="addon-url-label">${addon.url || 'No URL'}</div>
+          <div class="addon-name" title="Tap to rename">${addon.name || 'Unnamed'}</div>
+          <div class="addon-url-label">${shortUrl}</div>
+        </div>
+        <div class="addon-reorder-btns">
+          <button class="addon-reorder-btn" data-dir="up" ${i === 0 ? 'disabled' : ''} title="Move up">▲</button>
+          <button class="addon-reorder-btn" data-dir="down" ${i === addons.length - 1 ? 'disabled' : ''} title="Move down">▼</button>
         </div>
         <button class="addon-toggle ${addon.enabled ? 'on' : ''}" onclick="toggleAddon(${i})" title="${addon.enabled ? 'Enabled' : 'Disabled'}"></button>
         <button class="addon-remove" onclick="removeAddon(${i})" title="Remove">×</button>`;
+
+      // ── Inline rename ──
+      item.querySelector('.addon-name').onclick = () => {
+        const nameEl = item.querySelector('.addon-name');
+        const current = addons[i].name || '';
+        const input = document.createElement('input');
+        input.className = 'addon-name-input';
+        input.value = current;
+        input.placeholder = 'Addon name…';
+        nameEl.replaceWith(input);
+        input.focus();
+        input.select();
+        const save = () => {
+          const newName = input.value.trim() || current;
+          addons[i].name = newName;
+          appSettings.stremioAddons = addons;
+          saveSettings();
+          renderAddonList();
+        };
+        input.addEventListener('blur', save);
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+          if (e.key === 'Escape') { input.value = current; input.blur(); }
+        });
+      };
+
+      // ── Up/Down buttons ──
+      item.querySelectorAll('.addon-reorder-btn').forEach(btn => {
+        btn.onclick = () => {
+          const dir = btn.dataset.dir;
+          const arr = appSettings.stremioAddons;
+          if (dir === 'up' && i > 0) {
+            [arr[i], arr[i-1]] = [arr[i-1], arr[i]];
+          } else if (dir === 'down' && i < arr.length - 1) {
+            [arr[i], arr[i+1]] = [arr[i+1], arr[i]];
+          }
+          appSettings.stremioAddons = arr;
+          saveSettings();
+          renderAddonList();
+        };
+      });
+
+      // ── Drag to reorder ──
+      item.addEventListener('dragstart', e => {
+        dragSrcIdx = i;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', i);
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        container.querySelectorAll('.addon-item').forEach(el => el.classList.remove('drag-over'));
+      });
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        container.querySelectorAll('.addon-item').forEach(el => el.classList.remove('drag-over'));
+        item.classList.add('drag-over');
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        if (dragSrcIdx === null || dragSrcIdx === i) return;
+        const arr = appSettings.stremioAddons;
+        const moved = arr.splice(dragSrcIdx, 1)[0];
+        arr.splice(i, 0, moved);
+        appSettings.stremioAddons = arr;
+        saveSettings();
+        renderAddonList();
+        dragSrcIdx = null;
+      });
+
       container.appendChild(item);
     });
   }
