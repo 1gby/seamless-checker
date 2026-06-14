@@ -2828,6 +2828,7 @@
     let updated = false;
     // First pass: re-run buildAddonName with improved URL detection (catches Comet/MF base64)
     addons.forEach((addon, idx) => {
+      if (addon._customName) return; // user manually renamed — never overwrite
       const newName = buildAddonName(addon.url);
       if (newName !== addon.name && newName !== 'Addon') { addons[idx].name = newName; updated = true; }
     });
@@ -2835,6 +2836,7 @@
 
     // Second pass: fetch manifests for any still missing debrid labels
     await Promise.all(addons.map(async (addon, idx) => {
+      if (addon._customName) return; // user manually renamed — never overwrite
       if (/\((RD|TB|AD|PM|DL|OC)\)/.test(addon.name)) return;
       try {
         const manifestUrl = addon.url.replace(/\/manifest\.json$/, '') + '/manifest.json';
@@ -2975,6 +2977,7 @@
         const save = () => {
           const newName = input.value.trim() || current;
           addons[i].name = newName;
+          addons[i]._customName = true; // protect from auto-rename overwrite
           appSettings.stremioAddons = addons;
           saveSettings();
           renderAddonList();
