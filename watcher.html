@@ -952,9 +952,9 @@
     .settings-submenu-title {
       font-size: 1rem; font-weight: 700; color: #fff;
       padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 0.25rem;
+      margin-bottom: 1rem;
     }
-    .settings-section { display: flex; flex-direction: column; gap: 0.75rem; }
+    .settings-section { display: flex; flex-direction: column; gap: 0.9rem; }
     .settings-section-title {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
       color: var(--accent-green); padding-bottom: 0.5rem;
@@ -1015,17 +1015,17 @@
 
     /* RD status indicator */
     #settings-tb-status {
-      padding: 0.4rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
       display: inline-block; margin-bottom: 0.25rem;
     }
-    #settings-tb-status.connected    { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
-    #settings-tb-status.disconnected { background: rgba(239,68,68,0.1); color: var(--accent-red);    border: 1px solid rgba(239,68,68,0.3); }
+    #settings-tb-status.connected    { background: rgba(16,185,129,0.12); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.35); }
+    #settings-tb-status.disconnected { background: rgba(239,68,68,0.1);   color: var(--accent-red);   border: 1px solid rgba(239,68,68,0.3); }
     #settings-rd-status {
-      font-size: 0.78rem; padding: 0.4rem 0.8rem; border-radius: 8px;
-      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem;
     }
-    #settings-rd-status.connected    { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
-    #settings-rd-status.disconnected { background: rgba(239,68,68,0.1); color: var(--accent-red);    border: 1px solid rgba(239,68,68,0.3); }
+    #settings-rd-status.connected    { background: rgba(118,75,162,0.15); color: var(--accent-purple); border: 1px solid rgba(118,75,162,0.4); }
+    #settings-rd-status.disconnected { background: rgba(239,68,68,0.1);   color: var(--accent-red);    border: 1px solid rgba(239,68,68,0.3); }
 
     /* ── Stremio addon manager ── */
     .addon-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
@@ -1614,24 +1614,27 @@
   <div class="settings-submenu-title">🔐 Debrid Services</div>
 
   <!-- Pill toggle -->
-  <div style="display:flex;gap:0;background:rgba(255,255,255,0.05);border-radius:999px;padding:3px;margin-bottom:1.25rem;border:1px solid rgba(255,255,255,0.08);">
+  <div style="display:flex;gap:0;background:rgba(255,255,255,0.04);border-radius:999px;padding:3px;
+              margin-top:0.75rem;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,0.1);">
     <button id="debrid-tab-rd" onclick="switchDebridTab('rd')"
-      style="flex:1;padding:0.5rem 1rem;border-radius:999px;border:none;font-size:0.82rem;font-weight:700;
-             letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;background:var(--accent-green);color:#000;">
+      style="flex:1;padding:0.55rem 1.25rem;border-radius:999px;border:none;font-size:0.85rem;font-weight:800;
+             letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+             background:var(--accent-purple);color:#fff;box-shadow:0 2px 8px rgba(118,75,162,0.4);">
       RD
     </button>
     <button id="debrid-tab-tb" onclick="switchDebridTab('tb')"
-      style="flex:1;padding:0.5rem 1rem;border-radius:999px;border:none;font-size:0.82rem;font-weight:700;
-             letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;background:transparent;color:rgba(255,255,255,0.4);">
+      style="flex:1;padding:0.55rem 1.25rem;border-radius:999px;border:none;font-size:0.85rem;font-weight:800;
+             letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+             background:transparent;color:rgba(255,255,255,0.35);">
       TB
     </button>
   </div>
 
   <!-- RD Panel -->
   <div id="debrid-panel-rd">
-    <div class="settings-section">
-      <div class="settings-section-title">Real-Debrid API Token</div>
-      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+    <div class="settings-section" style="margin-bottom:1.25rem;">
+      <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid API Token</div>
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;margin-top:0.25rem;">
         <div id="settings-rd-status" class="disconnected">● Not connected</div>
         <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
            style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
@@ -1644,11 +1647,11 @@
         <button class="settings-btn purple" onclick="testRDToken()">Test</button>
         <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
       </div>
-      <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
+      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
     </div>
     <div class="settings-section">
-      <div class="settings-section-title">Real-Debrid Library</div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid Library</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
         <button class="settings-btn green"  onclick="openRDLibrary()">📂 View Library</button>
         <button class="settings-btn purple" onclick="openRDLibrary()">🔄 Refresh</button>
         <button class="settings-btn red"    onclick="closeRDLibrary()" id="rd-library-close-btn" style="display:none;">✕ Close</button>
@@ -1662,9 +1665,9 @@
 
   <!-- TB Panel -->
   <div id="debrid-panel-tb" style="display:none;">
-    <div class="settings-section">
+    <div class="settings-section" style="margin-bottom:1.25rem;">
       <div class="settings-section-title">Torbox API Token</div>
-      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;margin-top:0.25rem;">
         <div id="settings-tb-status" class="disconnected">● Not connected</div>
         <a href="https://torbox.app/settings" target="_blank" rel="noopener"
            style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
@@ -1677,11 +1680,11 @@
         <button class="settings-btn purple" onclick="testTBToken()">Test</button>
         <button class="settings-btn red"    onclick="deleteTBToken()">Clear</button>
       </div>
-      <button class="settings-btn" style="margin-top:0.4rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
+      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
     </div>
     <div class="settings-section">
       <div class="settings-section-title">Torbox Library</div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
         <button class="settings-btn green"  onclick="openTBLibrary()">📂 View Library</button>
         <button class="settings-btn purple" onclick="openTBLibrary()">🔄 Refresh</button>
         <button class="settings-btn red"    onclick="closeTBLibrary()" id="tb-library-close-btn" style="display:none;">✕ Close</button>
@@ -2374,12 +2377,14 @@
 
     // Active tab: green pill, dark text. Inactive: transparent, muted text
     if (rdBtn) {
-      rdBtn.style.background = isRD ? 'var(--accent-green)' : 'transparent';
-      rdBtn.style.color      = isRD ? '#000' : 'rgba(255,255,255,0.4)';
+      rdBtn.style.background  = isRD ? 'var(--accent-purple)' : 'transparent';
+      rdBtn.style.color       = isRD ? '#fff' : 'rgba(255,255,255,0.35)';
+      rdBtn.style.boxShadow   = isRD ? '0 2px 8px rgba(118,75,162,0.4)' : 'none';
     }
     if (tbBtn) {
-      tbBtn.style.background = !isRD ? 'var(--accent-green)' : 'transparent';
-      tbBtn.style.color      = !isRD ? '#000' : 'rgba(255,255,255,0.4)';
+      tbBtn.style.background  = !isRD ? 'var(--accent-green)' : 'transparent';
+      tbBtn.style.color       = !isRD ? '#000' : 'rgba(255,255,255,0.35)';
+      tbBtn.style.boxShadow   = !isRD ? '0 2px 8px rgba(16,185,129,0.3)' : 'none';
     }
 
     // Remember choice
