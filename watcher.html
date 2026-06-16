@@ -1041,6 +1041,11 @@
       box-shadow: 0 0 0 0 rgba(118,75,162,0.6);
       animation: pulse-purple 2s ease-in-out infinite;
     }
+    .status-dot.off-dot {
+      background: var(--accent-red);
+      box-shadow: none;
+      animation: none;
+    }
     @keyframes pulse-green {
       0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
       50%  { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
@@ -1660,7 +1665,7 @@
     <div class="settings-section" style="margin-bottom:1.25rem;">
       <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid API Token</div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;margin-top:0.25rem;">
-        <div id="settings-rd-status" class="disconnected"><span class="status-dot rd-dot"></span> Not connected</div>
+        <div id="settings-rd-status" class="disconnected"><span class="status-dot off-dot"></span> Not connected</div>
         <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener"
            style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
       </div>
@@ -1693,7 +1698,7 @@
     <div class="settings-section" style="margin-bottom:1.25rem;">
       <div class="settings-section-title">Torbox API Token</div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.25rem;margin-top:0.25rem;">
-        <div id="settings-tb-status" class="disconnected"><span class="status-dot tb-dot"></span> Not connected</div>
+        <div id="settings-tb-status" class="disconnected"><span class="status-dot off-dot"></span> Not connected</div>
         <a href="https://torbox.app/settings" target="_blank" rel="noopener"
            style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-decoration:underline;">Get token ↗</a>
       </div>
@@ -2333,13 +2338,12 @@
   function updateRDStatusBadge() {
     const badge = document.getElementById('settings-rd-status');
     if (!badge) return;
-    const dot = '<span class="status-dot rd-dot"></span>';
     if (getRDToken()) {
       badge.className = 'connected';
-      badge.innerHTML = `${dot} Connected`;
+      badge.innerHTML = '<span class="status-dot rd-dot"></span> Connected';
     } else {
       badge.className = 'disconnected';
-      badge.innerHTML = `${dot} Not connected`;
+      badge.innerHTML = '<span class="status-dot off-dot"></span> Not connected';
     }
   }
 
@@ -2465,10 +2469,14 @@
   function updateTBStatusBadge() {
     const el = document.getElementById('settings-tb-status');
     if (!el) return;
-    const dot = '<span class="status-dot tb-dot"></span>';
     const tok = getTBToken();
-    if (tok) { el.className = 'connected'; el.innerHTML = `${dot} Connected`; }
-    else      { el.className = 'disconnected'; el.innerHTML = `${dot} Not connected`; }
+    if (tok) {
+      el.className = 'connected';
+      el.innerHTML = '<span class="status-dot tb-dot"></span> Connected';
+    } else {
+      el.className = 'disconnected';
+      el.innerHTML = '<span class="status-dot off-dot"></span> Not connected';
+    }
   }
 
   function saveTBToken() {
