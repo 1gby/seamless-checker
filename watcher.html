@@ -691,6 +691,23 @@
       line-height: 1.45;
     }
 
+    /* Bouncing popcorn stream loader */
+    #stream-loading-popcorn {
+      display: none; align-items: center; gap: 0.4rem;
+      padding: 0.2rem 1.2rem 0.4rem; font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+    }
+    #stream-loading-popcorn.visible { display: flex; }
+    #stream-loading-popcorn .popcorn-icon {
+      font-size: 1rem;
+      display: inline-block;
+      animation: popcorn-bounce 0.65s ease-in-out infinite alternate;
+    }
+    @keyframes popcorn-bounce {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-5px); }
+    }
+
     /* Results list (vertical) */
     #torrent-overlay-results { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
 
@@ -1584,6 +1601,10 @@
 <!-- Status line -->
 
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
+<div id="stream-loading-popcorn">
+  <span class="popcorn-icon">🍿</span>
+  <span>Still fetching sources…</span>
+</div>
 
 <!-- Results list (populated by JS) -->
 
@@ -3082,7 +3103,7 @@
 
   // ── Stremio Addon Stream Fetcher ──────────────────────────────────
   // Queries a Stremio-compatible addon for streams
-  async function fetchAddonStreams(addon, type, imdbId, season, episode) {
+  async function fetchAddonStreams(addon, type, imdbId, season, episode, attempt = 0) {
     if (!addon?.url || !addon.enabled || !imdbId) return [];
     try {
       let streamId = imdbId;
@@ -3090,32 +3111,41 @@
         streamId = `${imdbId}:${season}:${episode}`;
       }
       const streamUrl = `${addon.url}/stream/${type}/${streamId}.json`;
-      console.log(`[Addon:${addon.name}] Fetching:`, streamUrl);
 
-      // Addon URLs (Torrentio, Comet etc) need CORS proxy — skip direct fetch
-      // which would just burn timeout on a guaranteed CORS failure.
-      // Use 25s timeout: RD resolution is slow, especially for many results.
-      let data;
+      let res, data;
+
+      // Try direct fetch first — Torrentio supports CORS
       try {
-        const res = await fetch(streamUrl, { signal: safeFetchSignal(25000) });
-        if (res.ok) data = await res.json();
-        else throw new Error(`HTTP ${res.status}`);
-      } catch {
+        res = await fetch(streamUrl, { signal: safeFetchSignal(30000) });
+      } catch {}
+
+      // Handle 429 — exponential backoff + jitter, max 2 retries
+      if (res?.status === 429) {
+        if (attempt < 2) {
+          const retryAfter = parseInt(res.headers.get('Retry-After') || '0', 10);
+          const backoff = retryAfter * 1000 || (Math.pow(2, attempt) * 1000 + Math.random() * 500);
+          console.warn(`[Addon:${addon.name}] 429 — retrying in ${Math.round(backoff)}ms`);
+          await new Promise(r => setTimeout(r, backoff));
+          return fetchAddonStreams(addon, type, imdbId, season, episode, attempt + 1);
+        }
+        console.warn(`[Addon:${addon.name}] 429 after ${attempt + 1} attempts`);
+        return [];
+      }
+
+      if (res?.ok) {
+        data = await res.json();
+      } else {
+        // Fall back to CORS proxy
         try {
-          const res = await corsGet(streamUrl, 25000);
-          data = await res.json();
+          const proxyRes = await corsGet(streamUrl, 30000);
+          if (proxyRes.ok) data = await proxyRes.json();
         } catch (e) {
           console.warn(`[Addon:${addon.name}] Failed:`, e.message);
           return [];
         }
       }
 
-      if (!data?.streams?.length) {
-        console.log(`[Addon:${addon.name}] 0 streams returned`);
-        return [];
-      }
-
-      console.log(`[Addon:${addon.name}] ${data.streams.length} streams found`);
+      if (!data?.streams?.length) return [];
       return parseAddonStreams(data.streams, addon.name);
     } catch (e) {
       console.warn(`[Addon:${addon.name}] Error:`, e.message);
@@ -3187,27 +3217,26 @@
     onStatus('searching', `🧩 Querying ${addons.length} addon${addons.length > 1 ? 's' : ''}… (RD streams may take up to 25s)`);
 
     let allStreams = [];
-    const existingHashes = new Set();
+    const seenUrls = new Set(); // dedup by URL — same torrent via RD vs TB = different URLs, both wanted
 
-    // Fire addons with a small stagger to avoid hitting Torrentio rate limits
-    // when multiple addons share the same domain (e.g. Torrentio RD + TB)
-    const addonPromises = addons.map((addon, idx) =>
-      new Promise(resolve => setTimeout(resolve, idx * 300)).then(() =>
-        fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
+    // All addons fire simultaneously — each resolves independently and
+    // triggers a progressive UI update as results arrive.
+    const addonPromises = addons.map(addon =>
+      fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
         if (!streams?.length) return;
-        // Dedupe by hash
+        // Dedupe by direct URL (unique per debrid service) not by hash
+        // (hash-based dedup would drop TB streams that share hash with RD streams)
         const unique = streams.filter(s => {
-          if (s.hash && existingHashes.has(s.hash)) return false;
-          if (s.hash) existingHashes.add(s.hash);
+          const key = s._directUrl || s.magnet || s.hash || Math.random().toString();
+          if (seenUrls.has(key)) return false;
+          seenUrls.add(key);
           return true;
         });
         if (!unique.length) return;
         allStreams = [...allStreams, ...unique];
-        // Emit progressive update so UI renders immediately
         const sorted = sortTorrentResults(allStreams);
         onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} found`, sorted);
       }).catch(e => console.warn(`[Addon:${addon.name}] failed:`, e))
-      )
     );
 
     // Wait for all to finish then return final set
@@ -4055,13 +4084,15 @@
   // ── Master search ────────────────────────────────────────────────────
   async function searchTorrents(title, onStatus, imdbId, mediaType, season, episode) {
     let allResults = [];
-    const existingHashes = new Set();
+    const seenResultUrls = new Set(); // dedup by URL not hash
     const mode = overlayMode || 'streams';
 
     function dedupeAndMerge(newResults) {
       const unique = newResults.filter(r => {
-        if (r.hash && existingHashes.has(r.hash)) return false;
-        if (r.hash) existingHashes.add(r.hash);
+        const key = r._directUrl || r.magnet || r.hash;
+        if (!key) return true;
+        if (seenResultUrls.has(key)) return false;
+        seenResultUrls.add(key);
         return true;
       });
       allResults = [...allResults, ...unique];
@@ -4866,6 +4897,8 @@
     if (vid?._cwInterval) { clearInterval(vid._cwInterval); vid._cwInterval = null; }
     // Clear auto-play next timer if overlay is closed manually
     if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
+    // Hide popcorn loader
+    document.getElementById('stream-loading-popcorn')?.classList.remove('visible');
   }
 
   // Called by the re-search input inside the overlay header
@@ -4888,16 +4921,22 @@
 
   // Master search coordinator for the overlay
   async function initTorrentSearch(query, displayTitle) {
+    const popcorn = document.getElementById('stream-loading-popcorn');
     await searchTorrents(query, (type, msg, data) => {
       const statusEl = document.getElementById('torrent-overlay-status');
       if (statusEl && msg) statusEl.textContent = msg;
 
+      if (type === 'searching') {
+        if (popcorn) popcorn.classList.add('visible');
+      }
       if (type === 'results' && data?.length > 0) {
         torrentOverlayResults = data;
         buildSourceChips();
         applyTorFilter();
+        // Keep popcorn visible while still searching (will hide on completion)
       }
       if (type === 'empty' || type === 'error') {
+        if (popcorn) popcorn.classList.remove('visible');
         const resultsEl = document.getElementById('torrent-overlay-results');
         if (resultsEl) {
           resultsEl.innerHTML = `
@@ -4909,6 +4948,8 @@
         }
       }
     }, currentImdbId, currentMediaType, currentSeason, currentEpisode);
+    // All addons finished — hide popcorn
+    if (popcorn) popcorn.classList.remove('visible');
   }
 
   // Filter chip logic
