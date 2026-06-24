@@ -3115,17 +3115,16 @@
 
       // Try direct fetch first — Torrentio supports CORS so this works and is fastest.
       // Fall back to CORS proxy for addons that don't allow direct cross-origin requests.
-      // 25s timeout: RD/TB resolution can be slow server-side.
+      // 30s timeout: RD/TB resolution can be slow server-side.
       let data;
       try {
-        const res = await fetch(streamUrl, { signal: safeFetchSignal(25000) });
+        const res = await fetch(streamUrl, { signal: safeFetchSignal(30000) });
         if (res.ok) data = await res.json();
-        // Non-ok: fall through to proxy without throwing
       } catch {}
 
       if (!data) {
         try {
-          const res = await corsGet(streamUrl, 25000);
+          const res = await corsGet(streamUrl, 30000);
           data = await res.json();
         } catch (e) {
           console.warn(`[Addon:${addon.name}] Failed:`, e.message);
@@ -3212,11 +3211,19 @@
     let allStreams = [];
     const existingHashes = new Set();
 
-    // Fire all addons simultaneously — progressive rendering handles the UI updates
-    // as each one completes. No stagger needed since each addon is a separate domain
-    // or endpoint and rate limiting hasn't been an observed issue in practice.
-    const addonPromises = addons.map(addon =>
-      fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
+    // Smart stagger: only delay addons that share the same hostname to avoid
+    // rate limiting (e.g. Torrentio RD + TB both hit torrentio.strem.fun).
+    // Addons on different domains fire immediately in parallel.
+    const hostDelays = new Map(); // hostname → next delay ms
+    const addonPromises = addons.map(addon => {
+      let delay = 0;
+      try {
+        const host = new URL(addon.url).hostname;
+        delay = hostDelays.get(host) || 0;
+        hostDelays.set(host, delay + 400); // 400ms between same-host addons
+      } catch {}
+      return new Promise(resolve => setTimeout(resolve, delay)).then(() =>
+        fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
         if (!streams?.length) return;
         // Dedupe by hash
         const unique = streams.filter(s => {
@@ -3230,7 +3237,8 @@
         const sorted = sortTorrentResults(allStreams);
         onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} found`, sorted);
       }).catch(e => console.warn(`[Addon:${addon.name}] failed:`, e))
-    );
+      );
+    });
 
     // Wait for all to finish then return final set
     await Promise.allSettled(addonPromises);
