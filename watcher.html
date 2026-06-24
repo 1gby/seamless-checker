@@ -3212,11 +3212,11 @@
     let allStreams = [];
     const existingHashes = new Set();
 
-    // Fire addons with a small stagger to avoid hitting Torrentio rate limits
-    // when multiple addons share the same domain (e.g. Torrentio RD + TB)
-    const addonPromises = addons.map((addon, idx) =>
-      new Promise(resolve => setTimeout(resolve, idx * 600)).then(() =>
-        fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
+    // Fire all addons simultaneously — progressive rendering handles the UI updates
+    // as each one completes. No stagger needed since each addon is a separate domain
+    // or endpoint and rate limiting hasn't been an observed issue in practice.
+    const addonPromises = addons.map(addon =>
+      fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
         if (!streams?.length) return;
         // Dedupe by hash
         const unique = streams.filter(s => {
@@ -3230,7 +3230,6 @@
         const sorted = sortTorrentResults(allStreams);
         onStatus('results', `⚡ ${sorted.length} stream${sorted.length !== 1 ? 's' : ''} found`, sorted);
       }).catch(e => console.warn(`[Addon:${addon.name}] failed:`, e))
-      )
     );
 
     // Wait for all to finish then return final set
