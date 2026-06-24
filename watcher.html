@@ -691,6 +691,23 @@
       line-height: 1.45;
     }
 
+    /* Bouncing popcorn stream loader */
+    #stream-loading-popcorn {
+      display: none; align-items: center; gap: 0.4rem;
+      padding: 0.2rem 1.2rem 0.4rem; font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+    }
+    #stream-loading-popcorn.visible { display: flex; }
+    #stream-loading-popcorn .popcorn-icon {
+      font-size: 1rem;
+      display: inline-block;
+      animation: popcorn-bounce 0.65s ease-in-out infinite alternate;
+    }
+    @keyframes popcorn-bounce {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-5px); }
+    }
+
     /* Results list (vertical) */
     #torrent-overlay-results { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
 
@@ -1584,6 +1601,10 @@
 <!-- Status line -->
 
 <div id="torrent-overlay-status">Ready to search — click Find Torrents or refine your query above.</div>
+<div id="stream-loading-popcorn">
+  <span class="popcorn-icon">🍿</span>
+  <span>Still fetching sources…</span>
+</div>
 
 <!-- Results list (populated by JS) -->
 
@@ -3192,7 +3213,7 @@
     // Fire addons with a small stagger to avoid hitting Torrentio rate limits
     // when multiple addons share the same domain (e.g. Torrentio RD + TB)
     const addonPromises = addons.map((addon, idx) =>
-      new Promise(resolve => setTimeout(resolve, idx * 300)).then(() =>
+      new Promise(resolve => setTimeout(resolve, idx * 600)).then(() =>
         fetchAddonStreams(addon, type, imdbId, season, episode).then(streams => {
         if (!streams?.length) return;
         // Dedupe by hash
@@ -4866,6 +4887,8 @@
     if (vid?._cwInterval) { clearInterval(vid._cwInterval); vid._cwInterval = null; }
     // Clear auto-play next timer if overlay is closed manually
     if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
+    // Hide popcorn loader
+    document.getElementById('stream-loading-popcorn')?.classList.remove('visible');
   }
 
   // Called by the re-search input inside the overlay header
@@ -4888,16 +4911,22 @@
 
   // Master search coordinator for the overlay
   async function initTorrentSearch(query, displayTitle) {
+    const popcorn = document.getElementById('stream-loading-popcorn');
     await searchTorrents(query, (type, msg, data) => {
       const statusEl = document.getElementById('torrent-overlay-status');
       if (statusEl && msg) statusEl.textContent = msg;
 
+      if (type === 'searching') {
+        if (popcorn) popcorn.classList.add('visible');
+      }
       if (type === 'results' && data?.length > 0) {
         torrentOverlayResults = data;
         buildSourceChips();
         applyTorFilter();
+        // Keep popcorn visible while still searching (will hide on completion)
       }
       if (type === 'empty' || type === 'error') {
+        if (popcorn) popcorn.classList.remove('visible');
         const resultsEl = document.getElementById('torrent-overlay-results');
         if (resultsEl) {
           resultsEl.innerHTML = `
@@ -4909,6 +4938,8 @@
         }
       }
     }, currentImdbId, currentMediaType, currentSeason, currentEpisode);
+    // All addons finished — hide popcorn
+    if (popcorn) popcorn.classList.remove('visible');
   }
 
   // Filter chip logic
