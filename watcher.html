@@ -3113,15 +3113,17 @@
       const streamUrl = `${addon.url}/stream/${type}/${streamId}.json`;
       console.log(`[Addon:${addon.name}] Fetching:`, streamUrl);
 
-      // Addon URLs (Torrentio, Comet etc) need CORS proxy — skip direct fetch
-      // which would just burn timeout on a guaranteed CORS failure.
-      // Use 25s timeout: RD resolution is slow, especially for many results.
+      // Try direct fetch first — Torrentio supports CORS so this works and is fastest.
+      // Fall back to CORS proxy for addons that don't allow direct cross-origin requests.
+      // 25s timeout: RD/TB resolution can be slow server-side.
       let data;
       try {
         const res = await fetch(streamUrl, { signal: safeFetchSignal(25000) });
         if (res.ok) data = await res.json();
-        else throw new Error(`HTTP ${res.status}`);
-      } catch {
+        // Non-ok: fall through to proxy without throwing
+      } catch {}
+
+      if (!data) {
         try {
           const res = await corsGet(streamUrl, 25000);
           data = await res.json();
