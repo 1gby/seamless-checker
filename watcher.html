@@ -4089,15 +4089,6 @@
                 }
               }
             );
-            // Final pass with full result set (catches any missed by progressive updates)
-            if (addonResults.length > 0) {
-              const final = applySettingsFilters(filterTorrentResults(addonResults));
-              if (final.length > 0) {
-                gotResults = true;
-                onStatus('results', `⚡ ${final.length} stream${final.length !== 1 ? 's' : ''} found`, final);
-                return final;
-              }
-            }
             // Only show empty if nothing came through at all
             if (!gotResults) {
               onStatus('empty', `😶 No streams found. Add Stremio addons in Settings ⚙️ or try the 🧲 Torrents tab.`);
