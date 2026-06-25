@@ -2352,9 +2352,9 @@
 
   function toggleSettingBool(key, btnId) {
     appSettings[key] = !appSettings[key];
-    saveSettings();
     const btn = document.getElementById(btnId);
     if (btn) btn.classList.toggle('on', !!appSettings[key]);
+    saveSettings();
   }
 
   function saveSettings() {
@@ -2383,7 +2383,7 @@
       maxYts:     parseInt(gb('sf-max-yts'))    || 30,
       max1337x:   parseInt(gb('sf-max-1337x'))  || 25,
       stremioAddons: appSettings.stremioAddons || [],
-      librarySearchEnabled: !!document.getElementById('sf-library-search')?.classList.contains('on'),
+      librarySearchEnabled: !!appSettings.librarySearchEnabled,
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
   }
