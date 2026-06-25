@@ -2383,6 +2383,7 @@
       maxYts:     parseInt(gb('sf-max-yts'))    || 30,
       max1337x:   parseInt(gb('sf-max-1337x'))  || 25,
       stremioAddons: appSettings.stremioAddons || [],
+      librarySearchEnabled: !!document.getElementById('sf-library-search')?.classList.contains('on'),
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
   }
