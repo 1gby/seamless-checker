@@ -2291,6 +2291,8 @@
     minSeeds: 0, maxApibay: 100, maxKnaben: 100, maxYts: 30, max1337x: 25,
     // Stremio Addons — array of { name, url, enabled }
     stremioAddons: [],
+    // Library search — auto-search RD/TB when pulling up streams
+    librarySearchEnabled: false,
   };
 
   let appSettings = { ...DEFAULT_SETTINGS };
@@ -2301,7 +2303,13 @@
       appSettings = { ...DEFAULT_SETTINGS, ...stored };
     } catch { appSettings = { ...DEFAULT_SETTINGS }; }
     // Push values into DOM checkboxes / inputs
-    const set = (id, val) => { const el = document.getElementById(id); if (el) { if (el.type === 'checkbox') el.checked = val; else el.value = val; } };
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = val;
+      else if (el.classList.contains('addon-toggle')) el.classList.toggle('on', !!val);
+      else el.value = val;
+    };
     set('sf-4k',           appSettings.sf4k);
     set('sf-1080p',        appSettings.sf1080p);
     set('sf-720p',         appSettings.sf720p);
