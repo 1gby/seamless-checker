@@ -1585,15 +1585,6 @@
 <div id="torrent-source-bar" style="display:flex;gap:0.4rem;flex-wrap:wrap;padding:0.4rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <!-- Dynamic source chips injected by JS -->
 </div>
-<div style="padding:0.3rem 1.5rem 0.4rem;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:0.5rem;align-items:center;">
-  <button id="check-library-btn" onclick="searchDebridLibraries()"
-    style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0.9rem;border-radius:999px;
-           border:1.5px solid rgba(118,75,162,0.4);background:rgba(118,75,162,0.08);
-           color:#c084fc;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.2s;">
-    📚 Check Library
-  </button>
-  <span id="library-search-status" style="font-size:0.7rem;color:rgba(255,255,255,0.35);"></span>
-</div>
 
 <!-- Re-search input (moved below filters) -->
 
@@ -1830,6 +1821,17 @@
 <div id="submenu-sources" class="settings-submenu">
   <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
   <div class="settings-submenu-title">⚡ Stream Sources</div>
+
+  <div class="settings-section" style="margin-bottom:1rem;">
+    <div class="settings-section-title">Library Search</div>
+    <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;margin-top:0.25rem;">
+      <button class="addon-toggle" id="sf-library-search"
+        onclick="toggleSettingBool('librarySearchEnabled','sf-library-search')"></button>
+      <span style="font-size:0.82rem;color:rgba(255,255,255,0.7);">
+        Auto-search RD &amp; TB library when bringing up streams
+      </span>
+    </label>
+  </div>
 
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons</div>
@@ -2312,7 +2314,7 @@
     set('se-subbed',       appSettings.seSubbed);
     set('se-hdr',          appSettings.seHdr);
     set('se-exclude-keywords', appSettings.excludeKeywords || '');
-    set('sf-min-seeds',    appSettings.minSeeds);
+    set('sf-library-search', appSettings.librarySearchEnabled);
     set('sf-max-apibay',   appSettings.maxApibay);
     set('sf-max-knaben',   appSettings.maxKnaben);
     set('sf-max-yts',      appSettings.maxYts);
@@ -2338,6 +2340,13 @@
     if (tbInp && tbTok) tbInp.value = tbTok;
     updateTBStatusBadge();
     updateDebridBadge();
+  }
+
+  function toggleSettingBool(key, btnId) {
+    appSettings[key] = !appSettings[key];
+    saveSettings();
+    const btn = document.getElementById(btnId);
+    if (btn) btn.classList.toggle('on', !!appSettings[key]);
   }
 
   function saveSettings() {
@@ -4106,18 +4115,35 @@
   }
 
   // ── Library-first stream search ──────────────────────────────────────
-  // Searches RD and TB libraries for content matching the current overlay
-  // query and merges results directly into the stream list.
+  // Searches RD and TB libraries and merges matching results into the
+  // stream list. Runs automatically alongside addon fetches if enabled.
+  // Matching is strict — requires episode code for TV, close title match for movies.
   async function searchDebridLibraries() {
-    const btn    = document.getElementById('check-library-btn');
-    const status = document.getElementById('library-search-status');
-    if (!btn) return;
+    if (!appSettings.librarySearchEnabled) return;
+    if (!getRDToken() && !getTBToken()) return;
 
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-    if (status) status.textContent = '⏳ Searching…';
+    const isTV    = currentMediaType === 'tv' && currentSeason && currentEpisode;
+    const epCode  = isTV ? `s${String(currentSeason).padStart(2,'0')}e${String(currentEpisode).padStart(2,'0')}` : null;
+    const altCode = isTV ? `${currentSeason}x${String(currentEpisode).padStart(2,'0')}` : null;
+    // Build meaningful title words — skip short/common words
+    const titleWords = (torrentOverlayTitle || '').toLowerCase()
+      .replace(/s\d+e\d+.*$/i, '').trim()
+      .split(/\s+/).filter(w => w.length > 3 && !['the','and','for','with','from'].includes(w));
 
-    const query   = (torrentOverlayTitle || '').toLowerCase().trim();
+    function matchesItem(name) {
+      const n = name.toLowerCase();
+      if (isTV) {
+        // TV: must contain the episode code
+        if (!n.includes(epCode) && !n.includes(altCode)) return false;
+        // Plus at least 2 title words
+        return titleWords.slice(0, 3).filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
+      } else {
+        // Movie: must contain at least 3 title words (or all if fewer than 3)
+        const needed = Math.min(3, titleWords.length);
+        return titleWords.filter(w => n.includes(w)).length >= needed;
+      }
+    }
+
     const results = [];
 
     await Promise.all([
@@ -4127,26 +4153,16 @@
         try {
           const torrents = await rdFetch('/torrents?limit=100');
           if (!torrents?.length) return;
-          const matches = torrents.filter(t => {
-            if (t.status !== 'downloaded') return false;
-            const name = (t.filename || '').toLowerCase();
-            // Match by show title + episode code if TV
-            if (currentMediaType === 'tv' && currentSeason && currentEpisode) {
-              const epCode = `s${String(currentSeason).padStart(2,'0')}e${String(currentEpisode).padStart(2,'0')}`;
-              const altCode = `${currentSeason}x${String(currentEpisode).padStart(2,'0')}`;
-              return name.includes(epCode) || name.includes(altCode) ||
-                     (query.split(' ').slice(0,3).every(w => name.includes(w)));
-            }
-            // Movies: match first 3 words of title
-            return query.split(' ').slice(0,3).filter(w => w.length > 2).every(w => name.includes(w));
-          });
-
-          for (const t of matches.slice(0, 20)) {
+          const matches = torrents.filter(t =>
+            t.status === 'downloaded' && matchesItem(t.filename || '')
+          );
+          for (const t of matches.slice(0, 10)) {
             try {
-              const info = await rdFetch(`/torrents/info/${t.id}`);
+              const info  = await rdFetch(`/torrents/info/${t.id}`);
               if (!info?.links?.length) continue;
               const links = await unrestrictVideoLinks(info.links);
               for (const link of links) {
+                if (!matchesItem(link.filename || t.filename || '')) continue;
                 results.push({
                   title:       link.filename || t.filename || 'RD Library',
                   size:        link.filesize ? formatBytes(link.filesize) : '?',
@@ -4172,30 +4188,19 @@
         try {
           const json = await tbFetch('/torrents/mylist?bypass_cache=true');
           if (!json.success) return;
-          const torrents = (json.data || []).filter(t => t.download_finished || t.download_state === 'completed');
-          const matches = torrents.filter(t => {
-            const name = (t.name || '').toLowerCase();
-            if (currentMediaType === 'tv' && currentSeason && currentEpisode) {
-              const epCode = `s${String(currentSeason).padStart(2,'0')}e${String(currentEpisode).padStart(2,'0')}`;
-              const altCode = `${currentSeason}x${String(currentEpisode).padStart(2,'0')}`;
-              return name.includes(epCode) || name.includes(altCode) ||
-                     (query.split(' ').slice(0,3).every(w => name.includes(w)));
-            }
-            return query.split(' ').slice(0,3).filter(w => w.length > 2).every(w => name.includes(w));
-          });
-
-          for (const t of matches.slice(0, 20)) {
+          const torrents = (json.data || []).filter(t =>
+            (t.download_finished || t.download_state === 'completed') &&
+            matchesItem(t.name || '')
+          );
+          for (const t of torrents.slice(0, 10)) {
             try {
-              const info = await tbFetch(`/torrents/mylist?id=${t.id}&bypass_cache=true`);
-              const torrent = Array.isArray(info?.data)
-                ? info.data.find(x => x.id === t.id)
-                : info?.data;
-              const files = (torrent?.files || []).filter(f => {
+              const info    = await tbFetch(`/torrents/mylist?id=${t.id}&bypass_cache=true`);
+              const torrent = Array.isArray(info?.data) ? info.data.find(x => x.id === t.id) : info?.data;
+              const files   = (torrent?.files || []).filter(f => {
                 const ext = (f.name || '').split('.').pop().toLowerCase();
-                return ['mkv','mp4','avi','mov','m4v','ts','wmv'].includes(ext);
+                return ['mkv','mp4','avi','mov','m4v','ts','wmv'].includes(ext) && matchesItem(f.name || t.name || '');
               });
               for (const file of files) {
-                // Request a direct download link from TB API
                 const dlReq = await tbFetch(`/torrents/requestdl?token=${getTBToken()}&torrent_id=${t.id}&file_id=${file.id}&zip_link=false`);
                 if (!dlReq.success || !dlReq.data) continue;
                 const dlUrl = typeof dlReq.data === 'string' ? dlReq.data : dlReq.data.url || dlReq.data;
@@ -4219,24 +4224,19 @@
       })(),
     ]);
 
-    btn.disabled = false;
-    btn.style.opacity = '1';
+    if (!results.length) return;
 
-    if (!results.length) {
-      if (status) status.textContent = '📭 Nothing found in your libraries';
-      setTimeout(() => { if (status) status.textContent = ''; }, 3000);
-      return;
-    }
-
-    // Merge into existing results
-    const existing = torrentOverlayResults || [];
-    const seenUrls = new Set(existing.map(r => r._directUrl).filter(Boolean));
+    // Merge into existing results — library results go to the top
+    const existing   = torrentOverlayResults || [];
+    const seenUrls   = new Set(existing.map(r => r._directUrl).filter(Boolean));
     const newResults = results.filter(r => r._directUrl && !seenUrls.has(r._directUrl));
+    if (!newResults.length) return;
+
     torrentOverlayResults = [...newResults, ...existing];
     buildSourceChips();
     applyTorFilter();
-    if (status) status.textContent = `✅ +${newResults.length} from library`;
-    setTimeout(() => { if (status) status.textContent = ''; }, 3000);
+    const statusEl = document.getElementById('torrent-overlay-status');
+    if (statusEl) statusEl.textContent = `⚡ ${torrentOverlayResults.length} stream${torrentOverlayResults.length !== 1 ? 's' : ''} found`;
   }
   async function searchTorrents(title, onStatus, imdbId, mediaType, season, episode) {
     let allResults = [];
@@ -5196,33 +5196,38 @@
   // Master search coordinator for the overlay
   async function initTorrentSearch(query, displayTitle) {
     const popcorn = document.getElementById('stream-loading-popcorn');
-    await searchTorrents(query, (type, msg, data) => {
-      const statusEl = document.getElementById('torrent-overlay-status');
-      if (statusEl && msg) statusEl.textContent = msg;
 
-      if (type === 'searching') {
-        if (popcorn) popcorn.classList.add('visible');
-      }
-      if (type === 'results' && data?.length > 0) {
-        torrentOverlayResults = data;
-        buildSourceChips();
-        applyTorFilter();
-        // Keep popcorn visible while still searching (will hide on completion)
-      }
-      if (type === 'empty' || type === 'error') {
-        if (popcorn) popcorn.classList.remove('visible');
-        const resultsEl = document.getElementById('torrent-overlay-results');
-        if (resultsEl) {
-          resultsEl.innerHTML = `
-            <div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.4);">
-              <div style="font-size:2rem;margin-bottom:0.5rem;">🔍</div>
-              <div style="font-size:0.9rem;margin-bottom:1rem;">${msg}</div>
-              <button class="settings-btn purple" onclick="runTorrentOverlaySearch()">🔄 Try Again</button>
-            </div>`;
+    // Run library search and addon search simultaneously
+    const [, ] = await Promise.all([
+      // Library search (runs silently, merges results as they arrive)
+      searchDebridLibraries(),
+      // Addon search
+      searchTorrents(query, (type, msg, data) => {
+        const statusEl = document.getElementById('torrent-overlay-status');
+        if (statusEl && msg) statusEl.textContent = msg;
+        if (type === 'searching') {
+          if (popcorn) popcorn.classList.add('visible');
         }
-      }
-    }, currentImdbId, currentMediaType, currentSeason, currentEpisode);
-    // All addons finished — hide popcorn
+        if (type === 'results' && data?.length > 0) {
+          torrentOverlayResults = data;
+          buildSourceChips();
+          applyTorFilter();
+        }
+        if (type === 'empty' || type === 'error') {
+          if (popcorn) popcorn.classList.remove('visible');
+          const resultsEl = document.getElementById('torrent-overlay-results');
+          if (resultsEl && !torrentOverlayResults?.length) {
+            resultsEl.innerHTML = `
+              <div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.4);">
+                <div style="font-size:2rem;margin-bottom:0.5rem;">🔍</div>
+                <div style="font-size:0.9rem;margin-bottom:1rem;">${msg}</div>
+                <button class="settings-btn purple" onclick="runTorrentOverlaySearch()">🔄 Try Again</button>
+              </div>`;
+          }
+        }
+      }, currentImdbId, currentMediaType, currentSeason, currentEpisode),
+    ]);
+
     if (popcorn) popcorn.classList.remove('visible');
   }
 
