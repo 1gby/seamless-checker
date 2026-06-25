@@ -5076,7 +5076,7 @@
   }
 
   // Render the vertical result list with infinite scroll
-  const TORRENT_PAGE_SIZE = 50;
+  const TORRENT_PAGE_SIZE = 25;
   let torrentRenderOffset = 0;
   let torrentScrollObserver = null;
 
@@ -5618,34 +5618,6 @@
      Renders quality selector buttons + embedded <video> player inside
      the torrent results overlay.
      ═══════════════════════════════════════════════════════════════════ */
-  // Smart player source setter — handles HLS (.m3u8) and regular video
-  function setPlayerSource(video, url) {
-    // Destroy any existing HLS instance
-    if (video._hls) { video._hls.destroy(); video._hls = null; }
-
-    const isHLS = url.includes('.m3u8') || url.includes('manifest');
-
-    if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: true, lowLatencyMode: false });
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.muted = false;
-        video.volume = 1;
-      });
-      hls.on(Hls.Events.ERROR, (e, data) => { if (data.fatal) console.warn('[HLS] Fatal error:', data); });
-      video._hls = hls;
-    } else {
-      // Native playback (mp4, mkv via browser, or Safari native HLS)
-      video.src = url;
-      video.muted = false;
-      video.volume = 1;
-    }
-    // Don't autoplay — let user tap play so audio works on iOS
-    video.load();
-  }
-
-  // Plyr instance — initialized once, reused
   let _plyr = null;
 
   function getPlyr() {
@@ -5871,16 +5843,42 @@
     saveWatchedEpisodes(tvId, d);
     return !!d[key];
   }
-  function markPreviousWatched(tvId, season, episode) {
+  async function markPreviousWatched(tvId, season, episode) {
     const d = getWatchedEpisodes(tvId);
-    // Mark all episodes in this season up to (but not including) the given one
-    for (let e = 1; e < episode; e++) d[`s${season}e${e}`] = Date.now();
-    // Mark all episodes in previous seasons (assume up to 30 eps per season)
-    for (let s = 1; s < season; s++) {
-      for (let e = 1; e <= 50; e++) d[`s${s}e${e}`] = Date.now();
+
+    // Fetch real season data from TMDB so we know actual episode counts
+    // Falls back to generous estimate (100) if TMDB is unavailable
+    let seasonEpisodeCounts = {};
+    try {
+      const showData = await tmdb(`/tv/${tvId}`);
+      for (const s of (showData.seasons || [])) {
+        if (s.season_number > 0) seasonEpisodeCounts[s.season_number] = s.episode_count;
+      }
+    } catch {
+      // Fallback: assume 100 eps per season — covers even The Simpsons
+      for (let s = 1; s <= season; s++) seasonEpisodeCounts[s] = 100;
     }
+
+    // Mark all episodes in seasons before this one (full seasons)
+    for (let s = 1; s < season; s++) {
+      const count = seasonEpisodeCounts[s] || 100;
+      for (let e = 1; e <= count; e++) d[`s${s}e${e}`] = Date.now();
+    }
+    // Mark all episodes in this season up to (but not including) the given episode
+    for (let e = 1; e < episode; e++) d[`s${season}e${e}`] = Date.now();
+
     saveWatchedEpisodes(tvId, d);
   }
+
+  function handleMarkPrevious(tvId, season, episode) {
+    markPreviousWatched(tvId, season, episode).then(() => {
+      refreshEpisodeUI(tvId, season);
+      refreshTVStreamButton();
+      loadContinueWatching();
+      showToast(`✅ Marked everything before S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')} as watched`, 'success');
+    });
+  }
+
   function unmarkFromEpisode(tvId, season, episode) {
     const d = getWatchedEpisodes(tvId);
     // Unmark this episode and all after it in this season
@@ -5919,12 +5917,6 @@
 
   function handleToggleWatched(tvId, season, episode) {
     toggleEpisodeWatched(tvId, season, episode);
-    refreshEpisodeUI(tvId, season);
-    refreshTVStreamButton();
-    loadContinueWatching();
-  }
-  function handleMarkPrevious(tvId, season, episode) {
-    markPreviousWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
     refreshTVStreamButton();
     loadContinueWatching();
@@ -6783,8 +6775,7 @@
     // Sort most recent first, only keep movies that are < 95% complete (still in progress)
     return movies
       .filter(m => !m.duration || m.progress < 0.95)
-      .sort((a, b) => b.ts - a.ts)
-      .slice(0, 10);
+      .sort((a, b) => b.ts - a.ts);
   }
 
   function removeCWMovie(movieId) {
@@ -6805,9 +6796,6 @@
 
     const popup = document.createElement('div');
     popup.id = 'cache-play-popup';
-
-    // Build Infuse URL with x-callback context
-    const infuseUrl = buildInfuseUrl(url, currentMovieId, currentMediaType, currentSeason, currentEpisode);
 
     popup.innerHTML = `
       <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
@@ -7104,6 +7092,9 @@
       xxxFavorites: slimFavList(xxxFavorites),
       watchHistory: {},
       library: [],
+      // Tokens included so a full restore works on a new device
+      rdToken: getRDToken() || null,
+      tbToken: getTBToken() || null,
     };
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -7145,10 +7136,13 @@
         if (data.library) {
           localStorage.setItem('watcher_library', JSON.stringify(data.library));
         }
+        // Restore tokens if present
+        if (data.rdToken) { localStorage.setItem('rd_token', data.rdToken); }
+        if (data.tbToken) { localStorage.setItem('tb_token', data.tbToken); }
         loadSettings();
-        alert('✅ Settings restored successfully! Reload for full effect.');
+        showToast('✅ Settings restored! Reload for full effect.', 'success');
       } catch (err) {
-        alert('❌ Failed to import: ' + err.message);
+        showToast('❌ Failed to import: ' + err.message, 'error');
       }
     };
     reader.readAsText(file);
@@ -8231,16 +8225,22 @@
   async function appendToHorizontal(gridId, items) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
-    for (const item of items) {
-      if (!item.poster_path && !item.backdrop_path && !item.profile_path) continue;
+
+    // Filter items with images first, then batch all fetches simultaneously
+    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    const imageUrls = await Promise.all(filtered.map(item => {
+      const isPerson = item.media_type === 'person' || !!item.known_for_department;
+      if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
+      return getImageUrl(item);
+    }));
+
+    filtered.forEach((item, idx) => {
+      const imageUrl = imageUrls[idx];
+      if (!imageUrl) return;
       const title    = item.title || item.name || 'Unknown';
       const year     = (item.release_date || item.first_air_date || '').slice(0, 4);
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
-      const imageUrl = isPerson
-        ? (item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null)
-        : await getImageUrl(item);
-      if (!imageUrl) continue;
-      const type      = item.media_type || (isPerson ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
+      const type     = item.media_type || (isPerson ? 'person' : (item.first_air_date ? 'tv' : 'movie'));
       const favorited = isFavorited(item.id, type);
       const card = document.createElement('div');
       card.className = 'card';
@@ -8253,7 +8253,7 @@
         <div class="info">${year?`<div class="year">${year}</div>`:''}</div>`;
       card.onclick = () => openDetail(item);
       grid.appendChild(card);
-    }
+    });
   }
 
   function enableInfiniteScroll(endpoint, params, gridId) {
