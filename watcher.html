@@ -4132,20 +4132,42 @@
     if (!getRDToken() && !getTBToken()) return;
 
     const isTV    = currentMediaType === 'tv' && currentSeason && currentEpisode;
+    const isMovie = currentMediaType === 'movie';
     const epCode  = isTV ? `s${String(currentSeason).padStart(2,'0')}e${String(currentEpisode).padStart(2,'0')}` : null;
     const altCode = isTV ? `${currentSeason}x${String(currentEpisode).padStart(2,'0')}` : null;
-    const titleWords = (torrentOverlayTitle || '').toLowerCase()
-      .replace(/s\d+e\d+.*$/i, '').trim()
-      .split(/\s+/).filter(w => w.length > 3 && !['the','and','for','with','from'].includes(w));
+
+    // Extract meaningful title words (4+ chars, non-common)
+    const cleanTitle = (torrentOverlayTitle || '').toLowerCase()
+      .replace(/s\d+e\d+.*$/i, '').trim();
+    const titleWords = cleanTitle
+      .split(/\s+/).filter(w => w.length >= 4 && !['the','and','for','with','from','that','this','have'].includes(w));
+
+    // Try to extract year from detail item for movies
+    const movieYear = isMovie && currentDetailItem
+      ? (currentDetailItem.release_date || '').slice(0, 4)
+      : null;
 
     function matchesItem(name) {
       const n = (name || '').toLowerCase();
       if (isTV) {
+        // Must have episode code
         if (!epCode || (!n.includes(epCode) && !(altCode && n.includes(altCode)))) return false;
-        return titleWords.slice(0, 3).filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
+        // Plus at least 2 title words
+        return titleWords.slice(0, 4).filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
       }
-      const needed = Math.min(3, titleWords.length);
-      return titleWords.filter(w => n.includes(w)).length >= needed;
+      if (isMovie) {
+        // Must have all title words present
+        const needed = Math.min(titleWords.length, Math.max(1, titleWords.length));
+        const wordMatch = titleWords.filter(w => n.includes(w)).length >= needed;
+        if (!wordMatch) return false;
+        // If we know the year, require it too (prevents Batman 1989 showing for Batman 2022)
+        if (movieYear && n.match(/\b(19|20)\d{2}\b/)) {
+          return n.includes(movieYear);
+        }
+        return true;
+      }
+      // Fallback
+      return titleWords.filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
     }
 
     const results = [];
@@ -4164,7 +4186,6 @@
               if (!info?.links?.length) continue;
               const videoLinks = await unrestrictVideoLinks(info.links);
               for (const link of videoLinks) {
-                if (!matchesItem(link.filename || t.filename)) continue;
                 results.push({
                   title:       link.filename || t.filename || 'RD Library',
                   size:        link.filesize ? formatBytes(link.filesize) : '?',
@@ -4184,8 +4205,7 @@
         } catch (e) { console.warn('[LibSearch] RD list error:', e.message); }
       })(),
 
-      // TB: GET /torrents/mylist → filter → permalink requestdl (no extra API call needed)
-      // Per TB docs: build permalink with redirect=true rather than fetching/storing CDN links
+      // TB: GET /torrents/mylist → filter → permalink requestdl (redirect=true per TB docs)
       (async () => {
         if (!getTBToken()) return;
         try {
@@ -4203,7 +4223,6 @@
                 return ['mkv','mp4','avi','mov','m4v','ts','wmv'].includes(ext) && matchesItem(name || t.name);
               });
               for (const file of videoFiles) {
-                // TB permalink per docs — redirect=true goes directly to CDN
                 const dlUrl = `https://api.torbox.app/v1/api/torrents/requestdl?token=${getTBToken()}&torrent_id=${t.id}&file_id=${file.id}&redirect=true`;
                 results.push({
                   title:       file.name || file.short_name || t.name || 'TB Library',
@@ -7125,8 +7144,20 @@
   async function rdAddMagnetFromInput() {
     const input  = document.getElementById('rd-magnet-input');
     const status = document.getElementById('rd-magnet-status');
-    const magnet = input?.value?.trim();
-    if (!magnet) { showToast('Paste a magnet link first', 'error'); return; }
+    let magnet   = input?.value?.trim();
+    if (!magnet) { showToast('Paste a magnet link or hash first', 'error'); return; }
+
+    // Auto-construct full magnet URI from bare hash
+    if (!magnet.startsWith('magnet:')) {
+      const hash = magnet.replace(/[^a-fA-F0-9]/g, '');
+      if (hash.length === 40 || hash.length === 64) {
+        magnet = `magnet:?xt=urn:btih:${hash}`;
+      } else {
+        if (status) status.textContent = '❌ Invalid hash or magnet link';
+        return;
+      }
+    }
+
     if (status) status.textContent = '⏳ Adding to Real-Debrid…';
     try {
       const added = await rdFetch('/torrents/addMagnet', { method: 'POST', body: `magnet=${encodeURIComponent(magnet)}` });
@@ -7189,8 +7220,21 @@
   async function tbAddMagnetFromInput() {
     const input  = document.getElementById('tb-magnet-input');
     const status = document.getElementById('tb-magnet-status');
-    const magnet = input?.value?.trim();
-    if (!magnet) { showToast('Paste a magnet link first', 'error'); return; }
+    let magnet   = input?.value?.trim();
+    if (!magnet) { showToast('Paste a magnet link or hash first', 'error'); return; }
+
+    // Auto-construct full magnet URI from bare hash — TB requires full magnet not just hash
+    if (!magnet.startsWith('magnet:')) {
+      // Strip any whitespace or non-hex chars — treat as raw hash
+      const hash = magnet.replace(/[^a-fA-F0-9]/g, '');
+      if (hash.length === 40 || hash.length === 64) {
+        magnet = `magnet:?xt=urn:btih:${hash}`;
+      } else {
+        if (status) status.textContent = '❌ Invalid hash or magnet link';
+        return;
+      }
+    }
+
     if (status) status.textContent = '⏳ Adding to TorBox…';
     try {
       const formData = new URLSearchParams({ magnet, seed: 3, allow_zip: false });
