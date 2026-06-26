@@ -4134,44 +4134,37 @@
     const isTV    = currentMediaType === 'tv' && currentSeason && currentEpisode;
     const epCode  = isTV ? `s${String(currentSeason).padStart(2,'0')}e${String(currentEpisode).padStart(2,'0')}` : null;
     const altCode = isTV ? `${currentSeason}x${String(currentEpisode).padStart(2,'0')}` : null;
-    // Build meaningful title words — skip short/common words
     const titleWords = (torrentOverlayTitle || '').toLowerCase()
       .replace(/s\d+e\d+.*$/i, '').trim()
       .split(/\s+/).filter(w => w.length > 3 && !['the','and','for','with','from'].includes(w));
 
     function matchesItem(name) {
-      const n = name.toLowerCase();
+      const n = (name || '').toLowerCase();
       if (isTV) {
-        // TV: must contain the episode code
-        if (!n.includes(epCode) && !n.includes(altCode)) return false;
-        // Plus at least 2 title words
+        if (!epCode || (!n.includes(epCode) && !(altCode && n.includes(altCode)))) return false;
         return titleWords.slice(0, 3).filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
-      } else {
-        // Movie: must contain at least 3 title words (or all if fewer than 3)
-        const needed = Math.min(3, titleWords.length);
-        return titleWords.filter(w => n.includes(w)).length >= needed;
       }
+      const needed = Math.min(3, titleWords.length);
+      return titleWords.filter(w => n.includes(w)).length >= needed;
     }
 
     const results = [];
 
     await Promise.all([
-      // ── RD library search ──
+      // RD: GET /torrents?limit=2500 → filter → GET /torrents/info/{id} → POST /unrestrict/link
       (async () => {
         if (!getRDToken()) return;
         try {
-          const torrents = await rdFetch('/torrents?limit=100');
-          if (!torrents?.length) return;
-          const matches = torrents.filter(t =>
-            t.status === 'downloaded' && matchesItem(t.filename || '')
-          );
-          for (const t of matches.slice(0, 10)) {
+          const torrents = await rdFetch('/torrents?limit=2500');
+          if (!Array.isArray(torrents)) return;
+          const matches = torrents.filter(t => t.status === 'downloaded' && matchesItem(t.filename));
+          for (const t of matches.slice(0, 5)) {
             try {
-              const info  = await rdFetch(`/torrents/info/${t.id}`);
+              const info = await rdFetch(`/torrents/info/${t.id}`);
               if (!info?.links?.length) continue;
-              const links = await unrestrictVideoLinks(info.links);
-              for (const link of links) {
-                if (!matchesItem(link.filename || t.filename || '')) continue;
+              const videoLinks = await unrestrictVideoLinks(info.links);
+              for (const link of videoLinks) {
+                if (!matchesItem(link.filename || t.filename)) continue;
                 results.push({
                   title:       link.filename || t.filename || 'RD Library',
                   size:        link.filesize ? formatBytes(link.filesize) : '?',
@@ -4186,38 +4179,37 @@
                   hash:        t.hash || null,
                 });
               }
-            } catch {}
+            } catch (e) { console.warn('[LibSearch] RD info error:', e.message); }
           }
-        } catch (e) { console.warn('[LibSearch] RD error:', e.message); }
+        } catch (e) { console.warn('[LibSearch] RD list error:', e.message); }
       })(),
 
-      // ── TB library search ──
+      // TB: GET /torrents/mylist → filter → permalink requestdl (no extra API call needed)
+      // Per TB docs: build permalink with redirect=true rather than fetching/storing CDN links
       (async () => {
         if (!getTBToken()) return;
         try {
           const json = await tbFetch('/torrents/mylist?bypass_cache=true');
-          if (!json.success) return;
-          const torrents = (json.data || []).filter(t =>
-            (t.download_finished || t.download_state === 'completed') &&
-            matchesItem(t.name || '')
-          );
-          for (const t of torrents.slice(0, 10)) {
+          if (!json?.success || !Array.isArray(json.data)) return;
+          const matches = json.data.filter(t => t.download_finished === true && matchesItem(t.name));
+          for (const t of matches.slice(0, 5)) {
             try {
-              const info    = await tbFetch(`/torrents/mylist?id=${t.id}&bypass_cache=true`);
+              const info = await tbFetch(`/torrents/mylist?id=${t.id}&bypass_cache=true`);
               const torrent = Array.isArray(info?.data) ? info.data.find(x => x.id === t.id) : info?.data;
-              const files   = (torrent?.files || []).filter(f => {
-                const ext = (f.name || '').split('.').pop().toLowerCase();
-                return ['mkv','mp4','avi','mov','m4v','ts','wmv'].includes(ext) && matchesItem(f.name || t.name || '');
+              if (!torrent?.files?.length) continue;
+              const videoFiles = torrent.files.filter(f => {
+                const name = f.name || f.short_name || '';
+                const ext  = name.split('.').pop().toLowerCase();
+                return ['mkv','mp4','avi','mov','m4v','ts','wmv'].includes(ext) && matchesItem(name || t.name);
               });
-              for (const file of files) {
-                const dlReq = await tbFetch(`/torrents/requestdl?token=${getTBToken()}&torrent_id=${t.id}&file_id=${file.id}&zip_link=false`);
-                if (!dlReq.success || !dlReq.data) continue;
-                const dlUrl = typeof dlReq.data === 'string' ? dlReq.data : dlReq.data.url || dlReq.data;
+              for (const file of videoFiles) {
+                // TB permalink per docs — redirect=true goes directly to CDN
+                const dlUrl = `https://api.torbox.app/v1/api/torrents/requestdl?token=${getTBToken()}&torrent_id=${t.id}&file_id=${file.id}&redirect=true`;
                 results.push({
-                  title:       file.name || t.name || 'TB Library',
+                  title:       file.name || file.short_name || t.name || 'TB Library',
                   size:        file.size ? formatBytes(file.size) : '?',
                   seeds:       0,
-                  quality:     guessQuality(file.name || t.name || ''),
+                  quality:     guessQuality(file.name || file.short_name || t.name || ''),
                   source:      'tblibrary',
                   sourceLabel: '📚 TB Library',
                   _debridTag:  'TB',
@@ -4227,20 +4219,17 @@
                   hash:        t.hash || null,
                 });
               }
-            } catch {}
+            } catch (e) { console.warn('[LibSearch] TB info error:', e.message); }
           }
-        } catch (e) { console.warn('[LibSearch] TB error:', e.message); }
+        } catch (e) { console.warn('[LibSearch] TB list error:', e.message); }
       })(),
     ]);
 
     if (!results.length) return;
-
-    // Merge into existing results — library results go to the top
     const existing   = torrentOverlayResults || [];
     const seenUrls   = new Set(existing.map(r => r._directUrl).filter(Boolean));
     const newResults = results.filter(r => r._directUrl && !seenUrls.has(r._directUrl));
     if (!newResults.length) return;
-
     torrentOverlayResults = [...newResults, ...existing];
     buildSourceChips();
     applyTorFilter();
