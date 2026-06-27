@@ -1656,6 +1656,11 @@
     <span class="snb-arrow">›</span>
   </div>
 
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-tools')">
+    <span><span class="snb-icon">🔧</span>Advanced Tools</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
 </div>
 
 <!-- ── Submenu: Debrid Services ──────────────────────────────────── -->
@@ -1699,14 +1704,6 @@
       </div>
       <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
     </div>
-    <div class="settings-section" style="margin-bottom:1.25rem;">
-      <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid Tools</div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
-        <button class="settings-btn purple" onclick="showRDAddMagnet()" style="flex:1;">➕ Add Magnet</button>
-        <button class="settings-btn purple" onclick="showRDUnrestrict()" style="flex:1;">🔗 Unrestrict Link</button>
-      </div>
-      <div id="rd-tools-panel" style="margin-top:0.75rem;"></div>
-    </div>
     <div class="settings-section">
       <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid Library</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
@@ -1740,14 +1737,6 @@
       </div>
       <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(16,185,129,0.4);color:var(--accent-green);background:rgba(16,185,129,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
     </div>
-    <div class="settings-section" style="margin-bottom:1.25rem;">
-      <div class="settings-section-title">Torbox Tools</div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
-        <button class="settings-btn green" onclick="showTBAddMagnet()" style="flex:1;">➕ Add Magnet</button>
-        <button class="settings-btn green" onclick="showTBUnrestrict()" style="flex:1;">🔗 Unrestrict Link</button>
-      </div>
-      <div id="tb-tools-panel" style="margin-top:0.75rem;"></div>
-    </div>
     <div class="settings-section">
       <div class="settings-section-title">Torbox Library</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
@@ -1758,6 +1747,112 @@
       <div id="tb-library-panel" style="display:none;">
         <div id="tb-library-status" style="font-size:0.8rem;color:rgba(255,255,255,0.5);padding:0.5rem 0;"></div>
         <div id="tb-library-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Submenu: Advanced Tools ────────────────────────────────────── -->
+<div id="submenu-tools" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">🔧 Advanced Tools</div>
+
+  <!-- Pill toggle -->
+  <div style="display:flex;gap:0;background:rgba(255,255,255,0.04);border-radius:999px;padding:3px;
+              margin-top:0.75rem;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,0.1);">
+    <button id="tools-tab-rd" onclick="switchToolsTab('rd')"
+      style="flex:1;padding:0.55rem 1.25rem;border-radius:999px;border:none;font-size:0.85rem;font-weight:800;
+             letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+             background:var(--accent-purple);color:#fff;box-shadow:0 2px 8px rgba(118,75,162,0.4);">
+      RD
+    </button>
+    <button id="tools-tab-tb" onclick="switchToolsTab('tb')"
+      style="flex:1;padding:0.55rem 1.25rem;border-radius:999px;border:none;font-size:0.85rem;font-weight:800;
+             letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+             background:transparent;color:rgba(255,255,255,0.35);">
+      TB
+    </button>
+  </div>
+
+  <!-- RD Tools Panel -->
+  <div id="tools-panel-rd">
+    <div class="settings-section">
+      <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+        <button class="settings-btn purple" id="rd-magnet-toggle-btn"
+          onclick="toggleToolPanel('rd-magnet-panel','rd-magnet-toggle-btn','rd-unrestrict-panel')"
+          style="flex:1;">➕ Add Magnet</button>
+        <button class="settings-btn purple" id="rd-unrestrict-toggle-btn"
+          onclick="toggleToolPanel('rd-unrestrict-panel','rd-unrestrict-toggle-btn','rd-magnet-panel')"
+          style="flex:1;">🔗 Unrestrict Link</button>
+      </div>
+
+      <div id="rd-magnet-panel" style="display:none;margin-top:0.75rem;">
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste a magnet link or hash:</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <input id="rd-magnet-input" type="text" placeholder="magnet:?xt=urn:btih:… or hash"
+            autocomplete="off" autocorrect="off" spellcheck="false"
+            style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
+                   border:1px solid rgba(118,75,162,0.4);background:rgba(118,75,162,0.08);
+                   color:#fff;font-size:0.78rem;outline:none;">
+          <button class="settings-btn purple" onclick="rdAddMagnetFromInput()">Add</button>
+        </div>
+        <div id="rd-magnet-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>
+      </div>
+
+      <div id="rd-unrestrict-panel" style="display:none;margin-top:0.75rem;">
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste any hoster link (Mega, 1fichier, etc):</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <input id="rd-unrestrict-input" type="text" placeholder="https://1fichier.com/…"
+            autocomplete="off" autocorrect="off" spellcheck="false"
+            style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
+                   border:1px solid rgba(118,75,162,0.4);background:rgba(118,75,162,0.08);
+                   color:#fff;font-size:0.78rem;outline:none;">
+          <button class="settings-btn purple" onclick="rdUnrestrictFromInput()">Unrestrict</button>
+        </div>
+        <div id="rd-unrestrict-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TB Tools Panel -->
+  <div id="tools-panel-tb" style="display:none;">
+    <div class="settings-section">
+      <div class="settings-section-title">Torbox</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+        <button class="settings-btn green" id="tb-magnet-toggle-btn"
+          onclick="toggleToolPanel('tb-magnet-panel','tb-magnet-toggle-btn','tb-unrestrict-panel')"
+          style="flex:1;">➕ Add Magnet</button>
+        <button class="settings-btn green" id="tb-unrestrict-toggle-btn"
+          onclick="toggleToolPanel('tb-unrestrict-panel','tb-unrestrict-toggle-btn','tb-magnet-panel')"
+          style="flex:1;">🔗 Unrestrict Link</button>
+      </div>
+
+      <div id="tb-magnet-panel" style="display:none;margin-top:0.75rem;">
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste a magnet link or hash:</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <input id="tb-magnet-input" type="text" placeholder="magnet:?xt=urn:btih:… or hash"
+            autocomplete="off" autocorrect="off" spellcheck="false"
+            style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
+                   border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.08);
+                   color:#fff;font-size:0.78rem;outline:none;">
+          <button class="settings-btn green" onclick="tbAddMagnetFromInput()">Add</button>
+        </div>
+        <div id="tb-magnet-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>
+      </div>
+
+      <div id="tb-unrestrict-panel" style="display:none;margin-top:0.75rem;">
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste any hoster link (Mega, etc):</div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <input id="tb-unrestrict-input" type="text" placeholder="https://mega.nz/…"
+            autocomplete="off" autocorrect="off" spellcheck="false"
+            style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
+                   border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.08);
+                   color:#fff;font-size:0.78rem;outline:none;">
+          <button class="settings-btn green" onclick="tbUnrestrictFromInput()">Unrestrict</button>
+        </div>
+        <div id="tb-unrestrict-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>
       </div>
     </div>
   </div>
@@ -1815,14 +1910,28 @@
     </label>
   </div>
 
-</div>
+  <div class="settings-section">
+    <div class="settings-section-title">Persistent Quality Filter</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Always hide these qualities from stream results.</p>
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-hide-4k" onchange="saveSettings()"> Hide 4K</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-hide-1080p" onchange="saveSettings()"> Hide 1080p</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-hide-720p" onchange="saveSettings()"> Hide 720p</label>
+      <label class="settings-checkbox-label"><input type="checkbox" id="sf-hide-480p" onchange="saveSettings()"> Hide 480p</label>
+    </div>
+  </div>
 
-<!-- ── Submenu: Stream Sources ───────────────────────────────────── -->
-<div id="submenu-sources" class="settings-submenu">
-  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
-  <div class="settings-submenu-title">⚡ Stream Sources</div>
+  <div class="settings-section">
+    <div class="settings-section-title">Exclude Keywords</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Comma-separated words to exclude from results (e.g. dubbed, hindi, 3d).</p>
+    <input type="text" id="se-exclude-keywords" placeholder="e.g. dubbed, hindi, 3d"
+      autocomplete="off" spellcheck="false" onchange="saveSettings()"
+      style="width:100%;padding:0.45rem 0.7rem;border-radius:8px;
+             border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);
+             color:#fff;font-size:0.78rem;outline:none;box-sizing:border-box;">
+  </div>
 
-  <div class="settings-section" style="margin-bottom:1rem;">
+  <div class="settings-section">
     <div class="settings-section-title">Library Search</div>
     <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;margin-top:0.25rem;">
       <button class="addon-toggle" id="sf-library-search"
@@ -1832,6 +1941,13 @@
       </span>
     </label>
   </div>
+
+</div>
+
+<!-- ── Submenu: Stream Sources ───────────────────────────────────── -->
+<div id="submenu-sources" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">⚡ Stream Sources</div>
 
   <div class="settings-section">
     <div class="settings-section-title">Stremio Addons</div>
@@ -2283,6 +2399,8 @@
     seCam: true, seScreener: true, seDubbed: false, seSubbed: false, seHdr: false,
     // Exclude uploaders/groups (comma-separated string)
     excludeKeywords: '',
+    // Persistent quality hide filters for stream results
+    hideQuality4k: false, hideQuality1080p: false, hideQuality720p: false, hideQuality480p: false,
     // Torrent sources (all enabled by default)
     srcKnaben: true, srcYts: true, src1337x: true, srcApibay: true,
     // Provider filter (addon results) — empty = show all
@@ -2322,6 +2440,10 @@
     set('se-subbed',       appSettings.seSubbed);
     set('se-hdr',          appSettings.seHdr);
     set('se-exclude-keywords', appSettings.excludeKeywords || '');
+    set('sf-hide-4k',    appSettings.hideQuality4k);
+    set('sf-hide-1080p', appSettings.hideQuality1080p);
+    set('sf-hide-720p',  appSettings.hideQuality720p);
+    set('sf-hide-480p',  appSettings.hideQuality480p);
     set('sf-library-search', appSettings.librarySearchEnabled);
     set('sf-max-apibay',   appSettings.maxApibay);
     set('sf-max-knaben',   appSettings.maxKnaben);
@@ -2372,6 +2494,10 @@
       seSubbed:   !!gb('se-subbed'),
       seHdr:      !!gb('se-hdr'),
       excludeKeywords: gb('se-exclude-keywords') || '',
+      hideQuality4k:    !!document.getElementById('sf-hide-4k')?.checked,
+      hideQuality1080p: !!document.getElementById('sf-hide-1080p')?.checked,
+      hideQuality720p:  !!document.getElementById('sf-hide-720p')?.checked,
+      hideQuality480p:  !!document.getElementById('sf-hide-480p')?.checked,
       srcApibay:  appSettings.srcApibay  !== false,
       srcKnaben:  appSettings.srcKnaben !== false,
       srcYts:     appSettings.srcYts    !== false,
@@ -2457,6 +2583,49 @@
   }
 
   // ── Settings Submenu Navigation ──────────────────────────────────────
+  function switchToolsTab(tab) {
+    const rdPanel = document.getElementById('tools-panel-rd');
+    const tbPanel = document.getElementById('tools-panel-tb');
+    const rdBtn   = document.getElementById('tools-tab-rd');
+    const tbBtn   = document.getElementById('tools-tab-tb');
+    if (!rdPanel || !tbPanel) return;
+    const isRD = tab === 'rd';
+    rdPanel.style.display = isRD ? 'block' : 'none';
+    tbPanel.style.display = isRD ? 'none'  : 'block';
+    if (rdBtn) {
+      rdBtn.style.background = isRD ? 'var(--accent-purple)' : 'transparent';
+      rdBtn.style.color      = isRD ? '#fff' : 'rgba(255,255,255,0.35)';
+      rdBtn.style.boxShadow  = isRD ? '0 2px 8px rgba(118,75,162,0.4)' : 'none';
+    }
+    if (tbBtn) {
+      tbBtn.style.background = !isRD ? 'var(--accent-green)' : 'transparent';
+      tbBtn.style.color      = !isRD ? '#000' : 'rgba(255,255,255,0.35)';
+      tbBtn.style.boxShadow  = !isRD ? '0 2px 8px rgba(16,185,129,0.3)' : 'none';
+    }
+    // Close any open panels when switching tabs
+    ['rd-magnet-panel','rd-unrestrict-panel','tb-magnet-panel','tb-unrestrict-panel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    try { localStorage.setItem('watcher_tools_tab', tab); } catch {}
+  }
+
+  function toggleToolPanel(panelId, btnId, otherPanelId) {
+    const panel      = document.getElementById(panelId);
+    const otherPanel = document.getElementById(otherPanelId);
+    if (!panel) return;
+    const isOpen = panel.style.display !== 'none';
+    // Close other panel first
+    if (otherPanel) otherPanel.style.display = 'none';
+    // Toggle this panel
+    panel.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) {
+      // Focus input when opening
+      const input = panel.querySelector('input');
+      if (input) setTimeout(() => input.focus(), 100);
+    }
+  }
+
   function switchDebridTab(tab) {
     const rdPanel  = document.getElementById('debrid-panel-rd');
     const tbPanel  = document.getElementById('debrid-panel-tb');
@@ -2500,6 +2669,10 @@
     if (sub) sub.classList.add('active');
     if (id === 'submenu-sources') { renderAddonList(); refreshAddonNames(); }
     if (id === 'submenu-debrid') initDebridTab();
+    if (id === 'submenu-tools') {
+      const saved = (() => { try { return localStorage.getItem('watcher_tools_tab'); } catch { return null; } })();
+      switchToolsTab(saved || 'rd');
+    }
   }
 
   function closeSettingsSubmenu() {
@@ -4096,6 +4269,12 @@
           if (tl.includes(term)) return false;
         }
       }
+
+      // Persistent quality hide filters (set in Settings > Scrapers)
+      if (s.hideQuality4k    && r.quality === '4K')    return false;
+      if (s.hideQuality1080p && r.quality === '1080p')  return false;
+      if (s.hideQuality720p  && r.quality === '720p')   return false;
+      if (s.hideQuality480p  && r.quality === '480p')   return false;
 
       // Provider filter (hide addon results from excluded providers)
       const excludedProviders = getExcludedProviders();
