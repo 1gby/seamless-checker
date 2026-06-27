@@ -4128,21 +4128,18 @@
   // stream list. Runs automatically alongside addon fetches if enabled.
   // Matching is strict — requires episode code for TV, close title match for movies.
   async function searchDebridLibraries() {
-    if (!appSettings.librarySearchEnabled) return;
-    if (!getRDToken() && !getTBToken()) return;
+    if (!appSettings.librarySearchEnabled) return [];
+    if (!getRDToken() && !getTBToken()) return [];
 
     const isTV    = currentMediaType === 'tv' && currentSeason && currentEpisode;
     const isMovie = currentMediaType === 'movie';
     const epCode  = isTV ? `s${String(currentSeason).padStart(2,'0')}e${String(currentEpisode).padStart(2,'0')}` : null;
     const altCode = isTV ? `${currentSeason}x${String(currentEpisode).padStart(2,'0')}` : null;
 
-    // Extract meaningful title words (4+ chars, non-common)
-    const cleanTitle = (torrentOverlayTitle || '').toLowerCase()
-      .replace(/s\d+e\d+.*$/i, '').trim();
-    const titleWords = cleanTitle
+    const titleWords = (torrentOverlayTitle || '').toLowerCase()
+      .replace(/s\d+e\d+.*$/i, '').trim()
       .split(/\s+/).filter(w => w.length >= 4 && !['the','and','for','with','from','that','this','have'].includes(w));
 
-    // Try to extract year from detail item for movies
     const movieYear = isMovie && currentDetailItem
       ? (currentDetailItem.release_date || '').slice(0, 4)
       : null;
@@ -4150,34 +4147,28 @@
     function matchesItem(name) {
       const n = (name || '').toLowerCase();
       if (isTV) {
-        // Must have episode code
         if (!epCode || (!n.includes(epCode) && !(altCode && n.includes(altCode)))) return false;
-        // Plus at least 2 title words
         return titleWords.slice(0, 4).filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
       }
       if (isMovie) {
-        // Must have all title words present
-        const needed = Math.min(titleWords.length, Math.max(1, titleWords.length));
-        const wordMatch = titleWords.filter(w => n.includes(w)).length >= needed;
+        const needed = titleWords.length;
+        const wordMatch = needed === 0 || titleWords.filter(w => n.includes(w)).length >= Math.min(needed, 2);
         if (!wordMatch) return false;
-        // If we know the year, require it too (prevents Batman 1989 showing for Batman 2022)
-        if (movieYear && n.match(/\b(19|20)\d{2}\b/)) {
-          return n.includes(movieYear);
-        }
+        if (movieYear && /\b(19|20)\d{2}\b/.test(n)) return n.includes(movieYear);
         return true;
       }
-      // Fallback
       return titleWords.filter(w => n.includes(w)).length >= Math.min(2, titleWords.length);
     }
 
     const results = [];
 
     await Promise.all([
-      // RD: GET /torrents?limit=2500 → filter → GET /torrents/info/{id} → POST /unrestrict/link
+      // RD: limit=100 to avoid Vercel proxy timeout (large responses time out at 20s)
+      // Fetches most recently added 100 items — covers active library
       (async () => {
         if (!getRDToken()) return;
         try {
-          const torrents = await rdFetch('/torrents?limit=2500');
+          const torrents = await rdFetch('/torrents?limit=100');
           if (!Array.isArray(torrents)) return;
           const matches = torrents.filter(t => t.status === 'downloaded' && matchesItem(t.filename));
           for (const t of matches.slice(0, 5)) {
@@ -4205,7 +4196,7 @@
         } catch (e) { console.warn('[LibSearch] RD list error:', e.message); }
       })(),
 
-      // TB: GET /torrents/mylist → filter → permalink requestdl (redirect=true per TB docs)
+      // TB: permalink requestdl per TB docs (redirect=true, no proxy needed)
       (async () => {
         if (!getTBToken()) return;
         try {
@@ -4244,16 +4235,16 @@
       })(),
     ]);
 
-    if (!results.length) return;
-    const existing   = torrentOverlayResults || [];
-    const seenUrls   = new Set(existing.map(r => r._directUrl).filter(Boolean));
-    const newResults = results.filter(r => r._directUrl && !seenUrls.has(r._directUrl));
-    if (!newResults.length) return;
-    torrentOverlayResults = [...newResults, ...existing];
+    if (!results.length) return [];
+
+    // Show library results immediately
+    torrentOverlayResults = [...results, ...(torrentOverlayResults || [])];
     buildSourceChips();
     applyTorFilter();
     const statusEl = document.getElementById('torrent-overlay-status');
     if (statusEl) statusEl.textContent = `⚡ ${torrentOverlayResults.length} stream${torrentOverlayResults.length !== 1 ? 's' : ''} found`;
+
+    return results;
   }
   async function searchTorrents(title, onStatus, imdbId, mediaType, season, episode) {
     let allResults = [];
@@ -5214,19 +5205,32 @@
   async function initTorrentSearch(query, displayTitle) {
     const popcorn = document.getElementById('stream-loading-popcorn');
 
-    // Run library search and addon search simultaneously
-    const [, ] = await Promise.all([
-      // Library search (runs silently, merges results as they arrive)
-      searchDebridLibraries(),
-      // Addon search
+    // Run library search and addon search simultaneously.
+    // Library results are pinned — addon progressive updates merge INTO them,
+    // never replace them.
+    let libraryResults = [];
+
+    await Promise.all([
+      // Library search runs first — results stored separately
+      searchDebridLibraries().then(r => { if (r) libraryResults = r; }),
+
+      // Addon search — progressive updates merge with library results
       searchTorrents(query, (type, msg, data) => {
         const statusEl = document.getElementById('torrent-overlay-status');
         if (statusEl && msg) statusEl.textContent = msg;
+
         if (type === 'searching') {
           if (popcorn) popcorn.classList.add('visible');
         }
         if (type === 'results' && data?.length > 0) {
-          torrentOverlayResults = data;
+          // Merge addon results with any library results already found
+          if (libraryResults.length > 0) {
+            const seenUrls = new Set(data.map(r => r._directUrl).filter(Boolean));
+            const libOnly  = libraryResults.filter(r => !seenUrls.has(r._directUrl));
+            torrentOverlayResults = [...libOnly, ...data];
+          } else {
+            torrentOverlayResults = data;
+          }
           buildSourceChips();
           applyTorFilter();
         }
