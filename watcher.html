@@ -7882,43 +7882,59 @@
     setTimeout(() => location.reload(), 1000);
   }
 
+  let _loadHomeInProgress = false;
   async function loadHome() {
+    if (_loadHomeInProgress) return; // prevent double-load if user taps home while loading
+    _loadHomeInProgress = true;
     showLoading({ message: 'Loading Watcher…' });
-    const today        = localDate();
-    const weekAgo      = localDate(new Date(), -7);
-    const monthFromNow = localDate(new Date(), 30);
-    const normalSections = ['airing','streaming-now','new-releases','trending-tv','trending-movies','tv-week','movies-week','anticipated-tv','anticipated-movies'];
-    const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
-    if (isAdultMode) {
-      normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
-      document.getElementById('section-continue-watching').style.display = 'none';
-      document.getElementById('section-favorites').style.display     = 'none';
-      document.getElementById('section-xxx-favorites').style.display = 'none';
-      adultSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
-      await loadAdultSections();
-    } else {
-      adultSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
-      document.getElementById('section-xxx-favorites').style.display = 'none';
-      normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
-      await Promise.all([
-        loadSection('/discover/tv', { sort_by: 'popularity.desc', with_original_language: 'en', watch_region: 'US', 'air_date.gte': today, 'air_date.lte': today, language: 'en-US' }, 'airing-grid'),
-        loadStreamingNow('streaming-now-grid'),
-        loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
-        loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
-        loadSection('/trending/movie/week', { language: 'en-US' }, 'trending-movies-grid'),
-        loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': weekAgo,  'first_air_date.lte': today,         with_original_language: 'en', 'watch_region': 'US' }, 'tv-week-grid'),
-        loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': weekAgo, 'primary_release_date.lte': today, with_original_language: 'en', region: 'US' }, 'movies-week-grid'),
-        loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': today,    'first_air_date.lte': monthFromNow,   with_original_language: 'en', 'watch_region': 'US' }, 'anticipated-tv-grid'),
-        loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': today,  'primary_release_date.lte': monthFromNow, with_original_language: 'en', region: 'US' }, 'anticipated-movies-grid'),
-      ]);
+    try {
+      const today        = localDate();
+      const weekAgo      = localDate(new Date(), -7);
+      const monthFromNow = localDate(new Date(), 30);
+      const normalSections = ['airing','streaming-now','new-releases','trending-tv','trending-movies','tv-week','movies-week','anticipated-tv','anticipated-movies'];
+      const adultSections  = ['xxx-new-releases','adult-my-first-sex-teacher','adult-moms-teach-sex','adult-my-friends-hot-mom','adult-bus-bang','adult-moms-licks-teen','adult-moms-in-control','adult-moms-bang-teens','adult-mom-is-horny','adult-seduced-by-cougar','adult-sharing-with-stepmom','adult-sneaky-sex','adult-step-siblings-caught','adult-size-does-matter','adult-anal-creampie-lessons','adult-hookup-hotshot','adult-anal','adult-milfs','adult-teen','adult-moms','adult-xxx-parody'];
+
+      // Clear all grids before loading to prevent duplicate content on re-load
+      [...normalSections, 'favorites', 'continue-watching'].forEach(id => {
+        const grid = document.getElementById(`${id}-grid`);
+        if (grid) grid.innerHTML = '';
+      });
+
+      if (isAdultMode) {
+        normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
+        document.getElementById('section-continue-watching').style.display = 'none';
+        document.getElementById('section-favorites').style.display     = 'none';
+        document.getElementById('section-xxx-favorites').style.display = 'none';
+        adultSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
+        await loadAdultSections();
+      } else {
+        adultSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'none'; });
+        document.getElementById('section-xxx-favorites').style.display = 'none';
+        normalSections.forEach(id => { const el = document.getElementById(`section-${id}`); if (el) el.style.display = 'block'; });
+        await Promise.all([
+          loadSection('/discover/tv', { sort_by: 'popularity.desc', with_original_language: 'en', watch_region: 'US', 'air_date.gte': today, 'air_date.lte': today, language: 'en-US' }, 'airing-grid'),
+          loadStreamingNow('streaming-now-grid'),
+          loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
+          loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
+          loadSection('/trending/movie/week', { language: 'en-US' }, 'trending-movies-grid'),
+          loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': weekAgo,  'first_air_date.lte': today,         with_original_language: 'en', 'watch_region': 'US' }, 'tv-week-grid'),
+          loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': weekAgo, 'primary_release_date.lte': today, with_original_language: 'en', region: 'US' }, 'movies-week-grid'),
+          loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': today,    'first_air_date.lte': monthFromNow,   with_original_language: 'en', 'watch_region': 'US' }, 'anticipated-tv-grid'),
+          loadSection('/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': today,  'primary_release_date.lte': monthFromNow, with_original_language: 'en', region: 'US' }, 'anticipated-movies-grid'),
+        ]);
+      }
+      await loadFavorites();
+      if (!isAdultMode) {
+        loadFavThisWeek();
+        loadContinueWatching();
+      }
+      renderGenreButtons();
+    } catch (e) {
+      console.error('[loadHome] error:', e);
+    } finally {
+      hideLoading();
+      _loadHomeInProgress = false;
     }
-    await loadFavorites();
-    if (!isAdultMode) {
-      loadFavThisWeek(); // non-blocking
-      loadContinueWatching(); // non-blocking
-    }
-    renderGenreButtons();
-    hideLoading();
   }
 
   function openDetail(item) {
