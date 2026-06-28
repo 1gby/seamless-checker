@@ -1931,16 +1931,6 @@
              color:#fff;font-size:0.78rem;outline:none;box-sizing:border-box;">
   </div>
 
-  <div class="settings-section">
-    <div class="settings-section-title">Library Search</div>
-    <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;margin-top:0.25rem;">
-      <button class="addon-toggle" id="sf-library-search"
-        onclick="toggleSettingBool('librarySearchEnabled','sf-library-search')"></button>
-      <span style="font-size:0.82rem;color:rgba(255,255,255,0.7);">
-        Auto-search RD &amp; TB library when bringing up streams
-      </span>
-    </label>
-  </div>
 
 </div>
 
@@ -2444,7 +2434,6 @@
     set('sf-hide-1080p', appSettings.hideQuality1080p);
     set('sf-hide-720p',  appSettings.hideQuality720p);
     set('sf-hide-480p',  appSettings.hideQuality480p);
-    set('sf-library-search', appSettings.librarySearchEnabled);
     set('sf-max-apibay',   appSettings.maxApibay);
     set('sf-max-knaben',   appSettings.maxKnaben);
     set('sf-max-yts',      appSettings.maxYts);
@@ -5384,49 +5373,31 @@
   async function initTorrentSearch(query, displayTitle) {
     const popcorn = document.getElementById('stream-loading-popcorn');
 
-    // Run library search and addon search simultaneously.
-    // Library results are pinned — addon progressive updates merge INTO them,
-    // never replace them.
-    let libraryResults = [];
+    await searchTorrents(query, (type, msg, data) => {
+      const statusEl = document.getElementById('torrent-overlay-status');
+      if (statusEl && msg) statusEl.textContent = msg;
 
-    await Promise.all([
-      // Library search runs first — results stored separately
-      searchDebridLibraries().then(r => { if (r) libraryResults = r; }),
-
-      // Addon search — progressive updates merge with library results
-      searchTorrents(query, (type, msg, data) => {
-        const statusEl = document.getElementById('torrent-overlay-status');
-        if (statusEl && msg) statusEl.textContent = msg;
-
-        if (type === 'searching') {
-          if (popcorn) popcorn.classList.add('visible');
+      if (type === 'searching') {
+        if (popcorn) popcorn.classList.add('visible');
+      }
+      if (type === 'results' && data?.length > 0) {
+        torrentOverlayResults = data;
+        buildSourceChips();
+        applyTorFilter();
+      }
+      if (type === 'empty' || type === 'error') {
+        if (popcorn) popcorn.classList.remove('visible');
+        const resultsEl = document.getElementById('torrent-overlay-results');
+        if (resultsEl && !torrentOverlayResults?.length) {
+          resultsEl.innerHTML = `
+            <div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.4);">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">🔍</div>
+              <div style="font-size:0.9rem;margin-bottom:1rem;">${msg}</div>
+              <button class="settings-btn purple" onclick="runTorrentOverlaySearch()">🔄 Try Again</button>
+            </div>`;
         }
-        if (type === 'results' && data?.length > 0) {
-          // Merge addon results with any library results already found
-          if (libraryResults.length > 0) {
-            const seenUrls = new Set(data.map(r => r._directUrl).filter(Boolean));
-            const libOnly  = libraryResults.filter(r => !seenUrls.has(r._directUrl));
-            torrentOverlayResults = [...libOnly, ...data];
-          } else {
-            torrentOverlayResults = data;
-          }
-          buildSourceChips();
-          applyTorFilter();
-        }
-        if (type === 'empty' || type === 'error') {
-          if (popcorn) popcorn.classList.remove('visible');
-          const resultsEl = document.getElementById('torrent-overlay-results');
-          if (resultsEl && !torrentOverlayResults?.length) {
-            resultsEl.innerHTML = `
-              <div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.4);">
-                <div style="font-size:2rem;margin-bottom:0.5rem;">🔍</div>
-                <div style="font-size:0.9rem;margin-bottom:1rem;">${msg}</div>
-                <button class="settings-btn purple" onclick="runTorrentOverlaySearch()">🔄 Try Again</button>
-              </div>`;
-          }
-        }
-      }, currentImdbId, currentMediaType, currentSeason, currentEpisode),
-    ]);
+      }
+    }, currentImdbId, currentMediaType, currentSeason, currentEpisode);
 
     if (popcorn) popcorn.classList.remove('visible');
   }
