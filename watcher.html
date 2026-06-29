@@ -7374,26 +7374,42 @@
   async function tbAddMagnetFromInput() {
     const input  = document.getElementById('tb-magnet-input');
     const status = document.getElementById('tb-magnet-status');
-    let magnet   = input?.value?.trim();
-    if (!magnet) { showToast('Paste a magnet link or hash first', 'error'); return; }
+    let val      = input?.value?.trim();
+    if (!val) { showToast('Paste a magnet link or hash first', 'error'); return; }
+    if (status) status.textContent = '⏳ Adding to TorBox…';
 
-    // Auto-construct full magnet URI from bare hash — TB requires full magnet not just hash
-    if (!magnet.startsWith('magnet:')) {
-      // Strip any whitespace or non-hex chars — treat as raw hash
-      const hash = magnet.replace(/[^a-fA-F0-9]/g, '');
-      if (hash.length === 40 || hash.length === 64) {
-        magnet = `magnet:?xt=urn:btih:${hash}`;
+    // TB accepts raw hash directly (changelog: "adding just torrent hashes works")
+    // For full magnet URI, pass as-is. For bare hash, pass as hash field.
+    // TB createtorrent requires multipart/form-data — bypass tbFetch proxy
+    // which doesn't handle multipart correctly, call TB API directly.
+    try {
+      const token = getTBToken();
+      if (!token) throw new Error('No TorBox token saved');
+
+      const form = new FormData();
+      const isHash = /^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(val.replace(/\s/g, ''));
+      if (isHash) {
+        // Pass raw hash — TB detects it as magnet per changelog
+        form.append('magnet', `magnet:?xt=urn:btih:${val.replace(/\s/g, '')}`);
+      } else if (val.startsWith('magnet:')) {
+        form.append('magnet', val);
       } else {
         if (status) status.textContent = '❌ Invalid hash or magnet link';
         return;
       }
-    }
+      form.append('seed', '3');
+      form.append('allow_zip', 'false');
 
-    if (status) status.textContent = '⏳ Adding to TorBox…';
-    try {
-      const formData = new URLSearchParams({ magnet, seed: 3, allow_zip: false });
-      const result   = await tbFetch('/torrents/createtorrent', { method: 'POST', body: formData.toString() });
-      if (!result?.success) throw new Error(result?.detail || 'Failed to add torrent');
+      const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: form,
+        signal: safeFetchSignal(20000),
+      });
+
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) throw new Error(json?.detail || `HTTP ${res.status}`);
+
       if (status) status.textContent = `✅ Added! Check TB Library for status.`;
       if (input) input.value = '';
       showToast('🟢 Magnet added to TorBox', 'success');
