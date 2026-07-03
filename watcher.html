@@ -2540,12 +2540,13 @@
   async function testRDToken() {
     const inp = document.getElementById('settings-token-input');
     const tok = inp?.value?.trim() || getRDToken();
-    if (!tok) { alert('No token to test — paste one first.'); return; }
+    if (!tok) { showToast('No token to test — paste one first', 'error'); return; }
     try {
       const data = await rdFetch('/user');
-      alert(`✅ Connected as: ${data.username}\nPremium until: ${new Date(data.expiration).toLocaleDateString()}`);
+      const expires = new Date(data.expiration).toLocaleDateString();
+      showToast(`✅ Connected as ${data.username} · Premium until ${expires}`, 'success');
     } catch (e) {
-      alert(`❌ ${e.message}`);
+      showToast(`❌ RD Test failed: ${e.message}`, 'error');
     }
   }
 
@@ -2734,8 +2735,7 @@
   async function testTBToken() {
     const inp = document.getElementById('settings-tb-token-input');
     const tok = inp?.value?.trim() || getTBToken();
-    if (!tok) { alert('No Torbox token to test — paste one first.'); return; }
-    // Save token first so tbFetch can use it
+    if (!tok) { showToast('No token to test — paste one first', 'error'); return; }
     const prev = getTBToken();
     setTBToken(tok);
     try {
@@ -2743,16 +2743,15 @@
       if (json?.success) {
         const u = json.data;
         const planName = ['Free','Essential','Standard','Pro'][u.plan] || 'Unknown';
-        alert('✅ Connected as: ' + (u.email || 'Torbox User') + '\nPlan: ' + planName);
+        showToast(`✅ Connected as ${u.email || 'Torbox User'} · Plan: ${planName}`, 'success');
       } else {
-        alert('❌ ' + (json?.detail || 'Invalid token'));
+        if (!prev) clearTBToken(); else setTBToken(prev);
+        showToast(`❌ TB Test failed: ${json?.detail || 'Invalid token'}`, 'error');
       }
     } catch (e) {
       if (!prev) clearTBToken(); else setTBToken(prev);
-      alert('❌ ' + e.message);
-      return;
+      showToast(`❌ TB Test failed: ${e.message}`, 'error');
     }
-    // Keep new token if test passed
   }
 
   function toggleTBTokenVisibility() {
