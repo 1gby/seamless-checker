@@ -4963,11 +4963,21 @@
       let torrent = (list?.data || []).find(t => t.hash?.toLowerCase() === hash?.toLowerCase());
 
       if (!torrent) {
-        // Add magnet
+        // Add magnet — call TB API directly with multipart/form-data (required by their API)
+        const token = getTBToken();
         const magnet = buildMagnet(hash, filename || hash);
-        const formData = new URLSearchParams({ magnet, seed: 3, allow_zip: false });
-        const added = await tbFetch('/torrents/createtorrent', { method: 'POST', body: formData.toString() });
-        if (!added?.success) throw new Error(added?.detail || 'Failed to add to TorBox');
+        const form = new FormData();
+        form.append('magnet', magnet);
+        form.append('seed', '3');
+        form.append('allow_zip', 'false');
+        const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: form,
+          signal: safeFetchSignal(20000),
+        });
+        const added = await res.json().catch(() => null);
+        if (!res.ok || !added?.success) throw new Error(added?.detail || `Failed to add to TorBox (HTTP ${res.status})`);
         showToast('🟢 Added to TorBox — resolving…', 'info');
 
         // Poll until ready (max 30s)
@@ -7388,8 +7398,10 @@
       const form = new FormData();
       const isHash = /^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(val.replace(/\s/g, ''));
       if (isHash) {
-        // Pass raw hash — TB detects it as magnet per changelog
-        form.append('magnet', `magnet:?xt=urn:btih:${val.replace(/\s/g, '')}`);
+        // Use buildMagnet() which appends public trackers — a bare hash-only
+        // magnet (no trackers) gives TB's backend nowhere to find peers within
+        // its request window, causing "Load failed" even for well-seeded torrents.
+        form.append('magnet', buildMagnet(val.replace(/\s/g, ''), val));
       } else if (val.startsWith('magnet:')) {
         form.append('magnet', val);
       } else {
