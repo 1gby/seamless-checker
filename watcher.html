@@ -4966,32 +4966,18 @@
         // Add magnet — call TB API directly with multipart/form-data (required by their API)
         const token = getTBToken();
         const magnet = buildMagnet(hash, filename || hash);
-
-        async function submitToTB(queued) {
-          const form = new FormData();
-          form.append('magnet', magnet);
-          form.append('seed', '3');
-          form.append('allow_zip', 'false');
-          if (queued) form.append('as_queued', 'true');
-          const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: form,
-            signal: safeFetchSignal(20000),
-          });
-          const json = await res.json().catch(() => null);
-          return { ok: res.ok && json?.success, json };
-        }
-
-        // Try immediate add first (fast path for cached/well-seeded content)
-        let { ok, json: added } = await submitToTB(false);
-        if (!ok) {
-          // Fall back to as_queued — bypasses TB's synchronous swarm-check
-          // timeout that can cause "Load failed" on slower-to-verify torrents
-          showToast('🟢 Retrying via queue…', 'info');
-          ({ ok, json: added } = await submitToTB(true));
-        }
-        if (!ok) throw new Error(added?.detail || 'Failed to add to TorBox');
+        const form = new FormData();
+        form.append('magnet', magnet);
+        form.append('seed', '3');
+        form.append('allow_zip', 'false');
+        const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: form,
+          signal: safeFetchSignal(20000),
+        });
+        const added = await res.json().catch(() => null);
+        if (!res.ok || !added?.success) throw new Error(added?.detail || `Failed to add to TorBox (HTTP ${res.status})`);
         showToast('🟢 Added to TorBox — resolving…', 'info');
 
         // Poll until ready (max 30s)
@@ -7422,33 +7408,20 @@
         ? buildMagnet(val.replace(/\s/g, ''), val)
         : val;
 
-      async function submitToTB(queued) {
-        const form = new FormData();
-        form.append('magnet', magnet);
-        form.append('seed', '3');
-        form.append('allow_zip', 'false');
-        if (queued) form.append('as_queued', 'true');
-        const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: form,
-          signal: safeFetchSignal(20000),
-        });
-        const json = await res.json().catch(() => null);
-        return { ok: res.ok && json?.success, json };
-      }
+      const form = new FormData();
+      form.append('magnet', magnet);
+      form.append('seed', '3');
+      form.append('allow_zip', 'false');
+      const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: form,
+        signal: safeFetchSignal(20000),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) throw new Error(json?.detail || `HTTP ${res.status}`);
 
-      // Try immediate add first — instant if cached/well-seeded
-      let { ok, json } = await submitToTB(false);
-      if (!ok) {
-        // Fall back to as_queued — bypasses TB's synchronous swarm-check
-        // timeout that causes "Load failed" on slower-to-verify torrents
-        if (status) status.textContent = '⏳ Retrying via queue…';
-        ({ ok, json } = await submitToTB(true));
-      }
-      if (!ok) throw new Error(json?.detail || 'Failed to add torrent');
-
-      if (status) status.textContent = `✅ Queued! TB will process it in the background — check TB Library.`;
+      if (status) status.textContent = `✅ Added! Check TB Library for status.`;
       if (input) input.value = '';
       showToast('🟢 Magnet added to TorBox', 'success');
     } catch (e) {
