@@ -1548,24 +1548,6 @@
 <div id="torrent-overlay">
   <div id="torrent-overlay-inner">
 
-<!-- Stream player (shown after RD unrestrict) — fullscreen modal popup -->
-<div id="torrent-overlay-player" style="display:none;">
-  <div class="player-modal-inner">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0 0.75rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);margin-bottom:0.75rem;">
-      <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
-      <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
-    </div>
-    <div>
-      <video id="rd-player" playsinline>
-      </video>
-      <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;margin-top:0.75rem;"></div>
-      <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
-        💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
-      </p>
-    </div>
-  </div>
-</div>
-
 <!-- Header bar -->
 
 <div id="torrent-overlay-header">
@@ -1626,6 +1608,28 @@
 
   </div><!-- /torrent-overlay-inner -->
 </div><!-- /torrent-overlay -->
+
+<!-- Stream player — sibling of #torrent-overlay, NOT nested inside it.
+     This matters: #torrent-overlay has backdrop-filter, which creates a
+     containing block for position:fixed descendants, trapping this modal
+     inside its bounds instead of the true viewport. Keeping it as a
+     top-level body child lets position:fixed work correctly. -->
+<div id="torrent-overlay-player" style="display:none;">
+  <div class="player-modal-inner">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0 0.75rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);margin-bottom:0.75rem;">
+      <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
+      <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
+    </div>
+    <div>
+      <video id="rd-player" playsinline>
+      </video>
+      <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;margin-top:0.75rem;"></div>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
+        💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
+      </p>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════════
      SETTINGS MODAL  (z-index 1500)
