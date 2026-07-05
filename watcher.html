@@ -6261,6 +6261,8 @@
     const playingEl  = document.getElementById('torrent-overlay-playing');
     const video      = document.getElementById('rd-player');
     const statusEl   = document.getElementById('torrent-overlay-status');
+    // DEBUG — temporary diagnostic, remove after confirming
+    showToast(`🔧 playerEl=${!!playerEl} linksEl=${!!linksEl} video=${!!video}`, 'info');
     if (!playerEl || !linksEl || !video) return;
 
     linksEl.innerHTML = '';
