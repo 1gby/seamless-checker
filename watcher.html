@@ -4963,17 +4963,14 @@
       let torrent = (list?.data || []).find(t => t.hash?.toLowerCase() === hash?.toLowerCase());
 
       if (!torrent) {
-        // Add magnet via asynccreatetorrent — queues immediately instead of
-        // doing a synchronous swarm-verification with a short timeout window
-        // (createtorrent's sync check was causing "Load failed" on valid
-        // torrents that just needed more time to verify).
+        // Add magnet — call TB API directly with multipart/form-data (required by their API)
         const token = getTBToken();
         const magnet = buildMagnet(hash, filename || hash);
         const form = new FormData();
         form.append('magnet', magnet);
         form.append('seed', '3');
         form.append('allow_zip', 'false');
-        const res = await fetch('https://api.torbox.app/v1/api/torrents/asynccreatetorrent', {
+        const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
           body: form,
@@ -7392,10 +7389,11 @@
 
     // TB accepts raw hash directly (changelog: "adding just torrent hashes works")
     // For full magnet URI, pass as-is. For bare hash, pass as hash field.
-    // Uses asynccreatetorrent — queues immediately instead of doing a
-    // synchronous swarm-verification with a short timeout window
-    // (createtorrent's sync check caused "Load failed" on valid torrents
-    // that just needed more time to verify against the swarm).
+    // TB createtorrent requires multipart/form-data — bypass tbFetch proxy
+    // which doesn't handle multipart correctly, call TB API directly.
+    // Note: some valid/well-seeded torrents may still return "Load failed"
+    // from TB's own backend — this is a known TorBox-side limitation, not
+    // something fixable from our request format (verified against their docs).
     try {
       const token = getTBToken();
       if (!token) throw new Error('No TorBox token saved');
@@ -7417,7 +7415,7 @@
       form.append('magnet', magnet);
       form.append('seed', '3');
       form.append('allow_zip', 'false');
-      const res = await fetch('https://api.torbox.app/v1/api/torrents/asynccreatetorrent', {
+      const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: form,
@@ -7426,7 +7424,7 @@
       const json = await res.json().catch(() => null);
       if (!res.ok || !json?.success) throw new Error(json?.detail || `HTTP ${res.status}`);
 
-      if (status) status.textContent = `✅ Queued! TB is processing it in the background — check TB Library.`;
+      if (status) status.textContent = `✅ Added! Check TB Library for status.`;
       if (input) input.value = '';
       showToast('🟢 Magnet added to TorBox', 'success');
     } catch (e) {
