@@ -788,19 +788,8 @@
 
     /* Stream player area inside overlay */
     #torrent-overlay-player {
+      padding: 1rem 1.5rem 1.5rem; border-top: 1px solid rgba(16,185,129,0.2);
       display: none;
-    }
-    #torrent-overlay-player.modal-active {
-      position: fixed; inset: 0; z-index: 9500;
-      background: rgba(0,0,0,0.96);
-      display: flex; flex-direction: column;
-      padding: 0; overflow-y: auto;
-      border-top: none;
-      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-    }
-    #torrent-overlay-player.modal-active .player-modal-inner {
-      padding: env(safe-area-inset-top, 1rem) 1.25rem 2rem;
-      display: flex; flex-direction: column; flex: 1;
     }
     #torrent-overlay-stream-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
     .stream-quality-group { display: flex; }
@@ -1548,6 +1537,22 @@
 <div id="torrent-overlay">
   <div id="torrent-overlay-inner">
 
+<!-- Stream player (shown after RD unrestrict) — at top so it's immediately visible -->
+<div id="torrent-overlay-player" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.2rem 0.5rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);">
+    <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
+    <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
+  </div>
+  <div style="padding:0.75rem 1.2rem 0.5rem;">
+    <video id="rd-player" playsinline>
+    </video>
+    <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
+      💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
+    </p>
+  </div>
+</div>
+
 <!-- Header bar -->
 
 <div id="torrent-overlay-header">
@@ -1608,28 +1613,6 @@
 
   </div><!-- /torrent-overlay-inner -->
 </div><!-- /torrent-overlay -->
-
-<!-- Stream player — sibling of #torrent-overlay, NOT nested inside it.
-     This matters: #torrent-overlay has backdrop-filter, which creates a
-     containing block for position:fixed descendants, trapping this modal
-     inside its bounds instead of the true viewport. Keeping it as a
-     top-level body child lets position:fixed work correctly. -->
-<div id="torrent-overlay-player" style="display:none;">
-  <div class="player-modal-inner">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0 0.75rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);margin-bottom:0.75rem;">
-      <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
-      <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
-    </div>
-    <div>
-      <video id="rd-player" playsinline>
-      </video>
-      <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;margin-top:0.75rem;"></div>
-      <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
-        💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
-      </p>
-    </div>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════════════════════════════════
      SETTINGS MODAL  (z-index 1500)
@@ -4980,14 +4963,17 @@
       let torrent = (list?.data || []).find(t => t.hash?.toLowerCase() === hash?.toLowerCase());
 
       if (!torrent) {
-        // Add magnet — call TB API directly with multipart/form-data (required by their API)
+        // Add magnet via asynccreatetorrent — queues immediately instead of
+        // doing a synchronous swarm-verification with a short timeout window
+        // (createtorrent's sync check was causing "Load failed" on valid
+        // torrents that just needed more time to verify).
         const token = getTBToken();
         const magnet = buildMagnet(hash, filename || hash);
         const form = new FormData();
         form.append('magnet', magnet);
         form.append('seed', '3');
         form.append('allow_zip', 'false');
-        const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
+        const res = await fetch('https://api.torbox.app/v1/api/torrents/asynccreatetorrent', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
           body: form,
@@ -5306,7 +5292,7 @@
     const playerEl  = document.getElementById('torrent-overlay-player');
     const statusEl  = document.getElementById('torrent-overlay-status');
     if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
-    if (playerEl)  { playerEl.style.display = 'none'; playerEl.classList.remove('modal-active'); document.body.style.overflow = ''; }
+    if (playerEl)  playerEl.style.display = 'none';
     if (statusEl)  statusEl.textContent   = '';
 
     // Reset filter chips
@@ -5348,7 +5334,7 @@
     if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
     const statusEl = document.getElementById('torrent-overlay-status');
     if (statusEl) statusEl.textContent = '';
-    (() => { const p = document.getElementById('torrent-overlay-player'); if (p) { p.style.display = 'none'; p.classList.remove('modal-active'); } document.body.style.overflow = ''; })();
+    document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
     activeFilters.clear();
@@ -5386,7 +5372,7 @@
     if (statusEl) statusEl.textContent = '';
     const resultsEl = document.getElementById('torrent-overlay-results');
     if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
-    (() => { const p = document.getElementById('torrent-overlay-player'); if (p) { p.style.display = 'none'; p.classList.remove('modal-active'); } document.body.style.overflow = ''; })();
+    document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
     activeSourceFilters.clear();
@@ -6110,41 +6096,11 @@
     return _plyr;
   }
 
-  // Maps file extension to correct mime type for the <video> element / Plyr
-  function getMimeType(url) {
-    const ext = (url.split('?')[0].split('.').pop() || '').toLowerCase();
-    const map = {
-      mp4: 'video/mp4', m4v: 'video/mp4',
-      webm: 'video/webm',
-      mkv: 'video/x-matroska',
-      avi: 'video/x-msvideo',
-      mov: 'video/quicktime',
-      ts:  'video/mp2t',
-      wmv: 'video/x-ms-wmv',
-    };
-    return map[ext] || 'video/mp4';
-  }
-
-  // Sets video source — handles mp4, mkv, m3u8 via HLS, with error detection
-  // and loading state. Shows an "unsupported" popup pointing to Infuse/VLC
-  // when Safari can't play the format (common for MKV, certain codecs).
+  // Sets video source — handles mp4, mkv, m3u8 via HLS
   function setPlayerSource(video, url) {
     if (!url) return;
     const ext = (url.split('?')[0].split('.').pop() || '').toLowerCase();
     const plyr = getPlyr();
-    const playerEl = document.getElementById('torrent-overlay-player');
-
-    // Clear any previous error state / loading state
-    document.getElementById('player-error-popup')?.remove();
-    showPlayerLoading(true);
-    clearTimeout(video._loadTimeout);
-    clearInterval(video._stallCheckInterval);
-
-    // Remove old listeners by cloning is overkill — just reset handlers
-    video.onerror = null;
-    video.oncanplay = null;
-    video.onwaiting = null;
-    video.onplaying = null;
 
     if (ext === 'm3u8') {
       if (window.Hls && Hls.isSupported()) {
@@ -6153,9 +6109,6 @@
         video._hls = hls;
         hls.loadSource(url);
         hls.attachMedia(video);
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) showPlayerUnsupported(url);
-        });
         if (plyr) plyr.media = video;
       } else {
         // Safari handles HLS natively
@@ -6164,126 +6117,29 @@
       }
     } else {
       if (video._hls) { video._hls.destroy(); video._hls = null; }
-      const mime = getMimeType(url);
       if (plyr) {
-        plyr.source = { type: 'video', sources: [{ src: url, type: mime }] };
+        plyr.source = { type: 'video', sources: [{ src: url, type: 'video/mp4' }] };
       } else {
         video.src = url; video.load();
       }
     }
-
-    // Error detection — fires if the browser can't decode/load the stream
-    video.onerror = () => showPlayerUnsupported(url);
-    video.oncanplay = () => showPlayerLoading(false);
-    video.onwaiting = () => showPlayerLoading(true);
-    video.onplaying = () => showPlayerLoading(false);
-
-    // Fallback stall detection — readyState alone is unreliable (Safari can
-    // parse an MKV container's metadata/first frame without ever decoding
-    // subsequent frames, so readyState reaches HAVE_CURRENT_DATA while
-    // playback is actually frozen). Instead, track whether currentTime is
-    // actually advancing over time.
-    clearTimeout(video._loadTimeout);
-    clearInterval(video._stallCheckInterval);
-    let lastTime = -1, stallTicks = 0;
-    video._loadTimeout = setTimeout(() => {
-      // Initial check: if we never even got metadata, bail immediately
-      if (video.readyState < 1) { showPlayerUnsupported(url); return; }
-      // Otherwise start watching for real progress over the next few seconds
-      video._stallCheckInterval = setInterval(() => {
-        if (video.paused) return; // don't flag stalls while intentionally paused
-        if (video.currentTime === lastTime) {
-          stallTicks++;
-          if (stallTicks >= 3) { // ~6s of zero progress while "playing"
-            clearInterval(video._stallCheckInterval);
-            showPlayerUnsupported(url);
-          }
-        } else {
-          stallTicks = 0;
-          lastTime = video.currentTime;
-          clearInterval(video._stallCheckInterval); // confirmed real playback, stop watching
-        }
-      }, 2000);
-    }, 8000);
-  }
-
-  function showPlayerLoading(show) {
-    let spinner = document.getElementById('player-loading-spinner');
-    const playerEl = document.getElementById('torrent-overlay-player');
-    if (!playerEl) return;
-    if (show) {
-      if (!spinner) {
-        spinner = document.createElement('div');
-        spinner.id = 'player-loading-spinner';
-        spinner.innerHTML = '<div class="popcorn-icon" style="font-size:2rem;">🍿</div><div style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-top:0.5rem;">Loading stream…</div>';
-        spinner.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:5;pointer-events:none;';
-        playerEl.style.position = 'relative';
-        playerEl.appendChild(spinner);
-      }
-      spinner.style.display = 'flex';
-    } else if (spinner) {
-      spinner.style.display = 'none';
-    }
-  }
-
-  function showPlayerUnsupported(url) {
-    showPlayerLoading(false);
-    document.getElementById('player-error-popup')?.remove();
-    const popup = document.createElement('div');
-    popup.id = 'player-error-popup';
-    popup.style.cssText = 'position:absolute;inset:0;z-index:6;background:rgba(10,10,20,0.95);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-    popup.innerHTML = `
-      <div style="text-align:center;max-width:300px;">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">⚠️</div>
-        <div style="font-size:0.95rem;color:#fff;font-weight:700;margin-bottom:0.4rem;">Can't play this stream</div>
-        <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:1rem;">
-          This format isn't supported in the built-in player. Try opening it in Infuse or VLC instead.
-        </div>
-        <div style="display:flex;gap:0.5rem;justify-content:center;">
-          <button class="settings-btn" style="border-color:rgba(255,149,0,0.5);color:#ff9500;background:rgba(255,149,0,0.08);"
-            onclick="window.location.href='${buildInfuseUrl(url)}';document.getElementById('player-error-popup')?.remove();">
-            📺 Infuse
-          </button>
-          <button class="settings-btn" style="border-color:rgba(255,136,0,0.5);color:#ff8800;background:rgba(255,136,0,0.08);"
-            onclick="window.open('vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(url)}','_blank');document.getElementById('player-error-popup')?.remove();">
-            🎬 VLC
-          </button>
-          <button class="settings-btn" onclick="document.getElementById('player-error-popup')?.remove();">✕ Dismiss</button>
-        </div>
-      </div>`;
-    const playerEl = document.getElementById('torrent-overlay-player');
-    if (playerEl) { playerEl.style.position = 'relative'; playerEl.appendChild(popup); }
   }
 
   function renderStreamPlayer(links, title) {
     const playerEl   = document.getElementById('torrent-overlay-player');
     const linksEl    = document.getElementById('torrent-overlay-stream-links');
     const playingEl  = document.getElementById('torrent-overlay-playing');
-    let   video      = document.getElementById('rd-player');
+    const video      = document.getElementById('rd-player');
     const statusEl   = document.getElementById('torrent-overlay-status');
-
-    // Self-heal: if the <video> element is somehow missing from the DOM
-    // (observed intermittently — cause unconfirmed), recreate it inside
-    // the player container so playback always works regardless.
-    if (!video && playerEl) {
-      const innerDiv = playerEl.querySelector('.player-modal-inner > div:last-child') || playerEl.querySelector('.player-modal-inner');
-      video = document.createElement('video');
-      video.id = 'rd-player';
-      video.setAttribute('playsinline', '');
-      if (innerDiv) innerDiv.insertBefore(video, innerDiv.firstChild);
-      else playerEl.appendChild(video);
-    }
-
-    if (!playerEl || !linksEl || !video) {
-      console.error('[renderStreamPlayer] Missing required elements after self-heal attempt', { playerEl: !!playerEl, linksEl: !!linksEl, video: !!video });
-      showToast('❌ Player failed to load — try reopening the stream', 'error');
-      return;
-    }
+    if (!playerEl || !linksEl || !video) return;
 
     linksEl.innerHTML = '';
-    playerEl.classList.add('modal-active');
-    document.body.style.overflow = 'hidden';
-    playerEl.style.display = 'flex';
+    playerEl.style.display = 'block';
+    // Scroll overlay to top so player is visible
+    const overlayInner = document.getElementById('torrent-overlay-inner');
+    if (overlayInner) {
+      overlayInner.scrollTop = 0;
+    }
 
     if (playingEl) playingEl.textContent = `▶ Now Playing: ${title}`;
 
@@ -6368,22 +6224,6 @@
 
     // Track movie progress every 10 seconds while playing
     if (currentMediaType === 'movie' && currentMovieId && currentDetailItem) {
-      // Resume from saved position if we have one
-      try {
-        const saved = JSON.parse(localStorage.getItem(`cw_movie_${currentMovieId}`) || 'null');
-        if (saved?.progress > 0.02 && saved.progress < 0.95 && saved.duration) {
-          const resumeTime = saved.progress * saved.duration;
-          const resumeOnce = () => {
-            if (video.duration > 0) {
-              video.currentTime = resumeTime;
-              showToast(`▶ Resumed from ${Math.floor(resumeTime/60)}:${String(Math.floor(resumeTime%60)).padStart(2,'0')}`, 'info');
-            }
-            video.removeEventListener('loadedmetadata', resumeOnce);
-          };
-          video.addEventListener('loadedmetadata', resumeOnce);
-        }
-      } catch {}
-
       video._cwInterval = setInterval(() => {
         if (!video.paused && video.duration > 0) {
           saveCWMovie(
@@ -6428,15 +6268,11 @@
 
   function hideTorrentPlayer() {
     const playerEl = document.getElementById('torrent-overlay-player');
-    if (playerEl) { playerEl.style.display = 'none'; playerEl.classList.remove('modal-active'); }
-    document.body.style.overflow = '';
+    if (playerEl) playerEl.style.display = 'none';
     if (_plyr) { _plyr.pause(); _plyr.source = { type: 'video', sources: [] }; }
     const video = document.getElementById('rd-player');
     if (video?._hls) { video._hls.destroy(); video._hls = null; }
     if (video?._cwInterval) { clearInterval(video._cwInterval); video._cwInterval = null; }
-    clearTimeout(video?._loadTimeout);
-    clearInterval(video?._stallCheckInterval);
-    document.getElementById('player-error-popup')?.remove();
     document.querySelectorAll('.tor-result-row').forEach(r => { r.classList.remove('selected'); r.classList.remove('dimmed'); });
   }
 
@@ -7556,11 +7392,10 @@
 
     // TB accepts raw hash directly (changelog: "adding just torrent hashes works")
     // For full magnet URI, pass as-is. For bare hash, pass as hash field.
-    // TB createtorrent requires multipart/form-data — bypass tbFetch proxy
-    // which doesn't handle multipart correctly, call TB API directly.
-    // Note: some valid/well-seeded torrents may still return "Load failed"
-    // from TB's own backend — this is a known TorBox-side limitation, not
-    // something fixable from our request format (verified against their docs).
+    // Uses asynccreatetorrent — queues immediately instead of doing a
+    // synchronous swarm-verification with a short timeout window
+    // (createtorrent's sync check caused "Load failed" on valid torrents
+    // that just needed more time to verify against the swarm).
     try {
       const token = getTBToken();
       if (!token) throw new Error('No TorBox token saved');
@@ -7582,7 +7417,7 @@
       form.append('magnet', magnet);
       form.append('seed', '3');
       form.append('allow_zip', 'false');
-      const res = await fetch('https://api.torbox.app/v1/api/torrents/createtorrent', {
+      const res = await fetch('https://api.torbox.app/v1/api/torrents/asynccreatetorrent', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: form,
@@ -7591,7 +7426,7 @@
       const json = await res.json().catch(() => null);
       if (!res.ok || !json?.success) throw new Error(json?.detail || `HTTP ${res.status}`);
 
-      if (status) status.textContent = `✅ Added! Check TB Library for status.`;
+      if (status) status.textContent = `✅ Queued! TB is processing it in the background — check TB Library.`;
       if (input) input.value = '';
       showToast('🟢 Magnet added to TorBox', 'success');
     } catch (e) {
