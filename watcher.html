@@ -786,56 +786,10 @@
     }
     .token-eye-btn:hover { border-color: var(--accent-green); color: var(--accent-green); }
 
-    /* Stream player area inside overlay (legacy inline styles, unused when floating) */
+    /* Stream player area inside overlay */
     #torrent-overlay-player {
       padding: 1rem 1.5rem 1.5rem; border-top: 1px solid rgba(16,185,129,0.2);
       display: none;
-    }
-
-    /* Compact floating player card — sits as a sibling of #torrent-overlay
-       (not nested inside it) so position:fixed isn't trapped by the
-       overlay's backdrop-filter, which creates its own containing block. */
-    #floating-player-card {
-      display: none;
-      position: fixed; left: 0.6rem; right: 0.6rem; bottom: 0.6rem;
-      z-index: 9500;
-      background: rgba(6,6,16,0.98);
-      border: 1.5px solid var(--accent-green);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 24px rgba(16,185,129,0.15);
-      max-height: 34vh;
-      overflow: hidden;
-      display: flex; flex-direction: column;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-      transform: translateY(20px); opacity: 0;
-    }
-    #floating-player-card.visible {
-      display: flex; transform: translateY(0); opacity: 1;
-    }
-    #floating-player-card .fpc-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.5rem 0.75rem; gap: 0.5rem;
-      border-bottom: 1px solid rgba(16,185,129,0.2);
-      flex-shrink: 0;
-    }
-    #floating-player-card .fpc-title {
-      font-size: 0.78rem; font-weight: 600; color: var(--accent-green);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;
-    }
-    #floating-player-card .fpc-close {
-      flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
-    #floating-player-card .fpc-body {
-      flex: 1; overflow-y: auto; padding: 0.6rem 0.75rem 0.75rem;
-      min-height: 0;
-    }
-    #floating-player-card video { width: 100%; border-radius: 8px; max-height: 22vh; background: #000; }
-    /* On landscape/wider screens, let it sit a bit narrower and centered */
-    @media (min-width: 700px) {
-      #floating-player-card { left: auto; right: 1.5rem; bottom: 1.5rem; width: 380px; max-height: 40vh; }
     }
     #torrent-overlay-stream-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
     .stream-quality-group { display: flex; }
@@ -1583,6 +1537,22 @@
 <div id="torrent-overlay">
   <div id="torrent-overlay-inner">
 
+<!-- Stream player (shown after RD unrestrict) — at top so it's immediately visible -->
+<div id="torrent-overlay-player" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.2rem 0.5rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);">
+    <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
+    <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
+  </div>
+  <div style="padding:0.75rem 1.2rem 0.5rem;">
+    <video id="rd-player" playsinline>
+    </video>
+    <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
+      💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
+    </p>
+  </div>
+</div>
+
 <!-- Header bar -->
 
 <div id="torrent-overlay-header">
@@ -1643,22 +1613,6 @@
 
   </div><!-- /torrent-overlay-inner -->
 </div><!-- /torrent-overlay -->
-
-<!-- Compact floating player card — sibling of #torrent-overlay so
-     position:fixed isn't trapped by its backdrop-filter containing block -->
-<div id="floating-player-card">
-  <div class="fpc-header">
-    <div id="torrent-overlay-playing" class="fpc-title"></div>
-    <button class="fpc-close" onclick="hideTorrentPlayer()" title="Close">✕</button>
-  </div>
-  <div class="fpc-body">
-    <video id="rd-player" playsinline></video>
-    <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin:0.6rem 0 0.4rem;"></div>
-    <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin:0;">
-      💡 Tap ⛶ on the player to go fullscreen · 📺 Infuse · 🎬 VLC to open externally
-    </p>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════════════════════════════════
      SETTINGS MODAL  (z-index 1500)
@@ -5335,10 +5289,10 @@
 
     // Reset state
     const resultsEl = document.getElementById('torrent-overlay-results');
-    const playerEl  = document.getElementById('floating-player-card');
+    const playerEl  = document.getElementById('torrent-overlay-player');
     const statusEl  = document.getElementById('torrent-overlay-status');
     if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
-    if (playerEl)  playerEl.classList.remove('visible');
+    if (playerEl)  playerEl.style.display = 'none';
     if (statusEl)  statusEl.textContent   = '';
 
     // Reset filter chips
@@ -5380,7 +5334,7 @@
     if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
     const statusEl = document.getElementById('torrent-overlay-status');
     if (statusEl) statusEl.textContent = '';
-    document.getElementById('floating-player-card').classList.remove('visible');
+    document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
     activeFilters.clear();
@@ -5407,8 +5361,6 @@
     if (_epAutoPlayTimer) { clearInterval(_epAutoPlayTimer); _epAutoPlayTimer = null; }
     // Hide popcorn loader
     document.getElementById('stream-loading-popcorn')?.classList.remove('visible');
-    // Hide floating player card
-    document.getElementById('floating-player-card')?.classList.remove('visible');
   }
 
   // Called by the re-search input inside the overlay header
@@ -5420,7 +5372,7 @@
     if (statusEl) statusEl.textContent = '';
     const resultsEl = document.getElementById('torrent-overlay-results');
     if (resultsEl) resultsEl.innerHTML = '<div class="stream-loading"><div class="popcorn-spinner">🍿</div><div>Loading streams…</div></div>';
-    document.getElementById('floating-player-card').classList.remove('visible');
+    document.getElementById('torrent-overlay-player').style.display = 'none';
     torrentOverlayResults   = [];
     torrentOverlayDisplayed = [];
     activeSourceFilters.clear();
@@ -6174,7 +6126,7 @@
   }
 
   function renderStreamPlayer(links, title) {
-    const playerEl   = document.getElementById('floating-player-card');
+    const playerEl   = document.getElementById('torrent-overlay-player');
     const linksEl    = document.getElementById('torrent-overlay-stream-links');
     const playingEl  = document.getElementById('torrent-overlay-playing');
     const video      = document.getElementById('rd-player');
@@ -6182,7 +6134,12 @@
     if (!playerEl || !linksEl || !video) return;
 
     linksEl.innerHTML = '';
-    playerEl.classList.add('visible');
+    playerEl.style.display = 'block';
+    // Scroll overlay to top so player is visible
+    const overlayInner = document.getElementById('torrent-overlay-inner');
+    if (overlayInner) {
+      overlayInner.scrollTop = 0;
+    }
 
     if (playingEl) playingEl.textContent = `▶ Now Playing: ${title}`;
 
@@ -6310,8 +6267,8 @@
   }
 
   function hideTorrentPlayer() {
-    const playerEl = document.getElementById('floating-player-card');
-    if (playerEl) playerEl.classList.remove('visible');
+    const playerEl = document.getElementById('torrent-overlay-player');
+    if (playerEl) playerEl.style.display = 'none';
     if (_plyr) { _plyr.pause(); _plyr.source = { type: 'video', sources: [] }; }
     const video = document.getElementById('rd-player');
     if (video?._hls) { video._hls.destroy(); video._hls = null; }
