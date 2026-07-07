@@ -297,6 +297,7 @@
     .card:hover .poster { filter: drop-shadow(0 0 30px rgba(118,75,162,0.7)); }
     .info { padding: 0.4rem 0.9rem 0.5rem; text-align: center; min-height: 2.2rem; }
     .year { font-size: 0.75rem; font-weight: 600; color: var(--accent-green); line-height: 1.2; }
+    .air-time { font-size: 0.68rem; font-weight: 600; color: var(--accent-purple); line-height: 1.3; margin-top: 0.15rem; }
     .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.6); }
 
     /* Continue Watching progress badge — inline below poster */
@@ -6544,6 +6545,103 @@
     return data;
   }
 
+  /* ── TVMaze local air-time augmentation (Airing Today) ────────────────
+     TVMaze API is public, CORS-enabled, no key required. Rate limit is
+     ~20 req/10s per IP, so lookups run in small delayed batches. The
+     TMDB-id → TVMaze-id mapping is cached in localStorage since TVMaze
+     ids never change — only genuine misses (no imdb id / no TVMaze
+     match) get cached too, so we don't keep re-querying dead ends.
+     Transient failures (network error, 429) are never cached, so they
+     retry on the next load. */
+  const TVMAZE_BASE           = 'https://api.tvmaze.com';
+  const TVMAZE_ID_CACHE_KEY   = 'tvmaze_id_cache';
+  const TVMAZE_ID_CACHE_TTL   = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+  function _getTVMazeIdCache() {
+    try { return JSON.parse(localStorage.getItem(TVMAZE_ID_CACHE_KEY) || '{}'); } catch { return {}; }
+  }
+  function _setTVMazeIdCache(cache) {
+    try { localStorage.setItem(TVMAZE_ID_CACHE_KEY, JSON.stringify(cache)); } catch {}
+  }
+
+  // Resolves a TMDB tv id -> TVMaze show id (or null if no match exists)
+  async function getTVMazeShowId(tmdbId) {
+    const cache = _getTVMazeIdCache();
+    const entry = cache[tmdbId];
+    if (entry && (Date.now() - entry.ts) < TVMAZE_ID_CACHE_TTL) return entry.tvmazeId;
+
+    try {
+      const ext = await tmdb(`/tv/${tmdbId}/external_ids`);
+      const imdbId = ext?.imdb_id;
+      if (!imdbId) {
+        cache[tmdbId] = { tvmazeId: null, ts: Date.now() };
+        _setTVMazeIdCache(cache);
+        return null;
+      }
+      const res = await fetch(`${TVMAZE_BASE}/lookup/shows?imdb=${imdbId}`);
+      if (res.status === 404) {
+        cache[tmdbId] = { tvmazeId: null, ts: Date.now() };
+        _setTVMazeIdCache(cache);
+        return null;
+      }
+      if (!res.ok) return null; // transient — don't cache, retry next load
+      const show = await res.json();
+      const tvmazeId = show?.id || null;
+      cache[tmdbId] = { tvmazeId, ts: Date.now() };
+      _setTVMazeIdCache(cache);
+      return tvmazeId;
+    } catch (e) {
+      console.warn('[TVMaze] id lookup failed for tmdb tv/' + tmdbId, e.message);
+      return null; // transient — don't cache
+    }
+  }
+
+  // Gets today's local broadcast time label for a TVMaze show id, or null
+  // if it's not airing today / TVMaze has no schedule data for it.
+  async function getTVMazeAirTimeToday(tvmazeId) {
+    if (!tvmazeId) return null;
+    try {
+      const res = await fetch(`${TVMAZE_BASE}/shows/${tvmazeId}/episodesbydate?date=${localDate()}`);
+      if (!res.ok) return null; // 404 = nothing airing today for this show
+      const eps = await res.json();
+      const airstamp = eps?.[0]?.airstamp;
+      if (!airstamp) return null;
+      return new Date(airstamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    } catch (e) {
+      console.warn('[TVMaze] episodesbydate failed for show ' + tvmazeId, e.message);
+      return null;
+    }
+  }
+
+  // Walks Airing Today items in small delayed batches (rate-limit friendly)
+  // and drops a "📡 8:00 PM" badge into each matching card as times resolve.
+  async function augmentAiringTimes(gridId, items) {
+    const grid = document.getElementById(gridId);
+    if (!grid || !items.length) return;
+    const BATCH_SIZE  = 6;
+    const BATCH_DELAY = 1000;
+
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      const batch = items.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(async (item) => {
+        try {
+          const tvmazeId = await getTVMazeShowId(item.id);
+          if (!tvmazeId) return;
+          const timeLabel = await getTVMazeAirTimeToday(tvmazeId);
+          if (!timeLabel) return;
+          const card = grid.querySelector(`[data-nav-key="tv_${item.id}"]`);
+          const infoEl = card?.querySelector('.info');
+          if (!infoEl || infoEl.querySelector('.air-time')) return;
+          const timeEl = document.createElement('div');
+          timeEl.className = 'air-time';
+          timeEl.textContent = `📡 ${timeLabel}`;
+          infoEl.appendChild(timeEl);
+        } catch { /* never let one show's failure block the rest */ }
+      }));
+      if (i + BATCH_SIZE < items.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
+    }
+  }
+
   async function getImageUrl(item, type = 'poster') {
     if (type === 'poster' && item.poster_path)  return `${TMDB_IMG}${item.poster_path}`;
     if (item.backdrop_path)                      return `${TMDB_IMG}${item.backdrop_path}`;
@@ -6602,6 +6700,11 @@
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
     });
+
+    // Airing Today gets real local broadcast times from TVMaze (non-blocking)
+    if (gridId === 'airing-grid') {
+      augmentAiringTimes(gridId, filtered.filter(item => item.first_air_date || item.media_type === 'tv'));
+    }
   }
 
   async function renderVerticalGrid(gridId, items, showActorNames = false) {
