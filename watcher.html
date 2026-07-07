@@ -1581,10 +1581,11 @@
       <button id="tvguide-close" onclick="closeTVGuide()">×</button>
     </div>
     <div id="tvguide-body">
-      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
-        <button class="tor-filter-chip active" data-guide-filter="all" onclick="setTVGuideFilter(this,'all')">All</button>
-        <button class="tor-filter-chip" data-guide-filter="broadcast" onclick="setTVGuideFilter(this,'broadcast')">📡 Broadcast</button>
-        <button class="tor-filter-chip" data-guide-filter="web" onclick="setTVGuideFilter(this,'web')">💻 Streaming</button>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+        <button class="tor-filter-chip active" id="tvguide-all-chip" onclick="setTVGuideProvider('all')">All</button>
+        <select id="tvguide-provider-select" class="season-dropdown" style="flex:1;min-width:160px;" onchange="setTVGuideProvider(this.value)">
+          <option value="all">All Providers</option>
+        </select>
       </div>
       <div id="tvguide-list"></div>
     </div>
@@ -6716,19 +6717,35 @@
 
   /* ── Full TV Guide (dedicated overlay) ─────────────────────────────────
      Pulls TVMaze's own /schedule (broadcast) + /schedule/web (streaming)
-     endpoints directly — no TMDB popularity filter, no per-show TVMaze
-     lookups needed since both endpoints embed full show info already.
-     TMDB is only consulted once a row is tapped, to resolve the imdb id
-     into a TMDB tv id so it can drop into the existing detail flow. */
-  let _tvGuideData   = [];
-  let _tvGuideFilter = 'all';
+     endpoints directly — no TMDB popularity filter needed there, since
+     both endpoints embed full show info already. TMDB is only consulted
+     for two things: (1) a direct backfill for platforms TVMaze's schedule
+     data doesn't really cover — Netflix, Prime Video, Paramount+ don't
+     publish timed schedules, so TVMaze has little to no data for them —
+     and (2) resolving a tapped TVMaze row's imdb id into a TMDB tv id so
+     it can drop into the existing detail flow. */
+  const TVGUIDE_TMDB_BACKFILL = [
+    { networkId: 213,  label: 'Netflix'      },
+    { networkId: 1024, label: 'Prime Video'  },
+    { networkId: 4330, label: 'Paramount+'   },
+    { networkId: 2552, label: 'Apple TV+'    },
+    { networkId: 2739, label: 'Disney+'      },
+    { networkId: 3186, label: 'HBO Max'      },
+    { networkId: 453,  label: 'Hulu'         },
+    { networkId: 3353, label: 'Peacock'      },
+  ];
+
+  let _tvGuideData     = [];
+  let _tvGuideProvider = 'all';
 
   async function openTVGuide() {
     document.getElementById('tvguide-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
     const list = document.getElementById('tvguide-list');
     list.innerHTML = '<div class="guide-empty">Loading today\'s guide…</div>';
+    _tvGuideProvider = 'all';
     _tvGuideData = await loadTVGuideData();
+    populateTVGuideProviders();
     renderTVGuideList();
   }
 
@@ -6737,61 +6754,111 @@
     document.body.style.overflow = '';
   }
 
-  function setTVGuideFilter(btn, filter) {
-    document.querySelectorAll('[data-guide-filter]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    _tvGuideFilter = filter;
+  function setTVGuideProvider(channel) {
+    _tvGuideProvider = channel;
+    document.getElementById('tvguide-all-chip')?.classList.toggle('active', channel === 'all');
+    const select = document.getElementById('tvguide-provider-select');
+    if (select && select.value !== channel) select.value = channel;
     renderTVGuideList();
   }
 
-  // Normalizes /schedule (top-level `show`) and /schedule/web (`_embedded.show`)
-  // into one shape, sorted chronologically by airstamp.
+  // Builds the provider dropdown from whatever channels actually turned
+  // up in today's data, grouped by broadcast / streaming / TMDB backfill.
+  function populateTVGuideProviders() {
+    const select = document.getElementById('tvguide-provider-select');
+    if (!select) return;
+    const groups = { broadcast: new Set(), web: new Set(), tmdb: new Set() };
+    _tvGuideData.forEach(e => groups[e.source]?.add(e.channel));
+
+    const optgroup = (label, set) => {
+      if (set.size === 0) return '';
+      const opts = [...set].sort((a, b) => a.localeCompare(b))
+        .map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
+      return `<optgroup label="${label}">${opts}</optgroup>`;
+    };
+
+    select.innerHTML = '<option value="all">All Providers</option>'
+      + optgroup('📡 Broadcast', groups.broadcast)
+      + optgroup('💻 Streaming', groups.web)
+      + optgroup('🎬 Streaming Originals', groups.tmdb);
+    select.value = 'all';
+  }
+
+  // Normalizes /schedule (top-level `show`), /schedule/web (`_embedded.show`),
+  // and the TMDB backfill into one common entry shape, then sorts
+  // time-based entries chronologically with untimed TMDB entries after.
   async function loadTVGuideData() {
     const today = localDate();
-    const [broadcastRes, webRes] = await Promise.allSettled([
+    const [broadcastRes, webRes, ...backfillRes] = await Promise.allSettled([
       fetch(`${TVMAZE_BASE}/schedule?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
       fetch(`${TVMAZE_BASE}/schedule/web?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
+      ...TVGUIDE_TMDB_BACKFILL.map(p => tmdb('/discover/tv', {
+        sort_by: 'popularity.desc', with_networks: p.networkId,
+        'air_date.gte': today, 'air_date.lte': today, language: 'en-US',
+      })),
     ]);
-    const broadcast = (broadcastRes.status === 'fulfilled' ? broadcastRes.value : [])
-      .map(ep => ({ ep, show: ep.show, source: 'broadcast' }));
-    const web = (webRes.status === 'fulfilled' ? webRes.value : [])
-      .map(ep => ({ ep, show: ep._embedded?.show, source: 'web' }));
 
-    return [...broadcast, ...web]
-      .filter(entry => entry.show)
-      .sort((a, b) => new Date(a.ep.airstamp) - new Date(b.ep.airstamp));
+    const broadcast = (broadcastRes.status === 'fulfilled' ? broadcastRes.value : []).map(ep => ({
+      time: ep.airtime ? ep.airstamp : null, channel: ep.show?.network?.name || 'Unknown', thumb: ep.show?.image?.medium || ep.image?.medium || '',
+      showName: ep.show?.name || 'Unknown', epLabel: (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || ''),
+      imdbId: ep.show?.externals?.imdb || null, tmdbId: null, source: 'broadcast',
+    })).filter(e => e.channel !== 'Unknown');
+
+    const web = (webRes.status === 'fulfilled' ? webRes.value : []).map(ep => {
+      const show = ep._embedded?.show;
+      return {
+        time: ep.airtime ? ep.airstamp : null, channel: show?.network?.name || show?.webChannel?.name || 'Unknown', thumb: show?.image?.medium || ep.image?.medium || '',
+        showName: show?.name || 'Unknown', epLabel: (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || ''),
+        imdbId: show?.externals?.imdb || null, tmdbId: null, source: 'web',
+      };
+    }).filter(e => e.channel !== 'Unknown');
+
+    // Skip TMDB backfill entries for shows TVMaze already listed today, so
+    // platforms with partial TVMaze coverage (e.g. Disney+) don't duplicate.
+    const alreadyCovered = new Set([...broadcast, ...web].map(e => e.showName.toLowerCase()));
+    const backfill = backfillRes.flatMap((res, i) => {
+      if (res.status !== 'fulfilled') return [];
+      const label = TVGUIDE_TMDB_BACKFILL[i].label;
+      return (res.value?.results || [])
+        .filter(item => !alreadyCovered.has((item.name || '').toLowerCase()))
+        .map(item => ({
+          time: null, channel: label, thumb: item.poster_path ? TMDB_IMG + item.poster_path : '',
+          showName: item.name, epLabel: 'New episode today',
+          imdbId: null, tmdbId: item.id, source: 'tmdb',
+        }));
+    });
+
+    const timed   = [...broadcast, ...web].filter(e => e.time).sort((a, b) => new Date(a.time) - new Date(b.time));
+    const untimed = [...broadcast, ...web].filter(e => !e.time).concat(backfill).sort((a, b) => a.showName.localeCompare(b.showName));
+    return [...timed, ...untimed];
   }
 
   function renderTVGuideList() {
     const list = document.getElementById('tvguide-list');
     if (!list) return;
-    const entries = _tvGuideFilter === 'all'
+    const entries = _tvGuideProvider === 'all'
       ? _tvGuideData
-      : _tvGuideData.filter(e => e.source === _tvGuideFilter);
+      : _tvGuideData.filter(e => e.channel === _tvGuideProvider);
 
     if (entries.length === 0) {
       list.innerHTML = '<div class="guide-empty">Nothing found for today.</div>';
       return;
     }
 
+    const sourceIcon = { broadcast: '📡', web: '💻', tmdb: '🎬' };
     list.innerHTML = '';
-    entries.forEach(({ ep, show, source }) => {
-      const time    = ep.airstamp ? new Date(ep.airstamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
-      const channel = show.network?.name || show.webChannel?.name || 'Unknown';
-      const thumb   = show.image?.medium || ep.image?.medium || '';
-      const epLabel = (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || '');
-      const imdbId  = show.externals?.imdb || null;
-
+    entries.forEach((entry) => {
+      const timeLabel = entry.time ? new Date(entry.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'Today';
       const row = document.createElement('div');
       row.className = 'guide-row';
       row.innerHTML = `
-        ${thumb ? `<img class="guide-thumb" src="${thumb}" loading="lazy" alt="">` : '<div class="guide-thumb"></div>'}
+        ${entry.thumb ? `<img class="guide-thumb" src="${entry.thumb}" loading="lazy" alt="">` : '<div class="guide-thumb"></div>'}
         <div class="guide-info">
-          <div><span class="guide-time">${source === 'web' ? '💻' : '📡'} ${time}</span> <span class="guide-channel">· ${channel}</span></div>
-          <div class="guide-show">${show.name || 'Unknown'}</div>
-          <div class="guide-ep">${epLabel}</div>
+          <div><span class="guide-time">${sourceIcon[entry.source] || ''} ${timeLabel}</span> <span class="guide-channel">· ${entry.channel}</span></div>
+          <div class="guide-show">${entry.showName}</div>
+          <div class="guide-ep">${entry.epLabel}</div>
         </div>`;
-      row.onclick = () => openTVGuideEntry(row, imdbId);
+      row.onclick = () => openTVGuideEntry(row, entry.imdbId, entry.tmdbId);
       list.appendChild(row);
     });
   }
@@ -6824,7 +6891,8 @@
     }
   }
 
-  async function openTVGuideEntry(rowEl, imdbId) {
+  async function openTVGuideEntry(rowEl, imdbId, tmdbIdDirect) {
+    if (tmdbIdDirect) { closeTVGuide(); openTVDetail(tmdbIdDirect); return; }
     if (!imdbId) { rowEl.classList.add('resolving'); setTimeout(() => rowEl.classList.remove('resolving'), 600); return; }
     rowEl.classList.add('resolving');
     const tmdbId = await resolveTmdbTvIdFromImdb(imdbId);
