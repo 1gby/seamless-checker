@@ -6739,6 +6739,8 @@
     { networkId: 318,  label: 'Starz'        },
     { networkId: 67,   label: 'Showtime'     },
     { networkId: 4661, label: 'AMC+'         },
+    { networkId: 1344, label: 'Crave'        },
+    { networkId: 5187, label: 'Tubi'         },
   ];
 
   // TMDB's official TV genre ids (confirmed against their /genre/tv/list docs)
@@ -6857,20 +6859,40 @@
   // time-based entries chronologically with untimed TMDB entries after.
   async function loadTVGuideData() {
     const today = localDate();
-    const [broadcastRes, webRes, ...backfillRes] = await Promise.allSettled([
+    const [broadcastUS, broadcastCA, webUS, webCA, ...backfillRes] = await Promise.allSettled([
       fetch(`${TVMAZE_BASE}/schedule?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
+      fetch(`${TVMAZE_BASE}/schedule?country=CA&date=${today}`).then(r => r.ok ? r.json() : []),
       fetch(`${TVMAZE_BASE}/schedule/web?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
+      fetch(`${TVMAZE_BASE}/schedule/web?country=CA&date=${today}`).then(r => r.ok ? r.json() : []),
       ...TVGUIDE_TMDB_BACKFILL.map(p => tmdb('/discover/tv', {
         sort_by: 'popularity.desc', with_networks: p.networkId,
         'air_date.gte': today, 'air_date.lte': today, language: 'en-US',
       })),
     ]);
 
+    // US + Canada each return the full set of "global" web channels too, so
+    // merging both responses would duplicate those — dedupe by TVMaze's own
+    // episode id, which is unique per episode regardless of which country
+    // request surfaced it.
+    const dedupeByEpisodeId = (...lists) => {
+      const seen = new Map();
+      lists.flat().forEach(ep => { if (ep && !seen.has(ep.id)) seen.set(ep.id, ep); });
+      return [...seen.values()];
+    };
+    const broadcastEps = dedupeByEpisodeId(
+      broadcastUS.status === 'fulfilled' ? broadcastUS.value : [],
+      broadcastCA.status === 'fulfilled' ? broadcastCA.value : [],
+    );
+    const webEps = dedupeByEpisodeId(
+      webUS.status === 'fulfilled' ? webUS.value : [],
+      webCA.status === 'fulfilled' ? webCA.value : [],
+    );
+
     // Raw counts before any filtering — surfaced on-screen since Safari's
     // inspector isn't available to check console output directly.
     _tvGuideDebug = {
-      broadcastRaw: broadcastRes.status === 'fulfilled' ? (broadcastRes.value?.length || 0) : 'failed',
-      webRaw: webRes.status === 'fulfilled' ? (webRes.value?.length || 0) : 'failed',
+      broadcastRaw: (broadcastUS.status === 'fulfilled' || broadcastCA.status === 'fulfilled') ? broadcastEps.length : 'failed',
+      webRaw: (webUS.status === 'fulfilled' || webCA.status === 'fulfilled') ? webEps.length : 'failed',
       backfill: TVGUIDE_TMDB_BACKFILL.map((p, i) => ({
         label: p.label,
         status: backfillRes[i].status,
@@ -6878,14 +6900,14 @@
       })),
     };
 
-    const broadcast = (broadcastRes.status === 'fulfilled' ? broadcastRes.value : []).map(ep => ({
+    const broadcast = broadcastEps.map(ep => ({
       time: ep.airtime ? ep.airstamp : null, channel: ep.show?.network?.name || 'Unknown', thumb: ep.show?.image?.medium || ep.image?.medium || '',
       showName: ep.show?.name || 'Unknown', epLabel: (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || ''),
       imdbId: ep.show?.externals?.imdb || null, tmdbId: null, source: 'broadcast',
       category: classifyGuideCategory(ep.show?.type, ep.show?.genres),
     })).filter(e => e.channel !== 'Unknown');
 
-    const web = (webRes.status === 'fulfilled' ? webRes.value : []).map(ep => {
+    const web = webEps.map(ep => {
       const show = ep._embedded?.show;
       return {
         time: ep.airtime ? ep.airstamp : null, channel: show?.network?.name || show?.webChannel?.name || 'Unknown', thumb: show?.image?.medium || ep.image?.medium || '',
