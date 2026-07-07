@@ -297,7 +297,7 @@
     .card:hover .poster { filter: drop-shadow(0 0 30px rgba(118,75,162,0.7)); }
     .info { padding: 0.4rem 0.9rem 0.5rem; text-align: center; min-height: 2.2rem; }
     .year { font-size: 0.75rem; font-weight: 600; color: var(--accent-green); line-height: 1.2; }
-    .air-time { font-size: 0.68rem; font-weight: 600; color: var(--accent-purple); line-height: 1.3; margin-top: 0.15rem; }
+    .air-time { font-size: 0.68rem; font-weight: 600; color: var(--accent-purple); line-height: 1.3; margin-top: 0.15rem; text-align: center; }
     .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.6); }
 
     /* Continue Watching progress badge — inline below poster */
@@ -889,6 +889,57 @@
     #favorites-close:hover { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
     #favorites-body { padding: 1.25rem; }
 
+    /* ── TV Guide Overlay ── */
+    #tvguide-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+      z-index: 1500; display: none; align-items: flex-start; justify-content: center;
+      padding: 1rem; padding-top: env(safe-area-inset-top, 3.2rem); overflow-y: auto;
+    }
+    #tvguide-overlay.active { display: flex; }
+    #tvguide-panel {
+      background: var(--modal-bg); border: 1.5px solid rgba(16,185,129,0.45);
+      border-radius: 20px; width: 100%; max-width: 680px;
+      overflow: hidden; box-shadow: 0 0 60px rgba(16,185,129,0.15);
+    }
+    #tvguide-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      background: rgba(16,185,129,0.08);
+      border-bottom: 1px solid rgba(16,185,129,0.25);
+    }
+    #tvguide-header h2 {
+      font-size: 1.6rem; margin: 0; color: var(--accent-green);
+      font-family: var(--ff-display); letter-spacing: 0.05em;
+    }
+    #tvguide-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+      color: #fff; font-size: 1.3rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    #tvguide-close:hover { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
+    #tvguide-body { padding: 1.25rem; }
+    #tvguide-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .guide-row {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem;
+      border-radius: 14px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.15s;
+    }
+    .guide-row:hover, .guide-row:active { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); }
+    .guide-row.resolving { opacity: 0.5; pointer-events: none; }
+    .guide-thumb { width: 42px; height: 58px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #111; }
+    .guide-info { min-width: 0; flex: 1; }
+    .guide-time { font-size: 0.7rem; font-weight: 700; color: var(--accent-green); }
+    .guide-channel { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+    .guide-show { font-size: 0.85rem; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .guide-ep { font-size: 0.72rem; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .guide-empty { padding: 2rem; text-align: center; color: rgba(255,255,255,0.3); }
+
+    /* ── section header row (title + inline action link) ── */
+    .section-head-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .section-head-row h2 { margin-bottom: 0; }
+
     /* ── Cache Play Popup ── */
     .cache-popup-backdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9998;
@@ -1420,7 +1471,7 @@
 
 <section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
-<section id="section-airing">          <h2>Airing Today</h2>              <div class="horizontal-scroll" id="airing-grid"></div></section>
+<section id="section-airing">          <div class="section-head-row"><h2>Airing Today</h2><button class="tor-filter-chip" onclick="openTVGuide()">📅 Full Guide</button></div> <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
     <section id="section-streaming-now">   <h2>Streaming Now</h2>             <div class="horizontal-scroll" id="streaming-now-grid"></div></section>
 <section id="section-trending-tv">     <h2>Trending TV</h2>               <div class="horizontal-scroll" id="trending-tv-grid"></div></section>
@@ -1519,6 +1570,23 @@
         <button class="tor-filter-chip" data-fav-filter="person" onclick="setFavFilter(this,'person')">🎭 Actors</button>
       </div>
       <div id="favorites-page-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tvguide-overlay" onclick="if(event.target===this)closeTVGuide()">
+  <div id="tvguide-panel">
+    <div id="tvguide-header">
+      <h2>📅 TV GUIDE</h2>
+      <button id="tvguide-close" onclick="closeTVGuide()">×</button>
+    </div>
+    <div id="tvguide-body">
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="tor-filter-chip active" data-guide-filter="all" onclick="setTVGuideFilter(this,'all')">All</button>
+        <button class="tor-filter-chip" data-guide-filter="broadcast" onclick="setTVGuideFilter(this,'broadcast')">📡 Broadcast</button>
+        <button class="tor-filter-chip" data-guide-filter="web" onclick="setTVGuideFilter(this,'web')">💻 Streaming</button>
+      </div>
+      <div id="tvguide-list"></div>
     </div>
   </div>
 </div>
@@ -6596,13 +6664,13 @@
     }
   }
 
-  // Gets today's local broadcast time label for a TVMaze show id, or null
-  // if it's not airing today / TVMaze has no schedule data for it.
-  async function getTVMazeAirTimeToday(tvmazeId) {
+  // Gets the local broadcast time label for a TVMaze show on a given date
+  // (YYYY-MM-DD), or null if nothing airs that date / no schedule data.
+  async function getTVMazeAirTimeForDate(tvmazeId, dateStr) {
     if (!tvmazeId) return null;
     try {
-      const res = await fetch(`${TVMAZE_BASE}/shows/${tvmazeId}/episodesbydate?date=${localDate()}`);
-      if (!res.ok) return null; // 404 = nothing airing today for this show
+      const res = await fetch(`${TVMAZE_BASE}/shows/${tvmazeId}/episodesbydate?date=${dateStr}`);
+      if (!res.ok) return null; // 404 = nothing airing that date for this show
       const eps = await res.json();
       const airstamp = eps?.[0]?.airstamp;
       if (!airstamp) return null;
@@ -6611,6 +6679,10 @@
       console.warn('[TVMaze] episodesbydate failed for show ' + tvmazeId, e.message);
       return null;
     }
+  }
+
+  async function getTVMazeAirTimeToday(tvmazeId) {
+    return getTVMazeAirTimeForDate(tvmazeId, localDate());
   }
 
   // Walks Airing Today items in small delayed batches (rate-limit friendly)
@@ -6640,6 +6712,126 @@
       }));
       if (i + BATCH_SIZE < items.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
     }
+  }
+
+  /* ── Full TV Guide (dedicated overlay) ─────────────────────────────────
+     Pulls TVMaze's own /schedule (broadcast) + /schedule/web (streaming)
+     endpoints directly — no TMDB popularity filter, no per-show TVMaze
+     lookups needed since both endpoints embed full show info already.
+     TMDB is only consulted once a row is tapped, to resolve the imdb id
+     into a TMDB tv id so it can drop into the existing detail flow. */
+  let _tvGuideData   = [];
+  let _tvGuideFilter = 'all';
+
+  async function openTVGuide() {
+    document.getElementById('tvguide-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    const list = document.getElementById('tvguide-list');
+    list.innerHTML = '<div class="guide-empty">Loading today\'s guide…</div>';
+    _tvGuideData = await loadTVGuideData();
+    renderTVGuideList();
+  }
+
+  function closeTVGuide() {
+    document.getElementById('tvguide-overlay')?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function setTVGuideFilter(btn, filter) {
+    document.querySelectorAll('[data-guide-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _tvGuideFilter = filter;
+    renderTVGuideList();
+  }
+
+  // Normalizes /schedule (top-level `show`) and /schedule/web (`_embedded.show`)
+  // into one shape, sorted chronologically by airstamp.
+  async function loadTVGuideData() {
+    const today = localDate();
+    const [broadcastRes, webRes] = await Promise.allSettled([
+      fetch(`${TVMAZE_BASE}/schedule?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
+      fetch(`${TVMAZE_BASE}/schedule/web?date=${today}`).then(r => r.ok ? r.json() : []),
+    ]);
+    const broadcast = (broadcastRes.status === 'fulfilled' ? broadcastRes.value : [])
+      .map(ep => ({ ep, show: ep.show, source: 'broadcast' }));
+    const web = (webRes.status === 'fulfilled' ? webRes.value : [])
+      .map(ep => ({ ep, show: ep._embedded?.show, source: 'web' }));
+
+    return [...broadcast, ...web]
+      .filter(entry => entry.show)
+      .sort((a, b) => new Date(a.ep.airstamp) - new Date(b.ep.airstamp));
+  }
+
+  function renderTVGuideList() {
+    const list = document.getElementById('tvguide-list');
+    if (!list) return;
+    const entries = _tvGuideFilter === 'all'
+      ? _tvGuideData
+      : _tvGuideData.filter(e => e.source === _tvGuideFilter);
+
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="guide-empty">Nothing found for today.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    entries.forEach(({ ep, show, source }) => {
+      const time    = ep.airstamp ? new Date(ep.airstamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+      const channel = show.network?.name || show.webChannel?.name || 'Unknown';
+      const thumb   = show.image?.medium || ep.image?.medium || '';
+      const epLabel = (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || '');
+      const imdbId  = show.externals?.imdb || null;
+
+      const row = document.createElement('div');
+      row.className = 'guide-row';
+      row.innerHTML = `
+        ${thumb ? `<img class="guide-thumb" src="${thumb}" loading="lazy" alt="">` : '<div class="guide-thumb"></div>'}
+        <div class="guide-info">
+          <div><span class="guide-time">${source === 'web' ? '💻' : '📡'} ${time}</span> <span class="guide-channel">· ${channel}</span></div>
+          <div class="guide-show">${show.name || 'Unknown'}</div>
+          <div class="guide-ep">${epLabel}</div>
+        </div>`;
+      row.onclick = () => openTVGuideEntry(row, imdbId);
+      list.appendChild(row);
+    });
+  }
+
+  const IMDB_TMDB_CACHE_KEY = 'imdb_tmdb_cache';
+  const IMDB_TMDB_CACHE_TTL = 90 * 24 * 60 * 60 * 1000; // 90 days — imdb->tmdb mapping is effectively permanent
+
+  function _getImdbTmdbCache() {
+    try { return JSON.parse(localStorage.getItem(IMDB_TMDB_CACHE_KEY) || '{}'); } catch { return {}; }
+  }
+  function _setImdbTmdbCache(cache) {
+    try { localStorage.setItem(IMDB_TMDB_CACHE_KEY, JSON.stringify(cache)); } catch {}
+  }
+
+  async function resolveTmdbTvIdFromImdb(imdbId) {
+    if (!imdbId) return null;
+    const cache = _getImdbTmdbCache();
+    const entry = cache[imdbId];
+    if (entry && (Date.now() - entry.ts) < IMDB_TMDB_CACHE_TTL) return entry.tmdbId;
+
+    try {
+      const data  = await tmdb(`/find/${imdbId}`, { external_source: 'imdb_id' });
+      const tmdbId = data?.tv_results?.[0]?.id || null;
+      cache[imdbId] = { tmdbId, ts: Date.now() };
+      _setImdbTmdbCache(cache);
+      return tmdbId;
+    } catch (e) {
+      console.warn('[TVGuide] TMDB find failed for', imdbId, e.message);
+      return null; // transient — don't cache
+    }
+  }
+
+  async function openTVGuideEntry(rowEl, imdbId) {
+    if (!imdbId) { rowEl.classList.add('resolving'); setTimeout(() => rowEl.classList.remove('resolving'), 600); return; }
+    rowEl.classList.add('resolving');
+    const tmdbId = await resolveTmdbTvIdFromImdb(imdbId);
+    rowEl.classList.remove('resolving');
+    if (!tmdbId) return; // no TMDB match — silently no-op, same pattern as air-time misses
+    closeTVGuide();
+    openTVDetail(tmdbId);
   }
 
   async function getImageUrl(item, type = 'poster') {
@@ -7022,7 +7214,7 @@
       card.dataset.navKey = navRegStore(show);
       card.innerHTML = `
         <img class="poster" src="${imgUrl}" loading="lazy" alt="">
-        <div class="info">
+        <div class="fav-week-info">
           <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;margin-bottom:0.15rem;">
             <span class="cw-badge" style="background:${show._isToday ? 'rgba(16,185,129,0.92)' : 'rgba(118,75,162,0.88)'};">${dayName}</span>
             <span style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${epLabel}</span>
@@ -7031,6 +7223,36 @@
         </div>`;
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openTVDetail(show.id); };
       grid.appendChild(card);
+    }
+
+    // Non-blocking: adds TVMaze's exact broadcast time alongside the day badge
+    augmentFavThisWeekTimes(grid, airingThisWeek);
+  }
+
+  // Adds a "📡 8:00 PM" line under the day badge on Your Shows This Week
+  // cards, using each show's specific upcoming air date (not just today).
+  async function augmentFavThisWeekTimes(grid, shows) {
+    const BATCH_SIZE  = 6;
+    const BATCH_DELAY = 1000;
+
+    for (let i = 0; i < shows.length; i += BATCH_SIZE) {
+      const batch = shows.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(async (show) => {
+        try {
+          const tvmazeId = await getTVMazeShowId(show.id);
+          if (!tvmazeId) return;
+          const timeLabel = await getTVMazeAirTimeForDate(tvmazeId, show._airDate);
+          if (!timeLabel) return;
+          const card = grid.querySelector(`[data-nav-key="tv_${show.id}"]`);
+          const infoEl = card?.querySelector('.fav-week-info');
+          if (!infoEl || infoEl.querySelector('.air-time')) return;
+          const timeEl = document.createElement('div');
+          timeEl.className = 'air-time';
+          timeEl.textContent = `📡 ${timeLabel}`;
+          infoEl.appendChild(timeEl);
+        } catch { /* never let one show's failure block the rest */ }
+      }));
+      if (i + BATCH_SIZE < shows.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
     }
   }
 
