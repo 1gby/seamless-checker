@@ -935,6 +935,7 @@
     .guide-show { font-size: 0.85rem; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .guide-ep { font-size: 0.72rem; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .guide-empty { padding: 2rem; text-align: center; color: rgba(255,255,255,0.3); }
+    .guide-debug { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.65rem; line-height: 1.6; color: rgba(255,255,255,0.35); }
 
     /* ── section header row (title + inline action link) ── */
     .section-head-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
@@ -1588,6 +1589,7 @@
         </select>
       </div>
       <div id="tvguide-list"></div>
+      <div id="tvguide-debug" class="guide-debug"></div>
     </div>
   </div>
 </div>
@@ -6733,10 +6735,14 @@
     { networkId: 3186, label: 'HBO Max'      },
     { networkId: 453,  label: 'Hulu'         },
     { networkId: 3353, label: 'Peacock'      },
+    { networkId: 318,  label: 'Starz'        },
+    { networkId: 67,   label: 'Showtime'     },
+    { networkId: 4661, label: 'AMC+'         },
   ];
 
   let _tvGuideData     = [];
   let _tvGuideProvider = 'all';
+  let _tvGuideDebug     = null;
 
   async function openTVGuide() {
     document.getElementById('tvguide-overlay').classList.add('active');
@@ -6747,6 +6753,7 @@
     _tvGuideData = await loadTVGuideData();
     populateTVGuideProviders();
     renderTVGuideList();
+    renderTVGuideDebug();
   }
 
   function closeTVGuide() {
@@ -6798,6 +6805,18 @@
       })),
     ]);
 
+    // Raw counts before any filtering — surfaced on-screen since Safari's
+    // inspector isn't available to check console output directly.
+    _tvGuideDebug = {
+      broadcastRaw: broadcastRes.status === 'fulfilled' ? (broadcastRes.value?.length || 0) : 'failed',
+      webRaw: webRes.status === 'fulfilled' ? (webRes.value?.length || 0) : 'failed',
+      backfill: TVGUIDE_TMDB_BACKFILL.map((p, i) => ({
+        label: p.label,
+        status: backfillRes[i].status,
+        raw: backfillRes[i].status === 'fulfilled' ? (backfillRes[i].value?.results?.length || 0) : null,
+      })),
+    };
+
     const broadcast = (broadcastRes.status === 'fulfilled' ? broadcastRes.value : []).map(ep => ({
       time: ep.airtime ? ep.airstamp : null, channel: ep.show?.network?.name || 'Unknown', thumb: ep.show?.image?.medium || ep.image?.medium || '',
       showName: ep.show?.name || 'Unknown', epLabel: (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || ''),
@@ -6831,6 +6850,15 @@
     const timed   = [...broadcast, ...web].filter(e => e.time).sort((a, b) => new Date(a.time) - new Date(b.time));
     const untimed = [...broadcast, ...web].filter(e => !e.time).concat(backfill).sort((a, b) => a.showName.localeCompare(b.showName));
     return [...timed, ...untimed];
+  }
+
+  function renderTVGuideDebug() {
+    const el = document.getElementById('tvguide-debug');
+    if (!el || !_tvGuideDebug) return;
+    const backfillLines = _tvGuideDebug.backfill
+      .map(b => `${b.label}: ${b.status === 'fulfilled' ? b.raw + ' found' : 'request failed'}`)
+      .join(' · ');
+    el.textContent = `Debug — TVMaze broadcast: ${_tvGuideDebug.broadcastRaw} · TVMaze web: ${_tvGuideDebug.webRaw} · ${backfillLines}`;
   }
 
   function renderTVGuideList() {
