@@ -6834,6 +6834,9 @@
     if (!select) return;
     const groups = { broadcast: new Set(), web: new Set(), tmdb: new Set() };
     _tvGuideData.forEach(e => groups[e.source]?.add(e.channel));
+    // Always list every configured backfill platform, even ones with zero
+    // results today — otherwise a slow day makes them impossible to select.
+    TVGUIDE_TMDB_BACKFILL.forEach(p => groups.tmdb.add(p.label));
 
     const optgroup = (label, set) => {
       if (set.size === 0) return '';
@@ -6916,10 +6919,14 @@
   function renderTVGuideDebug() {
     const el = document.getElementById('tvguide-debug');
     if (!el || !_tvGuideDebug) return;
-    const backfillLines = _tvGuideDebug.backfill
-      .map(b => `${b.label}: ${b.status === 'fulfilled' ? b.raw + ' found' : 'request failed'}`)
-      .join(' · ');
-    el.textContent = `Debug — TVMaze broadcast: ${_tvGuideDebug.broadcastRaw} · TVMaze web: ${_tvGuideDebug.webRaw} · ${backfillLines}`;
+    const empty  = _tvGuideDebug.backfill.filter(b => b.status === 'fulfilled' && b.raw === 0).map(b => b.label);
+    const failed = _tvGuideDebug.backfill.filter(b => b.status !== 'fulfilled').map(b => b.label);
+
+    const parts = [];
+    if (empty.length)  parts.push(`No new episodes today from ${empty.join(', ')}.`);
+    if (failed.length) parts.push(`Couldn't check ${failed.join(', ')} right now.`);
+    el.textContent = parts.join(' ');
+    el.style.display = parts.length ? '' : 'none';
   }
 
   function renderTVGuideList() {
