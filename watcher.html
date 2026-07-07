@@ -6750,7 +6750,7 @@
     const today = localDate();
     const [broadcastRes, webRes] = await Promise.allSettled([
       fetch(`${TVMAZE_BASE}/schedule?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
-      fetch(`${TVMAZE_BASE}/schedule/web?date=${today}`).then(r => r.ok ? r.json() : []),
+      fetch(`${TVMAZE_BASE}/schedule/web?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
     ]);
     const broadcast = (broadcastRes.status === 'fulfilled' ? broadcastRes.value : [])
       .map(ep => ({ ep, show: ep.show, source: 'broadcast' }));
