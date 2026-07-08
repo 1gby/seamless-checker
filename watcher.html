@@ -936,6 +936,15 @@
     .guide-ep { font-size: 0.72rem; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .guide-empty { padding: 2rem; text-align: center; color: rgba(255,255,255,0.3); }
     .guide-debug { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.65rem; line-height: 1.6; color: rgba(255,255,255,0.35); }
+    .player-diag {
+      margin-top: 0.6rem; padding: 0.6rem 0.7rem; border-radius: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      font-family: monospace; font-size: 0.62rem; line-height: 1.5;
+      color: rgba(255,255,255,0.45); white-space: pre-wrap;
+      max-height: 140px; overflow-y: auto; display: none;
+    }
+    .player-diag.active { display: block; }
+    .player-diag .diag-warn { color: #f59e0b; }
 
     /* ── section header row (title + inline action link) ── */
     .section-head-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
@@ -1623,6 +1632,7 @@
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
       💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
     </p>
+    <div id="player-diag" class="player-diag"></div>
   </div>
 </div>
 
@@ -6166,7 +6176,72 @@
       tooltips: { controls: false, seek: true },
       iconUrl: 'https://cdn.plyr.io/3.8.4/plyr.svg',
     });
+    attachPlayerDiagnostics(video);
     return _plyr;
+  }
+
+  // Surfaces what the native video element is actually doing, since there's
+  // no Safari inspector available to check the console directly. Attached
+  // once per video element (guarded via _diagAttached).
+  function attachPlayerDiagnostics(video) {
+    if (video._diagAttached) return;
+    video._diagAttached = true;
+    let firstProgressLogged = false;
+
+    const MEDIA_ERROR_LABELS = {
+      1: 'ABORTED (playback aborted)',
+      2: 'NETWORK (the file transfer failed — could be the size/timeout issue)',
+      3: 'DECODE (file downloaded but the browser couldn\'t decode it — codec/container issue)',
+      4: 'SRC_NOT_SUPPORTED (Safari doesn\'t support this format/container at all)',
+    };
+
+    video.addEventListener('error', () => {
+      const err = video.error;
+      logPlayerDiag(`ERROR: ${err ? (MEDIA_ERROR_LABELS[err.code] || 'code ' + err.code) : 'unknown'}`, true);
+    });
+    video.addEventListener('stalled', () => logPlayerDiag('stalled — browser is trying to fetch more data but nothing is arriving'));
+    video.addEventListener('waiting', () => logPlayerDiag('waiting/buffering…'));
+    video.addEventListener('loadedmetadata', () => logPlayerDiag(`metadata loaded — duration ${video.duration ? video.duration.toFixed(0) + 's' : 'unknown'}`));
+    video.addEventListener('canplay', () => logPlayerDiag('canplay — should start playing now'));
+    video.addEventListener('progress', () => {
+      if (firstProgressLogged || !video.buffered.length) return;
+      firstProgressLogged = true;
+      logPlayerDiag(`data is flowing — buffered up to ${video.buffered.end(video.buffered.length - 1).toFixed(1)}s`);
+    });
+  }
+
+  function clearPlayerDiag() {
+    const el = document.getElementById('player-diag');
+    if (!el) return;
+    el.textContent = '';
+    el.classList.remove('active');
+  }
+
+  function logPlayerDiag(msg, isWarn = false) {
+    const el = document.getElementById('player-diag');
+    if (!el) return;
+    el.classList.add('active');
+    const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    const line = isWarn ? `<span class="diag-warn">[${time}] ${msg}</span>` : `[${time}] ${msg}`;
+    const lines = el.innerHTML ? el.innerHTML.split('\n') : [];
+    lines.unshift(line);
+    el.innerHTML = lines.slice(0, 14).join('\n');
+  }
+
+  // Lightweight probe to check whether the CDN link actually supports byte
+  // ranges (needed for seeking/large files). Note: if the host doesn't send
+  // CORS headers, this fetch will fail even though the <video> tag itself
+  // can still play the file fine — that failure mode is called out
+  // explicitly so it isn't mistaken for a real problem.
+  async function probePlayerUrl(url) {
+    try {
+      const res = await fetch(url, { method: 'HEAD' });
+      const len = res.headers.get('content-length');
+      const ranges = res.headers.get('accept-ranges');
+      logPlayerDiag(`link check — size: ${len ? (len / 1e6).toFixed(0) + 'MB' : 'unknown'}, Accept-Ranges: ${ranges || 'not sent'}${ranges !== 'bytes' ? ' (may cause issues seeking/loading large files)' : ''}`);
+    } catch (e) {
+      logPlayerDiag(`couldn't verify the link directly (likely blocked by CORS on this host, not necessarily a real problem — video may still play fine): ${e.message}`);
+    }
   }
 
   // Sets video source — handles mp4, mkv, m3u8 via HLS
@@ -6174,6 +6249,15 @@
     if (!url) return;
     const ext = (url.split('?')[0].split('.').pop() || '').toLowerCase();
     const plyr = getPlyr();
+    clearPlayerDiag();
+    logPlayerDiag(`loading .${ext} file…`);
+
+    if (ext === 'mkv') {
+      logPlayerDiag('MKV containers are not supported by Safari\'s built-in player, regardless of the codec inside — this is a hard platform limitation, not a bug. Use the 📺 Infuse or 🎬 VLC buttons below instead.', true);
+      return;
+    }
+
+    probePlayerUrl(url);
 
     if (ext === 'm3u8') {
       if (window.Hls && Hls.isSupported()) {
