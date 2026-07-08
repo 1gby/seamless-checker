@@ -6210,6 +6210,28 @@
       firstProgressLogged = true;
       logPlayerDiag(`data is flowing — buffered up to ${video.buffered.end(video.buffered.length - 1).toFixed(1)}s`);
     });
+
+    // Catches the "tapped play, nothing happened, no error either" gap —
+    // 'play' fires as soon as play() is invoked, but 'playing' only fires
+    // once the media actually starts advancing. If 'playing' never follows
+    // within a few seconds, something's silently stuck.
+    const NETWORK_STATE_LABELS = ['NETWORK_EMPTY', 'NETWORK_IDLE', 'NETWORK_LOADING', 'NETWORK_NO_SOURCE'];
+    const READY_STATE_LABELS   = ['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'];
+    let playWatchdog = null;
+
+    video.addEventListener('play', () => {
+      logPlayerDiag('play() called — attempting to start playback');
+      clearTimeout(playWatchdog);
+      playWatchdog = setTimeout(() => {
+        if (video.paused || video.currentTime === 0) {
+          logPlayerDiag(`tapped play but it never actually started — readyState: ${READY_STATE_LABELS[video.readyState] || video.readyState}, networkState: ${NETWORK_STATE_LABELS[video.networkState] || video.networkState}, currentTime: ${video.currentTime.toFixed(1)}s`, true);
+        }
+      }, 4000);
+    });
+    video.addEventListener('playing', () => { clearTimeout(playWatchdog); logPlayerDiag('playing — actually advancing now'); });
+    video.addEventListener('pause', () => logPlayerDiag('paused'));
+    video.addEventListener('abort', () => logPlayerDiag('abort — loading was aborted', true));
+    video.addEventListener('emptied', () => logPlayerDiag('emptied — media resource was reset'));
   }
 
   // Some releases (dual-audio files) mux more than one audio track into a
