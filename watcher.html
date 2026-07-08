@@ -6522,12 +6522,16 @@
       video.pause();
       if (video._hls) { video._hls.destroy(); video._hls = null; }
       if (video._cwInterval) { clearInterval(video._cwInterval); video._cwInterval = null; }
-      // Reset the underlying <video> element directly rather than handing
-      // Plyr an empty sources array — Plyr isn't built to handle that and
-      // it was likely leaving the Plyr instance broken for subsequent plays,
-      // which is why a full page reload was needed to play anything again.
-      video.removeAttribute('src');
-      video.load();
+    }
+    // Fully destroy the Plyr instance rather than trying to reset/reuse it.
+    // Something about this player was left in a state where subsequent
+    // plays silently did nothing (no thrown error, just no-op) — resetting
+    // the underlying <video> element wasn't enough to fix that. Destroying
+    // and letting getPlyr() build a brand new instance next time guarantees
+    // a genuinely clean slate instead of guessing at what state is stuck.
+    if (_plyr) {
+      try { _plyr.destroy(); } catch (e) { logPlayerDiag(`Plyr destroy threw: ${e.message}`, true); }
+      _plyr = null;
     }
     clearPlayerDiag();
     clearAudioTrackPicker();
