@@ -1481,7 +1481,7 @@
 
 <section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
-<section id="section-airing">          <div class="section-head-row"><h2>Airing Today</h2><button class="tor-filter-chip" onclick="openTVGuide()">📅 Full Guide</button></div> <div class="horizontal-scroll" id="airing-grid"></div></section>
+<section id="section-airing">          <div class="section-head-row"><h2>Airing Today</h2><button class="tor-filter-chip" onclick="openTVGuide()">📅</button></div> <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
     <section id="section-streaming-now">   <h2>Streaming Now</h2>             <div class="horizontal-scroll" id="streaming-now-grid"></div></section>
 <section id="section-trending-tv">     <h2>Trending TV</h2>               <div class="horizontal-scroll" id="trending-tv-grid"></div></section>
@@ -1628,6 +1628,7 @@
   <div style="padding:0.75rem 1.2rem 0.5rem;">
     <video id="rd-player" playsinline>
     </video>
+    <div id="player-audio-track-row" style="display:none;gap:0.4rem;flex-wrap:wrap;align-items:center;margin:0.5rem 0;"></div>
     <div id="torrent-overlay-stream-links" style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;"></div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin:0;">
       💡 Tap play above · 📺 Infuse · 🎬 VLC buttons to open in external app
@@ -6177,6 +6178,7 @@
       iconUrl: 'https://cdn.plyr.io/3.8.4/plyr.svg',
     });
     attachPlayerDiagnostics(video);
+    attachAudioTrackHandling(video);
     return _plyr;
   }
 
@@ -6208,6 +6210,51 @@
       firstProgressLogged = true;
       logPlayerDiag(`data is flowing — buffered up to ${video.buffered.end(video.buffered.length - 1).toFixed(1)}s`);
     });
+  }
+
+  // Some releases (dual-audio files) mux more than one audio track into a
+  // single file. Safari's audioTracks API can list and switch between them
+  // client-side — no extra service needed. The picker only appears when a
+  // file actually has more than one track; most files won't.
+  function attachAudioTrackHandling(video) {
+    if (video._audioTrackHandlerAttached) return;
+    video._audioTrackHandlerAttached = true;
+    if (!video.audioTracks) return; // API not available in this browser
+
+    const rebuild = () => renderAudioTrackPicker(video);
+    video.audioTracks.addEventListener('addtrack', rebuild);
+    video.audioTracks.addEventListener('removetrack', rebuild);
+    video.audioTracks.addEventListener('change', rebuild);
+  }
+
+  function clearAudioTrackPicker() {
+    const row = document.getElementById('player-audio-track-row');
+    if (!row) return;
+    row.style.display = 'none';
+    row.innerHTML = '';
+  }
+
+  function renderAudioTrackPicker(video) {
+    const row = document.getElementById('player-audio-track-row');
+    if (!row) return;
+    const tracks = video.audioTracks;
+    if (!tracks || tracks.length <= 1) { clearAudioTrackPicker(); return; }
+
+    row.style.display = 'flex';
+    row.innerHTML = '<span style="font-size:0.7rem;color:rgba(255,255,255,0.5);align-self:center;margin-right:0.2rem;">🔊 Audio:</span>';
+    for (let i = 0; i < tracks.length; i++) {
+      const track = tracks[i];
+      const btn = document.createElement('button');
+      btn.className = 'tor-filter-chip' + (track.enabled ? ' active' : '');
+      btn.textContent = track.label || track.language || `Track ${i + 1}`;
+      btn.onclick = () => {
+        for (let j = 0; j < tracks.length; j++) tracks[j].enabled = (j === i);
+        renderAudioTrackPicker(video);
+        logPlayerDiag(`switched audio to "${btn.textContent}"`);
+      };
+      row.appendChild(btn);
+    }
+    logPlayerDiag(`${tracks.length} audio tracks found`);
   }
 
   function clearPlayerDiag() {
@@ -6250,6 +6297,7 @@
     const ext = (url.split('?')[0].split('.').pop() || '').toLowerCase();
     const plyr = getPlyr();
     clearPlayerDiag();
+    clearAudioTrackPicker();
     logPlayerDiag(`loading .${ext} file…`);
 
     if (ext === 'mkv') {
@@ -6871,6 +6919,7 @@
   let _tvGuideProvider   = 'all';
   let _tvGuideCategories = new Set(); // empty = no category filter applied
   let _tvGuideDebug      = null;
+  let _detailOpenedFromGuide = false; // so closing/backing out of a detail opened from the Guide returns there
 
   async function openTVGuide() {
     document.getElementById('tvguide-overlay').classList.add('active');
@@ -7097,12 +7146,13 @@
   }
 
   async function openTVGuideEntry(rowEl, imdbId, tmdbIdDirect) {
-    if (tmdbIdDirect) { closeTVGuide(); openTVDetail(tmdbIdDirect); return; }
+    if (tmdbIdDirect) { _detailOpenedFromGuide = true; closeTVGuide(); openTVDetail(tmdbIdDirect); return; }
     if (!imdbId) { rowEl.classList.add('resolving'); setTimeout(() => rowEl.classList.remove('resolving'), 600); return; }
     rowEl.classList.add('resolving');
     const tmdbId = await resolveTmdbTvIdFromImdb(imdbId);
     rowEl.classList.remove('resolving');
     if (!tmdbId) return; // no TMDB match — silently no-op, same pattern as air-time misses
+    _detailOpenedFromGuide = true;
     closeTVGuide();
     openTVDetail(tmdbId);
   }
@@ -9010,6 +9060,12 @@
     currentSeason     = null;
     currentEpisode    = null;
     updateAllFavoriteButtons();
+
+    if (_detailOpenedFromGuide) {
+      _detailOpenedFromGuide = false;
+      document.getElementById('tvguide-overlay')?.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   function updateAllFavoriteButtons() {
