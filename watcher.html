@@ -5797,19 +5797,25 @@
   // ── Play action: Direct streams only (from Stremio addons with playable URLs) ──
   async function handleTorrentPlay(torrent, rowEl) {
     const statusEl = document.getElementById('torrent-overlay-status');
+    try {
+      if (torrent._isDirect && torrent._directUrl) {
+        if (statusEl) statusEl.innerHTML = '⚡ Loading direct stream…';
+        const directLink = {
+          url: torrent._directUrl, filename: torrent.title || 'stream',
+          filesize: 0, quality: torrent.quality || guessQuality(torrent.title), mimeType: '',
+        };
+        renderStreamPlayer([directLink], torrentOverlayTitle || torrent.title);
+        return;
+      }
 
-    if (torrent._isDirect && torrent._directUrl) {
-      if (statusEl) statusEl.innerHTML = '⚡ Loading direct stream…';
-      const directLink = {
-        url: torrent._directUrl, filename: torrent.title || 'stream',
-        filesize: 0, quality: torrent.quality || guessQuality(torrent.title), mimeType: '',
-      };
-      renderStreamPlayer([directLink], torrentOverlayTitle || torrent.title);
-      return;
+      // Non-direct: open in DMM instead
+      handleOpenInDMM(torrent);
+    } catch (e) {
+      // Surfaces anything that would otherwise fail completely silently —
+      // there's no Safari inspector available to check the console here.
+      logPlayerDiag(`handleTorrentPlay threw an error: ${e.message}`, true);
+      if (statusEl) statusEl.innerHTML = `❌ Something went wrong loading this stream: ${e.message}`;
     }
-
-    // Non-direct: open in DMM instead
-    handleOpenInDMM(torrent);
   }
 
   // ── Open in DMM (Debrid Media Manager) — DMM handles all RD interaction ──
@@ -6203,7 +6209,14 @@
     });
     video.addEventListener('stalled', () => logPlayerDiag('stalled — browser is trying to fetch more data but nothing is arriving'));
     video.addEventListener('waiting', () => logPlayerDiag('waiting/buffering…'));
-    video.addEventListener('loadedmetadata', () => logPlayerDiag(`metadata loaded — duration ${video.duration ? video.duration.toFixed(0) + 's' : 'unknown'}`));
+    video.addEventListener('loadedmetadata', () => {
+      const dur = video.duration;
+      if (dur && dur < 10) {
+        logPlayerDiag(`metadata loaded — duration ${dur.toFixed(1)}s (suspiciously short for this file — the link itself may be a placeholder/broken rather than the actual video)`, true);
+      } else {
+        logPlayerDiag(`metadata loaded — duration ${dur ? dur.toFixed(0) + 's' : 'unknown'}`);
+      }
+    });
     video.addEventListener('canplay', () => logPlayerDiag('canplay — should start playing now'));
     video.addEventListener('progress', () => {
       if (firstProgressLogged || !video.buffered.length) return;
@@ -6344,9 +6357,17 @@
       }
     } else {
       if (video._hls) { video._hls.destroy(); video._hls = null; }
-      if (plyr) {
-        plyr.source = { type: 'video', sources: [{ src: url, type: 'video/mp4' }] };
-      } else {
+      try {
+        if (plyr) {
+          plyr.source = { type: 'video', sources: [{ src: url, type: 'video/mp4' }] };
+        } else {
+          video.src = url; video.load();
+        }
+      } catch (e) {
+        // If Plyr's source setter is in a broken state, fall back to
+        // setting the underlying <video> element directly — the element
+        // itself should still work even if the Plyr wrapper doesn't.
+        logPlayerDiag(`Plyr source assignment threw: ${e.message} — falling back to direct video.src`, true);
         video.src = url; video.load();
       }
     }
