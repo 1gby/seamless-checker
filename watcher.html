@@ -6916,6 +6916,15 @@
      publish timed schedules, so TVMaze has little to no data for them —
      and (2) resolving a tapped TVMaze row's imdb id into a TMDB tv id so
      it can drop into the existing detail flow. */
+
+  // Channels filtered out entirely — never shown in the list or the
+  // provider dropdown. Matched case-insensitively against TVMaze's
+  // network/webChannel name.
+  const TVGUIDE_EXCLUDED_CHANNELS = new Set([
+    'msnbc', 'ms now', 'investigation discovery', 'syndication', 'syndicated',
+    'univision', 'yes network', 'yes',
+  ]);
+
   const TVGUIDE_TMDB_BACKFILL = [
     { networkId: 213,  label: 'Netflix'      },
     { networkId: 1024, label: 'Prime Video'  },
@@ -7025,10 +7034,17 @@
     const select = document.getElementById('tvguide-provider-select');
     if (!select) return;
     const groups = { broadcast: new Set(), web: new Set(), tmdb: new Set() };
-    _tvGuideData.forEach(e => groups[e.source]?.add(e.channel));
+    const seenNames = new Set(); // a channel (e.g. Peacock) can come from both TVMaze web data AND the TMDB backfill list — only list it once
+    const addUnique = (bucket, name) => {
+      const key = name.toLowerCase();
+      if (seenNames.has(key)) return;
+      seenNames.add(key);
+      groups[bucket].add(name);
+    };
+    _tvGuideData.forEach(e => addUnique(e.source, e.channel));
     // Always list every configured backfill platform, even ones with zero
     // results today — otherwise a slow day makes them impossible to select.
-    TVGUIDE_TMDB_BACKFILL.forEach(p => groups.tmdb.add(p.label));
+    TVGUIDE_TMDB_BACKFILL.forEach(p => addUnique('tmdb', p.label));
 
     const optgroup = (label, set) => {
       if (set.size === 0) return '';
@@ -7095,7 +7111,7 @@
       showName: ep.show?.name || 'Unknown', epLabel: (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || ''),
       imdbId: ep.show?.externals?.imdb || null, tmdbId: null, source: 'broadcast',
       category: classifyGuideCategory(ep.show?.type, ep.show?.genres),
-    })).filter(e => e.channel !== 'Unknown');
+    })).filter(e => e.channel !== 'Unknown' && !TVGUIDE_EXCLUDED_CHANNELS.has(e.channel.toLowerCase()));
 
     const web = webEps.map(ep => {
       const show = ep._embedded?.show;
@@ -7105,7 +7121,7 @@
         imdbId: show?.externals?.imdb || null, tmdbId: null, source: 'web',
         category: classifyGuideCategory(show?.type, show?.genres),
       };
-    }).filter(e => e.channel !== 'Unknown');
+    }).filter(e => e.channel !== 'Unknown' && !TVGUIDE_EXCLUDED_CHANNELS.has(e.channel.toLowerCase()));
 
     // Skip TMDB backfill entries for shows TVMaze already listed today, so
     // platforms with partial TVMaze coverage (e.g. Disney+) don't duplicate.
