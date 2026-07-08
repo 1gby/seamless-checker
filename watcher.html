@@ -6496,10 +6496,20 @@
   function hideTorrentPlayer() {
     const playerEl = document.getElementById('torrent-overlay-player');
     if (playerEl) playerEl.style.display = 'none';
-    if (_plyr) { _plyr.pause(); _plyr.source = { type: 'video', sources: [] }; }
     const video = document.getElementById('rd-player');
-    if (video?._hls) { video._hls.destroy(); video._hls = null; }
-    if (video?._cwInterval) { clearInterval(video._cwInterval); video._cwInterval = null; }
+    if (video) {
+      video.pause();
+      if (video._hls) { video._hls.destroy(); video._hls = null; }
+      if (video._cwInterval) { clearInterval(video._cwInterval); video._cwInterval = null; }
+      // Reset the underlying <video> element directly rather than handing
+      // Plyr an empty sources array — Plyr isn't built to handle that and
+      // it was likely leaving the Plyr instance broken for subsequent plays,
+      // which is why a full page reload was needed to play anything again.
+      video.removeAttribute('src');
+      video.load();
+    }
+    clearPlayerDiag();
+    clearAudioTrackPicker();
     document.querySelectorAll('.tor-result-row').forEach(r => { r.classList.remove('selected'); r.classList.remove('dimmed'); });
   }
 
