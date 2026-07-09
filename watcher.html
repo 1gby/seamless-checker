@@ -9704,7 +9704,11 @@
     document.getElementById('weatherLocation').textContent = '--';
     document.getElementById('weatherTemp').textContent = '--';
     refreshLocationSettingsUI();
-    showToast('Location cleared — you\'ll be asked again next load', 'success');
+    showToast('Location cleared', 'success');
+    // Fully reset means fully reset — show the choice prompt right now
+    // instead of only taking effect on the next app load.
+    closeSettingsModal();
+    showLocationPrompt();
   }
 
   function refreshLocationSettingsUI() {
