@@ -936,6 +936,26 @@
     .guide-ep { font-size: 0.72rem; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .guide-empty { padding: 2rem; text-align: center; color: rgba(255,255,255,0.3); }
     .guide-debug { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.65rem; line-height: 1.6; color: rgba(255,255,255,0.35); }
+
+    /* ── Location first-run prompt ── */
+    #location-prompt-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+      z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    #location-prompt-overlay.active { display: flex; }
+    #location-prompt-panel {
+      background: var(--modal-bg); border: 1.5px solid rgba(16,185,129,0.45);
+      border-radius: 20px; padding: 1.75rem 1.5rem; max-width: 340px; width: 100%;
+      text-align: center; box-shadow: 0 0 60px rgba(16,185,129,0.15);
+    }
+    #location-prompt-panel .settings-btn { width: 100%; margin-top: 0.6rem; justify-content: center; }
+    #location-manual-inline { display: none; margin-top: 0.75rem; }
+    #location-manual-inline.active { display: block; }
+    #location-manual-input, #loc-settings-city-input {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+      color: #fff; font-size: 0.85rem; outline: none; box-sizing: border-box;
+    }
     .player-diag {
       margin-top: 0.6rem; padding: 0.6rem 0.7rem; border-radius: 10px;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
@@ -1604,6 +1624,21 @@
   </div>
 </div>
 
+<div id="location-prompt-overlay">
+  <div id="location-prompt-panel">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">📍</div>
+    <h3 style="margin:0 0 0.5rem;font-family:var(--ff-display);color:var(--accent-green);letter-spacing:0.05em;">Enable Location?</h3>
+    <p style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin:0 0 0.5rem;">Used for local weather on the home screen. Pick how you'd like to share it — you can change this anytime in Settings.</p>
+    <button class="settings-btn green" onclick="chooseLocationAuto()">📍 Auto-detect (GPS)</button>
+    <button class="settings-btn purple" onclick="showLocationManualInline()">🏙️ Enter city manually</button>
+    <div id="location-manual-inline">
+      <input type="text" id="location-manual-input" placeholder="e.g. Toronto, Canada" autocomplete="off" spellcheck="false" style="margin-top:0.5rem;">
+      <button class="settings-btn green" style="margin-top:0.5rem;" onclick="chooseLocationManual()">Save City</button>
+    </div>
+    <button class="settings-btn" style="opacity:0.5;" onclick="declineLocationPrompt()">Not now</button>
+  </div>
+</div>
+
 <div id="detail-view">
   <div id="detail-content">
     <span id="detail-close">×</span>
@@ -1737,6 +1772,11 @@
 
   <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-tvguide')">
     <span><span class="snb-icon">📅</span>TV Guide</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-location')">
+    <span><span class="snb-icon">📍</span>Location</span>
     <span class="snb-arrow">›</span>
   </div>
 
@@ -2100,6 +2140,37 @@
     <div class="settings-section-title">Player Diagnostics</div>
     <label class="settings-checkbox-label"><input type="checkbox" id="tvg-player-debug" onchange="saveSettings()"> Show playback debug log</label>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">The log panel under the video player that shows load/error events. Turn off once you're not actively troubleshooting.</p>
+  </div>
+
+</div>
+
+<!-- ── Submenu: Location ─────────────────────────────────────────── -->
+<div id="submenu-location" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">📍 Location</div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Current</div>
+    <p id="loc-settings-status" style="font-size:0.82rem;color:rgba(255,255,255,0.6);">📍 Not set yet</p>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Auto-Detect</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Uses your device's GPS once, then remembers it — won't ask again unless you tap this.</p>
+    <button class="settings-btn green" onclick="redetectLocation()">📍 Detect My Location</button>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Manual City</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">For city-level weather without sharing your exact GPS position.</p>
+    <input type="text" id="loc-settings-city-input" placeholder="e.g. Toronto, Canada"
+      autocomplete="off" spellcheck="false" style="margin-bottom:0.5rem;">
+    <button class="settings-btn purple" onclick="saveManualLocationFromSettings()">🏙️ Set City</button>
+  </div>
+
+  <div class="settings-section">
+    <button class="settings-btn" style="opacity:0.7;" onclick="clearLocationSetting()">🗑 Clear Saved Location</button>
+    <p style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:0.4rem;">Resets to "not set" — you'll be asked again the next time the app loads.</p>
   </div>
 
 </div>
@@ -2524,6 +2595,13 @@
     tvGuideExcludedChannels: 'MSNBC, MS NOW, Investigation Discovery, Syndication, Univision, Yes TV, Yes Network',
     tvGuideIncludeCanada: true,
     tvGuidePlayerDebug: true,
+    // Location — mode is 'unset' until the person chooses once, then it's
+    // remembered and we never call the native geolocation prompt again
+    // unless they explicitly hit "Re-detect" in Settings.
+    locationMode: 'unset', // 'unset' | 'auto' | 'manual'
+    locationLat: null,
+    locationLon: null,
+    locationLabel: '',
   };
 
   let appSettings = { ...DEFAULT_SETTINGS };
@@ -2585,6 +2663,7 @@
     if (tbInp && tbTok) tbInp.value = tbTok;
     updateTBStatusBadge();
     updateDebridBadge();
+    refreshLocationSettingsUI();
   }
 
   function toggleSettingBool(key, btnId) {
@@ -2628,6 +2707,10 @@
       tvGuideExcludedChannels: gb('tvg-excluded-channels') || '',
       tvGuideIncludeCanada: !!gb('tvg-include-canada'),
       tvGuidePlayerDebug: !!gb('tvg-player-debug'),
+      locationMode:  appSettings.locationMode  || 'unset',
+      locationLat:   appSettings.locationLat   ?? null,
+      locationLon:   appSettings.locationLon   ?? null,
+      locationLabel: appSettings.locationLabel || '',
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
   }
@@ -9458,57 +9541,183 @@
     return 'Your Location';
   }
 
+  // Forward-geocodes a typed city name (e.g. "Toronto, Canada") into
+  // coordinates + a clean display label, using the same Nominatim API
+  // already used for reverse geocoding.
+  async function geocodeCity(query) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
+      const results = await res.json();
+      if (!results.length) return null;
+      const r = results[0];
+      const parts = (r.display_name || '').split(',').map(s => s.trim()).filter(Boolean);
+      const label = parts.length > 1 ? `${parts[0]}, ${parts[parts.length - 1]}` : (parts[0] || query);
+      return { lat: parseFloat(r.lat), lon: parseFloat(r.lon), label };
+    } catch { return null; }
+  }
+
+  function persistLocationSettings() {
+    localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
+  }
+
+  // ── Weather / location entry point ──────────────────────────────────
+  // The person's choice (auto / manual / declined) is remembered in
+  // appSettings, so the native geolocation prompt only ever fires once —
+  // not on every single app load like before.
   async function getWeather() {
     const widget = document.getElementById('weatherWidget');
     widget.classList.add('visible');
-    if (!navigator.geolocation) {
-      await getWeatherByIP();
+
+    if ((appSettings.locationMode === 'auto' || appSettings.locationMode === 'manual')
+        && appSettings.locationLat != null && appSettings.locationLon != null) {
+      await fetchWeatherForCoords(appSettings.locationLat, appSettings.locationLon, appSettings.locationLabel);
       return;
     }
-    navigator.geolocation.getCurrentPosition(async ({ coords: { latitude, longitude } }) => {
-      try {
-        const [weatherRes, cityName] = await Promise.all([
-          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`),
-          getCityName(latitude, longitude),
-        ]);
-        const data = await weatherRes.json();
-        if (data.current_weather) {
-          const tempC = Math.round(data.current_weather.temperature);
-          const isUS  = (latitude > 24 && latitude < 50 && longitude > -125 && longitude < -66);
-          const temp  = isUS ? Math.round(tempC*9/5+32) : tempC;
-          document.getElementById('weatherTemp').textContent      = `${temp}${isUS ? '°F' : '°C'}`;
-          document.getElementById('weatherCondition').textContent = getRudeboyWeatherCondition(data.current_weather.weathercode);
-          document.getElementById('weatherLocation').textContent  = cityName;
-          document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(data.current_weather.weathercode);
-        }
-      } catch { document.getElementById('weatherCondition').textContent = 'Unavailable'; }
-    }, async () => {
-      // Geolocation denied — fall back to IP-based location via ip-api.com
-      await getWeatherByIP();
-    });
+    if (appSettings.locationMode === 'declined') {
+      document.getElementById('weatherCondition').textContent = 'Location off';
+      document.getElementById('weatherIcon').textContent = '📍';
+      return;
+    }
+    // 'unset' — ask once via our own in-app prompt instead of the raw
+    // browser permission dialog re-firing on every load.
+    showLocationPrompt();
+    document.getElementById('weatherCondition').textContent = 'Set location';
+    document.getElementById('weatherIcon').textContent = '📍';
   }
 
-  async function getWeatherByIP() {
+  async function fetchWeatherForCoords(lat, lon, label) {
+    try {
+      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const data = await weatherRes.json();
+      if (data.current_weather) {
+        const tempC = Math.round(data.current_weather.temperature);
+        const isUS  = (lat > 24 && lat < 50 && lon > -125 && lon < -66);
+        const temp  = isUS ? Math.round(tempC * 9 / 5 + 32) : tempC;
+        document.getElementById('weatherTemp').textContent      = `${temp}${isUS ? '°F' : '°C'}`;
+        document.getElementById('weatherCondition').textContent = getRudeboyWeatherCondition(data.current_weather.weathercode);
+        document.getElementById('weatherLocation').textContent  = label || 'Your Location';
+        document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(data.current_weather.weathercode);
+      }
+    } catch {
+      document.getElementById('weatherCondition').textContent = 'Unavailable';
+    }
+  }
+
+  // ── First-run prompt controls ───────────────────────────────────────
+  function showLocationPrompt() { document.getElementById('location-prompt-overlay')?.classList.add('active'); }
+  function hideLocationPrompt() {
+    document.getElementById('location-prompt-overlay')?.classList.remove('active');
+    document.getElementById('location-manual-inline')?.classList.remove('active');
+  }
+  function showLocationManualInline() { document.getElementById('location-manual-inline')?.classList.add('active'); }
+
+  function declineLocationPrompt() {
+    appSettings.locationMode = 'declined';
+    persistLocationSettings();
+    hideLocationPrompt();
+    document.getElementById('weatherCondition').textContent = 'Location off';
+    document.getElementById('weatherIcon').textContent = '📍';
+    refreshLocationSettingsUI();
+  }
+
+  // GPS auto-detect — used by both the first-run prompt and the Settings
+  // "Detect My Location" button. Falls back to approximate IP-based
+  // location if GPS permission is denied, rather than just erroring out.
+  async function chooseLocationAuto() {
+    if (!navigator.geolocation) { await useIPLocation(); return; }
+    navigator.geolocation.getCurrentPosition(async ({ coords: { latitude, longitude } }) => {
+      const cityName = await getCityName(latitude, longitude);
+      appSettings.locationMode  = 'auto';
+      appSettings.locationLat   = latitude;
+      appSettings.locationLon   = longitude;
+      appSettings.locationLabel = cityName;
+      persistLocationSettings();
+      hideLocationPrompt();
+      await fetchWeatherForCoords(latitude, longitude, cityName);
+      refreshLocationSettingsUI();
+    }, async () => {
+      await useIPLocation();
+    });
+  }
+  function redetectLocation() { chooseLocationAuto(); }
+
+  async function useIPLocation() {
     try {
       // ip-api.com free tier — no key needed, ~45 requests/min limit
       const ipRes  = await fetch('https://ip-api.com/json/?fields=lat,lon,city,countryCode');
       const ipData = await ipRes.json();
       if (!ipData.lat || !ipData.lon) throw new Error('No location from IP');
-      const { lat, lon, city, countryCode } = ipData;
-      const weatherRes  = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-      const weatherData = await weatherRes.json();
-      if (weatherData.current_weather) {
-        const tempC = Math.round(weatherData.current_weather.temperature);
-        const isUS  = countryCode === 'US';
-        const temp  = isUS ? Math.round(tempC*9/5+32) : tempC;
-        document.getElementById('weatherTemp').textContent      = `${temp}${isUS ? '°F' : '°C'}`;
-        document.getElementById('weatherCondition').textContent = getRudeboyWeatherCondition(weatherData.current_weather.weathercode);
-        document.getElementById('weatherLocation').textContent  = city || 'Nearby';
-        document.getElementById('weatherIcon').textContent      = getWeatherIconFromCode(weatherData.current_weather.weathercode);
-      }
+      appSettings.locationMode  = 'auto';
+      appSettings.locationLat   = ipData.lat;
+      appSettings.locationLon   = ipData.lon;
+      appSettings.locationLabel = ipData.city || 'Nearby';
+      persistLocationSettings();
+      hideLocationPrompt();
+      await fetchWeatherForCoords(ipData.lat, ipData.lon, appSettings.locationLabel);
+      refreshLocationSettingsUI();
+      showToast('GPS unavailable — used your network\'s approximate location instead', 'success');
     } catch {
-      document.getElementById('weatherCondition').textContent = 'Location denied';
-      document.getElementById('weatherIcon').textContent = '📍';
+      showToast("Couldn't determine location automatically — try entering a city manually", 'error');
+    }
+  }
+
+  // Shared by both the first-run manual entry and the Settings city field
+  async function setManualLocation(cityQuery) {
+    const geo = await geocodeCity(cityQuery);
+    if (!geo) return null;
+    appSettings.locationMode  = 'manual';
+    appSettings.locationLat   = geo.lat;
+    appSettings.locationLon   = geo.lon;
+    appSettings.locationLabel = geo.label;
+    persistLocationSettings();
+    await fetchWeatherForCoords(geo.lat, geo.lon, geo.label);
+    refreshLocationSettingsUI();
+    return geo;
+  }
+
+  async function chooseLocationManual() {
+    const input = document.getElementById('location-manual-input');
+    const query = input?.value.trim();
+    if (!query) { showToast('Enter a city name first', 'error'); return; }
+    const geo = await setManualLocation(query);
+    if (!geo) { showToast("Couldn't find that city — try being more specific", 'error'); return; }
+    hideLocationPrompt();
+  }
+
+  async function saveManualLocationFromSettings() {
+    const input = document.getElementById('loc-settings-city-input');
+    const query = input?.value.trim();
+    if (!query) { showToast('Enter a city name first', 'error'); return; }
+    const geo = await setManualLocation(query);
+    if (!geo) { showToast("Couldn't find that city — try being more specific", 'error'); return; }
+    showToast(`📍 Location set to ${geo.label}`, 'success');
+  }
+
+  function clearLocationSetting() {
+    appSettings.locationMode  = 'unset';
+    appSettings.locationLat   = null;
+    appSettings.locationLon   = null;
+    appSettings.locationLabel = '';
+    persistLocationSettings();
+    document.getElementById('weatherCondition').textContent = 'Set location';
+    document.getElementById('weatherIcon').textContent = '📍';
+    document.getElementById('weatherLocation').textContent = '--';
+    document.getElementById('weatherTemp').textContent = '--';
+    refreshLocationSettingsUI();
+    showToast('Location cleared — you\'ll be asked again next load', 'success');
+  }
+
+  function refreshLocationSettingsUI() {
+    const statusEl = document.getElementById('loc-settings-status');
+    if (statusEl) {
+      if (appSettings.locationMode === 'auto')        statusEl.textContent = `📍 Auto-detected: ${appSettings.locationLabel || 'Unknown'}`;
+      else if (appSettings.locationMode === 'manual')  statusEl.textContent = `🏙️ Manual: ${appSettings.locationLabel || 'Unknown'}`;
+      else if (appSettings.locationMode === 'declined') statusEl.textContent = `📍 Location is off`;
+      else statusEl.textContent = `📍 Not set yet`;
+    }
+    const cityInput = document.getElementById('loc-settings-city-input');
+    if (cityInput && appSettings.locationMode === 'manual' && !cityInput.matches(':focus')) {
+      cityInput.value = appSettings.locationLabel || '';
     }
   }
 
