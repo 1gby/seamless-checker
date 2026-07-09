@@ -1735,6 +1735,11 @@
     <span class="snb-arrow">›</span>
   </div>
 
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-tvguide')">
+    <span><span class="snb-icon">📅</span>TV Guide</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
   <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-info')">
     <span><span class="snb-icon">ℹ️</span>Info & Data</span>
     <span class="snb-arrow">›</span>
@@ -2070,6 +2075,35 @@
 
 </div>
 
+<!-- ── Submenu: TV Guide ─────────────────────────────────────────── -->
+<div id="submenu-tvguide" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">📅 TV Guide</div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Hidden Channels</div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Comma-separated channel/network names to hide from the Full Guide (e.g. MSNBC, Univision).</p>
+    <input type="text" id="tvg-excluded-channels" placeholder="e.g. MSNBC, Univision, Yes TV"
+      autocomplete="off" spellcheck="false" onchange="saveSettings()"
+      style="width:100%;padding:0.45rem 0.7rem;border-radius:8px;
+             border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);
+             color:#fff;font-size:0.78rem;outline:none;box-sizing:border-box;">
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Region</div>
+    <label class="settings-checkbox-label"><input type="checkbox" id="tvg-include-canada" onchange="saveSettings()"> Include Canadian channels & schedule</label>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">Off = US schedule only.</p>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Player Diagnostics</div>
+    <label class="settings-checkbox-label"><input type="checkbox" id="tvg-player-debug" onchange="saveSettings()"> Show playback debug log</label>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">The log panel under the video player that shows load/error events. Turn off once you're not actively troubleshooting.</p>
+  </div>
+
+</div>
+
 <!-- ── Submenu: Info & Data ───────────────────────────────────────── -->
 <div id="submenu-info" class="settings-submenu">
   <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
@@ -2094,6 +2128,7 @@
       <button class="settings-btn purple" onclick="clearRDCache()">🗑 RD Cache <span id="cache-size-rd" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearTBCache()">🗑 TB Cache <span id="cache-size-tb" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearTMDBCache()">🗑 TMDB Cache <span id="cache-size-tmdb" style="opacity:0.5;font-size:0.65rem;"></span></button>
+      <button class="settings-btn purple" onclick="clearTVGuideCache()">🗑 TV Guide Cache <span id="cache-size-tvguide" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn purple" onclick="clearAllCaches()">🗑 All Caches <span id="cache-size-all" style="opacity:0.5;font-size:0.65rem;"></span></button>
       <button class="settings-btn red"    onclick="resetEverything()">💣 Reset Everything <span id="cache-size-total" style="opacity:0.5;font-size:0.65rem;"></span></button>
     </div>
@@ -2485,6 +2520,10 @@
     stremioAddons: [],
     // Library search — auto-search RD/TB when pulling up streams
     librarySearchEnabled: false,
+    // TV Guide preferences
+    tvGuideExcludedChannels: 'MSNBC, MS NOW, Investigation Discovery, Syndication, Univision, Yes TV, Yes Network',
+    tvGuideIncludeCanada: true,
+    tvGuidePlayerDebug: true,
   };
 
   let appSettings = { ...DEFAULT_SETTINGS };
@@ -2514,6 +2553,9 @@
     set('se-subbed',       appSettings.seSubbed);
     set('se-hdr',          appSettings.seHdr);
     set('se-exclude-keywords', appSettings.excludeKeywords || '');
+    set('tvg-excluded-channels', appSettings.tvGuideExcludedChannels || '');
+    set('tvg-include-canada',    appSettings.tvGuideIncludeCanada !== false);
+    set('tvg-player-debug',      appSettings.tvGuidePlayerDebug !== false);
     set('sf-hide-4k',    appSettings.hideQuality4k);
     set('sf-hide-1080p', appSettings.hideQuality1080p);
     set('sf-hide-720p',  appSettings.hideQuality720p);
@@ -2583,6 +2625,9 @@
       max1337x:   parseInt(gb('sf-max-1337x'))  || 25,
       stremioAddons: appSettings.stremioAddons || [],
       librarySearchEnabled: !!appSettings.librarySearchEnabled,
+      tvGuideExcludedChannels: gb('tvg-excluded-channels') || '',
+      tvGuideIncludeCanada: !!gb('tvg-include-canada'),
+      tvGuidePlayerDebug: !!gb('tvg-player-debug'),
     };
     localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
   }
@@ -6302,6 +6347,7 @@
   function logPlayerDiag(msg, isWarn = false) {
     const el = document.getElementById('player-diag');
     if (!el) return;
+    if (appSettings.tvGuidePlayerDebug === false) { el.classList.remove('active'); return; }
     el.classList.add('active');
     const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
     const line = isWarn ? `<span class="diag-warn">[${time}] ${msg}</span>` : `[${time}] ${msg}`;
@@ -6920,10 +6966,14 @@
   // Channels filtered out entirely — never shown in the list or the
   // provider dropdown. Matched case-insensitively against TVMaze's
   // network/webChannel name.
-  const TVGUIDE_EXCLUDED_CHANNELS = new Set([
-    'msnbc', 'ms now', 'investigation discovery', 'syndication', 'syndicated',
-    'univision', 'yes network', 'yes', 'yes tv',
-  ]);
+  // Channels filtered out entirely — never shown in the list or the
+  // provider dropdown. User-editable in Settings → TV Guide → Hidden
+  // Channels; matched case-insensitively against TVMaze's network/webChannel
+  // name. Falls back to the same defaults if the setting is ever empty.
+  function getTVGuideExcludedChannels() {
+    const raw = (appSettings.tvGuideExcludedChannels ?? DEFAULT_SETTINGS.tvGuideExcludedChannels) || '';
+    return new Set(raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+  }
 
   const TVGUIDE_TMDB_BACKFILL = [
     { networkId: 213,  label: 'Netflix'      },
@@ -7065,11 +7115,13 @@
   // time-based entries chronologically with untimed TMDB entries after.
   async function loadTVGuideData() {
     const today = localDate();
+    const includeCanada = appSettings.tvGuideIncludeCanada !== false;
+    const excludedChannels = getTVGuideExcludedChannels();
     const [broadcastUS, broadcastCA, webUS, webCA, ...backfillRes] = await Promise.allSettled([
       fetch(`${TVMAZE_BASE}/schedule?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
-      fetch(`${TVMAZE_BASE}/schedule?country=CA&date=${today}`).then(r => r.ok ? r.json() : []),
+      includeCanada ? fetch(`${TVMAZE_BASE}/schedule?country=CA&date=${today}`).then(r => r.ok ? r.json() : []) : Promise.resolve([]),
       fetch(`${TVMAZE_BASE}/schedule/web?country=US&date=${today}`).then(r => r.ok ? r.json() : []),
-      fetch(`${TVMAZE_BASE}/schedule/web?country=CA&date=${today}`).then(r => r.ok ? r.json() : []),
+      includeCanada ? fetch(`${TVMAZE_BASE}/schedule/web?country=CA&date=${today}`).then(r => r.ok ? r.json() : []) : Promise.resolve([]),
       ...TVGUIDE_TMDB_BACKFILL.map(p => tmdb('/discover/tv', {
         sort_by: 'popularity.desc', with_networks: p.networkId,
         'air_date.gte': today, 'air_date.lte': today, language: 'en-US',
@@ -7111,7 +7163,7 @@
       showName: ep.show?.name || 'Unknown', epLabel: (ep.season && ep.number) ? `S${String(ep.season).padStart(2,'0')}E${String(ep.number).padStart(2,'0')} · ${ep.name || ''}` : (ep.name || ''),
       imdbId: ep.show?.externals?.imdb || null, tmdbId: null, source: 'broadcast',
       category: classifyGuideCategory(ep.show?.type, ep.show?.genres),
-    })).filter(e => e.channel !== 'Unknown' && !TVGUIDE_EXCLUDED_CHANNELS.has(e.channel.toLowerCase()));
+    })).filter(e => e.channel !== 'Unknown' && !excludedChannels.has(e.channel.toLowerCase()));
 
     const web = webEps.map(ep => {
       const show = ep._embedded?.show;
@@ -7121,7 +7173,7 @@
         imdbId: show?.externals?.imdb || null, tmdbId: null, source: 'web',
         category: classifyGuideCategory(show?.type, show?.genres),
       };
-    }).filter(e => e.channel !== 'Unknown' && !TVGUIDE_EXCLUDED_CHANNELS.has(e.channel.toLowerCase()));
+    }).filter(e => e.channel !== 'Unknown' && !excludedChannels.has(e.channel.toLowerCase()));
 
     // Skip TMDB backfill entries for shows TVMaze already listed today, so
     // platforms with partial TVMaze coverage (e.g. Disney+) don't duplicate.
@@ -8510,7 +8562,7 @@
   }
 
   function getCacheSizes() {
-    let rdSize = 0, tmdbSize = 0, otherCacheSize = 0, totalSize = 0;
+    let rdSize = 0, tmdbSize = 0, tvguideSize = 0, otherCacheSize = 0, totalSize = 0;
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (!key) continue;
@@ -8519,15 +8571,17 @@
       totalSize += size;
       if (key === 'rd_torrent_cache' || key === 'rd_torrent_cache_ts') rdSize += size;
       else if (key.startsWith('tmdb_') || key.startsWith('img_cache_')) tmdbSize += size;
+      else if (key === 'tvmaze_id_cache' || key === 'imdb_tmdb_cache') tvguideSize += size;
       else if (key.startsWith('addon_') || key.startsWith('catalog_') || key.startsWith('search_cache_')) otherCacheSize += size;
     }
-    return { rdSize, tmdbSize, allCacheSize: rdSize + tmdbSize + otherCacheSize, totalSize };
+    return { rdSize, tmdbSize, tvguideSize, allCacheSize: rdSize + tmdbSize + tvguideSize + otherCacheSize, totalSize };
   }
 
   function updateCacheSizeBadges() {
     const sizes = getCacheSizes();
     const rdEl   = document.getElementById('cache-size-rd');
     const tmdbEl = document.getElementById('cache-size-tmdb');
+    const tvgEl  = document.getElementById('cache-size-tvguide');
     const tbEl   = document.getElementById('cache-size-tb');
     if (tbEl) {
       const tbSize = [...Array(localStorage.length)].reduce((acc, _, i) => {
@@ -8540,8 +8594,18 @@
     const totEl  = document.getElementById('cache-size-total');
     if (rdEl)   rdEl.textContent   = `(${formatCacheSize(sizes.rdSize)})`;
     if (tmdbEl) tmdbEl.textContent = `(${formatCacheSize(sizes.tmdbSize)})`;
+    if (tvgEl)  tvgEl.textContent  = `(${formatCacheSize(sizes.tvguideSize)})`;
     if (allEl)  allEl.textContent  = `(${formatCacheSize(sizes.allCacheSize)})`;
     if (totEl)  totEl.textContent  = `(${formatCacheSize(sizes.totalSize)})`;
+  }
+
+  function clearTVGuideCache() {
+    localStorage.removeItem('tvmaze_id_cache');
+    localStorage.removeItem('imdb_tmdb_cache');
+    showToast('🗑 TV Guide cache cleared', 'success');
+    const msg = document.getElementById('cache-status-msg');
+    if (msg) msg.textContent = '✅ TV Guide cache cleared.';
+    updateCacheSizeBadges();
   }
 
   function clearTBCache() {
@@ -8584,6 +8648,7 @@
     clearRDCache();
     clearTBCache();
     clearTMDBCache();
+    clearTVGuideCache();
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
