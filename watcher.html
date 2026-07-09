@@ -6381,8 +6381,9 @@
     clearAudioTrackPicker();
     logPlayerDiag(`loading .${ext} file…`);
 
-    if (ext === 'mkv') {
-      logPlayerDiag('MKV containers are not supported by Safari\'s built-in player, regardless of the codec inside — this is a hard platform limitation, not a bug. Use the 📺 Infuse or 🎬 VLC buttons below instead.', true);
+    if (ext === 'mkv' || ext === 'avi') {
+      const label = ext === 'mkv' ? 'MKV' : 'AVI';
+      logPlayerDiag(`${label} containers are not supported by Safari's built-in player, regardless of the codec inside — this is a hard platform limitation, not a bug. Use the 📺 Infuse or 🎬 VLC buttons below instead.`, true);
       return;
     }
 
