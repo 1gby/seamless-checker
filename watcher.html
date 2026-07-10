@@ -123,6 +123,12 @@
       border-bottom: 1px solid rgba(118,75,162,0.25);
       position: sticky; top: 0; z-index: 500;
     }
+    /* While the search input is focused, drop the sticky positioning —
+       WebKit mispositions the text caret for inputs inside a fixed/sticky
+       ancestor on a page taller than one screen. This only affects
+       scroll-pinning during active typing, which barely matters anyway
+       since the keyboard covers most of the screen at that point. */
+    #header.header-typing { position: static; }
     .header-top {
       display: flex; align-items: center; justify-content: space-between;
       gap: 1rem; margin-bottom: 1rem; position: relative;
@@ -9535,22 +9541,21 @@
   }
 
   const searchInput = document.getElementById('search-input');
-  let _firstSearchFocus = true;
+  // WebKit has a long-documented bug where a text input's caret gets
+  // mispositioned when it lives inside a position:fixed/sticky ancestor
+  // and the page is taller than one screen (WebKit bug 176896, and several
+  // recurring variants since). The community-standard fix is to drop the
+  // sticky positioning while the input is actually focused, since that's
+  // the only time it matters, rather than fight the browser's internal
+  // caret-rect timing.
   searchInput.addEventListener('focus', () => {
     renderSearchHistory();
-    if (_firstSearchFocus) {
-      _firstSearchFocus = false;
-      // iOS Safari sometimes mispositions the caret on the very first focus
-      // of a session — the keyboard opening for the first time shifts the
-      // visual viewport/safe-area metrics, and the caret can get drawn
-      // before that settles. One quiet blur+refocus pass wasn't always
-      // enough time, so this does two passes at different delays to give
-      // Safari more chances to have actually finished settling by then.
-      setTimeout(() => { searchInput.blur(); searchInput.focus(); }, 50);
-      setTimeout(() => { searchInput.blur(); searchInput.focus(); }, 350);
-    }
+    document.getElementById('header')?.classList.add('header-typing');
   });
-  searchInput.addEventListener('blur',  () => { setTimeout(() => { document.getElementById('search-history')?.classList.remove('visible'); }, 200); });
+  searchInput.addEventListener('blur',  () => {
+    setTimeout(() => { document.getElementById('search-history')?.classList.remove('visible'); }, 200);
+    document.getElementById('header')?.classList.remove('header-typing');
+  });
   // Tapping a chip's × was blurring the input (since it's a separate element
   // receiving the tap), which triggered the blur-hide above and closed the
   // whole dropdown after removing just one item. Blocking the default
