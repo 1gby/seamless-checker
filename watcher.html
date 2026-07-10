@@ -9543,9 +9543,11 @@
       // iOS Safari sometimes mispositions the caret on the very first focus
       // of a session — the keyboard opening for the first time shifts the
       // visual viewport/safe-area metrics, and the caret can get drawn
-      // before that settles. A quick blur+refocus after it settles forces
-      // Safari to recompute the caret in the right spot. Only needed once.
+      // before that settles. One quiet blur+refocus pass wasn't always
+      // enough time, so this does two passes at different delays to give
+      // Safari more chances to have actually finished settling by then.
       setTimeout(() => { searchInput.blur(); searchInput.focus(); }, 50);
+      setTimeout(() => { searchInput.blur(); searchInput.focus(); }, 350);
     }
   });
   searchInput.addEventListener('blur',  () => { setTimeout(() => { document.getElementById('search-history')?.classList.remove('visible'); }, 200); });
