@@ -194,7 +194,7 @@
       width: 100%; padding: 0.9rem 2.6rem 0.9rem 1.2rem; font-size: 1rem;
       background: var(--glass-bg); border: 1px solid rgba(118,75,162,0.5);
       border-radius: 999px; color: white; backdrop-filter: blur(20px);
-      transition: all 0.3s; line-height: 1.2;
+      transition: all 0.3s; line-height: normal;
     }
     #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
     #search-input::placeholder { color: rgba(255,255,255,0.5); }
@@ -9535,7 +9535,19 @@
   }
 
   const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('focus', () => { renderSearchHistory(); });
+  let _firstSearchFocus = true;
+  searchInput.addEventListener('focus', () => {
+    renderSearchHistory();
+    if (_firstSearchFocus) {
+      _firstSearchFocus = false;
+      // iOS Safari sometimes mispositions the caret on the very first focus
+      // of a session — the keyboard opening for the first time shifts the
+      // visual viewport/safe-area metrics, and the caret can get drawn
+      // before that settles. A quick blur+refocus after it settles forces
+      // Safari to recompute the caret in the right spot. Only needed once.
+      setTimeout(() => { searchInput.blur(); searchInput.focus(); }, 50);
+    }
+  });
   searchInput.addEventListener('blur',  () => { setTimeout(() => { document.getElementById('search-history')?.classList.remove('visible'); }, 200); });
   // Tapping a chip's × was blurring the input (since it's a separate element
   // receiving the tap), which triggered the blur-hide above and closed the
