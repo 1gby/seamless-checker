@@ -6995,21 +6995,20 @@
       const res = await fetch(`${TVMAZE_BASE}/shows/${tvmazeId}/episodesbydate?date=${dateStr}`);
       if (!res.ok) return null; // 404 = nothing airing that date for this show
       const eps = await res.json();
-      const airstamp = eps?.[0]?.airstamp;
-      if (!airstamp) return null;
-      return new Date(airstamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const ep = eps?.[0];
+      if (!ep) return null;
+      const time = ep.airstamp ? new Date(ep.airstamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : null;
+      return { time, episodeName: ep.name || null };
     } catch (e) {
       console.warn('[TVMaze] episodesbydate failed for show ' + tvmazeId, e.message);
       return null;
     }
   }
 
-  async function getTVMazeAirTimeToday(tvmazeId) {
-    return getTVMazeAirTimeForDate(tvmazeId, localDate());
-  }
 
   // Walks Airing Today items in small delayed batches (rate-limit friendly)
-  // and drops a "📡 8:00 PM" badge into each matching card as times resolve.
+  // and fills in each card's episode name + air time (or "Today" if TVMaze
+  // has no specific time for it) as they resolve.
   async function augmentAiringTimes(gridId, items) {
     const grid = document.getElementById(gridId);
     if (!grid || !items.length) return;
@@ -7020,17 +7019,25 @@
       const batch = items.slice(i, i + BATCH_SIZE);
       await Promise.all(batch.map(async (item) => {
         try {
-          const tvmazeId = await getTVMazeShowId(item.id);
-          if (!tvmazeId) return;
-          const timeLabel = await getTVMazeAirTimeToday(tvmazeId);
-          if (!timeLabel) return;
           const card = grid.querySelector(`[data-nav-key="tv_${item.id}"]`);
           const infoEl = card?.querySelector('.info');
-          if (!infoEl || infoEl.querySelector('.air-time')) return;
-          const timeEl = document.createElement('div');
-          timeEl.className = 'air-time';
-          timeEl.textContent = `📡 ${timeLabel}`;
-          infoEl.appendChild(timeEl);
+          if (!infoEl) return;
+          const tvmazeId = await getTVMazeShowId(item.id);
+          const result = tvmazeId ? await getTVMazeAirTimeForDate(tvmazeId, localDate()) : null;
+
+          if (result?.episodeName && !infoEl.querySelector('.airing-ep-name')) {
+            const epEl = document.createElement('div');
+            epEl.className = 'airing-ep-name';
+            epEl.style.cssText = 'font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+            epEl.textContent = result.episodeName;
+            infoEl.appendChild(epEl);
+          }
+          if (!infoEl.querySelector('.air-time')) {
+            const timeEl = document.createElement('div');
+            timeEl.className = 'air-time';
+            timeEl.textContent = `📡 ${result?.time || 'Today'}`;
+            infoEl.appendChild(timeEl);
+          }
         } catch { /* never let one show's failure block the rest */ }
       }));
       if (i + BATCH_SIZE < items.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
@@ -7413,13 +7420,16 @@
       const favorited = isFavorited(item.id, type);
       const card = document.createElement('div');
       card.className = 'card';
+      const infoHtml = gridId === 'airing-grid'
+        ? `<div class="cw-title">${title}</div>`
+        : (year ? `<div class="year">${year}</div>` : '');
       card.innerHTML = `
         <button class="favorite-btn ${favorited ? 'favorited' : ''}"
           onclick="event.stopPropagation();toggleFavoriteFromCard(${item.id},'${type}',this,${JSON.stringify(item).replace(/"/g,'&quot;')})">
           ${favorited ? '⭐' : '☆'}
         </button>
         <img class="poster" src="${imageUrl}" loading="lazy" alt="${title}">
-        <div class="info">${year ? `<div class="year">${year}</div>` : ''}</div>`;
+        <div class="info">${infoHtml}</div>`;
       card.dataset.navKey = navRegStore(item);
       card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
       grid.appendChild(card);
@@ -7771,16 +7781,14 @@
       const batch = shows.slice(i, i + BATCH_SIZE);
       await Promise.all(batch.map(async (show) => {
         try {
-          const tvmazeId = await getTVMazeShowId(show.id);
-          if (!tvmazeId) return;
-          const timeLabel = await getTVMazeAirTimeForDate(tvmazeId, show._airDate);
-          if (!timeLabel) return;
           const card = grid.querySelector(`[data-nav-key="tv_${show.id}"]`);
           const infoEl = card?.querySelector('.fav-week-info');
           if (!infoEl || infoEl.querySelector('.air-time')) return;
+          const tvmazeId = await getTVMazeShowId(show.id);
+          const result = tvmazeId ? await getTVMazeAirTimeForDate(tvmazeId, show._airDate) : null;
           const timeEl = document.createElement('div');
           timeEl.className = 'air-time';
-          timeEl.textContent = `📡 ${timeLabel}`;
+          timeEl.textContent = `📡 ${result?.time || 'N/A'}`;
           infoEl.appendChild(timeEl);
         } catch { /* never let one show's failure block the rest */ }
       }));
@@ -7848,8 +7856,15 @@
         const data = await tmdb(`/tv/${show.id}`);
         const seasons = (data.seasons || []).filter(s => s.season_number > 0);
         const nextEp = getNextUnwatched(show.id, seasons);
+        let nextEpTitle = '';
+        if (nextEp) {
+          try {
+            const seasonData = await tmdb(`/tv/${show.id}/season/${nextEp.season}`);
+            nextEpTitle = seasonData.episodes?.find(e => e.episode_number === nextEp.episode)?.name || '';
+          } catch {}
+        }
         enriched.push({
-          ...show, _type: 'tv', _nextEp: nextEp, _allCaughtUp: !nextEp,
+          ...show, _type: 'tv', _nextEp: nextEp, _nextEpTitle: nextEpTitle, _allCaughtUp: !nextEp,
           _totalSeasons: seasons.length,
           name: data.name || data.original_name || show.name || `Show ${show.id}`,
           poster_path: data.poster_path || show.poster_path || null,
@@ -7858,7 +7873,7 @@
         enriched.push({
           ...show, _type: 'tv',
           _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
-          _allCaughtUp: false,
+          _nextEpTitle: '', _allCaughtUp: false,
           name: show.name || `Show ${show.id}`,
         });
       }
@@ -7898,17 +7913,14 @@
           card.onclick = () => openMovieDetail(item.id);
         } else {
           const ne = item._nextEp;
-          const epLabel  = `▶ S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
-          const subLabel = `${item._watchedCount} watched`;
+          const epLabel = `S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
           card.dataset.navKey = navRegStore(item);
           card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
             <div class="info">
               <div class="cw-title">${item.name || ''}</div>
-              <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
-                <span class="cw-badge">${epLabel}</span>
-                <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);">${subLabel}</span>
-              </div>
+              <div style="font-size:0.6rem;color:var(--accent-green);font-weight:700;margin-top:0.15rem;">${epLabel}</div>
+              <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item._nextEpTitle || ''}</div>
             </div>`;
           card.onclick = () => openTVDetail(item.id);
         }
