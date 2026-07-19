@@ -7576,6 +7576,46 @@
     enableInfiniteScroll(endpoint, params, gridId);
   }
 
+  // New Releases needs its own logic rather than the generic loadSection:
+  // TMDB's release_date.desc sort (filtered to digital/physical release
+  // types) can surface a movie's *rerelease* date and make a decade-old
+  // catalog title (e.g. Hunger Games' 2026 Fathom Events theatrical rerun)
+  // look brand new. This checks each candidate's true original release —
+  // the earliest date across every country/release-type entry — and drops
+  // anything more than a year old, regardless of which recent date matched
+  // the initial query.
+  async function loadNewReleases(gridId) {
+    const today  = localDate();
+    const params = { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' };
+    let allResults = [];
+    for (let page = 1; page <= 3; page++) {
+      try {
+        const { results } = await tmdb('/discover/movie', { ...params, page });
+        allResults = allResults.concat(results || []);
+      } catch { break; }
+    }
+
+    const filtered = [];
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < allResults.length; i += BATCH_SIZE) {
+      const batch = allResults.slice(i, i + BATCH_SIZE);
+      const checked = await Promise.all(batch.map(async (movie) => {
+        try {
+          const data = await tmdb(`/movie/${movie.id}/release_dates`);
+          const allDates = (data.results || []).flatMap(r => (r.release_dates || []).map(rd => rd.release_date)).filter(Boolean);
+          if (!allDates.length) return movie; // no data to check — keep rather than wrongly exclude
+          const earliest = allDates.reduce((min, d) => (d < min ? d : min), allDates[0]);
+          const ageDays  = (new Date(today) - new Date(earliest)) / (1000 * 60 * 60 * 24);
+          return ageDays <= 365 ? movie : null;
+        } catch { return movie; } // if the check itself fails, don't wrongly exclude
+      }));
+      filtered.push(...checked.filter(Boolean));
+    }
+
+    await renderHorizontal(gridId, filtered);
+    enableInfiniteScroll('/discover/movie', params, gridId);
+  }
+
   function renderGenreButtons() {
     const genreButtons = document.getElementById('genre-buttons');
     if (!genreButtons) return;
@@ -8810,7 +8850,7 @@
         await Promise.all([
           loadSection('/discover/tv', { sort_by: 'popularity.desc', with_original_language: 'en', watch_region: 'US', 'air_date.gte': today, 'air_date.lte': today, language: 'en-US' }, 'airing-grid'),
           loadStreamingNow('streaming-now-grid'),
-          loadSection('/discover/movie',  { sort_by: 'release_date.desc', 'with_release_type': '4|5', 'vote_count.gte': '50', 'release_date.lte': today, with_original_language: 'en', region: 'US' }, 'new-releases-grid'),
+          loadNewReleases('new-releases-grid'),
           loadSection('/trending/tv/week',    { language: 'en-US' }, 'trending-tv-grid'),
           loadSection('/trending/movie/week', { language: 'en-US' }, 'trending-movies-grid'),
           loadSection('/discover/tv',    { sort_by: 'popularity.desc', 'first_air_date.gte': weekAgo,  'first_air_date.lte': today,         with_original_language: 'en', 'watch_region': 'US' }, 'tv-week-grid'),
