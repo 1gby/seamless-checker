@@ -6841,8 +6841,13 @@
      § 11  FAVORITES SYSTEM
      ═══════════════════════════════════════════════════════════════════ */
   function saveFavorites() {
-    localStorage.setItem('favorites',    JSON.stringify(favorites));
-    localStorage.setItem('xxxFavorites', JSON.stringify(xxxFavorites));
+    try {
+      localStorage.setItem('favorites',    JSON.stringify(favorites));
+      localStorage.setItem('xxxFavorites', JSON.stringify(xxxFavorites));
+    } catch (e) {
+      console.warn('[Favorites] save failed', e.message);
+      showToast('⚠️ Could not save favorite — storage may be full', 'error');
+    }
   }
 
   function isFavorited(id, type) {
@@ -6855,17 +6860,32 @@
   function toggleFavorite(item, type) {
     const favList = isAdultMode ? xxxFavorites : favorites;
     const id      = item.id;
+    // Store only what a favorites card actually renders — the full detail
+    // object (credits, videos, images, recommendations, similar,
+    // external_ids) was being stored whole, which could push localStorage
+    // over its quota once a few favorites piled up. That made
+    // JSON.stringify/setItem throw silently, aborting everything after it
+    // — including the button repaint and the save itself. Removing
+    // (which shrinks storage) never hit this; adding new ones did.
+    const lean = {
+      id: item.id,
+      title: item.title, name: item.name,
+      poster_path: item.poster_path, backdrop_path: item.backdrop_path,
+      release_date: item.release_date, first_air_date: item.first_air_date,
+      vote_average: item.vote_average, overview: item.overview,
+      profile_path: item.profile_path, known_for_department: item.known_for_department,
+    };
     if (type === 'person' || type === 'actor') {
       const i = favList.actors.findIndex(f => f.id === id);
-      if (i > -1) favList.actors.splice(i, 1); else favList.actors.push({ ...item, media_type: 'person' });
+      if (i > -1) favList.actors.splice(i, 1); else favList.actors.push({ ...lean, media_type: 'person' });
     } else if (type === 'tv') {
       if (isAdultMode) return;
       if (!favList.tv) favList.tv = [];
       const i = favList.tv.findIndex(f => f.id === id);
-      if (i > -1) favList.tv.splice(i, 1); else favList.tv.push({ ...item, media_type: 'tv' });
+      if (i > -1) favList.tv.splice(i, 1); else favList.tv.push({ ...lean, media_type: 'tv' });
     } else {
       const i = favList.movies.findIndex(f => f.id === id);
-      if (i > -1) favList.movies.splice(i, 1); else favList.movies.push({ ...item, media_type: 'movie' });
+      if (i > -1) favList.movies.splice(i, 1); else favList.movies.push({ ...lean, media_type: 'movie' });
     }
     saveFavorites();
     // Update "This Week" and "Continue Watching" sections if TV favorites changed
