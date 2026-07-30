@@ -4449,13 +4449,12 @@
   // ── Content filtering ────────────────────────────────────────────────
   function filterTorrentResults(results) {
     if (isAdultMode) {
-      // In adult mode: filter out gay/trans content
-      const gayTerms = ['gay', 'twink', 'bareback', 'men only', 'transgender', 'shemale', 'ladyboy', ' trans '];
-      return results.filter(r => !gayTerms.some(t => r.title.toLowerCase().includes(t)));
+      // Same MM/gay/trans denylist as shouldFilterContent (shared ADULT_MM_TERMS)
+      return results.filter(r => !_matchesAdultMMTerm(r.title || r.name || ''));
     } else {
       // In normal mode: filter out adult site names
       const adultTerms = ['xxx', 'pornhub', 'brazzers', 'bangbros', 'onlyfans'];
-      return results.filter(r => !adultTerms.some(t => r.title.toLowerCase().includes(t)));
+      return results.filter(r => !adultTerms.some(t => (r.title || '').toLowerCase().includes(t)));
     }
   }
 
@@ -6930,12 +6929,55 @@
      § 13  TMDB API HELPERS
      ═══════════════════════════════════════════════════════════════════ */
 
+  // Shared denylist for MM / gay / trans adult content (titles, overviews, torrent names).
+  // Multi-word / punctuated phrases → substring match.
+  // Single words → whole-token match so "gay" hits "Gay", "GAY-XXX" but not random mid-word noise.
+  const ADULT_MM_TERMS = [
+    // orientation / labels
+    'gay', 'homosexual', 'homo', 'queer', 'lgbt', 'lgbtq',
+    // MM descriptors
+    'twink', 'twinks', 'bear', 'bears', 'otter', 'otters', 'jock', 'jocks',
+    'muscle men', 'muscleman', 'muscle boy', 'gym men',
+    'male on male', 'men on men', 'man on man', 'mmf', 'm/m', 'm4m',
+    'gay men', 'gay sex', 'gay porn', 'gay pornstar', 'all male', 'all-male',
+    'men only', 'boys only', 'only men', 'only boys',
+    'boyfriends', 'boyfriend sex', 'daddy son', 'daddy and boy',
+    'bareback', 'bare back', 'breeding men',
+    // high-signal MM studios / brands
+    'belami', 'bel ami', 'cockyboys', 'cocky boys', 'men.com', 'sean cody',
+    'lucas entertainment', 'randy blue', 'next door studios', 'nextdoorstudios',
+    'helix studios', 'timtales', 'raging stallion', 'treasure island media',
+    'chaosmen', 'chaos men', 'corbin fisher', 'colby knox', 'icon male',
+    'bromo', 'str8upgayporn', 'gaywire', 'menatplay', 'men at play',
+    // trans
+    'transgender', 'transsexual', 'shemale', 'she male', 'ladyboy', 'lady boy',
+    'futanari', 'futa', 'tranny',
+  ];
+
+  function _matchesAdultMMTerm(text) {
+    if (!text) return false;
+    const s = String(text).toLowerCase();
+    for (const term of ADULT_MM_TERMS) {
+      const t = term.toLowerCase();
+      if (t.includes(' ') || t.includes('/') || t.includes('-') || t.includes('.')) {
+        if (s.includes(t)) return true;
+      } else {
+        // Escape regex metacharacters in the term, then match as a whole token
+        const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(?:^|[^a-z0-9])' + escaped + '(?:[^a-z0-9]|$)', 'i');
+        if (re.test(s)) return true;
+      }
+    }
+    return false;
+  }
+
   function shouldFilterContent(item) {
     if (!isAdultMode) return false;
-    const combined = ((item.title || item.name || '') + ' ' + (item.overview || '')).toLowerCase();
-    const terms = ['gay ', ' gay', 'gay,', 'homosexual', 'twink', 'gay men', 'gay sex',
-                   'male on male', 'trans ', ' trans', 'transgender', 'shemale', 'ladyboy', 'transsexual'];
-    return terms.some(t => combined.includes(t));
+    const combined = [
+      item.title, item.name, item.original_title, item.original_name,
+      item.overview, item.tagline,
+    ].filter(Boolean).join(' ');
+    return _matchesAdultMMTerm(combined);
   }
 
   async function tmdb(endpoint, params = {}) {
@@ -7437,7 +7479,12 @@
     grid.innerHTML = '';
 
     // Batch all image fetches in parallel instead of sequentially
-    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    // Adult mode: drop MM/gay/trans titles as a second line of defense
+    const filtered = items.filter(item => {
+      if (!(item.poster_path || item.backdrop_path || item.profile_path)) return false;
+      if (isAdultMode && shouldFilterContent(item)) return false;
+      return true;
+    });
     const imageUrls = await Promise.all(filtered.map(item => {
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
       if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
@@ -7482,7 +7529,12 @@
     grid.className = 'vertical-grid';
 
     // Batch all image fetches in parallel
-    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    // Adult mode: drop MM/gay/trans titles as a second line of defense
+    const filtered = items.filter(item => {
+      if (!(item.poster_path || item.backdrop_path || item.profile_path)) return false;
+      if (isAdultMode && shouldFilterContent(item)) return false;
+      return true;
+    });
     const imageUrls = await Promise.all(filtered.map(item => {
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
       if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
@@ -9988,7 +10040,12 @@
     if (!grid) return;
 
     // Filter items with images first, then batch all fetches simultaneously
-    const filtered = items.filter(item => item.poster_path || item.backdrop_path || item.profile_path);
+    // Adult mode: drop MM/gay/trans titles as a second line of defense
+    const filtered = items.filter(item => {
+      if (!(item.poster_path || item.backdrop_path || item.profile_path)) return false;
+      if (isAdultMode && shouldFilterContent(item)) return false;
+      return true;
+    });
     const imageUrls = await Promise.all(filtered.map(item => {
       const isPerson = item.media_type === 'person' || !!item.known_for_department;
       if (isPerson) return Promise.resolve(item.profile_path ? `${TMDB_IMG}${item.profile_path}` : null);
