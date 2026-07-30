@@ -6949,6 +6949,14 @@
     'helix studios', 'timtales', 'raging stallion', 'treasure island media',
     'chaosmen', 'chaos men', 'corbin fisher', 'colby knox', 'icon male',
     'bromo', 'str8upgayporn', 'gaywire', 'menatplay', 'men at play',
+    // known MM series / title patterns (catch titles that never say "gay")
+    'daddy blows', 'blows best', 'introducing the fine', 'fine young',
+    'hot summer the best of', 'best of ashton', 'leo levine',
+    'boys halfway house', 'helping the homeless', 'str8 to gay',
+    'broke straight', 'bait buddies', 'out in public', 'men bareback',
+    'gay massage', 'massage bait', 'college boy', 'college boys',
+    'frat boys', 'fraternity', 'locker room', 'military men',
+    'active duty', 'william higgins',
     // trans
     'transgender', 'transsexual', 'shemale', 'she male', 'ladyboy', 'lady boy',
     'futanari', 'futa', 'tranny',
@@ -7758,8 +7766,29 @@
     const today = localDate();
     await Promise.allSettled([
       (async () => {
-        const d = await tmdbAdult('/discover/movie', { sort_by: 'release_date.desc', 'with_release_type': '4', certification_country: 'US', certification: 'NC-17', 'release_date.lte': today });
-        await renderHorizontal('xxx-new-releases-grid', (d.results || []).filter(m => m.adult === true).slice(0, 20));
+        // Don't use raw NC-17 discover — mixed bag of ALL adult (incl. MM).
+        // Pull recent hits from straight-leaning adult brands/queries instead.
+        const brandQueries = [
+          'brazzers', 'naughty america', 'reality kings', 'bangbros',
+          'digital playground', 'wicked pictures', 'vixen', 'tushy',
+          'blacked', 'deeper', 'nubile films', 'fake taxi',
+          'pure taboo', 'adult time', 'moms teach sex', 'my friends hot mom',
+        ];
+        const seen = new Set();
+        const merged = [];
+        await Promise.all(brandQueries.map(async (q) => {
+          try {
+            const d = await tmdbAdult('/search/movie', { query: q, page: 1 });
+            for (const m of (d.results || [])) {
+              if (!m || !m.id || seen.has(m.id)) continue;
+              if (m.adult !== true) continue;
+              seen.add(m.id);
+              merged.push(m);
+            }
+          } catch {}
+        }));
+        merged.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''));
+        await renderHorizontal('xxx-new-releases-grid', merged.slice(0, 24));
       })(),
       ...[
         ['my first sex teacher','adult-my-first-sex-teacher-grid'],
