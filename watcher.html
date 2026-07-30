@@ -6956,6 +6956,8 @@
     'gay massage', 'massage bait', 'college boy', 'college boys',
     'frat boys', 'fraternity', 'locker room', 'military men',
     'active duty', 'william higgins',
+    // titles / directors that slip through with no gay keywords in overview
+    'soledad', 'alter sin', 'jake preston', 'allen king',
     // trans
     'transgender', 'transsexual', 'shemale', 'she male', 'ladyboy', 'lady boy',
     'futanari', 'futa', 'tranny',
@@ -6978,13 +6980,36 @@
     return false;
   }
 
+  // MM studios — matched against production_companies when TMDB includes them
+  // (detail pages always; some list endpoints may omit companies)
+  const ADULT_MM_STUDIOS = [
+    'men', 'men.com', 'men.com network', 'sean cody', 'belami', 'bel ami',
+    'cockyboys', 'cocky boys', 'lucas entertainment', 'randy blue',
+    'next door studios', 'nextdoor studios', 'helix studios', 'timtales',
+    'raging stallion', 'treasure island media', 'chaosmen', 'corbin fisher',
+    'colby knox', 'icon male', 'bromo', 'gaywire', 'menatplay', 'men at play',
+    'william higgins', 'caro entertainment', 'falcon studios', 'hot house',
+    'nakedsword', 'channel 1 reclaim', 'c1r', 'legend men', 'legendmen',
+  ];
+
   function shouldFilterContent(item) {
     if (!isAdultMode) return false;
     const combined = [
       item.title, item.name, item.original_title, item.original_name,
       item.overview, item.tagline,
     ].filter(Boolean).join(' ');
-    return _matchesAdultMMTerm(combined);
+    if (_matchesAdultMMTerm(combined)) return true;
+
+    // Studio / production company check (blocks MEN etc. when data is present)
+    const companies = item.production_companies || item.production_company || [];
+    const companyNames = Array.isArray(companies)
+      ? companies.map(c => (c && c.name) ? String(c.name).toLowerCase().trim() : '').filter(Boolean)
+      : [];
+    if (companyNames.some(name =>
+      ADULT_MM_STUDIOS.some(s => name === s || name.includes(s))
+    )) return true;
+
+    return false;
   }
 
   async function tmdb(endpoint, params = {}) {
@@ -7765,19 +7790,21 @@
     const today = localDate();
     await Promise.allSettled([
       (async () => {
-        // Don't use raw NC-17 discover — mixed bag of ALL adult (incl. MM).
-        // Pull recent hits from straight-leaning adult brands/queries instead.
-        const brandQueries = [
-          'brazzers', 'naughty america', 'reality kings', 'bangbros',
-          'digital playground', 'wicked pictures', 'vixen', 'tushy',
-          'blacked', 'deeper', 'nubile films', 'fake taxi',
-          'pure taboo', 'adult time', 'moms teach sex', 'my friends hot mom',
-        ];
+        // NC-17 discover = broad recent adult releases. MM filter (shouldFilterContent /
+        // tmdbAdult + renderHorizontal) still strips gay/trans titles after fetch.
+        // Pull 2 pages so the row stays full after filtering.
         const seen = new Set();
         const merged = [];
-        await Promise.all(brandQueries.map(async (q) => {
+        for (const page of [1, 2]) {
           try {
-            const d = await tmdbAdult('/search/movie', { query: q, page: 1 });
+            const d = await tmdbAdult('/discover/movie', {
+              sort_by: 'release_date.desc',
+              'with_release_type': '4',
+              certification_country: 'US',
+              certification: 'NC-17',
+              'release_date.lte': today,
+              page,
+            });
             for (const m of (d.results || [])) {
               if (!m || !m.id || seen.has(m.id)) continue;
               if (m.adult !== true) continue;
@@ -7785,7 +7812,7 @@
               merged.push(m);
             }
           } catch {}
-        }));
+        }
         merged.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''));
         await renderHorizontal('xxx-new-releases-grid', merged.slice(0, 24));
       })(),
@@ -8724,6 +8751,11 @@
     }
   }
   function exportSettings() {
+    // TEMP DIAGNOSTIC — shows what's actually in memory for TV Guide
+    // settings right when Export is tapped, to check whether the
+    // underlying data is really being lost or if it's a display-only issue.
+    showToast(`🔍 At export: channels="${appSettings.tvGuideExcludedChannels}" canada=${appSettings.tvGuideIncludeCanada} debug=${appSettings.tvGuidePlayerDebug}`, 'success');
+
     // Slim favorites: only keep essential fields for restore
     const slimFav = (item) => ({
       id: item.id, media_type: item.media_type,
