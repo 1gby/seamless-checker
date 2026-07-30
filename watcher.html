@@ -6956,6 +6956,8 @@
     'gay massage', 'massage bait', 'college boy', 'college boys',
     'frat boys', 'fraternity', 'locker room', 'military men',
     'active duty', 'william higgins',
+    // titles / directors that slip through with no gay keywords in overview
+    'soledad', 'alter sin', 'jake preston', 'allen king',
     // trans
     'transgender', 'transsexual', 'shemale', 'she male', 'ladyboy', 'lady boy',
     'futanari', 'futa', 'tranny',
@@ -6978,13 +6980,36 @@
     return false;
   }
 
+  // MM studios — matched against production_companies when TMDB includes them
+  // (detail pages always; some list endpoints may omit companies)
+  const ADULT_MM_STUDIOS = [
+    'men', 'men.com', 'men.com network', 'sean cody', 'belami', 'bel ami',
+    'cockyboys', 'cocky boys', 'lucas entertainment', 'randy blue',
+    'next door studios', 'nextdoor studios', 'helix studios', 'timtales',
+    'raging stallion', 'treasure island media', 'chaosmen', 'corbin fisher',
+    'colby knox', 'icon male', 'bromo', 'gaywire', 'menatplay', 'men at play',
+    'william higgins', 'caro entertainment', 'falcon studios', 'hot house',
+    'nakedsword', 'channel 1 reclaim', 'c1r', 'legend men', 'legendmen',
+  ];
+
   function shouldFilterContent(item) {
     if (!isAdultMode) return false;
     const combined = [
       item.title, item.name, item.original_title, item.original_name,
       item.overview, item.tagline,
     ].filter(Boolean).join(' ');
-    return _matchesAdultMMTerm(combined);
+    if (_matchesAdultMMTerm(combined)) return true;
+
+    // Studio / production company check (blocks MEN etc. when data is present)
+    const companies = item.production_companies || item.production_company || [];
+    const companyNames = Array.isArray(companies)
+      ? companies.map(c => (c && c.name) ? String(c.name).toLowerCase().trim() : '').filter(Boolean)
+      : [];
+    if (companyNames.some(name =>
+      ADULT_MM_STUDIOS.some(s => name === s || name.includes(s))
+    )) return true;
+
+    return false;
   }
 
   async function tmdb(endpoint, params = {}) {
