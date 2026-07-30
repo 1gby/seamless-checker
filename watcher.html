@@ -3598,6 +3598,13 @@
         const seedAlt = part.match(/(?:seeds?|peers?|S)\s*[:=]\s*(\d+)/i);
         if (seedAlt && seeds === 0) seeds = parseInt(seedAlt[1], 10);
       }
+      // Some addons (Comet, MediaFusion) don't embed a human-readable size
+      // in the title text — they rely on the standard Stremio protocol
+      // field instead (behaviorHints.videoSize, in bytes, per the official
+      // addon SDK docs), which the regex above never looks at.
+      if (size === '?' && s.behaviorHints?.videoSize) {
+        size = formatBytes(s.behaviorHints.videoSize);
+      }
 
       const combined = `${s.name || ''} ${mainTitle}`;
       const quality = guessQuality(combined);
@@ -4240,14 +4247,6 @@
     }
 
     return [];
-  }
-
-  function formatBytes(bytes) {
-    if (!bytes || bytes === 0) return '?';
-    const gb = bytes / (1024 * 1024 * 1024);
-    if (gb >= 1) return `${gb.toFixed(2)} GB`;
-    const mb = bytes / (1024 * 1024);
-    return `${mb.toFixed(1)} MB`;
   }
 
   function parseKnabenHTML(html) {
