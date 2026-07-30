@@ -2408,14 +2408,14 @@
   }
 
   // Toast notifications (replaces alert() for non-blocking feedback)
-  function showToast(message, type = 'info') {
+  function showToast(message, type = 'info', duration = 3200) {
     const container = document.getElementById('toast-container');
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;
     container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3200);
+    setTimeout(() => toast.remove(), duration);
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -8751,10 +8751,13 @@
     }
   }
   function exportSettings() {
-    // TEMP DIAGNOSTIC — shows what's actually in memory for TV Guide
-    // settings right when Export is tapped, to check whether the
-    // underlying data is really being lost or if it's a display-only issue.
-    showToast(`🔍 At export: channels="${appSettings.tvGuideExcludedChannels}" canada=${appSettings.tvGuideIncludeCanada} debug=${appSettings.tvGuidePlayerDebug}`, 'success');
+    // TEMP DIAGNOSTIC — compares in-memory vs localStorage directly, to
+    // check whether an edit is only living in memory and never actually
+    // got persisted (which loadSettings() would later overwrite with the
+    // stale saved copy the next time Settings is reopened).
+    let storedChannels = '(read failed)';
+    try { storedChannels = (JSON.parse(localStorage.getItem('watcher_settings') || '{}').tvGuideExcludedChannels) ?? '(not set)'; } catch {}
+    showToast(`🔍 memory="${appSettings.tvGuideExcludedChannels}" | stored="${storedChannels}"`, 'success', 8000);
 
     // Slim favorites: only keep essential fields for restore
     const slimFav = (item) => ({
