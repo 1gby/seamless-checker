@@ -7765,19 +7765,21 @@
     const today = localDate();
     await Promise.allSettled([
       (async () => {
-        // Don't use raw NC-17 discover — mixed bag of ALL adult (incl. MM).
-        // Pull recent hits from straight-leaning adult brands/queries instead.
-        const brandQueries = [
-          'brazzers', 'naughty america', 'reality kings', 'bangbros',
-          'digital playground', 'wicked pictures', 'vixen', 'tushy',
-          'blacked', 'deeper', 'nubile films', 'fake taxi',
-          'pure taboo', 'adult time', 'moms teach sex', 'my friends hot mom',
-        ];
+        // NC-17 discover = broad recent adult releases. MM filter (shouldFilterContent /
+        // tmdbAdult + renderHorizontal) still strips gay/trans titles after fetch.
+        // Pull 2 pages so the row stays full after filtering.
         const seen = new Set();
         const merged = [];
-        await Promise.all(brandQueries.map(async (q) => {
+        for (const page of [1, 2]) {
           try {
-            const d = await tmdbAdult('/search/movie', { query: q, page: 1 });
+            const d = await tmdbAdult('/discover/movie', {
+              sort_by: 'release_date.desc',
+              'with_release_type': '4',
+              certification_country: 'US',
+              certification: 'NC-17',
+              'release_date.lte': today,
+              page,
+            });
             for (const m of (d.results || [])) {
               if (!m || !m.id || seen.has(m.id)) continue;
               if (m.adult !== true) continue;
@@ -7785,7 +7787,7 @@
               merged.push(m);
             }
           } catch {}
-        }));
+        }
         merged.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''));
         await renderHorizontal('xxx-new-releases-grid', merged.slice(0, 24));
       })(),
@@ -8774,15 +8776,7 @@
         const data = JSON.parse(e.target.result);
         if (data.appSettings) {
           Object.assign(appSettings, data.appSettings);
-          // Persist directly rather than via saveSettings() — that function
-          // rebuilds appSettings FROM the Settings screen's current form
-          // state (checkboxes/inputs), which at this point still holds
-          // whatever was there before the import (loadSettings(), which
-          // pushes values INTO those fields, hasn't run yet). Routing
-          // through it here would silently overwrite everything we just
-          // imported — including Hidden Channels — back to its pre-import
-          // values.
-          localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
+          saveSettings();
         }
         if (data.favorites) {
           favorites = data.favorites;
