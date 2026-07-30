@@ -8774,7 +8774,15 @@
         const data = JSON.parse(e.target.result);
         if (data.appSettings) {
           Object.assign(appSettings, data.appSettings);
-          saveSettings();
+          // Persist directly rather than via saveSettings() — that function
+          // rebuilds appSettings FROM the Settings screen's current form
+          // state (checkboxes/inputs), which at this point still holds
+          // whatever was there before the import (loadSettings(), which
+          // pushes values INTO those fields, hasn't run yet). Routing
+          // through it here would silently overwrite everything we just
+          // imported — including Hidden Channels — back to its pre-import
+          // values.
+          localStorage.setItem('watcher_settings', JSON.stringify(appSettings));
         }
         if (data.favorites) {
           favorites = data.favorites;
