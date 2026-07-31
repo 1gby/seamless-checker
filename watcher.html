@@ -10172,6 +10172,16 @@
   // Load settings from localStorage into Settings panel
   loadSettings();
 
+  // Safari can restore the page from its back-forward cache (bfcache)
+  // after returning from a native context like the "Save to Files" share
+  // sheet triggered by Export — and bfcache restores don't reliably keep
+  // form values that were set via JavaScript (only ones typed by hand),
+  // which can make Settings fields appear reset even though the real data
+  // was never touched. Re-syncing on restore fixes the display for free.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) loadSettings();
+  });
+
   // Pre-load RD library cache from localStorage (instant), refresh in background
   ensureRDCache();
 
