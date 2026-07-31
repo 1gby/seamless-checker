@@ -8803,6 +8803,14 @@
     a.href = url; a.download = `watcher-backup-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+
+    // Silently re-sync the Settings display afterward — the file-save
+    // interaction can leave form fields showing a stale value even though
+    // the underlying data (and the exported file) are correct. This is the
+    // same re-sync the manual Refresh button does, just automatic. A short
+    // delay gives the native save-file interaction time to actually finish
+    // before re-checking.
+    setTimeout(() => { loadSettings(); }, 1000);
   }
   function importSettings(event) {
     const file = event.target.files[0];
