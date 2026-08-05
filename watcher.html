@@ -10196,7 +10196,21 @@
   ensureRDCache();
 
   // Kick off home page load
-  loadHome();
+  loadHome().then(() => {
+    // ── Deep-link: open a title from ?imdb=tt... — used by the Watcher
+    // userscript's buttons on IMDB/Letterboxd/Trakt/JustWatch/MDBList.
+    // Chained off loadHome()'s own promise rather than a fixed delay, so
+    // it fires exactly when the app is actually ready, not a guessed time.
+    const params = new URLSearchParams(location.search);
+    const imdb   = params.get('imdb') || params.get('id');
+    const type   = (params.get('type') || '').toLowerCase();
+    if (imdb && /^tt\d+$/i.test(imdb)) {
+      const mediaType = (type === 'tv' || type === 'series' || type === 'show') ? 'series' : 'movie';
+      searchAndOpenByImdb(imdb, mediaType);
+      // Clean the URL so a refresh doesn't re-open the same title
+      history.replaceState(null, '', location.pathname);
+    }
+  });
 
   // Start weather widget
   getWeather();
