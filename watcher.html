@@ -8476,18 +8476,17 @@
         ? buildMagnet(val.replace(/\s/g, ''), val)
         : val;
 
-      const form = new FormData();
-      form.append('magnet', magnet);
-      form.append('seed', '3');
-      form.append('allow_zip', 'false');
-      const res = await fetch('https://api.torbox.app/v1/api/torrents/asynccreatetorrent', {
+      // Routed through tbFetch()/the /api/tb proxy like every other TorBox
+      // call — calling api.torbox.app directly from the browser was
+      // failing on CORS, since browsers block cross-origin requests the
+      // target server hasn't explicitly allowed. The proxy now builds the
+      // multipart/form-data request TorBox's createtorrent endpoints
+      // actually require, from these plain JSON fields.
+      const json = await tbFetch('/torrents/asynccreatetorrent', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: form,
-        signal: safeFetchSignal(20000),
+        body: { magnet, seed: 3, allow_zip: false },
       });
-      const json = await res.json().catch(() => null);
-      if (!res.ok || !json?.success) throw new Error(json?.detail || `HTTP ${res.status}`);
+      if (!json?.success) throw new Error(json?.detail || 'Failed to add magnet');
 
       if (status) status.textContent = `✅ Queued! TB is processing it in the background — check TB Library.`;
       if (input) input.value = '';
