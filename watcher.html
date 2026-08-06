@@ -10204,10 +10204,28 @@
     const params = new URLSearchParams(location.search);
     const imdb   = params.get('imdb') || params.get('id');
     const type   = (params.get('type') || '').toLowerCase();
+    const action = (params.get('action') || '').toLowerCase();
+
     if (imdb && /^tt\d+$/i.test(imdb)) {
       const mediaType = (type === 'tv' || type === 'series' || type === 'show') ? 'series' : 'movie';
       searchAndOpenByImdb(imdb, mediaType);
-      // Clean the URL so a refresh doesn't re-open the same title
+      history.replaceState(null, '', location.pathname);
+    } else if (action === 'addmagnet') {
+      // Userscript's magnet button already copied the magnet to the
+      // clipboard before opening this tab — no magnet content needs to
+      // travel in the URL. Just jump straight to the paste field for
+      // whichever debrid service was used last, ready to paste into.
+      openSettingsModal();
+      openSettingsSubmenu('submenu-tools'); // switches to the last-used RD/TB tab and closes any open panels
+      const activeTab = (() => { try { return localStorage.getItem('watcher_tools_tab') || 'rd'; } catch { return 'rd'; } })();
+      const isRD = activeTab === 'rd';
+      // Panel is guaranteed closed right after openSettingsSubmenu() ran
+      // above, so this toggle call is guaranteed to open it, not close it.
+      toggleToolPanel(
+        isRD ? 'rd-magnet-panel' : 'tb-magnet-panel',
+        isRD ? 'rd-magnet-toggle-btn' : 'tb-magnet-toggle-btn',
+        isRD ? 'rd-unrestrict-panel' : 'tb-unrestrict-panel'
+      );
       history.replaceState(null, '', location.pathname);
     }
   });
