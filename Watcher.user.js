@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Watcher by Rudeboy™
 // @namespace    https://rud3boy.vercel.app
-// @version      1.0.5
+// @version      3.0.0
 // @description  Adds Watcher buttons to IMDB, Letterboxd, Trakt, JustWatch, MDBList + copy magnet & open Watcher
 // @author       Rudeboy™
 // @license      MIT
@@ -9,7 +9,7 @@
 // @grant        none
 // @run-at       document-idle
 // @downloadURL https://rud3boy.vercel.app/Watcher.user.js
-// @updateURL   https://rud3boy.vercel.app/Watcher.user.js
+// @updateURL   https://rud3boy.vercel.app/Watcher.meta.js
 // ==/UserScript==
 
 (function () {
