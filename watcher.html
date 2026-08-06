@@ -10208,7 +10208,12 @@
     if (imdb && /^tt\d+$/i.test(imdb)) {
       const mediaType = (type === 'tv' || type === 'series' || type === 'show') ? 'series' : 'movie';
       searchAndOpenByImdb(imdb, mediaType);
-      history.replaceState(null, '', location.pathname);
+      // Preserve the { navDepth: 0 } shape the app's own back/popstate
+      // handling expects in history state — replacing it with null (the
+      // original version of this code) broke that system right after
+      // opening a title via deep link, closing the detail view almost
+      // immediately back to Home.
+      history.replaceState({ navDepth: 0 }, '', location.pathname);
     } else if (action === 'addmagnet') {
       // Userscript's magnet button already copied the magnet to the
       // clipboard before opening this tab — no magnet content needs to
@@ -10225,7 +10230,7 @@
         isRD ? 'rd-magnet-toggle-btn' : 'tb-magnet-toggle-btn',
         isRD ? 'rd-unrestrict-panel' : 'tb-unrestrict-panel'
       );
-      history.replaceState(null, '', location.pathname);
+      history.replaceState({ navDepth: 0 }, '', location.pathname);
     }
   });
 
