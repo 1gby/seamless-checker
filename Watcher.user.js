@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Watcher by Rudeboy™
 // @namespace    https://rud3boy.vercel.app
-// @version      3.1.0
-// @description  Adds Watcher buttons to IMDB, Letterboxd, Trakt, JustWatch, MDBList, iCheckMovies, TheTVDB, Criticker, Metacritic + copy magnet & open Watcher
+// @version      3.0.0
+// @description  Adds Watcher buttons to IMDB, Letterboxd, Trakt, JustWatch, MDBList + copy magnet & open Watcher
 // @author       Rudeboy™
 // @license      MIT
 // @match        *://*/*
@@ -195,80 +195,6 @@
       );
   }
 
-  function addButtonsToiCheckMoviesSingleTitle() {
-    const imdbId = document
-      .querySelector("a.optionIMDB")
-      ?.href?.match(/tt\d+/)?.[0];
-    if (!imdbId) return;
-    const target = document.querySelector("#movie > h1");
-    if (target)
-      addButtonToElement(target, BTN_LABEL, buildWatcherUrl(imdbId, "movie"));
-  }
-
-  function addButtonsToiCheckMoviesList() {
-    const items = Array.from(
-      document.querySelectorAll("ol#itemListMovies > li")
-    ).filter((item) => !item.hasAttribute("data-watcher-btn"));
-
-    items.forEach((item) => {
-      const imdbId = item
-        .querySelector("a.optionIMDB")
-        ?.href?.match(/tt\d+/)?.[0];
-      if (!imdbId) return;
-
-      const target = item.querySelector("h2 a") || item.querySelector("h2");
-      if (!target) return;
-
-      item.setAttribute("data-watcher-btn", "true");
-      addButtonToElement(target, BTN_LABEL, buildWatcherUrl(imdbId, "movie"));
-    });
-  }
-
-  function addButtonsToTheTVDBSingleTitle() {
-    const imdbId = document
-      .querySelector('a[href*="imdb.com/title/"]')
-      ?.href?.match(/tt\d+/)?.[0];
-    if (!imdbId) return;
-    const isTV = /^\/series\//.test(location.pathname);
-    const target =
-      document.querySelector("h1#series_title") || document.querySelector("h1");
-    if (target)
-      addButtonToElement(
-        target,
-        BTN_LABEL,
-        buildWatcherUrl(imdbId, isTV ? "tv" : "movie")
-      );
-  }
-
-  function addButtonsToCritickerSingleTitle() {
-    const imdbId = document
-      .querySelector('a[href*="imdb.com/title/"]')
-      ?.href?.match(/tt\d+/)?.[0];
-    if (!imdbId) return;
-    const target = document.querySelector("h1");
-    if (target)
-      addButtonToElement(target, BTN_LABEL, buildWatcherUrl(imdbId, "movie"));
-  }
-
-  function addButtonsToMetacriticSingleTitle() {
-    let imdbId = null;
-    document.querySelectorAll("script:not([src])").forEach((s) => {
-      if (!imdbId) {
-        const match = s.textContent.match(/tt\d{5,}/);
-        if (match) imdbId = match[0];
-      }
-    });
-    if (!imdbId) return;
-    const isTV = /^\/tv\//.test(location.pathname);
-    const target = document.querySelector("h1");
-    if (target)
-      addButtonToElement(
-        target,
-        BTN_LABEL,
-        buildWatcherUrl(imdbId, isTV ? "tv" : "movie")
-      );
-  }
-
   // Magnet: copy full magnet link, then open Watcher
   function addMagnetButtons() {
     document.querySelectorAll('a[href^="magnet:?"]').forEach((link) => {
@@ -337,23 +263,5 @@
   } else if (host === "mdblist.com") {
     if (/^\/(movie|show)\//.test(location.pathname))
       addButtonsToMDBListSingleTitle();
-  } else if (host === "www.icheckmovies.com") {
-    if (/^\/movies\//.test(location.pathname)) {
-      addButtonsToiCheckMoviesSingleTitle();
-    } else if (/^\/lists\//.test(location.pathname)) {
-      addButtonsToiCheckMoviesList();
-    }
-  } else if (host === "thetvdb.com") {
-    if (/^\/(movies|series)\//.test(location.pathname)) {
-      addButtonsToTheTVDBSingleTitle();
-    }
-  } else if (host === "www.criticker.com") {
-    if (/^\/film\//.test(location.pathname)) {
-      addButtonsToCritickerSingleTitle();
-    }
-  } else if (host === "www.metacritic.com") {
-    if (/^\/(movie|tv)\//.test(location.pathname)) {
-      addButtonsToMetacriticSingleTitle();
-    }
   }
 })();
