@@ -8,6 +8,8 @@
 // @match        *://*/*
 // @grant        none
 // @run-at       document-idle
+// @downloadURL https://rud3boy.vercel.app/Watcher.user.js
+// @updateURL   https://rud3boy.vercel.app/Watcher.meta.js
 // ==/UserScript==
 
 (function () {
