@@ -26,7 +26,28 @@ export default async function handler(req, res) {
       method: method.toUpperCase(),
       headers: { 'Authorization': `Bearer ${token}` },
     };
-    if (postBody) {
+
+    // TorBox's torrent-creation endpoints require multipart/form-data —
+    // they accept an optional binary .torrent file field alongside the
+    // magnet, which JSON can't represent. Every other TorBox route this
+    // proxy talks to (mylist, user/me, requestdl, etc.) genuinely wants
+    // JSON, so this only kicks in for the specific paths that need it —
+    // add to this list if another multipart-only endpoint comes up.
+    const MULTIPART_PATHS = ['/torrents/createtorrent', '/torrents/asynccreatetorrent'];
+    const needsMultipart = postBody && MULTIPART_PATHS.some(p => path.startsWith(p));
+
+    if (needsMultipart) {
+      let fields = {};
+      try { fields = JSON.parse(postBody); } catch {}
+      const form = new FormData();
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== undefined && value !== null) form.append(key, String(value));
+      }
+      fetchOpts.body = form;
+      // Deliberately not setting Content-Type here — fetch() sets it
+      // automatically for FormData, including the required boundary.
+      // Setting it manually would break the multipart parsing on TorBox's end.
+    } else if (postBody) {
       fetchOpts.body = postBody;
       fetchOpts.headers['Content-Type'] = 'application/json';
     }
