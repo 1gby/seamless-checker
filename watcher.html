@@ -9177,15 +9177,8 @@
       document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
-      // TEMP DIAGNOSTIC — surfaces the real error, since a failure here was
-      // previously completely silent: the error message got written into
-      // detail-body, but detail-view never got its 'active' class added,
-      // so nothing was ever visible and it just looked like nothing happened.
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading movie details.</p>';
-      document.getElementById('detail-view').classList.add('active');
-      document.body.style.overflow = 'hidden';
       console.error('[openMovieDetail]', err);
-      showToast(`🔍 openMovieDetail failed: ${err.message}`, 'error', 6000);
     }
     hideLoading();
   }
@@ -9387,12 +9380,8 @@
       document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
-      // TEMP DIAGNOSTIC — same fix as openMovieDetail, same reasoning.
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading TV details.</p>';
-      document.getElementById('detail-view').classList.add('active');
-      document.body.style.overflow = 'hidden';
       console.error('[openTVDetail]', err);
-      showToast(`🔍 openTVDetail failed: ${err.message}`, 'error', 6000);
     }
     hideLoading();
   }
@@ -9504,14 +9493,6 @@
   }
 
   function closeDetail() {
-    // TEMP DIAGNOSTIC — shows exactly when/why closeDetail() fires, since
-    // static code review couldn't pin down what's calling it after a deep
-    // link opens a title.
-    try {
-      const stack = (new Error().stack || '').split('\n').slice(1, 4).join(' | ');
-      showToast(`🔍 closeDetail() called — guideFlag=${_detailOpenedFromGuide} — ${stack}`, 'error', 6000);
-    } catch {}
-
     navStack.length = 0;
     updateDetailBackBtn();
     document.getElementById('detail-view').classList.remove('active');
@@ -10233,18 +10214,6 @@
       // opening a title via deep link, closing the detail view almost
       // immediately back to Home.
       history.replaceState({ navDepth: 0 }, '', location.pathname);
-
-      // TEMP DIAGNOSTIC — reports which overlays are actually active a few
-      // seconds later, to check whether something invisible (e.g. the TV
-      // Guide overlay) is stuck open and eating all clicks even though the
-      // screen looks like it's back at Home.
-      setTimeout(() => {
-        const active = [];
-        ['detail-view', 'tvguide-overlay', 'settings-overlay', 'favorites-overlay', 'location-prompt-overlay'].forEach(id => {
-          if (document.getElementById(id)?.classList.contains('active')) active.push(id);
-        });
-        showToast(`🔍 3s later — active overlays: [${active.join(', ') || 'none'}] — body.overflow="${document.body.style.overflow}"`, 'error', 8000);
-      }, 3000);
     } else if (action === 'addmagnet') {
       // Userscript's magnet button already copied the magnet to the
       // clipboard before opening this tab — no magnet content needs to
