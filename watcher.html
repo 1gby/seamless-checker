@@ -9177,8 +9177,15 @@
       document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
+      // TEMP DIAGNOSTIC — surfaces the real error, since a failure here was
+      // previously completely silent: the error message got written into
+      // detail-body, but detail-view never got its 'active' class added,
+      // so nothing was ever visible and it just looked like nothing happened.
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading movie details.</p>';
+      document.getElementById('detail-view').classList.add('active');
+      document.body.style.overflow = 'hidden';
       console.error('[openMovieDetail]', err);
+      showToast(`🔍 openMovieDetail failed: ${err.message}`, 'error', 6000);
     }
     hideLoading();
   }
@@ -9380,8 +9387,12 @@
       document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
+      // TEMP DIAGNOSTIC — same fix as openMovieDetail, same reasoning.
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading TV details.</p>';
+      document.getElementById('detail-view').classList.add('active');
+      document.body.style.overflow = 'hidden';
       console.error('[openTVDetail]', err);
+      showToast(`🔍 openTVDetail failed: ${err.message}`, 'error', 6000);
     }
     hideLoading();
   }
