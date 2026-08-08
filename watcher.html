@@ -3872,6 +3872,9 @@
 
   // Search TMDB by IMDB ID and open detail view
   async function searchAndOpenByImdb(imdbId, type) {
+    // Uses toasts instead of alert() for failures — alert() blocks the
+    // whole page until manually dismissed, which is worse UX for a
+    // background deep-link lookup than a dismissible toast.
     try {
       const searchType = type === 'series' ? 'tv' : 'movie';
       const data = await tmdb(`/find/${imdbId}?external_source=imdb_id`);
@@ -3880,11 +3883,11 @@
         if (searchType === 'tv') openTVDetail(results[0].id);
         else openMovieDetail(results[0].id);
       } else {
-        alert(`Could not find ${imdbId} on TMDB.`);
+        showToast(`⚠️ Could not find ${imdbId} on TMDB.`, 'error', 6000);
       }
     } catch (e) {
       console.warn('[Catalog→TMDB]', e);
-      alert(`Error looking up ${imdbId}: ${e.message}`);
+      showToast(`⚠️ Error looking up ${imdbId}: ${e.message}`, 'error', 6000);
     }
   }
 
@@ -9177,7 +9180,13 @@
       document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
+      // Errors here used to be completely silent: the message got written
+      // into detail-body, but detail-view never got its 'active' class
+      // added, so nothing was ever visible — a failure just looked like
+      // nothing happened. Now the error is actually shown.
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading movie details.</p>';
+      document.getElementById('detail-view').classList.add('active');
+      document.body.style.overflow = 'hidden';
       console.error('[openMovieDetail]', err);
     }
     hideLoading();
@@ -9380,7 +9389,10 @@
       document.getElementById('detail-close').onclick = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-btn').onclick     = navBack;
     } catch (err) {
+      // Same fix as openMovieDetail, same reasoning — error is now visible.
       document.getElementById('detail-body').innerHTML = '<p style="color:var(--accent-red);padding:2rem;">Error loading TV details.</p>';
+      document.getElementById('detail-view').classList.add('active');
+      document.body.style.overflow = 'hidden';
       console.error('[openTVDetail]', err);
     }
     hideLoading();
