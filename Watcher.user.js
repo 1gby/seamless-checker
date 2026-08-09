@@ -216,28 +216,20 @@
     });
   }
 
-  // ── TheTVDB – matched as closely as possible to DMM ──
+  // TheTVDB – same approach that worked in the debug version
   function addButtonsToTheTVDBSingleTitle() {
-    // Same selector DMM uses for series
-    let targetElement = document.querySelector("h1#series_title");
-
-    // Movies don’t have #series_title, so fall back to any h1
-    if (!targetElement) {
-      targetElement = document.querySelector("h1");
-    }
-
-    if (!targetElement || targetElement.hasAttribute("data-watcher-btn")) return;
+    const target =
+      document.querySelector("h1#series_title") || document.querySelector("h1");
+    if (!target || target.hasAttribute("data-watcher-btn")) return;
 
     const imdbId = document
       .querySelector('a[href*="imdb.com/title/"]')
       ?.href?.match(/tt\d+/)?.[0];
     if (!imdbId) return;
 
-    targetElement.setAttribute("data-watcher-btn", "true");
-
     const isTV = /^\/series\//.test(location.pathname);
     addButtonToElement(
-      targetElement,
+      target,
       BTN_LABEL,
       buildWatcherUrl(imdbId, isTV ? "tv" : "movie")
     );
@@ -272,7 +264,7 @@
       );
   }
 
-  // Magnet: copy full magnet link, then open Watcher
+  // Magnet buttons
   function addMagnetButtons() {
     document.querySelectorAll('a[href^="magnet:?"]').forEach((link) => {
       if (link.hasAttribute("data-watcher-magnet")) return;
@@ -320,44 +312,44 @@
 
   addMagnetButtons();
 
-  const hostname = location.hostname; // keep original for exact DMM-style matching
+  const host = location.hostname.replace(/^www\./, "");
 
-  if (hostname === "www.imdb.com" || hostname === "m.imdb.com") {
+  if (host === "imdb.com" || host === "m.imdb.com") {
     if (/^\/title\//.test(location.pathname)) {
       addButtonsToIMDBSingleTitle();
       changeObserver("body", addButtonsToIMDBSingleTitle);
     }
-  } else if (hostname === "letterboxd.com") {
+  } else if (host === "letterboxd.com") {
     if (/^\/film\//.test(location.pathname)) addButtonsToLetterboxdSingleTitle();
-  } else if (hostname === "trakt.tv") {
+  } else if (host === "trakt.tv") {
     if (/^\/(shows|movies)\//.test(location.pathname))
       addButtonsToTraktTVSingleTitle();
-  } else if (hostname === "www.justwatch.com") {
+  } else if (host === "justwatch.com") {
     if (/\/(movie|tv-show)\//.test(location.pathname)) {
       addButtonsToJustWatchSingleTitle();
       changeObserver("#app", addButtonsToJustWatchSingleTitle);
     }
-  } else if (hostname === "mdblist.com") {
+  } else if (host === "mdblist.com") {
     if (/^\/(movie|show)\//.test(location.pathname))
       addButtonsToMDBListSingleTitle();
-  } else if (hostname === "www.icheckmovies.com") {
+  } else if (host === "icheckmovies.com") {
     if (/^\/movies\//.test(location.pathname)) {
       addButtonsToiCheckMoviesSingleTitle();
     } else if (/^\/lists\//.test(location.pathname)) {
       addButtonsToiCheckMoviesList();
     }
-  } else if (hostname === "thetvdb.com" || hostname === "www.thetvdb.com") {
-    // Support both (DMM only does non-www, we do both)
+  } else if (host === "thetvdb.com") {
     if (/^\/(movies|series)\//.test(location.pathname)) {
       addButtonsToTheTVDBSingleTitle();
-      // one short retry in case of late paint
+      // light retry (same as debug that worked)
       setTimeout(addButtonsToTheTVDBSingleTitle, 600);
+      setTimeout(addButtonsToTheTVDBSingleTitle, 1500);
     }
-  } else if (hostname === "www.criticker.com") {
+  } else if (host === "criticker.com") {
     if (/^\/film\//.test(location.pathname)) {
       addButtonsToCritickerSingleTitle();
     }
-  } else if (hostname === "www.metacritic.com") {
+  } else if (host === "metacritic.com") {
     if (/^\/(movie|tv)\//.test(location.pathname)) {
       addButtonsToMetacriticSingleTitle();
     }
