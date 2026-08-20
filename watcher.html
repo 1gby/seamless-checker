@@ -9353,10 +9353,15 @@
               const epCode  = `S${String(num).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')}`;
               const epSearch = `${title} ${epCode}`;
               const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+              const runtimeStr = (() => {
+                if (!ep.runtime) return '';
+                const h = Math.floor(ep.runtime / 60), m = ep.runtime % 60;
+                return `${h > 0 ? `${h}h ` : ''}${m}m`;
+              })();
 
               div.innerHTML = `${still?`<img class="episode-still" src="${still}" alt="Ep ${ep.episode_number}" loading="lazy">`:''}
                 <div class="episode-details">
-                  <div class="episode-number">${epCode} — Episode ${ep.episode_number}</div>
+                  <div class="episode-number">${epCode} — Episode ${ep.episode_number}${runtimeStr ? ` <span style="color:rgba(255,255,255,0.4);font-weight:500;">· ${runtimeStr}</span>` : ''}</div>
                   <div class="episode-title">${ep.name||'Untitled'}</div>
                   <div class="episode-overview">${ep.overview||'No description.'}</div>
                   <div class="episode-air-date">Aired: ${airDate}</div>
