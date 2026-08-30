@@ -443,6 +443,8 @@
     }
     .detail-poster { width: 120px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 2px solid rgba(118,75,162,0.5); }
     .detail-title-block h2 { font-size: 1.8rem; margin-bottom: 0.5rem; text-shadow: var(--title-glow); filter: none; background: none; -webkit-background-clip: unset; background-clip: unset; color: #fff; }
+    .detail-title-logo { max-width: 280px; max-height: 110px; width: auto; height: auto; display: block; margin-bottom: 0.5rem; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.6)); }
+    .rating.logo-rating { display: inline-block; margin-bottom: 0.5rem; }
     .release-date { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; }
 
     #detail-content h3 {
@@ -5367,6 +5369,30 @@
     if (closeBtn) closeBtn.style.display = 'none';
   }
 
+  // Picks the best title logo from TMDB's images.logos array — prefers
+  // English, falls back to language-agnostic (iso_639_1: null) logos,
+  // then just takes whatever's first. Returns null if there's no logo at
+  // all, so callers can fall back to the text title (Bangers font).
+  function pickBestLogo(images) {
+    const logos = images?.logos || [];
+    if (!logos.length) return null;
+    const byLang = (lang) => logos.filter(l => l.iso_639_1 === lang).sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))[0];
+    const best = byLang('en') || byLang(null) || logos[0];
+    return best ? `${TMDB_IMG}${best.file_path}` : null;
+  }
+
+  // If a title logo image fails to load (broken URL, blocked, etc.), swap
+  // it back to the plain text title + rating, same as when there's no logo.
+  function handleLogoError(imgEl) {
+    const title = imgEl.dataset.fallbackTitle || '';
+    const ratingSpan = imgEl.nextElementSibling;
+    const ratingText = ratingSpan ? ratingSpan.textContent : '';
+    const h2 = document.createElement('h2');
+    h2.innerHTML = `${title} <span class="rating">${ratingText}</span>`;
+    imgEl.replaceWith(h2);
+    if (ratingSpan) ratingSpan.remove();
+  }
+
   function formatBytes(bytes) {
     if (!bytes) return '?';
     if (bytes >= 1e9) return (bytes / 1e9).toFixed(1) + ' GB';
@@ -6796,16 +6822,19 @@
   }
 
   function handleToggleWatched(tvId, season, episode) {
-    toggleEpisodeWatched(tvId, season, episode);
+    const nowWatched = toggleEpisodeWatched(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
     refreshTVStreamButton();
     loadContinueWatching();
+    const epLabel = `S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')}`;
+    showToast(nowWatched ? `✅ Marked ${epLabel} as watched` : `↩️ Marked ${epLabel} as unwatched`, 'success');
   }
   function handleUnmarkFrom(tvId, season, episode) {
     unmarkFromEpisode(tvId, season, episode);
     refreshEpisodeUI(tvId, season);
     refreshTVStreamButton();
     loadContinueWatching();
+    showToast(`↩️ Unmarked S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')} and everything after it`, 'success');
   }
   function markAllSeason(tvId, season, count, mark) {
     const d = getWatchedEpisodes(tvId);
@@ -9075,15 +9104,20 @@
       const heroImg    = allHeroImages.length > 0 ? allHeroImages[Math.floor(Math.random() * allHeroImages.length)] : null;
       const heroPoster = posters[0]?.file_path || data.poster_path;
 
+      const logoUrl = pickBestLogo(data.images);
+      const titleMarkup = logoUrl
+        ? `<img class="detail-title-logo" src="${logoUrl}" alt="${title.replace(/"/g,'&quot;')}" data-fallback-title="${title.replace(/"/g,'&quot;')}" onerror="handleLogoError(this)"> <span class="rating logo-rating">${rating}★</span>`
+        : `<h2>${title} <span class="rating">${rating}★</span></h2>`;
+
       let html = '';
       if (heroImg) {
         html += `<div class="detail-hero"><img class="detail-backdrop" src="${TMDB_IMG}${heroImg.path}" alt="Hero"${heroImg.type === 'poster' ? ' style="opacity:0.5"' : ''}>`;
         html += `<div class="detail-hero-content">${heroPoster ? `<img class="detail-poster" src="${TMDB_IMG}${heroPoster}" alt="Poster">` : ''}`;
-        html += `<div class="detail-title-block"><h2>${title} <span class="rating">${rating}★</span></h2>`;
+        html += `<div class="detail-title-block">${titleMarkup}`;
         if (releaseDate) html += `<div class="release-date">Released: ${new Date(releaseDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
         html += `</div></div></div>`;
       } else {
-        html += `<h2>${title} <span class="rating">${rating}★</span></h2>`;
+        html += titleMarkup;
         if (releaseDate) html += `<div class="release-date">Released: ${new Date(releaseDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
       }
 
@@ -9224,15 +9258,20 @@
       const heroImg    = allHeroImages.length > 0 ? allHeroImages[Math.floor(Math.random() * allHeroImages.length)] : null;
       const heroPoster = posters[0]?.file_path || data.poster_path;
 
+      const logoUrl = pickBestLogo(data.images);
+      const titleMarkup = logoUrl
+        ? `<img class="detail-title-logo" src="${logoUrl}" alt="${title.replace(/"/g,'&quot;')}" data-fallback-title="${title.replace(/"/g,'&quot;')}" onerror="handleLogoError(this)"> <span class="rating logo-rating">${rating}★</span>`
+        : `<h2>${title} <span class="rating">${rating}★</span></h2>`;
+
       let html = '';
       if (heroImg) {
         html += `<div class="detail-hero"><img class="detail-backdrop" src="${TMDB_IMG}${heroImg.path}" alt="Hero"${heroImg.type==='poster'?' style="opacity:0.5"':''}>`;
         html += `<div class="detail-hero-content">${heroPoster?`<img class="detail-poster" src="${TMDB_IMG}${heroPoster}" alt="Poster">`:''}`;
-        html += `<div class="detail-title-block"><h2>${title} <span class="rating">${rating}★</span></h2>`;
+        html += `<div class="detail-title-block">${titleMarkup}`;
         if (firstAirDate) html += `<div class="release-date">First Aired: ${new Date(firstAirDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
         html += `</div></div></div>`;
       } else {
-        html += `<h2>${title} <span class="rating">${rating}★</span></h2>`;
+        html += titleMarkup;
         if (firstAirDate) html += `<div class="release-date">First Aired: ${new Date(firstAirDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
       }
 
@@ -9242,8 +9281,26 @@
       const producers = crew.filter(c => c.job === 'Executive Producer').slice(0, 3);
       const networks  = (data.networks || []).slice(0, 2).map(n => n.name).join(', ');
       const studios   = (data.production_companies || []).slice(0, 3).map(c => c.name).join(', ');
-      if (creators.length || producers.length || networks || studios) {
+      const statusMap = {
+        'Returning Series': { icon: '🟢', color: 'var(--accent-green)' },
+        'In Production':    { icon: '🟡', color: '#eab308' },
+        'Planned':          { icon: '🟡', color: '#eab308' },
+        'Pilot':            { icon: '🟡', color: '#eab308' },
+        'Ended':            { icon: '🔴', color: 'var(--accent-red)' },
+        'Canceled':         { icon: '🔴', color: 'var(--accent-red)' },
+      };
+      const statusInfo = statusMap[data.status];
+      let statusHtml = '';
+      if (statusInfo) {
+        const isOver = data.status === 'Ended' || data.status === 'Canceled';
+        const endDate = isOver && data.last_air_date
+          ? ` (${new Date(data.last_air_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })})`
+          : '';
+        statusHtml = `<div class="crew-item"><span class="crew-label">Status:</span><span class="crew-value" style="color:${statusInfo.color};font-weight:600;">${statusInfo.icon} ${data.status}${endDate}</span></div>`;
+      }
+      if (creators.length || producers.length || networks || studios || statusHtml) {
         html += '<div class="crew-info">';
+        if (statusHtml)              html += statusHtml;
         if (creators.length)        html += `<div class="crew-item"><span class="crew-label">Creator:</span><span class="crew-value">${creators.map(c=>c.name).join(', ')}</span></div>`;
         if (producers.length)       html += `<div class="crew-item"><span class="crew-label">Producer:</span><span class="crew-value">${producers.map(p=>p.name).join(', ')}</span></div>`;
         if (networks)               html += `<div class="crew-item"><span class="crew-label">Network:</span><span class="crew-value">${networks}</span></div>`;
