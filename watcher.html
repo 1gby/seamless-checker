@@ -443,8 +443,10 @@
     }
     .detail-poster { width: 120px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 2px solid rgba(118,75,162,0.5); }
     .detail-title-block h2 { font-size: 1.8rem; margin-bottom: 0.5rem; text-shadow: var(--title-glow); filter: none; background: none; -webkit-background-clip: unset; background-clip: unset; color: #fff; }
-    .detail-title-logo { max-width: 280px; max-height: 110px; width: auto; height: auto; display: block; margin-bottom: 0.5rem; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.6)); }
-    .rating.logo-rating { display: inline-block; margin-bottom: 0.5rem; }
+    /* Title logo — its own plain section below the poster/backdrop block
+       entirely, not overlapping the image at all. */
+    .title-logo-standalone { margin: 1rem 0 0.5rem; text-align: left; }
+    .title-logo-standalone img { max-width: 260px; max-height: 100px; width: auto; height: auto; display: inline-block; }
     .release-date { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem; }
 
     #detail-content h3 {
@@ -5385,12 +5387,15 @@
   // it back to the plain text title + rating, same as when there's no logo.
   function handleLogoError(imgEl) {
     const title = imgEl.dataset.fallbackTitle || '';
-    const ratingSpan = imgEl.nextElementSibling;
-    const ratingText = ratingSpan ? ratingSpan.textContent : '';
-    const h2 = document.createElement('h2');
-    h2.innerHTML = `${title} <span class="rating">${ratingText}</span>`;
-    imgEl.replaceWith(h2);
-    if (ratingSpan) ratingSpan.remove();
+    const standaloneSection = imgEl.closest('.title-logo-standalone');
+    const ratingHolder = document.querySelector('.rating-standalone');
+    if (ratingHolder) {
+      const ratingText = ratingHolder.querySelector('.rating')?.textContent || '';
+      const h2 = document.createElement('h2');
+      h2.innerHTML = `${title} <span class="rating">${ratingText}</span>`;
+      ratingHolder.replaceWith(h2);
+    }
+    if (standaloneSection) standaloneSection.remove();
   }
 
   function formatBytes(bytes) {
@@ -9105,20 +9110,28 @@
       const heroPoster = posters[0]?.file_path || data.poster_path;
 
       const logoUrl = pickBestLogo(data.images);
-      const titleMarkup = logoUrl
-        ? `<img class="detail-title-logo" src="${logoUrl}" alt="${title.replace(/"/g,'&quot;')}" data-fallback-title="${title.replace(/"/g,'&quot;')}" onerror="handleLogoError(this)"> <span class="rating logo-rating">${rating}★</span>`
+      // Hero keeps rating + release date always. Text title only shows here
+      // when there's no logo — when a logo exists, it replaces the text
+      // title but lives in its own section below the hero/backdrop
+      // entirely, not overlapping the artwork.
+      const heroTitleMarkup = logoUrl
+        ? `<div class="rating-standalone"><span class="rating">${rating}★</span></div>`
         : `<h2>${title} <span class="rating">${rating}★</span></h2>`;
 
       let html = '';
       if (heroImg) {
         html += `<div class="detail-hero"><img class="detail-backdrop" src="${TMDB_IMG}${heroImg.path}" alt="Hero"${heroImg.type === 'poster' ? ' style="opacity:0.5"' : ''}>`;
         html += `<div class="detail-hero-content">${heroPoster ? `<img class="detail-poster" src="${TMDB_IMG}${heroPoster}" alt="Poster">` : ''}`;
-        html += `<div class="detail-title-block">${titleMarkup}`;
+        html += `<div class="detail-title-block">${heroTitleMarkup}`;
         if (releaseDate) html += `<div class="release-date">Released: ${new Date(releaseDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
         html += `</div></div></div>`;
       } else {
-        html += titleMarkup;
+        html += heroTitleMarkup;
         if (releaseDate) html += `<div class="release-date">Released: ${new Date(releaseDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
+      }
+
+      if (logoUrl) {
+        html += `<div class="title-logo-standalone"><img src="${logoUrl}" alt="${title.replace(/"/g,'&quot;')}" data-fallback-title="${title.replace(/"/g,'&quot;')}" onerror="handleLogoError(this)"></div>`;
       }
 
       html += `<p class="overview">${overview}</p>`;
@@ -9259,20 +9272,24 @@
       const heroPoster = posters[0]?.file_path || data.poster_path;
 
       const logoUrl = pickBestLogo(data.images);
-      const titleMarkup = logoUrl
-        ? `<img class="detail-title-logo" src="${logoUrl}" alt="${title.replace(/"/g,'&quot;')}" data-fallback-title="${title.replace(/"/g,'&quot;')}" onerror="handleLogoError(this)"> <span class="rating logo-rating">${rating}★</span>`
+      const heroTitleMarkup = logoUrl
+        ? `<div class="rating-standalone"><span class="rating">${rating}★</span></div>`
         : `<h2>${title} <span class="rating">${rating}★</span></h2>`;
 
       let html = '';
       if (heroImg) {
         html += `<div class="detail-hero"><img class="detail-backdrop" src="${TMDB_IMG}${heroImg.path}" alt="Hero"${heroImg.type==='poster'?' style="opacity:0.5"':''}>`;
         html += `<div class="detail-hero-content">${heroPoster?`<img class="detail-poster" src="${TMDB_IMG}${heroPoster}" alt="Poster">`:''}`;
-        html += `<div class="detail-title-block">${titleMarkup}`;
+        html += `<div class="detail-title-block">${heroTitleMarkup}`;
         if (firstAirDate) html += `<div class="release-date">First Aired: ${new Date(firstAirDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
         html += `</div></div></div>`;
       } else {
-        html += titleMarkup;
+        html += heroTitleMarkup;
         if (firstAirDate) html += `<div class="release-date">First Aired: ${new Date(firstAirDate).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>`;
+      }
+
+      if (logoUrl) {
+        html += `<div class="title-logo-standalone"><img src="${logoUrl}" alt="${title.replace(/"/g,'&quot;')}" data-fallback-title="${title.replace(/"/g,'&quot;')}" onerror="handleLogoError(this)"></div>`;
       }
 
       html += `<p class="overview">${overview}</p>`;
