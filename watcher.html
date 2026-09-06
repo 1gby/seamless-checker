@@ -2433,6 +2433,13 @@
   let isAdultMode       = localStorage.getItem('adultMode') === 'true';
   let currentMovieId    = null;   // id of movie/show open in detail view
   let currentDetailItem = null;
+  // Holds the current actor/director's credits split by type, so the
+  // filter buttons (inline onclick, top-level function) can look them up
+  // at click time regardless of whether the original openActorDetail()
+  // call's local scope still exists — needed because navBack() restores
+  // a saved HTML string, which only revives inline onclick attributes,
+  // not JS-property-assigned handlers or closures from the original render.
+  let _actorCredits = { all: [], movies: [], tv: [] };
 
   // ── Local Date Helper (avoids UTC off-by-one issues) ────────────────
   function localDate(date = new Date(), offsetDays = 0) {
@@ -9477,6 +9484,43 @@
     hideLoading();
   }
 
+  // Renders an actor/director's credit cards into #actor-credits. Top-level
+  // (not a closure inside openActorDetail) so it's callable from the
+  // inline-onclick filter buttons regardless of whether the original
+  // openActorDetail() call that first rendered them is still "live" —
+  // matters because navBack() restores a saved HTML string, which brings
+  // back the buttons' onclick attributes but not any closures they used
+  // to depend on.
+  async function renderActorCredits(credits) {
+    const grid = document.getElementById('actor-credits');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (const item of credits) {
+      if (!item.poster_path && !item.backdrop_path) continue;
+      const imageUrl = await getImageUrl(item);
+      if (!imageUrl) continue;
+      const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+      const card = document.createElement('div');
+      card.className = 'card';
+      if (item.id === currentMovieId) card.classList.add('highlight');
+      card.innerHTML = `<img class="poster" src="${imageUrl}" loading="lazy" alt="${item.title||item.name}"><div class="info">${year?`<div class="year">${year}</div>`:''}</div>`;
+      card.dataset.navKey = navRegStore(item);
+      card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
+      grid.appendChild(card);
+    }
+  }
+
+  // Same All/Movies/TV filter behavior as before — just callable via
+  // inline onclick (survives navBack()) instead of JS-property handlers
+  // attached once at render time (didn't survive it).
+  async function filterActorCredits(btn, filterType) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showLoading({ message: 'Filtering…' });
+    await renderActorCredits(_actorCredits[filterType] || []);
+    hideLoading();
+  }
+
   async function openActorDetail(actorId) {
     if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     closeFavoritesPage();
@@ -9500,6 +9544,10 @@
       allCredits.sort((a, b) => { if (a.id === currentMovieId) return -1; if (b.id === currentMovieId) return 1; return (b.popularity||0) - (a.popularity||0); });
       movieCredits.sort((a, b) => (b.popularity||0) - (a.popularity||0));
       tvCredits.sort((a, b)    => (b.popularity||0) - (a.popularity||0));
+      // Stored globally (not just local vars) so the inline-onclick filter
+      // buttons can look these up at click time even after a navBack()
+      // HTML-string restore, where this function's own local scope is gone.
+      _actorCredits = { all: allCredits, movies: movieCredits, tv: tvCredits };
 
       const creditsWithBackdrops = allCredits.filter(c => c.backdrop_path);
       const randomBackdrop = creditsWithBackdrops.length > 0 ? creditsWithBackdrops[Math.floor(Math.random() * creditsWithBackdrops.length)].backdrop_path : null;
@@ -9524,9 +9572,9 @@
 
       if (movieCredits.length > 0 && tvCredits.length > 0) {
         html += `<div class="filter-buttons">
-          <button class="filter-btn active" data-filter="all">All (${allCredits.length})</button>
-          <button class="filter-btn" data-filter="movies">Movies (${movieCredits.length})</button>
-          <button class="filter-btn" data-filter="tv">TV (${tvCredits.length})</button>
+          <button class="filter-btn active" data-filter="all" onclick="filterActorCredits(this,'all')">All (${allCredits.length})</button>
+          <button class="filter-btn" data-filter="movies" onclick="filterActorCredits(this,'movies')">Movies (${movieCredits.length})</button>
+          <button class="filter-btn" data-filter="tv" onclick="filterActorCredits(this,'tv')">TV (${tvCredits.length})</button>
         </div>`;
       }
 
@@ -9542,37 +9590,7 @@
       document.getElementById('detail-view').classList.add('active');
       document.body.style.overflow = 'hidden';
 
-      async function renderCredits(credits) {
-        const grid = document.getElementById('actor-credits');
-        if (!grid) return;
-        grid.innerHTML = '';
-        for (const item of credits) {
-          if (!item.poster_path && !item.backdrop_path) continue;
-          const imageUrl = await getImageUrl(item);
-          if (!imageUrl) continue;
-          const year = (item.release_date || item.first_air_date || '').slice(0, 4);
-          const card = document.createElement('div');
-          card.className = 'card';
-          if (item.id === currentMovieId) card.classList.add('highlight');
-          card.innerHTML = `<img class="poster" src="${imageUrl}" loading="lazy" alt="${item.title||item.name}"><div class="info">${year?`<div class="year">${year}</div>`:''}</div>`;
-          card.dataset.navKey = navRegStore(item);
-          card.onclick = (e) => { if (!e.target.classList.contains('favorite-btn')) openDetail(item); };
-          grid.appendChild(card);
-        }
-      }
-
-      await renderCredits(allCredits);
-
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.onclick = async () => {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          showLoading({ message: 'Filtering…' });
-          const f = btn.dataset.filter;
-          await renderCredits(f === 'all' ? allCredits : f === 'movies' ? movieCredits : tvCredits);
-          hideLoading();
-        };
-      });
+      await renderActorCredits(allCredits);
 
       document.getElementById('detail-close').onclick  = () => { navStack.length = 0; closeDetail(); };
       document.getElementById('back-to-movie').onclick = navBack;
