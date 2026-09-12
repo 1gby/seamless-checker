@@ -9226,7 +9226,8 @@
           const recCard = document.createElement('div');
           recCard.className = 'recommendation-card';
           recCard.innerHTML = `<img class="poster" src="${recImg}" alt="${rec.title||rec.name}" loading="lazy">`;
-          recCard.onclick = () => openMovieDetail(rec.id);
+          recCard.dataset.navKey = navRegStore(rec);
+          recCard.onclick = () => openDetail(rec);
           rs.appendChild(recCard);
         }
       }
@@ -9467,7 +9468,8 @@
           const recCard = document.createElement('div');
           recCard.className = 'recommendation-card';
           recCard.innerHTML = `<img class="poster" src="${recImg}" alt="${rec.title||rec.name}" loading="lazy">`;
-          recCard.onclick = () => openTVDetail(rec.id);
+          recCard.dataset.navKey = navRegStore(rec);
+          recCard.onclick = () => openDetail(rec);
           rs.appendChild(recCard);
         }
       }
