@@ -9953,6 +9953,31 @@
     }
   });
 
+  // ── Lower the keyboard when you're clearly done typing ──
+  // Safari doesn't blur the input when you tap elsewhere, so we do it:
+  //   • tap outside the search area (on finger-lift, so nothing shifts under your finger)
+  //   • start dragging/scrolling the page
+  // Tapping the search box again always brings the keyboard back.
+  (function () {
+    const box = document.getElementById('search-container');
+    let sx = 0, sy = 0, startedInBox = false, dragged = false;
+    const typing = () => document.activeElement === searchInput;
+    document.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      sx = t.clientX; sy = t.clientY; dragged = false;
+      startedInBox = !!(box && box.contains(e.target));
+    }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (dragged || startedInBox || !typing()) return;
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10) { dragged = true; searchInput.blur(); }
+    }, { passive: true });
+    document.addEventListener('touchend', () => {
+      if (dragged || startedInBox || !typing()) return; // drags handled above; taps inside the search area keep the keyboard
+      searchInput.blur();
+    }, { passive: true });
+  })();
+
   /* ═══════════════════════════════════════════════════════════════════
      § 18  WEATHER WIDGET
      Open-Meteo (no key) + Nominatim reverse geocode
