@@ -1604,11 +1604,11 @@
 
 <!-- FAVORITES PAGE OVERLAY -->
 
-<div id="favorites-overlay" onclick="if(event.target===this)closeFavoritesPage()">
+<div id="favorites-overlay" onclick="if(event.target===this)dismissFavoritesPage()">
   <div id="favorites-panel">
     <div id="favorites-header">
       <h2>🔥 MY FAVORITES</h2>
-      <button id="favorites-close" onclick="closeFavoritesPage()">×</button>
+      <button id="favorites-close" onclick="dismissFavoritesPage()">×</button>
     </div>
     <div id="favorites-body">
       <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;">
@@ -1616,6 +1616,7 @@
         <button class="tor-filter-chip" data-fav-filter="movie" onclick="setFavFilter(this,'movie')">🎬 Movies</button>
         <button class="tor-filter-chip" data-fav-filter="tv" onclick="setFavFilter(this,'tv')">📺 TV Shows</button>
         <button class="tor-filter-chip" data-fav-filter="person" onclick="setFavFilter(this,'person')">🎭 Actors</button>
+        <button class="tor-filter-chip" data-fav-filter="director" onclick="setFavFilter(this,'director')">🎥 Directors</button>
       </div>
       <div id="favorites-page-grid"></div>
     </div>
@@ -6928,6 +6929,10 @@
       release_date: item.release_date, first_air_date: item.first_air_date,
       vote_average: item.vote_average, overview: item.overview,
       profile_path: item.profile_path, known_for_department: item.known_for_department,
+      // People only: have they directed anything? (lets Favorites list actors who also direct under Directors)
+      directed: item.combined_credits
+        ? (item.combined_credits.crew || []).some(c => c.job === 'Director')
+        : item.directed,
     };
     if (type === 'person' || type === 'actor') {
       const i = favList.actors.findIndex(f => f.id === id);
@@ -7909,16 +7914,43 @@
   }
 
   // ── Favorites Page ──
-  function openFavoritesPage() {
-    document.getElementById('favorites-overlay').classList.add('active');
+  let _detailOpenedFromFavorites = false; // so backing out of a detail opened from Favorites returns there
+  let _favFilter    = 'all';              // last-used Favorites filter, restored on return
+  let _favScrollTop = 0;                  // Favorites scroll position when a detail was opened
+
+  // restore=true → coming back from a detail: keep the filter + scroll spot
+  function openFavoritesPage(restore = false) {
+    const overlay = document.getElementById('favorites-overlay');
+    const keep    = restore === true;
+    const filter  = keep ? _favFilter : 'all';
+    const scroll  = keep ? _favScrollTop : 0;
+    _favFilter = filter;
+    overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
-    renderFavoritesPage('all');
+    document.querySelectorAll('[data-fav-filter]').forEach(b => b.classList.toggle('active', b.dataset.favFilter === filter));
+    renderFavoritesPage(filter).then(() => { overlay.scrollTop = scroll; });
   }
+  // This is what openMovieDetail / openTVDetail / openActorDetail call.
+  // If Favorites was on screen, remember it so closeDetail() can return there.
   function closeFavoritesPage() {
+    const overlay = document.getElementById('favorites-overlay');
+    if (overlay?.classList.contains('active')) {
+      _detailOpenedFromFavorites = true;
+      _favScrollTop = overlay.scrollTop;
+    } else if (!document.getElementById('detail-view')?.classList.contains('active')) {
+      _detailOpenedFromFavorites = false; // fresh open from somewhere else
+    }
+    overlay?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  // The X button / tapping outside — a real close, nothing to return to
+  function dismissFavoritesPage() {
+    _detailOpenedFromFavorites = false;
     document.getElementById('favorites-overlay')?.classList.remove('active');
     document.body.style.overflow = '';
   }
   function setFavFilter(btn, filter) {
+    _favFilter = filter;
     document.querySelectorAll('[data-fav-filter]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderFavoritesPage(filter);
@@ -7927,16 +7959,21 @@
     const grid = document.getElementById('favorites-page-grid');
     if (!grid) return;
     const favList = isAdultMode ? xxxFavorites : favorites;
+    const people  = favList.actors || [];
+    // Directors = known for Directing, or an actor who has directed (flag saved when favorited)
+    const isDirectorFav = f => f.known_for_department === 'Directing' || f.directed === true;
     let items;
-    if (filter === 'movie')      items = favList.movies || [];
-    else if (filter === 'tv')    items = favList.tv || [];
-    else if (filter === 'person') items = favList.actors || [];
-    else items = [...(favList.movies || []), ...(favList.tv || []), ...(favList.actors || [])];
+    if (filter === 'movie')         items = favList.movies || [];
+    else if (filter === 'tv')       items = favList.tv || [];
+    else if (filter === 'person')   items = people.filter(f => f.known_for_department !== 'Directing');
+    else if (filter === 'director') items = people.filter(isDirectorFav);
+    else items = [...(favList.movies || []), ...(favList.tv || []), ...people];
     if (items.length === 0) {
       grid.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.3);">No favorites yet. Add some from the detail view!</div>';
       return;
     }
-    await renderVerticalGrid('favorites-page-grid', items, filter === 'person');
+    // true = show names under people cards (movies/TV still show the year)
+    await renderVerticalGrid('favorites-page-grid', items, true);
   }
 
   // ── "Your Shows This Week" — checks favorite TV shows for episodes airing this week ──
@@ -8815,6 +8852,7 @@
       release_date: item.release_date || null,
       first_air_date: item.first_air_date || null,
       known_for_department: item.known_for_department || null,
+      directed: item.directed || false,
     });
     const slimFavList = (fl) => ({
       movies: (fl.movies || []).map(slimFav),
@@ -9538,18 +9576,34 @@
       const knownFor   = data.known_for_department || 'Acting';
       const isDirector = knownFor === 'Directing';
 
-      let allCredits = isDirector
-        ? (data.combined_credits?.crew || []).filter(c => c.job === 'Director')
-        : (data.combined_credits?.cast || []);
-      const movieCredits = allCredits.filter(c => c.media_type === 'movie');
-      const tvCredits    = allCredits.filter(c => c.media_type === 'tv');
+      const dedupeCredits = list => {
+        const seen = new Set();
+        return list.filter(c => { const k = c.media_type + '_' + c.id; if (seen.has(k)) return false; seen.add(k); return true; });
+      };
+      const directedCredits = dedupeCredits((data.combined_credits?.crew || []).filter(c => c.job === 'Director'));
+      const castCredits     = dedupeCredits(data.combined_credits?.cast || []);
+      // People known for Directing keep their directed-only list (as before).
+      // Everyone else gets acting + directed merged, with a Director filter to isolate the directed ones.
+      let allCredits = isDirector ? directedCredits : dedupeCredits([...castCredits, ...directedCredits]);
+      const movieCredits    = allCredits.filter(c => c.media_type === 'movie');
+      const tvCredits       = allCredits.filter(c => c.media_type === 'tv');
+      const directedSorted  = [...directedCredits];
       allCredits.sort((a, b) => { if (a.id === currentMovieId) return -1; if (b.id === currentMovieId) return 1; return (b.popularity||0) - (a.popularity||0); });
-      movieCredits.sort((a, b) => (b.popularity||0) - (a.popularity||0));
-      tvCredits.sort((a, b)    => (b.popularity||0) - (a.popularity||0));
+      movieCredits.sort((a, b)   => (b.popularity||0) - (a.popularity||0));
+      tvCredits.sort((a, b)      => (b.popularity||0) - (a.popularity||0));
+      directedSorted.sort((a, b) => (b.popularity||0) - (a.popularity||0));
+
+      // Keep this person's Favorites entry in step: older favorites were saved without the "directed" flag
+      {
+        const favActors = (isAdultMode ? xxxFavorites : favorites).actors || [];
+        const favEntry  = favActors.find(f => f.id === actorId);
+        const nowDirected = directedCredits.length > 0;
+        if (favEntry && favEntry.directed !== nowDirected) { favEntry.directed = nowDirected; saveFavorites(); }
+      }
       // Stored globally (not just local vars) so the inline-onclick filter
       // buttons can look these up at click time even after a navBack()
       // HTML-string restore, where this function's own local scope is gone.
-      _actorCredits = { all: allCredits, movies: movieCredits, tv: tvCredits };
+      _actorCredits = { all: allCredits, movies: movieCredits, tv: tvCredits, directed: directedSorted };
 
       const creditsWithBackdrops = allCredits.filter(c => c.backdrop_path);
       const randomBackdrop = creditsWithBackdrops.length > 0 ? creditsWithBackdrops[Math.floor(Math.random() * creditsWithBackdrops.length)].backdrop_path : null;
@@ -9572,11 +9626,16 @@
       html += `<button class="detail-favorite-btn ${favorited?'favorited':''}" id="detail-favorite-btn" onclick="toggleDetailFavorite()"><span class="star-icon">${favorited?'⭐':'☆'}</span></button>`;
       html += '</div>';
 
-      if (movieCredits.length > 0 && tvCredits.length > 0) {
+      // A chip only shows when it actually narrows the list (an "All" identical to "Movies" is just noise)
+      const showMoviesChip   = movieCredits.length > 0 && movieCredits.length < allCredits.length;
+      const showTvChip       = tvCredits.length > 0 && tvCredits.length < allCredits.length;
+      const showDirectorChip = directedSorted.length > 0 && directedSorted.length < allCredits.length;
+      if (showMoviesChip || showTvChip || showDirectorChip) {
         html += `<div class="filter-buttons">
           <button class="filter-btn active" data-filter="all" onclick="filterActorCredits(this,'all')">All (${allCredits.length})</button>
-          <button class="filter-btn" data-filter="movies" onclick="filterActorCredits(this,'movies')">Movies (${movieCredits.length})</button>
-          <button class="filter-btn" data-filter="tv" onclick="filterActorCredits(this,'tv')">TV (${tvCredits.length})</button>
+          ${showMoviesChip ? `<button class="filter-btn" data-filter="movies" onclick="filterActorCredits(this,'movies')">Movies (${movieCredits.length})</button>` : ''}
+          ${showTvChip ? `<button class="filter-btn" data-filter="tv" onclick="filterActorCredits(this,'tv')">TV (${tvCredits.length})</button>` : ''}
+          ${showDirectorChip ? `<button class="filter-btn" data-filter="directed" onclick="filterActorCredits(this,'directed')">Director (${directedSorted.length})</button>` : ''}
         </div>`;
       }
 
@@ -9619,6 +9678,9 @@
       _detailOpenedFromGuide = false;
       document.getElementById('tvguide-overlay')?.classList.add('active');
       document.body.style.overflow = 'hidden';
+    } else if (_detailOpenedFromFavorites) {
+      _detailOpenedFromFavorites = false;
+      openFavoritesPage(true);
     }
   }
 
