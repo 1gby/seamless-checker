@@ -231,6 +231,14 @@
       font-size: 0.8rem; font-weight: 700; opacity: 0.7; flex-shrink: 0; line-height: 1;
     }
     .search-hist-chip .hist-x:hover { opacity: 1; background: rgba(239,68,68,0.25); color: var(--accent-red); }
+    /* Clear-all button — sits after the chips, only when there are 2+ */
+    .search-hist-clear {
+      padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+      background: rgba(239,68,68,0.12); border: 1.5px solid rgba(239,68,68,0.4);
+      color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.45rem; min-height: 40px; font-family: inherit;
+    }
+    .search-hist-clear:hover, .search-hist-clear:active { background: rgba(239,68,68,0.3); border-color: var(--accent-red); color: #fff; }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-05  SECTIONS & GRIDS
@@ -9759,6 +9767,11 @@
     renderSearchHistory();
   }
 
+  function clearSearchHistory() {
+    try { localStorage.removeItem(SEARCH_HISTORY_KEY); } catch {}
+    renderSearchHistory(); // history is empty now, so this hides the dropdown
+  }
+
   function renderSearchHistory() {
     const container = document.getElementById('search-history');
     if (!container) return;
@@ -9777,7 +9790,10 @@
          🕐 ${q}
          <span class="hist-x" data-remove="${q.replace(/"/g,'&quot;')}">✕</span>
        </span>`
-    ).join('');
+    ).join('') + (hist.length >= 2
+      ? '<button type="button" class="search-hist-clear" title="Clear all recent searches">🚽 Clear all</button>'
+      : '');
+    container.querySelector('.search-hist-clear')?.addEventListener('click', clearSearchHistory);
     // Wire chip clicks
     container.querySelectorAll('.search-hist-chip').forEach(chip => {
       chip.onclick = (e) => {
@@ -9915,7 +9931,7 @@
   // mousedown/touch behavior on the × keeps focus on the input, so the
   // dropdown stays open and multiple items can be removed in a row.
   document.getElementById('search-history')?.addEventListener('mousedown', (e) => {
-    if (e.target.classList.contains('hist-x')) e.preventDefault();
+    if (e.target.classList.contains('hist-x') || e.target.closest('.search-hist-clear')) e.preventDefault();
   });
   searchInput.addEventListener('input', (e) => {
     const q = e.target.value.trim();
