@@ -1515,6 +1515,7 @@
   <div id="search-container">
     <input type="text" id="search-input"
            placeholder="Movies, TV, Actors, Genres, or Year"
+           enterkeyhint="search"
            autocomplete="off" />
     <button id="search-clear-btn" type="button" aria-label="Clear search" onclick="clearSearchInput()">✕</button>
     <div id="search-history"></div>
@@ -9945,7 +9946,11 @@
     searchTimeout = setTimeout(() => performSearch(q), 900);
   });
   searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') { clearTimeout(searchTimeout); performSearch(searchInput.value.trim()); }
+    if (e.key === 'Enter') {
+      clearTimeout(searchTimeout);
+      performSearch(searchInput.value.trim());
+      searchInput.blur(); // lowers the keyboard (and closes the recent-searches dropdown)
+    }
   });
 
   /* ═══════════════════════════════════════════════════════════════════
