@@ -2491,6 +2491,7 @@
       html:              detailBody.innerHTML,
       scrollTop:         detailBody.scrollTop,
       currentDetailItem: currentDetailItem ? { ...currentDetailItem } : null,
+      actorCredits:      _actorCredits,   // the credit lists that go with this page's Movies/TV/Director filter chips
       currentImdbId:     currentImdbId,
       currentMediaType:  currentMediaType,
       currentSeason:     currentSeason,
@@ -2520,6 +2521,7 @@
     const detailBody = document.getElementById('detail-body');
     detailBody.innerHTML = prev.html;
     currentDetailItem  = prev.currentDetailItem;
+    _actorCredits      = prev.actorCredits || _actorCredits;
     currentImdbId      = prev.currentImdbId;
     currentMediaType   = prev.currentMediaType;
     currentSeason      = prev.currentSeason;
