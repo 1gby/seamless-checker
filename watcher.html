@@ -543,8 +543,9 @@
     .detail-play-btn.watch-btn {
       background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(16,185,129,0.08));
       border-color: #c084fc; color: #c084fc;
-      padding: 0.65rem 1.1rem; font-size: 0.85rem;
+      padding: 0.52rem 0.88rem; font-size: 0.68rem;
     }
+    .detail-play-btn.watch-btn .play-icon { font-size: 0.96rem; }
     .detail-play-btn.watch-btn:hover { background: rgba(192,132,252,0.3); }
 
     /* Overlay mode toggle (Streams / Torrents) */
@@ -9529,6 +9530,18 @@
                 </div>`;
               epContainer.appendChild(div);
             });
+
+            // Jump straight to the episode you're currently on — the first unwatched one,
+            // or the last episode if you've already finished this season — so you don't
+            // have to scroll to find your spot.
+            const firstUnwatched = sd.episodes.find(e => !isEpisodeWatched(tvId, num, e.episode_number));
+            let targetEpNum = null;
+            if (firstUnwatched && firstUnwatched.episode_number > 1) targetEpNum = firstUnwatched.episode_number;
+            else if (!firstUnwatched && sd.episodes.length > 1) targetEpNum = sd.episodes[sd.episodes.length - 1].episode_number;
+            if (targetEpNum) {
+              const targetEl = epContainer.querySelector(`.episode-item[data-episode="${targetEpNum}"]`);
+              requestAnimationFrame(() => targetEl?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+            }
           } catch { epContainer.innerHTML = '<p style="color:var(--accent-red);padding:1rem;">Failed to load episodes.</p>'; }
         });
       }
