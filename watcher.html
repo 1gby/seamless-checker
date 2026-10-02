@@ -540,6 +540,12 @@
       border-color: var(--accent-purple); color: var(--accent-purple);
     }
     .detail-play-btn.search-btn:hover { background: rgba(118,75,162,0.3); }
+    .detail-play-btn.watch-btn {
+      background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(16,185,129,0.08));
+      border-color: #c084fc; color: #c084fc;
+      padding: 0.65rem 1.1rem; font-size: 0.85rem;
+    }
+    .detail-play-btn.watch-btn:hover { background: rgba(192,132,252,0.3); }
 
     /* Overlay mode toggle (Streams / Torrents) */
     .overlay-mode-bar {
@@ -2042,6 +2048,11 @@
 
   <div class="settings-section">
     <div class="settings-section-title">Search Options</div>
+    <div class="settings-row" style="margin-bottom:0.6rem;">
+      <label>Show 🧲 Search button on titles</label>
+      <button class="addon-toggle" id="scraper-search-toggle" onclick="toggleSettingBool('scraperSearchEnabled','scraper-search-toggle')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:-0.3rem 0 0.5rem;">Off hides Search everywhere — only the ⚡ Stream button shows.</p>
     <div class="settings-row">
       <label>Min seeders</label>
       <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
@@ -2623,6 +2634,8 @@
     excludeKeywords: '',
     // Persistent quality hide filters for stream results
     hideQuality4k: false, hideQuality1080p: false, hideQuality720p: false, hideQuality480p: false,
+    // Show the 🧲 Search (torrents) button next to Stream buttons — on by default
+    scraperSearchEnabled: true,
     // Torrent sources (all enabled by default)
     srcKnaben: true, srcYts: true, src1337x: true, srcApibay: true,
     // Provider filter (addon results) — empty = show all
@@ -2691,6 +2704,7 @@
     set('sf-max-knaben',   appSettings.maxKnaben);
     set('sf-max-yts',      appSettings.maxYts);
     set('sf-max-1337x',    appSettings.max1337x);
+    document.getElementById('scraper-search-toggle')?.classList.toggle('on', appSettings.scraperSearchEnabled !== false);
     // Render source toggle cards
     updateSourceCard('apibay', appSettings.srcApibay !== false);
     updateSourceCard('knaben', appSettings.srcKnaben !== false);
@@ -2741,6 +2755,7 @@
       hideQuality1080p: !!document.getElementById('sf-hide-1080p')?.checked,
       hideQuality720p:  !!document.getElementById('sf-hide-720p')?.checked,
       hideQuality480p:  !!document.getElementById('sf-hide-480p')?.checked,
+      scraperSearchEnabled: appSettings.scraperSearchEnabled !== false,
       srcApibay:  appSettings.srcApibay  !== false,
       srcKnaben:  appSettings.srcKnaben !== false,
       srcYts:     appSettings.srcYts    !== false,
@@ -5435,14 +5450,15 @@
   function buildTorrentSection(title, year, imdbId, mediaType) {
     const searchQuery = title; // Just title, no year appended
     const safe = s => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const searchBtn = appSettings.scraperSearchEnabled === false ? '' : `
+  <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}',null,null,'torrents')">
+    <span class="play-icon">🧲</span> Search
+  </button>`;
     return `
 <div class="detail-btn-row">
   <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}',null,null,'streams')">
     <span class="play-icon">⚡</span> Stream
-  </button>
-  <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(searchQuery)}','${safe(title)}','${safe(imdbId || '')}','${safe(mediaType || '')}',null,null,'torrents')">
-    <span class="play-icon">🧲</span> Search
-  </button>
+  </button>${searchBtn}
 </div>`;
   }
 
@@ -6889,12 +6905,16 @@
     if (nextEp) {
       const epLabel = `S${nextEp.season}E${nextEp.episode}`;
       const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
+      const searchBtn = appSettings.scraperSearchEnabled === false ? '' : `
+        <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+          <span class="play-icon">🧲</span> Search ${epLabel}
+        </button>`;
       container.innerHTML = `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
         <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'streams')">
           <span class="play-icon">⚡</span> Stream ${epLabel}
-        </button>
-        <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'torrents')">
-          <span class="play-icon">🧲</span> Search ${epLabel}
+        </button>${searchBtn}
+        <button class="detail-play-btn watch-btn" onclick="handleToggleWatched(${tvId},${nextEp.season},${nextEp.episode})" title="Mark ${epLabel} watched and move to the next episode">
+          <span class="play-icon">✅</span> Mark Watched
         </button>
         <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
       </div>`;
@@ -9395,12 +9415,16 @@
       if (nextEp) {
         const epLabel = `S${nextEp.season}E${nextEp.episode}`;
         const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
+        const nextEpSearchBtn = appSettings.scraperSearchEnabled === false ? '' : `
+          <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+            <span class="play-icon">🧲</span> Search ${epLabel}
+          </button>`;
         html += `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
           <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'streams')">
             <span class="play-icon">⚡</span> Stream ${epLabel}
-          </button>
-          <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'torrents')">
-            <span class="play-icon">🧲</span> Search ${epLabel}
+          </button>${nextEpSearchBtn}
+          <button class="detail-play-btn watch-btn" onclick="handleToggleWatched(${tvId},${nextEp.season},${nextEp.episode})" title="Mark ${epLabel} watched and move to the next episode">
+            <span class="play-icon">✅</span> Mark Watched
           </button>
           <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
         </div>`;
