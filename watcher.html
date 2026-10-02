@@ -1291,6 +1291,33 @@
     .source-toggle-card .stc-icon { font-size: 1rem; flex-shrink: 0; }
     .source-toggle-card .stc-label { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 
+    /* Scraper search-limit cards (Settings > Scrapers) — same card language as source-toggle-card */
+    .search-limit-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.6rem;
+    }
+    .search-limit-card {
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.6rem 0.5rem;
+      background: rgba(255,255,255,0.03); border: 1.5px solid rgba(118,75,162,0.25);
+      border-radius: 12px; transition: all 0.2s;
+    }
+    .search-limit-card:focus-within { border-color: var(--accent-green); background: rgba(16,185,129,0.05); }
+    .search-limit-card .slc-icon  { font-size: 1.15rem; }
+    .search-limit-card .slc-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.5px; color: rgba(255,255,255,0.55); text-transform: uppercase; }
+    .search-limit-card .settings-number-input { width: 100%; box-sizing: border-box; }
+    /* Highlighted quick-filter row (Min seeders) */
+    .quick-filter-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 0.6rem 0.8rem; background: rgba(16,185,129,0.05);
+      border: 1px solid rgba(16,185,129,0.2); border-radius: 12px;
+    }
+    .quick-filter-row label { font-size: 0.82rem; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 0.4rem; }
+    /* Section-title badge (e.g. "4/4 on") */
+    .settings-section-title .sst-badge {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0; text-transform: none;
+      color: var(--accent-green); background: rgba(16,185,129,0.12);
+      padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid rgba(16,185,129,0.3);
+    }
+
     /* Catalog card play buttons */
     .cat-play-btn {
       padding: 0.15rem 0.35rem; border-radius: 6px; font-size: 0.6rem;
@@ -2029,8 +2056,11 @@
   <div class="settings-submenu-title">🔍 Scrapers</div>
 
   <div class="settings-section">
-    <div class="settings-section-title">Built-in Scrapers</div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">Searched directly alongside Stremio addons. Green = enabled.</p>
+    <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>🧩 Built-in Scrapers</span>
+      <span class="sst-badge" id="scraper-enabled-count">4/4 on</span>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.4rem;">Searched directly alongside Stremio addons. Tap a card to toggle it.</p>
     <div class="source-toggle-grid">
       <div class="source-toggle-card active" id="src-apibay" onclick="toggleSource('apibay')">
         <div class="stc-check">✓</div><div class="stc-icon">🏴‍☠️</div><div class="stc-label">APIBAY</div>
@@ -2048,39 +2078,45 @@
   </div>
 
   <div class="settings-section">
-    <div class="settings-section-title">Search Options</div>
+    <div class="settings-section-title">🎯 Search Options</div>
     <div class="settings-row" style="margin-bottom:0.6rem;">
       <label>Show 🧲 Search button on titles</label>
       <button class="addon-toggle" id="scraper-search-toggle" onclick="toggleSettingBool('scraperSearchEnabled','scraper-search-toggle')"></button>
     </div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:-0.3rem 0 0.5rem;">Off hides Search everywhere — only the ⚡ Stream button shows.</p>
-    <div class="settings-row">
-      <label>Min seeders</label>
+
+    <div class="quick-filter-row">
+      <label>🌱 Min seeders</label>
       <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
     </div>
-    <div class="settings-row">
-      <label>Max results — APIBAY (200)</label>
-      <input type="number" id="sf-max-apibay" class="settings-number-input" min="1" max="200" value="100" onchange="saveSettings()">
+
+    <div style="font-size:0.63rem;font-weight:700;letter-spacing:0.5px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin:0.2rem 0 -0.2rem;">Max results per scraper</div>
+    <div class="search-limit-grid">
+      <div class="search-limit-card">
+        <div class="slc-icon">🏴‍☠️</div><div class="slc-label">APIBAY</div>
+        <input type="number" id="sf-max-apibay" class="settings-number-input" min="1" max="200" value="100" onchange="saveSettings()" title="Cap: 200">
+      </div>
+      <div class="search-limit-card">
+        <div class="slc-icon">🔍</div><div class="slc-label">Knaben</div>
+        <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="300" value="100" onchange="saveSettings()" title="Cap: 300">
+      </div>
+      <div class="search-limit-card">
+        <div class="slc-icon">🍿</div><div class="slc-label">YTS</div>
+        <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="50" onchange="saveSettings()" title="Cap: 50">
+      </div>
+      <div class="search-limit-card">
+        <div class="slc-icon">📂</div><div class="slc-label">1337x</div>
+        <input type="number" id="sf-max-1337x" class="settings-number-input" min="1" max="50" value="50" onchange="saveSettings()" title="Cap: 50">
+      </div>
     </div>
-    <div class="settings-row">
-      <label>Max results — Knaben (300)</label>
-      <input type="number" id="sf-max-knaben" class="settings-number-input" min="1" max="300" value="100" onchange="saveSettings()">
-    </div>
-    <div class="settings-row">
-      <label>Max results — YTS (50)</label>
-      <input type="number" id="sf-max-yts" class="settings-number-input" min="1" max="50" value="50" onchange="saveSettings()">
-    </div>
-    <div class="settings-row">
-      <label>Max results — 1337x (50)</label>
-      <input type="number" id="sf-max-1337x" class="settings-number-input" min="1" max="50" value="50" onchange="saveSettings()">
-    </div>
+
     <label class="settings-checkbox-label" style="margin-top:0.25rem;">
-      <input type="checkbox" id="sf-english-only" onchange="saveSettings()"> English results only
+      <input type="checkbox" id="sf-english-only" onchange="saveSettings()"> 🌐 English results only
     </label>
   </div>
 
   <div class="settings-section">
-    <div class="settings-section-title">Persistent Quality Filter</div>
+    <div class="settings-section-title">🚫 Persistent Quality Filter</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Always hide these qualities from stream results.</p>
     <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
       <label class="settings-checkbox-label"><input type="checkbox" id="sf-hide-4k" onchange="saveSettings()"> Hide 4K</label>
@@ -2091,13 +2127,10 @@
   </div>
 
   <div class="settings-section">
-    <div class="settings-section-title">Exclude Keywords</div>
+    <div class="settings-section-title">✂️ Exclude Keywords</div>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">Comma-separated words to exclude from results (e.g. dubbed, hindi, 3d).</p>
-    <input type="text" id="se-exclude-keywords" placeholder="e.g. dubbed, hindi, 3d"
-      autocomplete="off" spellcheck="false" onchange="saveSettings()"
-      style="width:100%;padding:0.45rem 0.7rem;border-radius:8px;
-             border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);
-             color:#fff;font-size:0.78rem;outline:none;box-sizing:border-box;">
+    <input type="text" id="se-exclude-keywords" class="settings-url-input" placeholder="e.g. dubbed, hindi, 3d"
+      autocomplete="off" spellcheck="false" onchange="saveSettings()">
   </div>
 
 
@@ -4050,6 +4083,13 @@
     card.classList.toggle('active', enabled);
     const check = card.querySelector('.stc-check');
     if (check) check.textContent = enabled ? '✓' : '';
+    updateScraperEnabledCount();
+  }
+  function updateScraperEnabledCount() {
+    const badge = document.getElementById('scraper-enabled-count');
+    if (!badge) return;
+    const on = ['apibay','knaben','yts','1337x'].filter(k => document.getElementById(`src-${k}`)?.classList.contains('active')).length;
+    badge.textContent = `${on}/4 on`;
   }
 
   const EXCLUDE_PRESETS = {
