@@ -540,12 +540,12 @@
       border-color: var(--accent-purple); color: var(--accent-purple);
     }
     .detail-play-btn.search-btn:hover { background: rgba(118,75,162,0.3); }
+    .detail-play-btn.sm { padding: 0.52rem 0.88rem; font-size: 0.68rem; }
+    .detail-play-btn.sm .play-icon { font-size: 0.96rem; }
     .detail-play-btn.watch-btn {
       background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(16,185,129,0.08));
       border-color: #c084fc; color: #c084fc;
-      padding: 0.52rem 0.88rem; font-size: 0.68rem;
     }
-    .detail-play-btn.watch-btn .play-icon { font-size: 0.96rem; }
     .detail-play-btn.watch-btn:hover { background: rgba(192,132,252,0.3); }
 
     /* Overlay mode toggle (Streams / Torrents) */
@@ -1437,7 +1437,7 @@
       .detail-poster       { width: 100px; }
       .vertical-grid       { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
       .episode-item        { flex-direction: column; }
-      .episode-still       { width: 100%; height: auto; }
+      .episode-still       { width: 100%; height: auto; aspect-ratio: 150 / 84; } /* reserves space before the lazy image loads, so layout/scroll math is correct right away */
       .episode-actions     { gap: 0.25rem; }
       .ep-action-btn       { font-size: 0.6rem; padding: 0.2rem 0.45rem; }
       #torrent-overlay-header { padding: 0.85rem 1rem; }
@@ -6907,15 +6907,15 @@
       const epLabel = `S${nextEp.season}E${nextEp.episode}`;
       const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
       const searchBtn = appSettings.scraperSearchEnabled === false ? '' : `
-        <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+        <button class="detail-play-btn search-btn sm" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'torrents')">
           <span class="play-icon">🧲</span> Search ${epLabel}
         </button>`;
       container.innerHTML = `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-        <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'streams')">
+        <button class="detail-play-btn sm" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(imdbId)}','tv',${nextEp.season},${nextEp.episode},'streams')">
           <span class="play-icon">⚡</span> Stream ${epLabel}
         </button>${searchBtn}
-        <button class="detail-play-btn watch-btn" onclick="handleToggleWatched(${tvId},${nextEp.season},${nextEp.episode})" title="Mark ${epLabel} watched and move to the next episode">
-          <span class="play-icon">✅</span> Mark Watched
+        <button class="detail-play-btn watch-btn sm" onclick="handleToggleWatched(${tvId},${nextEp.season},${nextEp.episode})" title="Mark ${epLabel} watched and move to the next episode">
+          <span class="play-icon">✅</span> Watched
         </button>
         <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
       </div>`;
@@ -9417,15 +9417,15 @@
         const epLabel = `S${nextEp.season}E${nextEp.episode}`;
         const epSearch = `${title} S${String(nextEp.season).padStart(2,'0')}E${String(nextEp.episode).padStart(2,'0')}`;
         const nextEpSearchBtn = appSettings.scraperSearchEnabled === false ? '' : `
-          <button class="detail-play-btn search-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'torrents')">
+          <button class="detail-play-btn search-btn sm" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'torrents')">
             <span class="play-icon">🧲</span> Search ${epLabel}
           </button>`;
         html += `<div style="margin:1rem 0;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-          <button class="detail-play-btn" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'streams')">
+          <button class="detail-play-btn sm" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epLabel}','${safe(currentImdbId || '')}','tv',${nextEp.season},${nextEp.episode},'streams')">
             <span class="play-icon">⚡</span> Stream ${epLabel}
           </button>${nextEpSearchBtn}
-          <button class="detail-play-btn watch-btn" onclick="handleToggleWatched(${tvId},${nextEp.season},${nextEp.episode})" title="Mark ${epLabel} watched and move to the next episode">
-            <span class="play-icon">✅</span> Mark Watched
+          <button class="detail-play-btn watch-btn sm" onclick="handleToggleWatched(${tvId},${nextEp.season},${nextEp.episode})" title="Mark ${epLabel} watched and move to the next episode">
+            <span class="play-icon">✅</span> Watched
           </button>
           <span style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Next unwatched</span>
         </div>`;
@@ -9540,7 +9540,16 @@
             else if (!firstUnwatched && sd.episodes.length > 1) targetEpNum = sd.episodes[sd.episodes.length - 1].episode_number;
             if (targetEpNum) {
               const targetEl = epContainer.querySelector(`.episode-item[data-episode="${targetEpNum}"]`);
-              requestAnimationFrame(() => targetEl?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+              const detailView = document.getElementById('detail-view');
+              // A short delay + direct scrollTop (same approach the Favorites page uses) —
+              // more reliable on iOS than scrollIntoView inside a fixed, blurred overlay,
+              // and gives the lazy-loaded episode images a moment to reserve their space.
+              if (targetEl && detailView) {
+                setTimeout(() => {
+                  const top = targetEl.getBoundingClientRect().top - detailView.getBoundingClientRect().top + detailView.scrollTop - 16;
+                  detailView.scrollTo({ top, behavior: 'smooth' });
+                }, 150);
+              }
             }
           } catch { epContainer.innerHTML = '<p style="color:var(--accent-red);padding:1rem;">Failed to load episodes.</p>'; }
         });
