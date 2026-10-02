@@ -6897,7 +6897,7 @@
       const watchBtn = item.querySelector('.ep-watch-btn');
       if (watchBtn) {
         watchBtn.classList.toggle('is-watched', watched);
-        watchBtn.textContent = watched ? '✅ Watched' : '👁 Watch';
+        watchBtn.textContent = watched ? '✅Watched' : '👁 Watch';
       }
     });
   }
@@ -9563,7 +9563,7 @@
                   <div class="episode-air-date">Aired: ${airDate}</div>
                   <div class="episode-actions">
                     <button class="ep-action-btn play" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epCode}','${safe(currentImdbId||'')}','tv',${num},${ep.episode_number},'streams')">⚡ Stream ${epCode}</button>
-                    <button class="ep-action-btn watch ep-watch-btn ${watched?'is-watched':''}" onclick="handleToggleWatched(${tvId},${num},${ep.episode_number})">${watched?'✅ Watched':'👁 Watch'}</button>
+                    <button class="ep-action-btn watch ep-watch-btn ${watched?'is-watched':''}" onclick="handleToggleWatched(${tvId},${num},${ep.episode_number})">${watched?'✅Watched':'👁 Watch'}</button>
                     <button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">⬆ Mark prev</button>
                     <button class="ep-action-btn mark" onclick="handleUnmarkFrom(${tvId},${num},${ep.episode_number})">⬇ Unmark from here</button>
                   </div>
