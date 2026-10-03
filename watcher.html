@@ -5629,7 +5629,11 @@
     const btnStreams  = document.getElementById('mode-btn-streams');
     const btnTorrents = document.getElementById('mode-btn-torrents');
     if (btnStreams)  btnStreams.classList.toggle('active', overlayMode === 'streams');
-    if (btnTorrents) btnTorrents.classList.toggle('active', overlayMode === 'torrents');
+    if (btnTorrents) {
+      btnTorrents.classList.toggle('active', overlayMode === 'torrents');
+      // Torrent search is off in Settings > Scrapers — only the Streams tab makes sense
+      btnTorrents.style.display = appSettings.scraperSearchEnabled === false ? 'none' : '';
+    }
 
     // Show/hide magnet bar (only in torrents mode)
 
