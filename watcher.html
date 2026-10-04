@@ -5632,7 +5632,11 @@
     if (btnTorrents) {
       btnTorrents.classList.toggle('active', overlayMode === 'torrents');
       // Torrent search is off in Settings > Scrapers — only the Streams tab makes sense
-      btnTorrents.style.display = appSettings.scraperSearchEnabled === false ? 'none' : '';
+      const torrentsHidden = appSettings.scraperSearchEnabled === false;
+      btnTorrents.style.display = torrentsHidden ? 'none' : '';
+      // Torrents stays in the DOM (just hidden), so Streams is still only :first-child —
+      // the CSS never gives it the right-side curve. Round it ourselves when it's the only tab showing.
+      if (btnStreams) btnStreams.style.borderRadius = torrentsHidden ? '10px' : '';
     }
 
     // Show/hide magnet bar (only in torrents mode)
