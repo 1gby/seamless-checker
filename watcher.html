@@ -510,7 +510,8 @@
       -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
       padding-bottom: 0.5rem; scrollbar-width: thin;
     }
-    #episodes-controls { display: flex; gap: 0.4rem; padding: 0.5rem 0 0; flex-wrap: wrap; }
+    #episodes-controls { display: flex; gap: 0.4rem; padding: 0.5rem 0 0; flex-wrap: wrap; align-items: center; }
+    .ep-watched-count { font-size: 0.7rem; font-weight: 700; color: var(--accent-green); margin-left: 0.25rem; white-space: nowrap; }
     .episode-item { flex: 0 0 min(85%, 420px); scroll-snap-align: start; box-sizing: border-box; background: rgba(20,20,40,0.6); padding: 1rem; border-radius: 10px; border-left: 3px solid var(--accent-purple); display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
     .episode-item.watched { border-left-color: var(--accent-green); opacity: 0.65; }
     .episode-item.watched .episode-number { color: var(--accent-green); }
@@ -7025,6 +7026,16 @@
         watchBtn.textContent = watched ? '✅ Watched' : '👁 Watch';
       }
     });
+    updateWatchedCount();
+  }
+
+  // "6/13 watched" next to Unmark all — counts the cards currently shown for the selected season.
+  function updateWatchedCount() {
+    const el = document.getElementById('ep-watched-count');
+    const container = document.getElementById('episodes-container');
+    if (!el || !container) return;
+    const items = container.querySelectorAll('.episode-item');
+    el.textContent = `${container.querySelectorAll('.episode-item.watched').length}/${items.length} watched`;
   }
 
   function handleToggleWatched(tvId, season, episode) {
@@ -7053,6 +7064,8 @@
     refreshEpisodeUI(tvId, season);
     refreshTVStreamButton();
     loadContinueWatching();
+    const seasonLabel = `Season ${season}`;
+    showToast(mark ? `✅ Marked all of ${seasonLabel} as watched` : `↩️ Unmarked all of ${seasonLabel}`, 'success');
   }
 
   // Live-update the Stream button in TV detail view to reflect next unwatched episode
@@ -9871,7 +9884,8 @@
             // Mark all / unmark all row — lives above the scroller so it doesn't scroll away with the cards
             if (epControls) epControls.innerHTML = `
               <button class="ep-action-btn mark" onclick="markAllSeason(${tvId},${num},${sd.episodes.length},true)">✅ Mark all watched</button>
-              <button class="ep-action-btn mark" onclick="markAllSeason(${tvId},${num},${sd.episodes.length},false)">✕ Unmark all</button>`;
+              <button class="ep-action-btn mark" onclick="markAllSeason(${tvId},${num},${sd.episodes.length},false)">✕ Unmark all</button>
+              <span id="ep-watched-count" class="ep-watched-count"></span>`;
 
             sd.episodes.forEach(ep => {
               const div = document.createElement('div');
@@ -9901,7 +9915,7 @@
                   <div class="episode-actions">
                     <button class="ep-action-btn play" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epCode}','${safe(currentImdbId||'')}','tv',${num},${ep.episode_number},'streams')">⚡ Stream ${epCode}</button>
                     <button class="ep-action-btn watch ep-watch-btn ${watched?'is-watched':''}" onclick="handleToggleWatched(${tvId},${num},${ep.episode_number})">${watched?'✅ Watched':'👁 Watch'}</button>
-                    <button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">⬆ Mark prev</button>
+                    ${ep.episode_number !== sd.episodes[0].episode_number ? `<button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">⬅️ Mark prev</button>` : ''}
                     <button class="ep-action-btn mark" onclick="handleUnmarkFrom(${tvId},${num},${ep.episode_number})">⬇ Unmark from here</button>
                   </div>
                 </div>`;
@@ -9923,6 +9937,7 @@
               }
               initEpisodeOverviews(epContainer);
             });
+            updateWatchedCount();
           } catch { epContainer.innerHTML = '<p style="flex:0 0 100%;color:var(--accent-red);padding:1rem;">Failed to load episodes.</p>'; }
         });
       }
