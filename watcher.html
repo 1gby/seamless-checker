@@ -163,18 +163,21 @@
 
     /* Right side of header — settings btn + mode indicator */
     .header-right {
-      display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;
-    }
+  display: flex; align-items: center; gap: 0.1rem; flex-shrink: 0;
+}
 
-    #mode-indicator {
-      font-size: 2rem; display: none;
-      animation: pulse-glow-red 2s infinite; cursor: default;
-    }
-    #mode-indicator.active { display: block; }
-    @keyframes pulse-glow-red {
-      0%, 100% { filter: drop-shadow(0 0 10px rgba(239,68,68,0.6)); }
-      50%       { filter: drop-shadow(0 0 20px rgba(239,68,68,0.9)); }
-    }
+#mode-indicator {
+  font-size: 2rem; display: none;
+  animation: pulse-glow-red 2s infinite; cursor: default;
+}
+#mode-indicator.active { display: block; }
+@keyframes pulse-glow-red {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(239,68,68,0.6)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(239,68,68,0.9)); }
+}
+
+/* Hide calendar button in adult mode */
+#cal-btn.hidden-adult { display: none; }
 
     /* Settings gear button */
     #settings-btn {
@@ -1614,7 +1617,7 @@
 <!-- Right cluster: favorites + adult indicator + settings gear -->
 
 <div class="header-right">
-  <button id="cal-btn" title="Calendar" onclick="openCalendarView()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;margin-right:-0.15rem;">🗓️</button>
+  <button id="cal-btn" title="Calendar" onclick="openCalendarView()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🗓️</button>
   <button id="favs-btn" title="Favorites" onclick="openFavoritesPage()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🔥</button>
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
   <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
@@ -10802,9 +10805,12 @@
 
   // Apply adult mode visual state
   if (isAdultMode) {
-    document.getElementById('mode-indicator').classList.add('active');
-    document.getElementById('app-title').classList.add('adult-mode');
-  }
+  document.getElementById('mode-indicator').classList.add('active');
+  document.getElementById('app-title').classList.add('adult-mode');
+  document.getElementById('cal-btn')?.classList.add('hidden-adult');
+} else {
+  document.getElementById('cal-btn')?.classList.remove('hidden-adult');
+}
 
   // Load settings from localStorage into Settings panel
   loadSettings();
