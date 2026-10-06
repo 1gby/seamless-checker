@@ -1012,7 +1012,7 @@
 
     /* Landscape episode cards — this screen only */
     .cal-card {
-      flex: 0 0 auto; width: 210px; background: var(--glass-bg); border-radius: 16px;
+      flex: 0 0 auto; width: 189px; background: var(--glass-bg); border-radius: 16px;
       overflow: hidden; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start;
     }
     .cal-card:hover { transform: translateY(-2px); }
@@ -1614,6 +1614,7 @@
 <!-- Right cluster: favorites + adult indicator + settings gear -->
 
 <div class="header-right">
+  <button id="cal-btn" title="Calendar" onclick="openCalendarView()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🗓️</button>
   <button id="favs-btn" title="Favorites" onclick="openFavoritesPage()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🔥</button>
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
   <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
@@ -1637,7 +1638,7 @@
      NORMAL MODE — HOME SECTIONS
      ══════════════════════════════════════════════════════════════════ -->
 
-<section id="section-continue-watching" style="display:none;"><div class="section-head-row"><h2>Continue Watching</h2><button class="tor-filter-chip" onclick="openCalendarView()">🗓️ Calendar</button></div><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
+<section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <div class="section-head-row"><h2>Airing Today</h2><button class="tor-filter-chip" onclick="openTVGuide()">📅</button></div> <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
@@ -1763,11 +1764,11 @@
   </div>
 </div>
 
-<div id="calendar-overlay" onclick="if(event.target===this)closeCalendarView()">
+<div id="calendar-overlay" onclick="if(event.target===this)dismissCalendarView()">
   <div id="calendar-panel">
     <div id="calendar-header">
       <h2>🗓️ CALENDAR</h2>
-      <button id="calendar-close" onclick="closeCalendarView()">×</button>
+      <button id="calendar-close" onclick="dismissCalendarView()">×</button>
     </div>
     <div id="calendar-body"></div>
   </div>
@@ -8082,6 +8083,8 @@
 
   // ── Favorites Page ──
   let _detailOpenedFromFavorites = false; // so backing out of a detail opened from Favorites returns there
+  let _detailOpenedFromCalendar  = false; // same idea, for the Calendar overlay
+  let _calScrollTop = 0;                  // Calendar scroll position when a detail was opened
   let _favFilter    = 'all';              // last-used Favorites filter, restored on return
   let _favScrollTop = 0;                  // Favorites scroll position when a detail was opened
 
@@ -8296,16 +8299,39 @@
     }
   }
 
-  async function openCalendarView() {
+  // restore=true → coming back from a detail: the cards are still in the DOM and
+  // still wired up (rewireCards ran on the original build), so just re-show it and
+  // restore the scroll spot instead of refetching everything from TMDB again.
+  async function openCalendarView(restore = false) {
     const overlay = document.getElementById('calendar-overlay');
     const body    = document.getElementById('calendar-body');
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    if (restore && body.children.length > 0) {
+      overlay.scrollTop = _calScrollTop;
+      return;
+    }
+
     body.innerHTML = '<div class="guide-empty">Loading your calendar…</div>';
 
-    const favTv = favorites.tv || [];
-    if (favTv.length === 0) {
-      body.innerHTML = '<div class="guide-empty">Star some TV shows to see their episodes here.</div>';
+    // Favorited shows, plus any show with watch progress even if it was never
+    // favorited — so marking an episode watched elsewhere still shows up here.
+    const favTv  = favorites.tv || [];
+    const favIds = new Set(favTv.map(f => String(f.id)));
+    const watchedOnlyIds = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith('watched_')) continue;
+      const id = key.replace('watched_', '');
+      if (!id || isNaN(Number(id)) || favIds.has(id)) continue;
+      if (Object.keys(getWatchedEpisodes(id)).length === 0) continue;
+      watchedOnlyIds.push(id);
+    }
+    const showList = [...favTv, ...watchedOnlyIds.map(id => ({ id: parseInt(id), name: null, media_type: 'tv' }))];
+
+    if (showList.length === 0) {
+      body.innerHTML = '<div class="guide-empty">Star a show, or mark an episode watched, to see it here.</div>';
       return;
     }
 
@@ -8314,7 +8340,7 @@
     const windowEnd   = localDate(new Date(), CAL_FUTURE_DAYS);
     const dayMap = {}; // dateStr -> [ episode records ]
 
-    const checks = favTv.map(async show => {
+    const checks = showList.map(async show => {
       try {
         const data = await tmdb(`/tv/${show.id}`);
         const seasonsToCheck = new Set();
@@ -8330,7 +8356,7 @@
           for (const ep of season.episodes) {
             if (!ep.air_date || ep.air_date < windowStart || ep.air_date > windowEnd) continue;
             (dayMap[ep.air_date] ||= []).push({
-              show, showId: show.id, showName: show.name,
+              show, showId: show.id, showName: show.name || data.name,
               posterLandscape: ep.still_path || data.backdrop_path,
               season_number: ep.season_number, episode_number: ep.episode_number,
               episode_name: ep.name, air_date: ep.air_date,
@@ -8385,8 +8411,23 @@
     }, 150);
   }
 
-  function closeCalendarView() {
+  // The X button / tapping outside — a real close, nothing to return to
+  function dismissCalendarView() {
+    _detailOpenedFromCalendar = false;
     document.getElementById('calendar-overlay')?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  // This is what openMovieDetail / openTVDetail / openActorDetail call.
+  // If Calendar was on screen, remember it so closeDetail() can return there.
+  function closeCalendarView() {
+    const overlay = document.getElementById('calendar-overlay');
+    if (overlay?.classList.contains('active')) {
+      _detailOpenedFromCalendar = true;
+      _calScrollTop = overlay.scrollTop;
+    } else if (!document.getElementById('detail-view')?.classList.contains('active')) {
+      _detailOpenedFromCalendar = false; // fresh open from somewhere else
+    }
+    overlay?.classList.remove('active');
     document.body.style.overflow = '';
   }
 
@@ -8458,14 +8499,18 @@
           } catch {}
         }
         enriched.push({
-          ...show, _type: 'tv', _nextEp: nextEp, _nextEpTitle: nextEpTitle, _allCaughtUp: !nextEp,
+          ...show, _type: 'tv', media_type: 'tv', _nextEp: nextEp, _nextEpTitle: nextEpTitle, _allCaughtUp: !nextEp,
           _totalSeasons: seasons.length,
           name: data.name || data.original_name || show.name || `Show ${show.id}`,
           poster_path: data.poster_path || show.poster_path || null,
         });
       } catch {
+        // media_type:'tv' is set explicitly here too — without it, a watched-but-never-
+        // favorited show (no media_type of its own) gets misclassified as a movie the
+        // next time anything re-wires this card's click handler (e.g. navigating back
+        // inside any detail view), and tapping it then opens the wrong detail type.
         enriched.push({
-          ...show, _type: 'tv',
+          ...show, _type: 'tv', media_type: 'tv',
           _nextEp: { season: show._maxSeason, episode: show._maxEp + 1 },
           _nextEpTitle: '', _allCaughtUp: false,
           name: show.name || `Show ${show.id}`,
@@ -9447,6 +9492,7 @@
     if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     currentMovieId = movieId;
     closeFavoritesPage(); // Close favorites overlay if open
+    closeCalendarView();  // Close calendar overlay if open
     showLoading({ message: 'Loading movie details…' });
     try {
       const apiFunc = isAdultMode ? tmdbAdult : tmdb;
@@ -9608,6 +9654,7 @@
     if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     currentMovieId = tvId;
     closeFavoritesPage(); // Close favorites overlay if open
+    closeCalendarView();  // Close calendar overlay if open
     showLoading({ message: 'Loading TV show details…' });
     try {
       const apiFunc = isAdultMode ? tmdbAdult : tmdb;
@@ -9908,6 +9955,7 @@
   async function openActorDetail(actorId) {
     if (document.getElementById('detail-view')?.classList.contains('active')) navPush();
     closeFavoritesPage();
+    closeCalendarView();
     showLoading({ message: 'Loading actor details…' });
     try {
       const apiFunc = isAdultMode ? tmdbAdult : tmdb;
@@ -10025,6 +10073,9 @@
     } else if (_detailOpenedFromFavorites) {
       _detailOpenedFromFavorites = false;
       openFavoritesPage(true);
+    } else if (_detailOpenedFromCalendar) {
+      _detailOpenedFromCalendar = false;
+      openCalendarView(true);
     }
   }
 
