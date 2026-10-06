@@ -969,6 +969,83 @@
     .guide-empty { padding: 2rem; text-align: center; color: rgba(255,255,255,0.3); }
     .guide-debug { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.65rem; line-height: 1.6; color: rgba(255,255,255,0.35); }
 
+    /* ── Calendar Overlay (favorited show airings) — same shell as Favorites ── */
+    #calendar-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+      z-index: 1500; display: none; align-items: flex-start; justify-content: center;
+      padding: 1rem; padding-top: env(safe-area-inset-top, 3.2rem); overflow-y: auto;
+    }
+    #calendar-overlay.active { display: flex; }
+    #calendar-panel {
+      background: var(--modal-bg); border: 1.5px solid rgba(118,75,162,0.45);
+      border-radius: 20px; width: 100%; max-width: 680px;
+      overflow: hidden; box-shadow: 0 0 60px rgba(118,75,162,0.15);
+    }
+    #calendar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      background: rgba(118,75,162,0.08);
+      border-bottom: 1px solid rgba(118,75,162,0.25);
+    }
+    #calendar-header h2 {
+      font-size: 1.6rem; margin: 0; color: #c084fc;
+      font-family: var(--ff-display); letter-spacing: 0.05em;
+    }
+    #calendar-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+      color: #fff; font-size: 1.3rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    #calendar-close:hover { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
+    #calendar-body { padding: 1.25rem; }
+
+    /* Day groups */
+    .cal-day-group { margin-bottom: 1.5rem; }
+    .cal-day-group:last-child { margin-bottom: 0; }
+    .cal-day-header {
+      font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.8);
+      margin: 0 0 0.6rem 0.1rem;
+    }
+    .cal-day-header.is-today { color: var(--accent-green); }
+
+    /* Landscape episode cards — this screen only */
+    .cal-card {
+      flex: 0 0 auto; width: 210px; background: var(--glass-bg); border-radius: 16px;
+      overflow: hidden; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start;
+    }
+    .cal-card:hover { transform: translateY(-2px); }
+    .cal-card-img-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #111; }
+    .cal-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cal-card-noimg {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; background: rgba(255,255,255,0.04);
+    }
+    .cal-card-badges {
+      position: absolute; left: 0.4rem; bottom: 0.4rem; right: 0.4rem;
+      display: flex; gap: 0.3rem; flex-wrap: wrap; align-items: center;
+    }
+    .cal-badge-time, .cal-badge-type {
+      font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px;
+      background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); color: #fff; white-space: nowrap;
+    }
+    .cal-badge-type { background: rgba(16,185,129,0.85); }
+    .cal-badge-watched {
+      position: absolute; top: 0.4rem; right: 0.4rem; font-size: 0.85rem;
+      background: rgba(0,0,0,0.6); border-radius: 50%; width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cal-card-info { padding: 0.55rem 0.65rem 0.7rem; }
+    .cal-card-title {
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cal-card-meta {
+      font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 0.15rem;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
     /* ── Location first-run prompt ── */
     #location-prompt-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
@@ -1560,7 +1637,7 @@
      NORMAL MODE — HOME SECTIONS
      ══════════════════════════════════════════════════════════════════ -->
 
-<section id="section-continue-watching" style="display:none;"><h2>Continue Watching</h2><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
+<section id="section-continue-watching" style="display:none;"><div class="section-head-row"><h2>Continue Watching</h2><button class="tor-filter-chip" onclick="openCalendarView()">🗓️ Calendar</button></div><div class="horizontal-scroll" id="continue-watching-grid"></div></section>
 <section id="section-fav-this-week" style="display:none;"><h2>Your Shows This Week</h2><div class="horizontal-scroll" id="fav-this-week-grid"></div></section>
 <section id="section-airing">          <div class="section-head-row"><h2>Airing Today</h2><button class="tor-filter-chip" onclick="openTVGuide()">📅</button></div> <div class="horizontal-scroll" id="airing-grid"></div></section>
 <section id="section-new-releases">    <h2>New Releases</h2>              <div class="horizontal-scroll" id="new-releases-grid"></div></section>
@@ -1683,6 +1760,16 @@
       <div id="tvguide-list"></div>
       <div id="tvguide-debug" class="guide-debug"></div>
     </div>
+  </div>
+</div>
+
+<div id="calendar-overlay" onclick="if(event.target===this)closeCalendarView()">
+  <div id="calendar-panel">
+    <div id="calendar-header">
+      <h2>🗓️ CALENDAR</h2>
+      <button id="calendar-close" onclick="closeCalendarView()">×</button>
+    </div>
+    <div id="calendar-body"></div>
   </div>
 </div>
 
@@ -8149,6 +8236,158 @@
       }));
       if (i + BATCH_SIZE < shows.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
     }
+  }
+
+  // ── Calendar — every episode airing for a favorited show, 9 days back to 21 days ahead ──
+  const CAL_PAST_DAYS   = 9;
+  const CAL_FUTURE_DAYS = 21;
+
+  function calDayLabel(dateStr, todayStr) {
+    if (dateStr === todayStr) return 'Today';
+    if (dateStr === localDate(new Date(), -1)) return 'Yesterday';
+    if (dateStr === localDate(new Date(), 1))  return 'Tomorrow';
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('en', { weekday: 'long', month: 'short', day: 'numeric' });
+  }
+
+  function buildCalendarCard(ep) {
+    const imgUrl = ep.posterLandscape ? `${TMDB_IMG}${ep.posterLandscape}` : null;
+    const epLabel = `S${String(ep.season_number).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')}`;
+    const isPremiere = ep.episode_number === 1;
+    const watched = isEpisodeWatched(ep.showId, ep.season_number, ep.episode_number);
+    const el = document.createElement('div');
+    el.className = 'cal-card';
+    el.dataset.navKey = navRegStore(ep.show);
+    el.innerHTML = `
+      <div class="cal-card-img-wrap">
+        ${imgUrl ? `<img class="cal-card-img" src="${imgUrl}" loading="lazy" alt="">` : `<div class="cal-card-noimg">🎬</div>`}
+        ${watched ? `<span class="cal-badge-watched">✅</span>` : ''}
+        <div class="cal-card-badges">
+          <span class="cal-badge-type">${isPremiere ? 'Premiere' : 'New Episode'}</span>
+          <span class="cal-badge-time" data-cal-time style="display:none;"></span>
+        </div>
+      </div>
+      <div class="cal-card-info">
+        <div class="cal-card-title">${ep.showName}</div>
+        <div class="cal-card-meta">${epLabel}${ep.episode_name ? ' · ' + ep.episode_name : ''}</div>
+      </div>`;
+    return el;
+  }
+
+  // Fills in each card's real broadcast time via TVMaze, same rate-limit-friendly
+  // batching as augmentFavThisWeekTimes — one TVMaze show lookup per show (cached
+  // and reused across every day that show appears on), then one time lookup per episode.
+  async function augmentCalendarTimes(cardEntries) {
+    const BATCH_SIZE = 6, BATCH_DELAY = 1000;
+    const tvmazeIdCache = {};
+    for (let i = 0; i < cardEntries.length; i += BATCH_SIZE) {
+      const batch = cardEntries.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(async ({ el, ep }) => {
+        try {
+          if (!(ep.showId in tvmazeIdCache)) tvmazeIdCache[ep.showId] = await getTVMazeShowId(ep.showId);
+          const tvmazeId = tvmazeIdCache[ep.showId];
+          const result = tvmazeId ? await getTVMazeAirTimeForDate(tvmazeId, ep.air_date) : null;
+          if (!result?.time) return;
+          const slot = el.querySelector('[data-cal-time]');
+          if (slot) { slot.textContent = result.time; slot.style.display = ''; }
+        } catch { /* never let one show's failure block the rest */ }
+      }));
+      if (i + BATCH_SIZE < cardEntries.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
+    }
+  }
+
+  async function openCalendarView() {
+    const overlay = document.getElementById('calendar-overlay');
+    const body    = document.getElementById('calendar-body');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    body.innerHTML = '<div class="guide-empty">Loading your calendar…</div>';
+
+    const favTv = favorites.tv || [];
+    if (favTv.length === 0) {
+      body.innerHTML = '<div class="guide-empty">Star some TV shows to see their episodes here.</div>';
+      return;
+    }
+
+    const todayStr    = localDate();
+    const windowStart = localDate(new Date(), -CAL_PAST_DAYS);
+    const windowEnd   = localDate(new Date(), CAL_FUTURE_DAYS);
+    const dayMap = {}; // dateStr -> [ episode records ]
+
+    const checks = favTv.map(async show => {
+      try {
+        const data = await tmdb(`/tv/${show.id}`);
+        const seasonsToCheck = new Set();
+        if (data?.next_episode_to_air) seasonsToCheck.add(data.next_episode_to_air.season_number);
+        if (data?.last_episode_to_air) seasonsToCheck.add(data.last_episode_to_air.season_number);
+        if (seasonsToCheck.size === 0) return;
+
+        const seasons = await Promise.all(
+          [...seasonsToCheck].map(sn => tmdb(`/tv/${show.id}/season/${sn}`).catch(() => null))
+        );
+        for (const season of seasons) {
+          if (!season?.episodes) continue;
+          for (const ep of season.episodes) {
+            if (!ep.air_date || ep.air_date < windowStart || ep.air_date > windowEnd) continue;
+            (dayMap[ep.air_date] ||= []).push({
+              show, showId: show.id, showName: show.name,
+              posterLandscape: ep.still_path || data.backdrop_path,
+              season_number: ep.season_number, episode_number: ep.episode_number,
+              episode_name: ep.name, air_date: ep.air_date,
+            });
+          }
+        }
+      } catch { /* never let one show's failure block the rest */ }
+    });
+    await Promise.all(checks);
+
+    const dateKeys = Object.keys(dayMap).sort();
+    if (dateKeys.length === 0) {
+      body.innerHTML = '<div class="guide-empty">Nothing airing for your favorites in the next few weeks.</div>';
+      return;
+    }
+
+    body.innerHTML = '';
+    const cardEntries = [];
+    for (const dateStr of dateKeys) {
+      const episodes = dayMap[dateStr].sort((a, b) => a.showName.localeCompare(b.showName));
+      const group = document.createElement('div');
+      group.className = 'cal-day-group';
+      group.dataset.calDate = dateStr;
+      const header = document.createElement('div');
+      header.className = 'cal-day-header' + (dateStr === todayStr ? ' is-today' : '');
+      header.textContent = calDayLabel(dateStr, todayStr);
+      const row = document.createElement('div');
+      row.className = 'horizontal-scroll';
+      for (const ep of episodes) {
+        const el = buildCalendarCard(ep);
+        row.appendChild(el);
+        cardEntries.push({ el, ep });
+      }
+      group.appendChild(header);
+      group.appendChild(row);
+      body.appendChild(group);
+    }
+
+    rewireCards();
+    augmentCalendarTimes(cardEntries);
+
+    // Scroll so Today (or the next day that has something airing) is in view —
+    // direct scrollTop calc, not scrollIntoView, since that's unreliable on iOS
+    // inside a fixed/blurred overlay, and the short delay lets lazy images settle.
+    setTimeout(() => {
+      const targetDate = dateKeys.find(d => d >= todayStr) || dateKeys[dateKeys.length - 1];
+      const targetEl = body.querySelector(`[data-cal-date="${targetDate}"]`);
+      if (targetEl) {
+        const top = targetEl.getBoundingClientRect().top - overlay.getBoundingClientRect().top + overlay.scrollTop - 12;
+        overlay.scrollTop = top;
+      }
+    }, 150);
+  }
+
+  function closeCalendarView() {
+    document.getElementById('calendar-overlay')?.classList.remove('active');
+    document.body.style.overflow = '';
   }
 
   // ── Continue Watching — TV shows with episode progress + in-progress movies ──
