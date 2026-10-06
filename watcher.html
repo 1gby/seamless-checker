@@ -1614,7 +1614,7 @@
 <!-- Right cluster: favorites + adult indicator + settings gear -->
 
 <div class="header-right">
-  <button id="cal-btn" title="Calendar" onclick="openCalendarView()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🗓️</button>
+  <button id="cal-btn" title="Calendar" onclick="openCalendarView()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;margin-right:-0.15rem;">🗓️</button>
   <button id="favs-btn" title="Favorites" onclick="openFavoritesPage()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.3rem;">🔥</button>
   <div id="mode-indicator" title="Adult Mode Active">🔞</div>
   <button id="settings-btn" title="Settings" onclick="openSettingsModal()">⚙️</button>
@@ -8085,6 +8085,7 @@
   let _detailOpenedFromFavorites = false; // so backing out of a detail opened from Favorites returns there
   let _detailOpenedFromCalendar  = false; // same idea, for the Calendar overlay
   let _calScrollTop = 0;                  // Calendar scroll position when a detail was opened
+  let _calCardEntries = [];               // { el, ep } for every rendered card — lets restore refresh watched state without refetching
   let _favFilter    = 'all';              // last-used Favorites filter, restored on return
   let _favScrollTop = 0;                  // Favorites scroll position when a detail was opened
 
@@ -8309,6 +8310,17 @@
     document.body.style.overflow = 'hidden';
 
     if (restore && body.children.length > 0) {
+      // Cheap, local refresh — no network calls — so marking an episode watched on the
+      // show you just came from shows up as ✅ immediately, not only after reopening Calendar.
+      for (const entry of _calCardEntries) {
+        const timeSlot = entry.el.querySelector('[data-cal-time]');
+        const prevTime = (timeSlot && timeSlot.style.display !== 'none') ? timeSlot.textContent : null;
+        entry.el.innerHTML = buildCalendarCard(entry.ep).innerHTML;
+        if (prevTime) {
+          const freshSlot = entry.el.querySelector('[data-cal-time]');
+          if (freshSlot) { freshSlot.textContent = prevTime; freshSlot.style.display = ''; }
+        }
+      }
       overlay.scrollTop = _calScrollTop;
       return;
     }
@@ -8374,7 +8386,8 @@
     }
 
     body.innerHTML = '';
-    const cardEntries = [];
+    _calCardEntries = [];
+    const cardEntries = _calCardEntries;
     for (const dateStr of dateKeys) {
       const episodes = dayMap[dateStr].sort((a, b) => a.showName.localeCompare(b.showName));
       const group = document.createElement('div');
