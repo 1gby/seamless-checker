@@ -25,6 +25,7 @@
   <meta name="apple-mobile-web-app-title"           content="Watcher">
   <meta name="mobile-web-app-capable"               content="yes">
   <meta name="theme-color" content="#000000">
+  <script>try{if(JSON.parse(localStorage.getItem('watcher_settings')||'{}').themeSwapped)document.documentElement.setAttribute('data-theme','swapped');}catch(e){}</script>
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/1gby/seamless-checker/main/assets/icons/view.png">
 
@@ -41,18 +42,29 @@
     :root {
       --accent-purple:    #764ba2;
       --accent-green:     #10b981;
+      --purple-rgb:       118, 75, 162;
+      --green-rgb:        16, 185, 129;
+      --purple-light:     #c084fc;
       --accent-red:       #ef4444;
       --accent-gold:      #ffd700;
       --glass-bg:         rgba(30, 30, 50, 0.35);
-      --glass-border:     rgba(118, 75, 162, 0.35);
-      --glass-border-green: rgba(16, 185, 129, 0.5);
-      --poster-glow:      0 0 20px rgba(118, 75, 162, 0.4);
-      --hover-glow:       0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(118,75,162,0.6);
-      --title-glow:       0 0 15px rgba(118, 75, 162, 0.3), 0 0 30px rgba(16, 185, 129, 0.2);
+      --glass-border:     rgba(var(--purple-rgb), 0.35);
+      --glass-border-green: rgba(var(--green-rgb), 0.5);
+      --poster-glow:      0 0 20px rgba(var(--purple-rgb), 0.4);
+      --hover-glow:       0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(var(--purple-rgb),0.6);
+      --title-glow:       0 0 15px rgba(var(--purple-rgb), 0.3), 0 0 30px rgba(var(--green-rgb), 0.2);
       --card-gap:         1.2rem;
       --section-padding:  0 1rem;
       --overlay-bg:       rgba(0, 0, 0, 0.96);
       --modal-bg:         rgba(10, 10, 20, 0.97);
+    }
+    /* Advanced Options → Swap colors: purple and green trade places everywhere */
+    :root[data-theme="swapped"] {
+      --accent-purple:    #10b981;
+      --accent-green:     #764ba2;
+      --purple-rgb:       16, 185, 129;
+      --green-rgb:        118, 75, 162;
+      --purple-light:     #34d399;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -92,10 +104,10 @@
       animation: spin-glow 3s linear infinite;
     }
     @keyframes spin-glow {
-      0%   { transform: rotate(0deg);   filter: drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8)); }
-      50%  { transform: rotate(360deg); filter: drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 40px rgba(16,185,129,0.8)); }
-      51%  { filter: drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8)); }
-      100% { transform: rotate(720deg); filter: drop-shadow(0 0 20px rgba(118,75,162,1)) drop-shadow(0 0 40px rgba(118,75,162,0.8)); }
+      0%   { transform: rotate(0deg);   filter: drop-shadow(0 0 20px rgba(var(--green-rgb),1)) drop-shadow(0 0 40px rgba(var(--green-rgb),0.8)); }
+      50%  { transform: rotate(360deg); filter: drop-shadow(0 0 20px rgba(var(--green-rgb),1)) drop-shadow(0 0 40px rgba(var(--green-rgb),0.8)); }
+      51%  { filter: drop-shadow(0 0 20px rgba(var(--purple-rgb),1)) drop-shadow(0 0 40px rgba(var(--purple-rgb),0.8)); }
+      100% { transform: rotate(720deg); filter: drop-shadow(0 0 20px rgba(var(--purple-rgb),1)) drop-shadow(0 0 40px rgba(var(--purple-rgb),0.8)); }
     }
 
     .loading-text    { font-size: 1.2rem; font-weight: 600; color: #eee; margin-top: 1.5rem; text-align: center; opacity: 0.9; }
@@ -111,9 +123,9 @@
     .progress-bar-container.visible { display: block; }
     .progress-bar-fill {
       height: 100%; width: 0%;
-      background: linear-gradient(90deg, #10b981 0%, #764ba2 100%);
+      background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-purple) 100%);
       border-radius: 10px; transition: width 0.3s ease;
-      box-shadow: 0 0 10px rgba(16,185,129,0.6);
+      box-shadow: 0 0 10px rgba(var(--green-rgb),0.6);
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -123,7 +135,7 @@
       padding: 1rem 1.5rem;
       background: rgba(0,0,0,0.8);
       backdrop-filter: blur(50px);
-      border-bottom: 1px solid rgba(118,75,162,0.25);
+      border-bottom: 1px solid rgba(var(--purple-rgb),0.25);
       position: sticky; top: 0; z-index: 500;
     }
     .header-top {
@@ -146,19 +158,19 @@
     #logo {
       height: 44px; width: auto; cursor: pointer; flex-shrink: 0;
       transition: transform 0.3s, filter 0.3s;
-      filter: drop-shadow(0 0 0px rgba(16,185,129,0));
+      filter: drop-shadow(0 0 0px rgba(var(--green-rgb),0));
       animation: pulse 2s ease-in-out infinite;
     }
     @keyframes pulse {
-      0%, 100% { filter: drop-shadow(0 0 0px rgba(16,185,129,0)); }
-      50%       { filter: drop-shadow(0 0 6px rgba(16,185,129,1)) drop-shadow(0 0 12px rgba(16,185,129,1)); }
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(var(--green-rgb),0)); }
+      50%       { filter: drop-shadow(0 0 6px rgba(var(--green-rgb),1)) drop-shadow(0 0 12px rgba(var(--green-rgb),1)); }
     }
     #logo:hover  { transform: scale(1.05); }
     #logo:active { animation: glow-pulse 0.4s ease-out; transform: scale(0.98); }
     @keyframes glow-pulse {
-      0%   { filter: drop-shadow(0 0 0px rgba(16,185,129,0)); }
-      50%  { filter: drop-shadow(0 0 20px rgba(16,185,129,1)) drop-shadow(0 0 30px rgba(16,185,129,0.8)); }
-      100% { filter: drop-shadow(0 0 0px rgba(16,185,129,0)); }
+      0%   { filter: drop-shadow(0 0 0px rgba(var(--green-rgb),0)); }
+      50%  { filter: drop-shadow(0 0 20px rgba(var(--green-rgb),1)) drop-shadow(0 0 30px rgba(var(--green-rgb),0.8)); }
+      100% { filter: drop-shadow(0 0 0px rgba(var(--green-rgb),0)); }
     }
 
     /* Right side of header — settings btn + mode indicator */
@@ -182,28 +194,28 @@
     /* Settings gear button */
     #settings-btn {
       width: 40px; height: 40px;
-      background: rgba(118,75,162,0.15);
-      border: 1.5px solid rgba(118,75,162,0.4);
+      background: rgba(var(--purple-rgb),0.15);
+      border: 1.5px solid rgba(var(--purple-rgb),0.4);
       border-radius: 50%; font-size: 1.2rem;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: all 0.3s; color: var(--accent-green);
     }
     #settings-btn:hover {
-      background: rgba(118,75,162,0.3);
+      background: rgba(var(--purple-rgb),0.3);
       border-color: var(--accent-green);
-      box-shadow: 0 0 15px rgba(16,185,129,0.3);
+      box-shadow: 0 0 15px rgba(var(--green-rgb),0.3);
       transform: rotate(30deg);
     }
 
     #search-container { width: 100%; position: relative; }
     #search-input {
       width: 100%; padding: 0.9rem 2.6rem 0.9rem 1.2rem; font-size: 1rem;
-      background: var(--glass-bg); border: 1px solid rgba(118,75,162,0.5);
+      background: var(--glass-bg); border: 1px solid rgba(var(--purple-rgb),0.5);
       border-radius: 999px; color: white; backdrop-filter: blur(20px);
       transition: all 0.3s; line-height: normal;
       caret-color: transparent; /* WebKit mispositions this in a sticky-header input — hiding it sidesteps the bug entirely */
     }
-    #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+    #search-input:focus        { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(var(--green-rgb),0.3); }
     #search-input::placeholder { color: rgba(255,255,255,0.5); }
     #search-clear-btn {
       display: none; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
@@ -222,11 +234,11 @@
     #search-history.visible { display: flex; }
     .search-hist-chip {
       padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
-      background: rgba(118,75,162,0.18); border: 1.5px solid rgba(118,75,162,0.4);
+      background: rgba(var(--purple-rgb),0.18); border: 1.5px solid rgba(var(--purple-rgb),0.4);
       color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.2s;
       display: flex; align-items: center; gap: 0.45rem; min-height: 40px;
     }
-    .search-hist-chip:hover { background: rgba(118,75,162,0.35); border-color: var(--accent-purple); color: #fff; }
+    .search-hist-chip:hover { background: rgba(var(--purple-rgb),0.35); border-color: var(--accent-purple); color: #fff; }
     .search-hist-chip .hist-x {
       display: inline-flex; align-items: center; justify-content: center;
       width: 22px; height: 22px; border-radius: 50%;
@@ -287,7 +299,7 @@
     }
     .genre-btn.green-bg  { background: var(--accent-green);  color: var(--accent-purple); }
     .genre-btn.purple-bg { background: var(--accent-purple); color: var(--accent-green); }
-    .genre-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(118,75,162,0.5); }
+    .genre-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(var(--purple-rgb),0.5); }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-07  CARDS
@@ -311,23 +323,23 @@
     }
     .favorite-btn:hover          { transform: scale(1.2); background: rgba(0,0,0,0.9); }
     .favorite-btn.favorited      { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255,215,0,0.8); }
-    .favorite-btn:not(.favorited){ color: rgba(16,185,129,0.7); }
+    .favorite-btn:not(.favorited){ color: rgba(var(--green-rgb),0.7); }
 
     .poster {
       width: 100%; aspect-ratio: 2/3; object-fit: cover;
       background: #111; display: block; filter: drop-shadow(var(--poster-glow));
       transition: filter 0.35s; border-radius: inherit;
     }
-    .card:hover .poster { filter: drop-shadow(0 0 30px rgba(118,75,162,0.7)); }
+    .card:hover .poster { filter: drop-shadow(0 0 30px rgba(var(--purple-rgb),0.7)); }
     .info { padding: 0.4rem 0.9rem 0.5rem; text-align: center; min-height: 2.2rem; }
     .year { font-size: 0.75rem; font-weight: 600; color: var(--accent-green); line-height: 1.2; }
     .air-time { font-size: 0.68rem; font-weight: 600; color: var(--accent-purple); line-height: 1.3; margin-top: 0.15rem; text-align: center; }
-    .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.6); }
+    .card.highlight { border: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(var(--green-rgb),0.6); }
 
     /* Continue Watching progress badge — inline below poster */
     .cw-badge {
       display: inline-block;
-      background: linear-gradient(135deg, rgba(16,185,129,0.92), rgba(118,75,162,0.88));
+      background: linear-gradient(135deg, rgba(var(--green-rgb),0.92), rgba(var(--purple-rgb),0.88));
       color: #fff; font-size: 0.58rem; font-weight: 800;
       padding: 0.18rem 0.55rem; letter-spacing: 0.04em; white-space: nowrap;
       border-radius: 999px; margin-bottom: 0.1rem;
@@ -360,19 +372,19 @@
     }
     .ep-popup-btn {
       padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700;
-      border: 2px solid var(--accent-green); background: rgba(16,185,129,0.15);
+      border: 2px solid var(--accent-green); background: rgba(var(--green-rgb),0.15);
       color: var(--accent-green); cursor: pointer; transition: all 0.2s;
     }
-    .ep-popup-btn:hover { background: rgba(16,185,129,0.3); }
+    .ep-popup-btn:hover { background: rgba(var(--green-rgb),0.3); }
     .ep-popup-btn.secondary {
       border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
       color: rgba(255,255,255,0.6);
     }
     .ep-popup-btn.next {
-      border-color: var(--accent-purple); background: rgba(118,75,162,0.15);
+      border-color: var(--accent-purple); background: rgba(var(--purple-rgb),0.15);
       color: var(--accent-purple);
     }
-    .ep-popup-btn.next:hover { background: rgba(118,75,162,0.3); }
+    .ep-popup-btn.next:hover { background: rgba(var(--purple-rgb),0.3); }
 
     /* Actor / Director name labels inside cards */
     .actor-info-stacked, .director-info-stacked {
@@ -388,7 +400,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .crew-info {
       display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; padding: 1rem;
-      background: rgba(118,75,162,0.1); border-left: 3px solid var(--accent-purple); border-radius: 8px;
+      background: rgba(var(--purple-rgb),0.1); border-left: 3px solid var(--accent-purple); border-radius: 8px;
     }
     .crew-item  { display: flex; gap: 0.5rem; font-size: 0.85rem; line-height: 1.4; }
     .crew-label { font-weight: 700; color: var(--accent-green); min-width: 80px; }
@@ -408,9 +420,9 @@
     /* Toast notifications */
     .toast-container { position:fixed; bottom:5rem; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:0.4rem; align-items:center; pointer-events:none; }
     .toast { padding:0.6rem 1.2rem; border-radius:12px; font-size:0.78rem; font-weight:600; color:#fff; backdrop-filter:blur(20px); pointer-events:auto; animation:toastIn 0.3s ease,toastOut 0.3s ease 2.7s forwards; max-width:90vw; text-align:center; }
-    .toast.success { background:rgba(16,185,129,0.92); }
+    .toast.success { background:rgba(var(--green-rgb),0.92); }
     .toast.error   { background:rgba(239,68,68,0.88); }
-    .toast.info    { background:rgba(118,75,162,0.92); }
+    .toast.info    { background:rgba(var(--purple-rgb),0.92); }
     @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     @keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateY(-10px)} }
 
@@ -427,7 +439,7 @@
     #detail-view.active { display: block; }
 
     #detail-content {
-      background: rgba(20,20,40,0.9); border: 1px solid rgba(118,75,162,0.3);
+      background: rgba(20,20,40,0.9); border: 1px solid rgba(var(--purple-rgb),0.3);
       border-radius: 20px; padding: 2rem 1.5rem;
       max-width: 1000px; margin: 0 auto; position: relative;
     }
@@ -452,7 +464,7 @@
       background: linear-gradient(to top, rgba(20,20,40,0.95), transparent);
       display: flex; gap: 1.5rem; align-items: flex-end;
     }
-    .detail-poster { width: 120px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 2px solid rgba(118,75,162,0.5); }
+    .detail-poster { width: 120px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 2px solid rgba(var(--purple-rgb),0.5); }
     .detail-title-block h2 { font-size: 1.8rem; margin-bottom: 0.5rem; text-shadow: var(--title-glow); filter: none; background: none; -webkit-background-clip: unset; background-clip: unset; color: #fff; }
     /* Title logo — its own plain section below the poster/backdrop block
        entirely, not overlapping the image at all. */
@@ -464,7 +476,7 @@
       font-size: 1.6rem; margin-top: 2rem; margin-bottom: 1rem;
       color: var(--accent-green); font-family: 'Bangers', Impact, 'Arial Black', sans-serif; letter-spacing: 2px;
     }
-    .rating { display: inline-block; background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 0.4rem 0.8rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
+    .rating { display: inline-block; background: rgba(var(--green-rgb),0.2); color: var(--accent-green); padding: 0.4rem 0.8rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
     .overview { line-height: 1.4; margin: 1rem 0; color: rgba(255,255,255,0.9); font-size: 0.85rem; }
 
     /* Detail action buttons */
@@ -475,7 +487,7 @@
       border: none; border-radius: 16px; font-weight: 700; font-size: 0.75rem;
       cursor: pointer; transition: all 0.3s ease; text-decoration: none; white-space: nowrap;
     }
-    .where-to-watch-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(118,75,162,0.5); }
+    .where-to-watch-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(var(--purple-rgb),0.5); }
     .where-to-watch-icon { width: 16px; height: 16px; object-fit: contain; }
 
     .detail-favorite-btn {
@@ -513,6 +525,12 @@
     #episodes-controls { display: flex; gap: 0.4rem; padding: 0.5rem 0 0; flex-wrap: wrap; align-items: center; }
     .ep-watched-count { font-size: 0.7rem; font-weight: 700; color: var(--accent-green); margin-left: 0.25rem; white-space: nowrap; }
     .episode-item { flex: 0 0 min(85%, 420px); scroll-snap-align: start; box-sizing: border-box; background: rgba(20,20,40,0.6); padding: 1rem; border-radius: 10px; border-left: 3px solid var(--accent-purple); display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
+    /* Classic vertical episode list (Advanced Options → Horizontal episode list = off) */
+    #episodes-container.ep-vertical { flex-direction: column; gap: 1rem; overflow: visible; scroll-snap-type: none; padding-bottom: 0; }
+    #episodes-container.ep-vertical .episode-item { flex: 0 0 auto; flex-direction: row; gap: 1rem; scroll-snap-align: none; }
+    #episodes-container.ep-vertical .episode-still { width: 150px; height: 84px; aspect-ratio: auto; }
+    #episodes-container.ep-vertical .episode-details { display: block; }
+    #episodes-container.ep-vertical .episode-actions { margin-top: 0.5rem; padding-top: 0; }
     .episode-item.watched { border-left-color: var(--accent-green); opacity: 0.65; }
     .episode-item.watched .episode-number { color: var(--accent-green); }
     .episode-still    { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #111; }
@@ -521,7 +539,7 @@
     .episode-title    { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
     .episode-overview { font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.4; }
     .episode-overview.clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .ep-more-btn { display: block; background: none; border: none; padding: 0.25rem 0 0; margin: 0; font-size: 0.78rem; font-weight: 700; color: #c084fc; cursor: pointer; }
+    .ep-more-btn { display: block; background: none; border: none; padding: 0.25rem 0 0; margin: 0; font-size: 0.78rem; font-weight: 700; color: var(--purple-light); cursor: pointer; }
     .ep-more-btn[hidden] { display: none; }
     .episode-air-date { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.5rem; }
     .episode-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: auto; padding-top: 0.5rem; }
@@ -531,9 +549,9 @@
       align-items: center; gap: 0.2rem; white-space: nowrap; background: none;
     }
     .ep-action-btn.play  { border-color: var(--accent-green); color: var(--accent-green); }
-    .ep-action-btn.play:hover { background: rgba(16,185,129,0.2); }
-    .ep-action-btn.watch { border-color: rgba(118,75,162,0.4); color: #c084fc; }
-    .ep-action-btn.watch:hover { background: rgba(118,75,162,0.15); }
+    .ep-action-btn.play:hover { background: rgba(var(--green-rgb),0.2); }
+    .ep-action-btn.watch { border-color: rgba(var(--purple-rgb),0.4); color: var(--purple-light); }
+    .ep-action-btn.watch:hover { background: rgba(var(--purple-rgb),0.15); }
     .ep-action-btn.watch.is-watched { border-color: var(--accent-green); color: var(--accent-green); }
     .ep-action-btn.mark  { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); font-size: 0.6rem; }
     .ep-action-btn.mark:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
@@ -543,22 +561,22 @@
     .detail-play-btn {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.65rem 1.4rem; border-radius: 12px; font-size: 0.95rem; font-weight: 700;
-      background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(118,75,162,0.15));
+      background: linear-gradient(135deg, rgba(var(--green-rgb),0.2), rgba(var(--purple-rgb),0.15));
       border: 2px solid var(--accent-green); color: var(--accent-green);
       cursor: pointer; transition: all 0.2s;
     }
-    .detail-play-btn:hover { background: rgba(16,185,129,0.3); transform: scale(1.02); }
+    .detail-play-btn:hover { background: rgba(var(--green-rgb),0.3); transform: scale(1.02); }
     .detail-play-btn .play-icon { font-size: 1.2rem; }
     .detail-play-btn.search-btn {
-      background: linear-gradient(135deg, rgba(118,75,162,0.2), rgba(16,185,129,0.1));
+      background: linear-gradient(135deg, rgba(var(--purple-rgb),0.2), rgba(var(--green-rgb),0.1));
       border-color: var(--accent-purple); color: var(--accent-purple);
     }
-    .detail-play-btn.search-btn:hover { background: rgba(118,75,162,0.3); }
+    .detail-play-btn.search-btn:hover { background: rgba(var(--purple-rgb),0.3); }
     .detail-play-btn.sm { padding: 0.52rem 0.88rem; font-size: 0.68rem; }
     .detail-play-btn.sm .play-icon { font-size: 0.96rem; }
     .detail-play-btn.watch-btn {
-      background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(16,185,129,0.08));
-      border-color: #c084fc; color: #c084fc;
+      background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(var(--green-rgb),0.08));
+      border-color: var(--purple-light); color: var(--purple-light);
     }
     .detail-play-btn.watch-btn:hover { background: rgba(192,132,252,0.3); }
 
@@ -576,11 +594,11 @@
     .overlay-mode-btn:first-child { border-radius: 10px 0 0 10px; }
     .overlay-mode-btn:last-child  { border-radius: 0 10px 10px 0; }
     .overlay-mode-btn.active {
-      background: rgba(16,185,129,0.15); border-color: var(--accent-green);
+      background: rgba(var(--green-rgb),0.15); border-color: var(--accent-green);
       color: var(--accent-green);
     }
     .overlay-mode-btn.active.purple-mode {
-      background: rgba(118,75,162,0.15); border-color: var(--accent-purple);
+      background: rgba(var(--purple-rgb),0.15); border-color: var(--accent-purple);
       color: var(--accent-purple);
     }
 
@@ -592,7 +610,7 @@
     .magnet-input-bar.visible { display: flex; }
     .magnet-input-bar input {
       flex: 1; padding: 0.4rem 0.8rem; border-radius: 20px;
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(118,75,162,0.4);
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(var(--purple-rgb),0.4);
       color: #fff; font-size: 0.78rem; min-width: 0;
     }
     .magnet-input-bar input::placeholder { color: rgba(255,255,255,0.3); }
@@ -601,10 +619,10 @@
     .season-dropdown {
       width: 100%; padding: 1rem; font-size: 1rem;
       background: rgba(30,30,50,0.8); color: var(--accent-green);
-      border: 2px solid rgba(118,75,162,0.5); border-radius: 12px;
+      border: 2px solid rgba(var(--purple-rgb),0.5); border-radius: 12px;
       cursor: pointer; transition: all 0.3s; font-weight: 600;
     }
-    .season-dropdown:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+    .season-dropdown:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 20px rgba(var(--green-rgb),0.3); }
     .season-dropdown option { background: #1a1a2e; color: #fff; }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -612,7 +630,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .image-gallery { margin: 3rem 0 1rem; }
     .gallery-scroll { display: flex; gap: 1rem; overflow-x: auto; padding: 1rem 0; scroll-snap-type: x mandatory; }
-    .gallery-image  { flex: 0 0 150px; height: 225px; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.3s; scroll-snap-align: start; border: 2px solid rgba(118,75,162,0.3); }
+    .gallery-image  { flex: 0 0 150px; height: 225px; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.3s; scroll-snap-align: start; border: 2px solid rgba(var(--purple-rgb),0.3); }
     .gallery-image:hover { transform: scale(1.05); border-color: var(--accent-green); }
     .gallery-image img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -626,15 +644,15 @@
     .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .filter-btn, .search-filter-btn {
       padding: 0.5rem 1rem;
-      background: rgba(118,75,162,0.2); color: var(--accent-purple);
-      border: 1px solid rgba(118,75,162,0.5); border-radius: 999px;
+      background: rgba(var(--purple-rgb),0.2); color: var(--accent-purple);
+      border: 1px solid rgba(var(--purple-rgb),0.5); border-radius: 999px;
       cursor: pointer; transition: all 0.3s; font-size: 0.85rem; font-weight: 600;
     }
-    .filter-btn:hover, .search-filter-btn:hover { background: rgba(118,75,162,0.3); border-color: var(--accent-purple); transform: translateY(-2px); }
+    .filter-btn:hover, .search-filter-btn:hover { background: rgba(var(--purple-rgb),0.3); border-color: var(--accent-purple); transform: translateY(-2px); }
     .filter-btn.active, .search-filter-btn.active {
       background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-purple) 100%);
       color: #fff; border-color: var(--accent-green);
-      box-shadow: 0 0 20px rgba(16,185,129,0.6), 0 0 40px rgba(118,75,162,0.4); font-weight: 700;
+      box-shadow: 0 0 20px rgba(var(--green-rgb),0.6), 0 0 40px rgba(var(--purple-rgb),0.4); font-weight: 700;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -649,7 +667,7 @@
     #torrent-trigger-section {
       margin: 2rem 0; padding: 1.25rem;
       background: rgba(10,10,25,0.7);
-      border: 1px solid rgba(118,75,162,0.3); border-radius: 16px;
+      border: 1px solid rgba(var(--purple-rgb),0.3); border-radius: 16px;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -672,15 +690,15 @@
       border: 1.5px solid var(--accent-green);
       border-radius: 20px; overflow: hidden;
       background: rgba(8,8,20,0.98);
-      box-shadow: 0 0 40px rgba(16,185,129,0.2), 0 0 80px rgba(16,185,129,0.08);
+      box-shadow: 0 0 40px rgba(var(--green-rgb),0.2), 0 0 80px rgba(var(--green-rgb),0.08);
     }
 
     /* Overlay header bar */
     #torrent-overlay-header {
       display: flex; align-items: center; gap: 1rem;
       padding: 1rem 1.5rem;
-      background: rgba(16,185,129,0.06);
-      border-bottom: 1px solid rgba(16,185,129,0.2);
+      background: rgba(var(--green-rgb),0.06);
+      border-bottom: 1px solid rgba(var(--green-rgb),0.2);
       position: sticky; top: 0; z-index: 10;
     }
     #torrent-overlay-back {
@@ -689,7 +707,7 @@
       color: #fff; font-size: 1.1rem; cursor: pointer; display: flex;
       align-items: center; justify-content: center; transition: all 0.2s;
     }
-    #torrent-overlay-back:hover { background: rgba(16,185,129,0.2); border-color: var(--accent-green); }
+    #torrent-overlay-back:hover { background: rgba(var(--green-rgb),0.2); border-color: var(--accent-green); }
 
     #torrent-overlay-title-text {
       font-family: 'Bebas Neue', cursive; font-size: 1.5rem; letter-spacing: 1.5px;
@@ -704,13 +722,13 @@
     }
     .tor-filter-chip {
       padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
-      border: 1.5px solid rgba(118,75,162,0.4); background: rgba(118,75,162,0.08);
+      border: 1.5px solid rgba(var(--purple-rgb),0.4); background: rgba(var(--purple-rgb),0.08);
       color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.2s;
     }
     .tor-filter-chip:hover { border-color: var(--accent-green); color: var(--accent-green); }
     .tor-filter-chip.active {
-      background: rgba(16,185,129,0.18); border-color: var(--accent-green);
-      color: var(--accent-green); box-shadow: 0 0 10px rgba(16,185,129,0.3);
+      background: rgba(var(--green-rgb),0.18); border-color: var(--accent-green);
+      color: var(--accent-green); box-shadow: 0 0 10px rgba(var(--green-rgb),0.3);
     }
 
     /* Source filter chips — separate row with per-source colors */
@@ -722,8 +740,8 @@
     }
     .tor-source-chip:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
     .tor-source-chip.active {
-      background: rgba(118,75,162,0.25); border-color: #c084fc;
-      color: #c084fc; box-shadow: 0 0 8px rgba(118,75,162,0.3);
+      background: rgba(var(--purple-rgb),0.25); border-color: var(--purple-light);
+      color: var(--purple-light); box-shadow: 0 0 8px rgba(var(--purple-rgb),0.3);
     }
     .tor-source-chip .src-count {
       background: rgba(255,255,255,0.12); padding: 0.1rem 0.35rem;
@@ -761,17 +779,17 @@
     /* Individual torrent result — stacked card */
     .tor-result-row {
       display: flex; flex-direction: column; gap: 0.45rem; padding: 0.75rem 0.9rem;
-      background: rgba(255,255,255,0.025); border: 1px solid rgba(118,75,162,0.18);
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(var(--purple-rgb),0.18);
       border-radius: 12px; transition: all 0.2s;
     }
-    .tor-result-row:hover { background: rgba(16,185,129,0.04); border-color: rgba(16,185,129,0.25); }
+    .tor-result-row:hover { background: rgba(var(--green-rgb),0.04); border-color: rgba(var(--green-rgb),0.25); }
     .tor-result-row.selected {
-      border-color: var(--accent-green); background: rgba(16,185,129,0.1);
-      box-shadow: 0 0 16px rgba(16,185,129,0.15);
+      border-color: var(--accent-green); background: rgba(var(--green-rgb),0.1);
+      box-shadow: 0 0 16px rgba(var(--green-rgb),0.15);
     }
     .tor-result-row.dimmed { opacity: 0.3; pointer-events: none; }
     .tor-result-row.added-to-rd {
-      border-color: var(--accent-green); background: rgba(16,185,129,0.06);
+      border-color: var(--accent-green); background: rgba(var(--green-rgb),0.06);
     }
 
     /* Title — full display, no truncation */
@@ -785,9 +803,9 @@
     .tor-badge {
       padding: 0.12rem 0.4rem; border-radius: 5px; font-size: 0.6rem; font-weight: 700; white-space: nowrap;
     }
-    .tor-badge-source  { background: rgba(118,75,162,0.3); color: #c084fc; }
-    .tor-badge-quality { background: rgba(16,185,129,0.2); color: var(--accent-green); }
-    .tor-badge-cached  { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+    .tor-badge-source  { background: rgba(var(--purple-rgb),0.3); color: var(--purple-light); }
+    .tor-badge-quality { background: rgba(var(--green-rgb),0.2); color: var(--accent-green); }
+    .tor-badge-cached  { background: rgba(var(--green-rgb),0.15); color: var(--accent-green); border: 1px solid rgba(var(--green-rgb),0.3); }
     .tor-badge-3d      { background: rgba(239,68,68,0.15);  color: var(--accent-red); }
     .tor-row-stats {
       display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0;
@@ -803,9 +821,9 @@
       align-items: center; gap: 0.25rem; white-space: nowrap; background: none;
     }
     .tor-action-btn.play   { border-color: var(--accent-green); color: var(--accent-green); }
-    .tor-action-btn.play:hover { background: rgba(16,185,129,0.2); }
-    .tor-action-btn.rd     { border-color: rgba(118,75,162,0.5); color: #c084fc; }
-    .tor-action-btn.rd:hover { background: rgba(118,75,162,0.15); }
+    .tor-action-btn.play:hover { background: rgba(var(--green-rgb),0.2); }
+    .tor-action-btn.rd     { border-color: rgba(var(--purple-rgb),0.5); color: var(--purple-light); }
+    .tor-action-btn.rd:hover { background: rgba(var(--purple-rgb),0.15); }
     .tor-action-btn.rd.added { border-color: var(--accent-green); color: var(--accent-green); }
     .tor-action-btn.infuse { border-color: rgba(255,149,0,0.4); color: #ff9500; }
     .tor-action-btn.infuse:hover { background: rgba(255,149,0,0.12); }
@@ -826,7 +844,7 @@
 
     /* Eye toggle for token */
     .token-eye-btn {
-      width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(118,75,162,0.4);
+      width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(var(--purple-rgb),0.4);
       background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.45); font-size: 1rem;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: all 0.2s; flex-shrink: 0;
@@ -835,29 +853,29 @@
 
     /* Stream player area inside overlay */
     #torrent-overlay-player {
-      padding: 1rem 1.5rem 1.5rem; border-top: 1px solid rgba(16,185,129,0.2);
+      padding: 1rem 1.5rem 1.5rem; border-top: 1px solid rgba(var(--green-rgb),0.2);
       display: none;
     }
     #torrent-overlay-stream-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
     .stream-quality-group { display: flex; }
     .stream-quality-btn {
       padding: 0.4rem 0.85rem;
-      border: 1.5px solid rgba(118,75,162,0.5); border-right: none;
+      border: 1.5px solid rgba(var(--purple-rgb),0.5); border-right: none;
       border-radius: 20px 0 0 20px;
       background: rgba(255,255,255,0.05); color: #fff;
       font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
     }
-    .stream-quality-btn.active { border-color: var(--accent-green); background: rgba(16,185,129,0.2); }
+    .stream-quality-btn.active { border-color: var(--accent-green); background: rgba(var(--green-rgb),0.2); }
     .stream-ext-btn {
       padding: 0.4rem 0.6rem;
-      border: 1.5px solid rgba(118,75,162,0.5);
+      border: 1.5px solid rgba(var(--purple-rgb),0.5);
       border-left: 1px solid rgba(255,255,255,0.15);
       border-radius: 0 20px 20px 0;
       background: rgba(255,255,255,0.05); color: #fff;
       font-size: 0.75rem; font-weight: 700; text-decoration: none;
       display: flex; align-items: center; transition: all 0.2s;
     }
-    .stream-ext-btn:hover { background: rgba(118,75,162,0.3); }
+    .stream-ext-btn:hover { background: rgba(var(--purple-rgb),0.3); }
     .stream-quality-btn.active + .stream-ext-btn { border-color: var(--accent-green); }
 
     #rd-player {
@@ -879,17 +897,17 @@
     #settings-overlay.active { display: flex; }
 
     #settings-panel {
-      background: var(--modal-bg); border: 1.5px solid rgba(16,185,129,0.4);
+      background: var(--modal-bg); border: 1.5px solid rgba(var(--green-rgb),0.4);
       border-radius: 20px; width: 100%; max-width: 620px;
       margin: auto; overflow: hidden;
-      box-shadow: 0 0 60px rgba(16,185,129,0.15);
+      box-shadow: 0 0 60px rgba(var(--green-rgb),0.15);
     }
 
     #settings-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.25rem 1.5rem;
-      background: rgba(16,185,129,0.06);
-      border-bottom: 1px solid rgba(16,185,129,0.2);
+      background: rgba(var(--green-rgb),0.06);
+      border-bottom: 1px solid rgba(var(--green-rgb),0.2);
     }
     #settings-header h2 {
       font-size: 1.8rem; margin: 0; background: none; -webkit-background-clip: unset;
@@ -912,18 +930,18 @@
     }
     #favorites-overlay.active { display: flex; }
     #favorites-panel {
-      background: var(--modal-bg); border: 1.5px solid rgba(118,75,162,0.45);
+      background: var(--modal-bg); border: 1.5px solid rgba(var(--purple-rgb),0.45);
       border-radius: 20px; width: 100%; max-width: 620px;
-      overflow: hidden; box-shadow: 0 0 60px rgba(118,75,162,0.15);
+      overflow: hidden; box-shadow: 0 0 60px rgba(var(--purple-rgb),0.15);
     }
     #favorites-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.25rem 1.5rem;
-      background: rgba(118,75,162,0.08);
-      border-bottom: 1px solid rgba(118,75,162,0.25);
+      background: rgba(var(--purple-rgb),0.08);
+      border-bottom: 1px solid rgba(var(--purple-rgb),0.25);
     }
     #favorites-header h2 {
-      font-size: 1.6rem; margin: 0; color: #c084fc;
+      font-size: 1.6rem; margin: 0; color: var(--purple-light);
       font-family: var(--ff-display); letter-spacing: 0.05em;
     }
     #favorites-close {
@@ -944,15 +962,15 @@
     }
     #tvguide-overlay.active { display: flex; }
     #tvguide-panel {
-      background: var(--modal-bg); border: 1.5px solid rgba(16,185,129,0.45);
+      background: var(--modal-bg); border: 1.5px solid rgba(var(--green-rgb),0.45);
       border-radius: 20px; width: 100%; max-width: 680px;
-      overflow: hidden; box-shadow: 0 0 60px rgba(16,185,129,0.15);
+      overflow: hidden; box-shadow: 0 0 60px rgba(var(--green-rgb),0.15);
     }
     #tvguide-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.25rem 1.5rem;
-      background: rgba(16,185,129,0.08);
-      border-bottom: 1px solid rgba(16,185,129,0.25);
+      background: rgba(var(--green-rgb),0.08);
+      border-bottom: 1px solid rgba(var(--green-rgb),0.25);
     }
     #tvguide-header h2 {
       font-size: 1.6rem; margin: 0; color: var(--accent-green);
@@ -972,7 +990,7 @@
       border-radius: 14px; background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.15s;
     }
-    .guide-row:hover, .guide-row:active { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); }
+    .guide-row:hover, .guide-row:active { background: rgba(var(--green-rgb),0.08); border-color: rgba(var(--green-rgb),0.3); }
     .guide-row.resolving { opacity: 0.5; pointer-events: none; }
     .guide-thumb { width: 42px; height: 58px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #111; }
     .guide-info { min-width: 0; flex: 1; }
@@ -992,18 +1010,18 @@
     }
     #calendar-overlay.active { display: flex; }
     #calendar-panel {
-      background: var(--modal-bg); border: 1.5px solid rgba(118,75,162,0.45);
+      background: var(--modal-bg); border: 1.5px solid rgba(var(--purple-rgb),0.45);
       border-radius: 20px; width: 100%; max-width: 680px;
-      overflow: hidden; box-shadow: 0 0 60px rgba(118,75,162,0.15);
+      overflow: hidden; box-shadow: 0 0 60px rgba(var(--purple-rgb),0.15);
     }
     #calendar-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.25rem 1.5rem;
-      background: rgba(118,75,162,0.08);
-      border-bottom: 1px solid rgba(118,75,162,0.25);
+      background: rgba(var(--purple-rgb),0.08);
+      border-bottom: 1px solid rgba(var(--purple-rgb),0.25);
     }
     #calendar-header h2 {
-      font-size: 1.6rem; margin: 0; color: #c084fc;
+      font-size: 1.6rem; margin: 0; color: var(--purple-light);
       font-family: var(--ff-display); letter-spacing: 0.05em;
     }
     #calendar-close {
@@ -1030,6 +1048,8 @@
       overflow: hidden; cursor: pointer; transition: all 0.25s ease; scroll-snap-align: start;
     }
     .cal-card:hover { transform: translateY(-2px); }
+    .cal-card.poster { width: 130px; }
+    .cal-card.poster .cal-card-img-wrap { aspect-ratio: 2 / 3; }
     .cal-card-img-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #111; }
     .cal-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .cal-card-noimg {
@@ -1044,7 +1064,7 @@
       font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px;
       background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); color: #fff; white-space: nowrap;
     }
-    .cal-badge-type { background: rgba(16,185,129,0.85); }
+    .cal-badge-type { background: rgba(var(--green-rgb),0.85); }
     .cal-badge-watched {
       position: absolute; top: 0.4rem; right: 0.4rem; font-size: 0.85rem;
       background: rgba(0,0,0,0.6); border-radius: 50%; width: 22px; height: 22px;
@@ -1067,9 +1087,9 @@
     }
     #location-prompt-overlay.active { display: flex; }
     #location-prompt-panel {
-      background: var(--modal-bg); border: 1.5px solid rgba(16,185,129,0.45);
+      background: var(--modal-bg); border: 1.5px solid rgba(var(--green-rgb),0.45);
       border-radius: 20px; padding: 1.75rem 1.5rem; max-width: 340px; width: 100%;
-      text-align: center; box-shadow: 0 0 60px rgba(16,185,129,0.15);
+      text-align: center; box-shadow: 0 0 60px rgba(var(--green-rgb),0.15);
     }
     #location-prompt-panel .settings-btn { width: 100%; margin-top: 0.6rem; justify-content: center; }
     #location-manual-inline { display: none; margin-top: 0.75rem; }
@@ -1099,7 +1119,7 @@
     }
     .cache-popup-panel {
       position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%);
-      z-index: 9999; background: var(--modal-bg); border: 1.5px solid rgba(118,75,162,0.4);
+      z-index: 9999; background: var(--modal-bg); border: 1.5px solid rgba(var(--purple-rgb),0.4);
       border-radius: 16px; padding: 1.25rem; width: min(340px, 90vw);
       box-shadow: 0 0 40px rgba(0,0,0,0.5);
     }
@@ -1111,12 +1131,12 @@
     .cache-popup-btn {
       flex: 1; min-width: 80px; padding: 0.6rem 0.5rem; border-radius: 10px; font-size: 0.8rem;
       font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; display: block;
-      transition: all 0.15s; border: 1.5px solid rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); color: var(--accent-green);
+      transition: all 0.15s; border: 1.5px solid rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.08); color: var(--accent-green);
     }
-    .cache-popup-btn:hover { background: rgba(16,185,129,0.2); }
+    .cache-popup-btn:hover { background: rgba(var(--green-rgb),0.2); }
     .cache-popup-btn.infuse { border-color: rgba(255,149,0,0.4); color: #ff9500; background: rgba(255,149,0,0.08); }
     .cache-popup-btn.vlc { border-color: rgba(255,136,0,0.4); color: #ff8800; background: rgba(255,136,0,0.08); }
-    .cache-popup-btn.browser { border-color: rgba(118,75,162,0.4); color: #c084fc; background: rgba(118,75,162,0.08); }
+    .cache-popup-btn.browser { border-color: rgba(var(--purple-rgb),0.4); color: var(--purple-light); background: rgba(var(--purple-rgb),0.08); }
     .cache-popup-btn.delete { border-color: rgba(239,68,68,0.4); color: var(--accent-red); background: rgba(239,68,68,0.08); }
     .cache-popup-close {
       width: 100%; padding: 0.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
@@ -1139,8 +1159,8 @@
       background: rgba(255,255,255,0.04); cursor: pointer; font-size: 0.7rem; display: flex;
       align-items: center; justify-content: center; transition: all 0.15s;
     }
-    .rd-lib-btn.play { border-color: rgba(16,185,129,0.3); color: var(--accent-green); }
-    .rd-lib-btn.play:hover { background: rgba(16,185,129,0.15); }
+    .rd-lib-btn.play { border-color: rgba(var(--green-rgb),0.3); color: var(--accent-green); }
+    .rd-lib-btn.play:hover { background: rgba(var(--green-rgb),0.15); }
     .rd-lib-btn.delete { border-color: rgba(239,68,68,0.3); color: var(--accent-red); }
     .rd-lib-btn.delete:hover { background: rgba(239,68,68,0.15); }
 
@@ -1155,13 +1175,13 @@
       color: rgba(255,255,255,0.85); font-size: 0.9rem; font-weight: 500;
       transition: background 0.2s, border-color 0.2s;
     }
-    .settings-nav-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(16,185,129,0.3); }
+    .settings-nav-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(var(--green-rgb),0.3); }
     .settings-nav-btn .snb-icon { font-size: 1.1rem; margin-right: 0.6rem; }
     .settings-nav-btn .snb-arrow { color: rgba(255,255,255,0.3); font-size: 0.8rem; }
     .settings-nav-btn .snb-badge {
       font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 8px;
-      background: rgba(16,185,129,0.15); color: var(--accent-green);
-      border: 1px solid rgba(16,185,129,0.3); margin-left: auto; margin-right: 0.5rem;
+      background: rgba(var(--green-rgb),0.15); color: var(--accent-green);
+      border: 1px solid rgba(var(--green-rgb),0.3); margin-left: auto; margin-right: 0.5rem;
     }
     .settings-submenu { display: none; flex-direction: column; gap: 0.75rem; }
     .settings-submenu.active { display: flex; }
@@ -1180,14 +1200,14 @@
     .settings-section-title {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
       color: var(--accent-green); padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(16,185,129,0.2);
+      border-bottom: 1px solid rgba(var(--green-rgb),0.2);
     }
 
     /* Token input row */
     .settings-token-row { display: flex; gap: 0.5rem; align-items: stretch; flex-wrap: wrap; }
     .settings-token-input {
       flex: 1; min-width: 200px; padding: 0.6rem 1rem; font-size: 0.85rem;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(118,75,162,0.4);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(var(--purple-rgb),0.4);
       border-radius: 10px; color: #fff; font-family: monospace;
     }
     .settings-token-input:focus { outline: none; border-color: var(--accent-green); }
@@ -1197,12 +1217,12 @@
       padding: 0.55rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 700;
       cursor: pointer; border: 1.5px solid; transition: all 0.2s; white-space: nowrap;
     }
-    .settings-btn.green  { background: rgba(16,185,129,0.15); border-color: var(--accent-green); color: var(--accent-green); }
-    .settings-btn.green:hover { background: rgba(16,185,129,0.3); }
+    .settings-btn.green  { background: rgba(var(--green-rgb),0.15); border-color: var(--accent-green); color: var(--accent-green); }
+    .settings-btn.green:hover { background: rgba(var(--green-rgb),0.3); }
     .settings-btn.red    { background: rgba(239,68,68,0.12); border-color: var(--accent-red); color: var(--accent-red); }
     .settings-btn.red:hover { background: rgba(239,68,68,0.25); }
-    .settings-btn.purple { background: rgba(118,75,162,0.15); border-color: var(--accent-purple); color: #c084fc; }
-    .settings-btn.purple:hover { background: rgba(118,75,162,0.3); }
+    .settings-btn.purple { background: rgba(var(--purple-rgb),0.15); border-color: var(--accent-purple); color: var(--purple-light); }
+    .settings-btn.purple:hover { background: rgba(var(--purple-rgb),0.3); }
 
     /* Checkbox grid */
     .settings-checkbox-grid {
@@ -1214,7 +1234,7 @@
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 8px; transition: all 0.2s;
     }
-    .settings-checkbox-label:hover { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+    .settings-checkbox-label:hover { background: rgba(var(--green-rgb),0.08); border-color: rgba(var(--green-rgb),0.2); }
     .settings-checkbox-label input[type="checkbox"] { accent-color: var(--accent-green); width: 15px; height: 15px; }
 
     /* Range / number inputs */
@@ -1222,7 +1242,7 @@
     .settings-row label { font-size: 0.82rem; color: rgba(255,255,255,0.75); }
     .settings-number-input {
       width: 80px; padding: 0.4rem 0.6rem; font-size: 0.85rem; text-align: center;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(118,75,162,0.4);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(var(--purple-rgb),0.4);
       border-radius: 8px; color: #fff;
     }
     .settings-number-input:focus { outline: none; border-color: var(--accent-green); }
@@ -1230,7 +1250,7 @@
     /* Stremio URL input */
     .settings-url-input {
       width: 100%; padding: 0.6rem 1rem; font-size: 0.85rem;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(118,75,162,0.4);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(var(--purple-rgb),0.4);
       border-radius: 10px; color: #fff;
     }
     .settings-url-input:focus { outline: none; border-color: var(--accent-green); }
@@ -1240,13 +1260,13 @@
       padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
       display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem;
     }
-    #settings-tb-status.connected    { background: rgba(16,185,129,0.12); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.35); }
+    #settings-tb-status.connected    { background: rgba(var(--green-rgb),0.12); color: var(--accent-green); border: 1px solid rgba(var(--green-rgb),0.35); }
     #settings-tb-status.disconnected { background: rgba(239,68,68,0.1);   color: var(--accent-red);   border: 1px solid rgba(239,68,68,0.3); }
     #settings-rd-status {
       padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
       display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem;
     }
-    #settings-rd-status.connected    { background: rgba(118,75,162,0.15); color: var(--accent-purple); border: 1px solid rgba(118,75,162,0.4); }
+    #settings-rd-status.connected    { background: rgba(var(--purple-rgb),0.15); color: var(--accent-purple); border: 1px solid rgba(var(--purple-rgb),0.4); }
     #settings-rd-status.disconnected { background: rgba(239,68,68,0.1);   color: var(--accent-red);    border: 1px solid rgba(239,68,68,0.3); }
 
     /* Pulse dot for connected status */
@@ -1255,12 +1275,12 @@
     }
     .status-dot.rd-dot {
       background: var(--accent-green);
-      box-shadow: 0 0 0 0 rgba(16,185,129,0.6);
+      box-shadow: 0 0 0 0 rgba(var(--green-rgb),0.6);
       animation: pulse-green 2s ease-in-out infinite;
     }
     .status-dot.tb-dot {
       background: var(--accent-purple);
-      box-shadow: 0 0 0 0 rgba(118,75,162,0.6);
+      box-shadow: 0 0 0 0 rgba(var(--purple-rgb),0.6);
       animation: pulse-purple 2s ease-in-out infinite;
     }
     .status-dot.off-dot {
@@ -1269,26 +1289,26 @@
       animation: none;
     }
     @keyframes pulse-green {
-      0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
-      50%  { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
-      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(var(--green-rgb),0.6); }
+      50%  { box-shadow: 0 0 0 5px rgba(var(--green-rgb),0); }
+      100% { box-shadow: 0 0 0 0 rgba(var(--green-rgb),0); }
     }
     @keyframes pulse-purple {
-      0%   { box-shadow: 0 0 0 0 rgba(118,75,162,0.7); }
-      50%  { box-shadow: 0 0 0 5px rgba(118,75,162,0); }
-      100% { box-shadow: 0 0 0 0 rgba(118,75,162,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(var(--purple-rgb),0.7); }
+      50%  { box-shadow: 0 0 0 5px rgba(var(--purple-rgb),0); }
+      100% { box-shadow: 0 0 0 0 rgba(var(--purple-rgb),0); }
     }
 
     /* ── Stremio addon manager ── */
     .addon-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
     .addon-item {
       display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem;
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(118,75,162,0.25);
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(var(--purple-rgb),0.25);
       border-radius: 10px; transition: border-color 0.2s, background 0.2s;
       margin-bottom: 0.4rem;
     }
-    .addon-item:hover { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.04); }
-    .addon-item.drag-over { border-color: var(--accent-green); background: rgba(16,185,129,0.1); transform: scale(1.01); }
+    .addon-item:hover { border-color: rgba(var(--green-rgb),0.3); background: rgba(var(--green-rgb),0.04); }
+    .addon-item.drag-over { border-color: var(--accent-green); background: rgba(var(--green-rgb),0.1); transform: scale(1.01); }
     .addon-item.dragging { opacity: 0.35; }
     .addon-drag-handle {
       cursor: grab; font-size: 1.1rem; color: rgba(255,255,255,0.22);
@@ -1297,14 +1317,14 @@
     .addon-drag-handle:active { cursor: grabbing; color: rgba(255,255,255,0.5); }
     .addon-item .addon-icon { font-size: 1.2rem; flex-shrink: 0; }
     .addon-item .addon-info { flex: 1; min-width: 0; }
-    .addon-item .addon-name { font-size: 0.82rem; font-weight: 700; color: #c084fc; cursor: pointer; display: inline-block; }
-    .addon-item .addon-name:hover { color: #e0aaff; text-decoration: underline dotted rgba(118,75,162,0.6); }
+    .addon-item .addon-name { font-size: 0.82rem; font-weight: 700; color: var(--purple-light); cursor: pointer; display: inline-block; }
+    .addon-item .addon-name:hover { color: #e0aaff; text-decoration: underline dotted rgba(var(--purple-rgb),0.6); }
     .addon-name-input {
-      background: rgba(118,75,162,0.15); border: 1.5px solid rgba(118,75,162,0.5);
+      background: rgba(var(--purple-rgb),0.15); border: 1.5px solid rgba(var(--purple-rgb),0.5);
       border-radius: 6px; color: #e0aaff; font-size: 0.82rem; font-weight: 700;
       padding: 0.15rem 0.4rem; width: 100%; outline: none; font-family: inherit;
     }
-    .addon-name-input:focus { border-color: var(--accent-purple); box-shadow: 0 0 8px rgba(118,75,162,0.3); }
+    .addon-name-input:focus { border-color: var(--accent-purple); box-shadow: 0 0 8px rgba(var(--purple-rgb),0.3); }
     .addon-item .addon-url-label { font-size: 0.68rem; color: rgba(255,255,255,0.35); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .addon-reorder-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
     .addon-reorder-btn {
@@ -1313,7 +1333,7 @@
       width: 20px; height: 18px; cursor: pointer; display: flex; align-items: center;
       justify-content: center; padding: 0; transition: all 0.15s; flex-shrink: 0;
     }
-    .addon-reorder-btn:hover:not(:disabled) { background: rgba(16,185,129,0.15); border-color: var(--accent-green); color: var(--accent-green); }
+    .addon-reorder-btn:hover:not(:disabled) { background: rgba(var(--green-rgb),0.15); border-color: var(--accent-green); color: var(--accent-green); }
     .addon-reorder-btn:disabled { opacity: 0.15; cursor: default; }
     .addon-toggle {
       width: 40px; height: 22px; border-radius: 11px; border: none; cursor: pointer;
@@ -1335,21 +1355,21 @@
     .addon-quick-add { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
     .addon-quick-btn {
       padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
-      border: 1.5px solid rgba(118,75,162,0.4); background: rgba(118,75,162,0.1);
-      color: #c084fc; cursor: pointer; transition: all 0.2s;
+      border: 1.5px solid rgba(var(--purple-rgb),0.4); background: rgba(var(--purple-rgb),0.1);
+      color: var(--purple-light); cursor: pointer; transition: all 0.2s;
     }
-    .addon-quick-btn:hover { border-color: var(--accent-green); color: var(--accent-green); background: rgba(16,185,129,0.1); }
+    .addon-quick-btn:hover { border-color: var(--accent-green); color: var(--accent-green); background: rgba(var(--green-rgb),0.1); }
     .addon-custom-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
     .addon-custom-input {
       flex: 1; min-width: 0; padding: 0.5rem 0.8rem; font-size: 0.8rem;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(118,75,162,0.4);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(var(--purple-rgb),0.4);
       border-radius: 10px; color: #fff;
     }
     .addon-custom-input:focus { outline: none; border-color: var(--accent-green); }
 
     /* Addon source badges in torrent results */
     .tor-badge-addon { background: rgba(255,165,0,0.2); color: #ffa500; }
-    .tor-badge-direct { background: rgba(16,185,129,0.25); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.4); }
+    .tor-badge-direct { background: rgba(var(--green-rgb),0.25); color: var(--accent-green); border: 1px solid rgba(var(--green-rgb),0.4); }
 
     /* Torrent source toggle cards */
     .source-toggle-grid {
@@ -1357,12 +1377,12 @@
     }
     .source-toggle-card {
       display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.6rem;
-      background: rgba(255,255,255,0.03); border: 1.5px solid rgba(118,75,162,0.25);
+      background: rgba(255,255,255,0.03); border: 1.5px solid rgba(var(--purple-rgb),0.25);
       border-radius: 12px; cursor: pointer; transition: all 0.2s; user-select: none;
       min-width: 0; overflow: hidden;
     }
-    .source-toggle-card:hover { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.04); }
-    .source-toggle-card.active { border-color: rgba(16,185,129,0.5); background: rgba(16,185,129,0.06); }
+    .source-toggle-card:hover { border-color: rgba(var(--green-rgb),0.4); background: rgba(var(--green-rgb),0.04); }
+    .source-toggle-card.active { border-color: rgba(var(--green-rgb),0.5); background: rgba(var(--green-rgb),0.06); }
     .source-toggle-card .stc-check {
       width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
       background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2);
@@ -1388,37 +1408,37 @@
     }
     .search-limit-card {
       display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.6rem 0.5rem;
-      background: rgba(255,255,255,0.03); border: 1.5px solid rgba(118,75,162,0.25);
+      background: rgba(255,255,255,0.03); border: 1.5px solid rgba(var(--purple-rgb),0.25);
       border-radius: 12px; transition: all 0.2s;
     }
-    .search-limit-card:focus-within { border-color: var(--accent-green); background: rgba(16,185,129,0.05); }
+    .search-limit-card:focus-within { border-color: var(--accent-green); background: rgba(var(--green-rgb),0.05); }
     .search-limit-card .slc-icon  { font-size: 1.15rem; }
     .search-limit-card .slc-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.5px; color: rgba(255,255,255,0.55); text-transform: uppercase; }
     .search-limit-card .settings-number-input { width: 100%; box-sizing: border-box; }
     /* Highlighted quick-filter row (Min seeders) */
     .quick-filter-row {
       display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      padding: 0.6rem 0.8rem; background: rgba(16,185,129,0.05);
-      border: 1px solid rgba(16,185,129,0.2); border-radius: 12px;
+      padding: 0.6rem 0.8rem; background: rgba(var(--green-rgb),0.05);
+      border: 1px solid rgba(var(--green-rgb),0.2); border-radius: 12px;
     }
     .quick-filter-row label { font-size: 0.82rem; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 0.4rem; }
     /* Section-title badge (e.g. "4/4 on") */
     .settings-section-title .sst-badge {
       font-size: 0.62rem; font-weight: 700; letter-spacing: 0; text-transform: none;
-      color: var(--accent-green); background: rgba(16,185,129,0.12);
-      padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid rgba(16,185,129,0.3);
+      color: var(--accent-green); background: rgba(var(--green-rgb),0.12);
+      padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid rgba(var(--green-rgb),0.3);
     }
 
     /* Catalog card play buttons */
     .cat-play-btn {
       padding: 0.15rem 0.35rem; border-radius: 6px; font-size: 0.6rem;
-      border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(var(--green-rgb),0.4); background: rgba(var(--green-rgb),0.1);
       color: var(--accent-green); cursor: pointer; transition: all 0.15s;
     }
-    .cat-play-btn:hover { background: rgba(16,185,129,0.25); }
+    .cat-play-btn:hover { background: rgba(var(--green-rgb),0.25); }
     .cat-play-btn.cat-infuse { border-color: rgba(255,149,0,0.4); color: #ff9500; background: rgba(255,149,0,0.08); }
     .cat-play-btn.cat-vlc { border-color: rgba(255,136,0,0.4); color: #ff8800; background: rgba(255,136,0,0.08); }
-    .cat-play-btn.cat-info { border-color: rgba(118,75,162,0.4); color: #c084fc; background: rgba(118,75,162,0.08); }
+    .cat-play-btn.cat-info { border-color: rgba(var(--purple-rgb),0.4); color: var(--purple-light); background: rgba(var(--purple-rgb),0.08); }
 
     /* Exclude uploader/group preset chips */
     .exclude-presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
@@ -1429,12 +1449,12 @@
     }
     .exclude-preset-chip:hover { border-color: var(--accent-red); background: rgba(239,68,68,0.15); }
     .exclude-preset-chip.clear-chip {
-      border-color: rgba(118,75,162,0.4); background: rgba(118,75,162,0.08); color: #c084fc;
+      border-color: rgba(var(--purple-rgb),0.4); background: rgba(var(--purple-rgb),0.08); color: var(--purple-light);
     }
-    .exclude-preset-chip.clear-chip:hover { border-color: var(--accent-purple); background: rgba(118,75,162,0.2); }
+    .exclude-preset-chip.clear-chip:hover { border-color: var(--accent-purple); background: rgba(var(--purple-rgb),0.2); }
     .exclude-keywords-input {
       width: 100%; padding: 0.6rem 1rem; font-size: 0.85rem;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(118,75,162,0.4);
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(var(--purple-rgb),0.4);
       border-radius: 10px; color: #fff;
     }
     .exclude-keywords-input:focus { outline: none; border-color: var(--accent-green); }
@@ -1450,7 +1470,7 @@
 
     /* ── RD Library sub-view ── */
     #rd-library-panel {
-      display: none; padding: 1rem 1.5rem; border-top: 1px solid rgba(16,185,129,0.15);
+      display: none; padding: 1rem 1.5rem; border-top: 1px solid rgba(var(--green-rgb),0.15);
     }
     #rd-library-panel.active { display: block; }
     .rd-lib-item {
@@ -1458,12 +1478,12 @@
       border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;
       transition: background 0.2s; border-radius: 8px;
     }
-    .rd-lib-item:hover { background: rgba(16,185,129,0.06); }
+    .rd-lib-item:hover { background: rgba(var(--green-rgb),0.06); }
     .rd-lib-name  { flex: 1; font-size: 0.8rem; color: #a78bca; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .rd-lib-meta  { font-size: 0.7rem; color: rgba(255,255,255,0.4); white-space: nowrap; }
     .rd-lib-status-badge { padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.65rem; font-weight: 700; white-space: nowrap; }
-    .rd-lib-status-badge.downloaded { background: rgba(16,185,129,0.15); color: var(--accent-green); }
-    .rd-lib-status-badge.other      { background: rgba(118,75,162,0.15); color: #c084fc; }
+    .rd-lib-status-badge.downloaded { background: rgba(var(--green-rgb),0.15); color: var(--accent-green); }
+    .rd-lib-status-badge.other      { background: rgba(var(--purple-rgb),0.15); color: var(--purple-light); }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-17  GENERIC BUTTONS
@@ -1474,7 +1494,7 @@
       border-radius: 999px; text-decoration: none; border: none;
       cursor: pointer; transition: all 0.3s; margin: 0.5rem 0.5rem 0.5rem 0;
     }
-    .btn:hover { background: var(--accent-purple); color: #fff; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(118,75,162,0.4); }
+    .btn:hover { background: var(--accent-purple); color: #fff; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(var(--purple-rgb),0.4); }
     .collections-btn {
       display: inline-block; padding: 0.8rem 1.5rem;
       background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; font-weight: 700;
@@ -1487,7 +1507,7 @@
        § CSS-18  ACTOR PROFILE
        ═══════════════════════════════════════════════════════════════════ */
     .actor-profile { text-align: center; margin-bottom: 2rem; }
-    .actor-profile img { max-width: 240px; border-radius: 12px; margin: 1rem auto; display: block; border: 2px solid rgba(118,75,162,0.5); box-shadow: 0 0 30px rgba(118,75,162,0.4); }
+    .actor-profile img { max-width: 240px; border-radius: 12px; margin: 1rem auto; display: block; border: 2px solid rgba(var(--purple-rgb),0.5); box-shadow: 0 0 30px rgba(var(--purple-rgb),0.4); }
 
     /* ═══════════════════════════════════════════════════════════════════
        § CSS-19  TMDB ATTRIBUTION
@@ -1512,10 +1532,10 @@
     .weather-col          { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
     .weather-icon-temp    { display: flex; flex-direction: column; align-items: center; gap: 0; }
     .weather-icon         { font-size: 1.3rem; line-height: 1; }
-    .weather-temp         { font-size: 0.8rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; line-height: 1; }
+    .weather-temp         { font-size: 0.8rem; font-weight: 700; background: linear-gradient(135deg, #667eea, var(--accent-purple)); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; line-height: 1; }
     .weather-time         { font-size: 0.8rem; font-weight: 600; color: var(--accent-green); white-space: nowrap; }
     .weather-divider      { color: rgba(255,255,255,0.2); font-weight: 300; }
-    .weather-condition    { font-size: 0.7rem; font-weight: 600; color: #764ba2; text-align: center; line-height: 1.2; }
+    .weather-condition    { font-size: 0.7rem; font-weight: 600; color: var(--accent-purple); text-align: center; line-height: 1.2; }
     .weather-location     { font-size: 0.7rem; font-weight: 600; color: var(--accent-green); text-align: center; line-height: 1.2; }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -1524,11 +1544,11 @@
     #footer {
       padding: 2rem; text-align: center;
       background: rgba(0,0,0,0.55); backdrop-filter: blur(50px);
-      border-top: 1px solid rgba(118,75,162,0.3); margin-top: 3rem;
+      border-top: 1px solid rgba(var(--purple-rgb),0.3); margin-top: 3rem;
     }
     #easterEgg {
       font-weight: 700; font-size: 1.4rem; cursor: pointer;
-      background: linear-gradient(90deg, #667eea, #764ba2);
+      background: linear-gradient(90deg, #667eea, var(--accent-purple));
       -webkit-background-clip: text; background-clip: text; color: transparent;
       transition: transform 0.3s; display: inline-block;
     }
@@ -1557,6 +1577,8 @@
       .episode-item        { flex-direction: column; }
       .episode-still       { width: 100%; height: auto; aspect-ratio: 150 / 84; } /* reserves space before the lazy image loads, so layout/scroll math is correct right away */
       .episode-actions     { gap: 0.25rem; }
+      #episodes-container.ep-vertical .episode-item  { flex-direction: column; }
+      #episodes-container.ep-vertical .episode-still { width: 100%; height: auto; aspect-ratio: 150 / 84; }
       .ep-action-btn       { font-size: 0.6rem; padding: 0.2rem 0.45rem; }
       #torrent-overlay-header { padding: 0.85rem 1rem; }
       #torrent-filter-bar  { padding: 0.6rem 1rem; }
@@ -1579,18 +1601,18 @@
   <style>
     /* Plyr dark theme overrides */
     :root {
-      --plyr-color-main: #10b981;
+      --plyr-color-main: var(--accent-green);
       --plyr-video-background: #000;
-      --plyr-range-fill-background: #10b981;
+      --plyr-range-fill-background: var(--accent-green);
       --plyr-video-control-color: #fff;
-      --plyr-video-control-color-hover: #10b981;
+      --plyr-video-control-color-hover: var(--accent-green);
       --plyr-font-size-base: 14px;
       --plyr-border-radius: 14px;
     }
     .plyr { border-radius: 14px; overflow: hidden; width: 100%; aspect-ratio: 16/9; }
     .plyr--video { background: #000; box-shadow: 0 8px 40px rgba(0,0,0,0.7); margin-bottom: 0.75rem; }
-    .plyr__control--overlaid { background: rgba(16,185,129,0.85) !important; }
-    .plyr__control--overlaid:hover { background: #10b981 !important; }
+    .plyr__control--overlaid { background: rgba(var(--green-rgb),0.85) !important; }
+    .plyr__control--overlaid:hover { background: var(--accent-green) !important; }
   </style>
 </head>
 <body>
@@ -1820,7 +1842,7 @@
 
 <!-- Stream player (shown after RD unrestrict) — at top so it's immediately visible -->
 <div id="torrent-overlay-player" style="display:none;">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.2rem 0.5rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(16,185,129,0.2);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.2rem 0.5rem;flex-wrap:wrap;gap:0.5rem;border-bottom:1px solid rgba(var(--green-rgb),0.2);">
     <div id="torrent-overlay-playing" style="font-size:0.82rem;color:var(--accent-green);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></div>
     <button class="settings-btn purple" style="flex-shrink:0;" onclick="hideTorrentPlayer()">✕ Close Player</button>
   </div>
@@ -1874,7 +1896,7 @@
 <div style="display:flex;gap:0.4rem;padding:0.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);">
   <input id="torrent-overlay-search-input" type="text" placeholder="Refine search…"
     style="flex:1;padding:0.4rem 0.8rem;border-radius:20px;background:rgba(255,255,255,0.07);
-           border:1px solid rgba(118,75,162,0.4);color:#fff;font-size:0.8rem;min-width:0;"
+           border:1px solid rgba(var(--purple-rgb),0.4);color:#fff;font-size:0.8rem;min-width:0;"
     onkeydown="if(event.key==='Enter')runTorrentOverlaySearch()">
   <button class="settings-btn purple" style="padding:0.4rem 0.7rem;"
           onclick="runTorrentOverlaySearch()">🔍</button>
@@ -1949,9 +1971,65 @@
     <span class="snb-arrow">›</span>
   </div>
 
+  <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-advanced')">
+    <span><span class="snb-icon">⚙️</span>Advanced Options</span>
+    <span class="snb-arrow">›</span>
+  </div>
+
   <div class="settings-nav-btn" onclick="openSettingsSubmenu('submenu-tools')">
     <span><span class="snb-icon">🔧</span>Advanced Tools</span>
     <span class="snb-arrow">›</span>
+  </div>
+
+</div>
+
+<!-- ── Submenu: Advanced Options ─────────────────────────────────── -->
+<div id="submenu-advanced" class="settings-submenu">
+  <button class="settings-submenu-back" onclick="closeSettingsSubmenu()">← Back</button>
+  <div class="settings-submenu-title">⚙️ Advanced Options</div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">🎛️ Layout &amp; Look</div>
+
+    <div class="settings-row">
+      <label>Horizontal episode list</label>
+      <button class="addon-toggle" id="adv-ep-layout-toggle" onclick="toggleAdvancedOption('episodeLayoutHorizontal','adv-ep-layout-toggle')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">On: swipe left/right through episode cards. Off: the classic up/down list. Applies the next time you open a show.</p>
+
+    <div class="settings-row">
+      <label>Landscape Continue Watching</label>
+      <button class="addon-toggle" id="adv-cw-landscape-toggle" onclick="toggleAdvancedOption('cwLandscape','adv-cw-landscape-toggle')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">On: wide backdrop cards on Home. Off: posters.</p>
+
+    <div class="settings-row">
+      <label>Poster-style Calendar</label>
+      <button class="addon-toggle" id="adv-cal-poster-toggle" onclick="toggleAdvancedOption('calendarPoster','adv-cal-poster-toggle')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">On: tall poster cards in the Calendar. Off: wide episode-still cards.</p>
+
+    <div class="settings-row">
+      <label>Swap colors (green ↔ purple)</label>
+      <button class="addon-toggle" id="adv-theme-swap-toggle" onclick="toggleAdvancedOption('themeSwapped','adv-theme-swap-toggle')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">Everywhere the site is purple it turns green, and everywhere it's green it turns purple.</p>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">🧰 Tools &amp; Diagnostics</div>
+
+    <div class="settings-row">
+      <label>Show playback debug log</label>
+      <button class="addon-toggle" id="tvg-player-debug" onclick="toggleSettingBool('tvGuidePlayerDebug','tvg-player-debug')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">The log panel under the TV Guide video player that shows load/error events. Turn off once you're not troubleshooting.</p>
+
+    <div class="settings-row">
+      <label>Show 🧲 Search button on titles</label>
+      <button class="addon-toggle" id="scraper-search-toggle" onclick="toggleSettingBool('scraperSearchEnabled','scraper-search-toggle')"></button>
+    </div>
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">Off hides Search everywhere — only the ⚡ Stream button shows.</p>
   </div>
 
 </div>
@@ -1967,7 +2045,7 @@
     <button id="debrid-tab-rd" onclick="switchDebridTab('rd')"
       style="flex:1;padding:0.55rem 1.25rem;border-radius:999px;border:none;font-size:0.85rem;font-weight:800;
              letter-spacing:1px;cursor:pointer;transition:all 0.2s;
-             background:var(--accent-purple);color:#fff;box-shadow:0 2px 8px rgba(118,75,162,0.4);">
+             background:var(--accent-purple);color:#fff;box-shadow:0 2px 8px rgba(var(--purple-rgb),0.4);">
       RD
     </button>
     <button id="debrid-tab-tb" onclick="switchDebridTab('tb')"
@@ -1995,7 +2073,7 @@
         <button class="settings-btn purple" onclick="testRDToken()">Test</button>
         <button class="settings-btn red"    onclick="deleteRDToken()">Clear</button>
       </div>
-      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(118,75,162,0.4);color:#c084fc;background:rgba(118,75,162,0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
+      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(var(--purple-rgb),0.4);color:var(--purple-light);background:rgba(var(--purple-rgb),0.08);width:100%;" onclick="showRDAccountInfo()">👤 RD Account Info</button>
     </div>
     <div class="settings-section">
       <div class="settings-section-title" style="color:var(--accent-purple);">Real-Debrid Library</div>
@@ -2028,7 +2106,7 @@
         <button class="settings-btn purple" onclick="testTBToken()">Test</button>
         <button class="settings-btn red"    onclick="deleteTBToken()">Clear</button>
       </div>
-      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(16,185,129,0.4);color:var(--accent-green);background:rgba(16,185,129,0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
+      <button class="settings-btn" style="margin-top:0.75rem;border-color:rgba(var(--green-rgb),0.4);color:var(--accent-green);background:rgba(var(--green-rgb),0.08);width:100%;" onclick="showTBAccountInfo()">👤 TB Account Info</button>
     </div>
     <div class="settings-section">
       <div class="settings-section-title">Torbox Library</div>
@@ -2057,7 +2135,7 @@
     <button id="tools-tab-rd" onclick="switchToolsTab('rd')"
       style="flex:1;padding:0.55rem 1.25rem;border-radius:999px;border:none;font-size:0.85rem;font-weight:800;
              letter-spacing:1px;cursor:pointer;transition:all 0.2s;
-             background:var(--accent-purple);color:#fff;box-shadow:0 2px 8px rgba(118,75,162,0.4);">
+             background:var(--accent-purple);color:#fff;box-shadow:0 2px 8px rgba(var(--purple-rgb),0.4);">
       RD
     </button>
     <button id="tools-tab-tb" onclick="switchToolsTab('tb')"
@@ -2087,7 +2165,7 @@
           <input id="rd-magnet-input" type="text" placeholder="magnet:?xt=urn:btih:… or hash"
             autocomplete="off" autocorrect="off" spellcheck="false"
             style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
-                   border:1px solid rgba(118,75,162,0.4);background:rgba(118,75,162,0.08);
+                   border:1px solid rgba(var(--purple-rgb),0.4);background:rgba(var(--purple-rgb),0.08);
                    color:#fff;font-size:0.78rem;outline:none;">
           <button class="settings-btn purple" onclick="rdAddMagnetFromInput()">Add</button>
         </div>
@@ -2100,7 +2178,7 @@
           <input id="rd-unrestrict-input" type="text" placeholder="https://1fichier.com/…"
             autocomplete="off" autocorrect="off" spellcheck="false"
             style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
-                   border:1px solid rgba(118,75,162,0.4);background:rgba(118,75,162,0.08);
+                   border:1px solid rgba(var(--purple-rgb),0.4);background:rgba(var(--purple-rgb),0.08);
                    color:#fff;font-size:0.78rem;outline:none;">
           <button class="settings-btn purple" onclick="rdUnrestrictFromInput()">Unrestrict</button>
         </div>
@@ -2128,7 +2206,7 @@
           <input id="tb-magnet-input" type="text" placeholder="magnet:?xt=urn:btih:… or hash"
             autocomplete="off" autocorrect="off" spellcheck="false"
             style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
-                   border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.08);
+                   border:1px solid rgba(var(--green-rgb),0.4);background:rgba(var(--green-rgb),0.08);
                    color:#fff;font-size:0.78rem;outline:none;">
           <button class="settings-btn green" onclick="tbAddMagnetFromInput()">Add</button>
         </div>
@@ -2141,7 +2219,7 @@
           <input id="tb-unrestrict-input" type="text" placeholder="https://mega.nz/…"
             autocomplete="off" autocorrect="off" spellcheck="false"
             style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;
-                   border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.08);
+                   border:1px solid rgba(var(--green-rgb),0.4);background:rgba(var(--green-rgb),0.08);
                    color:#fff;font-size:0.78rem;outline:none;">
           <button class="settings-btn green" onclick="tbUnrestrictFromInput()">Unrestrict</button>
         </div>
@@ -2181,12 +2259,6 @@
 
   <div class="settings-section">
     <div class="settings-section-title">🎯 Search Options</div>
-    <div class="settings-row" style="margin-bottom:0.6rem;">
-      <label>Show 🧲 Search button on titles</label>
-      <button class="addon-toggle" id="scraper-search-toggle" onclick="toggleSettingBool('scraperSearchEnabled','scraper-search-toggle')"></button>
-    </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:-0.3rem 0 0.5rem;">Off hides Search everywhere — only the ⚡ Stream button shows.</p>
-
     <div class="quick-filter-row">
       <label>🌱 Min seeders</label>
       <input type="number" id="sf-min-seeds" class="settings-number-input" min="0" max="9999" value="0" onchange="saveSettings()">
@@ -2277,13 +2349,13 @@
 
     <div style="display:flex;flex-direction:column;gap:0.35rem;margin-top:0.5rem;">
       <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);">
-        💡 <strong style="color:#c084fc;">Torrentio</strong> — <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>
+        💡 <strong style="color:var(--purple-light);">Torrentio</strong> — <a href="https://torrentio.strem.fun/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">torrentio.strem.fun/configure</a>
       </p>
       <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);">
-        💡 <strong style="color:#c084fc;">Comet</strong> — <a href="https://comet.feels.legal/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">comet.feels.legal/configure</a>
+        💡 <strong style="color:var(--purple-light);">Comet</strong> — <a href="https://comet.feels.legal/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">comet.feels.legal/configure</a>
       </p>
       <p style="font-size:0.68rem;color:rgba(255,255,255,0.25);">
-        💡 <strong style="color:#c084fc;">MediaFusion</strong> — <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>
+        💡 <strong style="color:var(--purple-light);">MediaFusion</strong> — <a href="https://mediafusion.elfhosted.com/configure" target="_blank" rel="noopener" style="color:var(--accent-green);">mediafusion.elfhosted.com/configure</a>
       </p>
     </div>
   </div>
@@ -2314,12 +2386,6 @@
     <div class="settings-section-title">Region</div>
     <label class="settings-checkbox-label"><input type="checkbox" id="tvg-include-canada" onchange="saveSettings()"> Include Canadian channels & schedule</label>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">Off = US schedule only.</p>
-  </div>
-
-  <div class="settings-section">
-    <div class="settings-section-title">Player Diagnostics</div>
-    <label class="settings-checkbox-label"><input type="checkbox" id="tvg-player-debug" onchange="saveSettings()"> Show playback debug log</label>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;">The log panel under the video player that shows load/error events. Turn off once you're not actively troubleshooting.</p>
   </div>
 
 </div>
@@ -2786,6 +2852,11 @@
     tvGuideExcludedChannels: 'MSNBC, MS NOW, Investigation Discovery, Syndication, Univision, Yes TV, Yes Network',
     tvGuideIncludeCanada: true,
     tvGuidePlayerDebug: true,
+    // Advanced Options
+    episodeLayoutHorizontal: true,  // false = classic vertical episode list
+    cwLandscape: false,             // Continue Watching: landscape cards instead of posters
+    calendarPoster: false,          // Calendar: poster cards instead of landscape
+    themeSwapped: false,            // purple <-> green
     // Location — mode is 'unset' until the person chooses once, then it's
     // remembered and we never call the native geolocation prompt again
     // unless they explicitly hit "Re-detect" in Settings.
@@ -2796,6 +2867,15 @@
   };
 
   let appSettings = { ...DEFAULT_SETTINGS };
+
+  // Live theme colors for canvas drawing (CSS variables don't work inside <canvas>)
+  const THEME_COLORS = { green: '#10b981', purple: '#764ba2' };
+  function applyTheme() {
+    const swapped = !!appSettings.themeSwapped;
+    document.documentElement.setAttribute('data-theme', swapped ? 'swapped' : 'default');
+    THEME_COLORS.green  = swapped ? '#764ba2' : '#10b981';
+    THEME_COLORS.purple = swapped ? '#10b981' : '#764ba2';
+  }
 
   // Manual, explicit re-sync of the Settings screen — no automatic/hidden
   // triggers, just a plain on-demand refresh the person controls themselves.
@@ -2832,6 +2912,11 @@
     set('tvg-excluded-channels', appSettings.tvGuideExcludedChannels || '');
     set('tvg-include-canada',    appSettings.tvGuideIncludeCanada !== false);
     set('tvg-player-debug',      appSettings.tvGuidePlayerDebug !== false);
+    set('adv-ep-layout-toggle',  appSettings.episodeLayoutHorizontal !== false);
+    set('adv-cw-landscape-toggle', !!appSettings.cwLandscape);
+    set('adv-cal-poster-toggle', !!appSettings.calendarPoster);
+    set('adv-theme-swap-toggle', !!appSettings.themeSwapped);
+    applyTheme();
     set('sf-hide-4k',    appSettings.hideQuality4k);
     set('sf-hide-1080p', appSettings.hideQuality1080p);
     set('sf-hide-720p',  appSettings.hideQuality720p);
@@ -2872,6 +2957,13 @@
     saveSettings();
   }
 
+  // Advanced Options switches — flips the setting, saves, and applies anything that should change right away.
+  function toggleAdvancedOption(key, btnId) {
+    toggleSettingBool(key, btnId);
+    if (key === 'themeSwapped') applyTheme();
+    if (key === 'cwLandscape' && typeof loadContinueWatching === 'function') loadContinueWatching();
+  }
+
   function saveSettings() {
     const gb = id => { const el = document.getElementById(id); return el ? (el.type === 'checkbox' ? el.checked : el.value) : null; };
     appSettings = {
@@ -2906,7 +2998,11 @@
       librarySearchEnabled: !!appSettings.librarySearchEnabled,
       tvGuideExcludedChannels: gb('tvg-excluded-channels') || '',
       tvGuideIncludeCanada: !!gb('tvg-include-canada'),
-      tvGuidePlayerDebug: !!gb('tvg-player-debug'),
+      tvGuidePlayerDebug: appSettings.tvGuidePlayerDebug !== false,
+      episodeLayoutHorizontal: appSettings.episodeLayoutHorizontal !== false,
+      cwLandscape:    !!appSettings.cwLandscape,
+      calendarPoster: !!appSettings.calendarPoster,
+      themeSwapped:   !!appSettings.themeSwapped,
       locationMode:  appSettings.locationMode  || 'unset',
       locationLat:   appSettings.locationLat   ?? null,
       locationLon:   appSettings.locationLon   ?? null,
@@ -2997,12 +3093,12 @@
     if (rdBtn) {
       rdBtn.style.background = isRD ? 'var(--accent-purple)' : 'transparent';
       rdBtn.style.color      = isRD ? '#fff' : 'rgba(255,255,255,0.35)';
-      rdBtn.style.boxShadow  = isRD ? '0 2px 8px rgba(118,75,162,0.4)' : 'none';
+      rdBtn.style.boxShadow  = isRD ? '0 2px 8px rgba(var(--purple-rgb),0.4)' : 'none';
     }
     if (tbBtn) {
       tbBtn.style.background = !isRD ? 'var(--accent-green)' : 'transparent';
       tbBtn.style.color      = !isRD ? '#000' : 'rgba(255,255,255,0.35)';
-      tbBtn.style.boxShadow  = !isRD ? '0 2px 8px rgba(16,185,129,0.3)' : 'none';
+      tbBtn.style.boxShadow  = !isRD ? '0 2px 8px rgba(var(--green-rgb),0.3)' : 'none';
     }
     // Close any open panels when switching tabs
     ['rd-magnet-panel','rd-unrestrict-panel','tb-magnet-panel','tb-unrestrict-panel'].forEach(id => {
@@ -3043,12 +3139,12 @@
     if (rdBtn) {
       rdBtn.style.background  = isRD ? 'var(--accent-purple)' : 'transparent';
       rdBtn.style.color       = isRD ? '#fff' : 'rgba(255,255,255,0.35)';
-      rdBtn.style.boxShadow   = isRD ? '0 2px 8px rgba(118,75,162,0.4)' : 'none';
+      rdBtn.style.boxShadow   = isRD ? '0 2px 8px rgba(var(--purple-rgb),0.4)' : 'none';
     }
     if (tbBtn) {
       tbBtn.style.background  = !isRD ? 'var(--accent-green)' : 'transparent';
       tbBtn.style.color       = !isRD ? '#000' : 'rgba(255,255,255,0.35)';
-      tbBtn.style.boxShadow   = !isRD ? '0 2px 8px rgba(16,185,129,0.3)' : 'none';
+      tbBtn.style.boxShadow   = !isRD ? '0 2px 8px rgba(var(--green-rgb),0.3)' : 'none';
     }
 
     // Remember choice
@@ -3206,7 +3302,7 @@
       popup.id = 'tb-account-popup';
       popup.innerHTML = `
         <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
-        <div class="cache-popup-panel" style="border-color:rgba(118,75,162,0.5);max-width:340px;">
+        <div class="cache-popup-panel" style="border-color:rgba(var(--purple-rgb),0.5);max-width:340px;">
           <div class="cache-popup-title" style="font-size:1.1rem;">Torbox</div>
           <div style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.8rem;padding:0.5rem 0;text-align:left;">
             <div><strong>Email:</strong> ${u.email || '—'}</div>
@@ -3221,12 +3317,12 @@
               <strong>Referral Code:</strong>
               <span style="font-size:0.7rem;color:rgba(255,255,255,0.5);word-break:break-all;">${refCode}</span>
               <button onclick="navigator.clipboard.writeText('${refCode}').then(()=>{this.textContent='✅ Copied';setTimeout(()=>this.textContent='📋 Copy Code',1500)})"
-                style="background:rgba(118,75,162,0.2);border:1px solid rgba(118,75,162,0.4);border-radius:6px;color:#c084fc;font-size:0.7rem;padding:0.2rem 0.5rem;cursor:pointer;width:100%;margin-top:0.2rem;">📋 Copy Code</button>
+                style="background:rgba(var(--purple-rgb),0.2);border:1px solid rgba(var(--purple-rgb),0.4);border-radius:6px;color:var(--purple-light);font-size:0.7rem;padding:0.2rem 0.5rem;cursor:pointer;width:100%;margin-top:0.2rem;">📋 Copy Code</button>
             </div>
             <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-top:0.2rem;">
               <strong>Referral Link:</strong>
               <button onclick="navigator.clipboard.writeText('https://torbox.app/subscription?referral=${refCode}').then(()=>{this.textContent='✅ Copied';setTimeout(()=>this.textContent='🔗 Copy Link',1500)})"
-                style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:6px;color:var(--accent-green);font-size:0.7rem;padding:0.2rem 0.5rem;cursor:pointer;width:100%;margin-top:0.2rem;">🔗 Copy Link</button>
+                style="background:rgba(var(--green-rgb),0.1);border:1px solid rgba(var(--green-rgb),0.3);border-radius:6px;color:var(--accent-green);font-size:0.7rem;padding:0.2rem 0.5rem;cursor:pointer;width:100%;margin-top:0.2rem;">🔗 Copy Link</button>
             </div>` : ''}
           </div>
           <div class="cache-popup-buttons">
@@ -3938,7 +4034,7 @@
       allCatalogs.forEach((entry, i) => {
         const btn = document.createElement('button');
         btn.className = 'exclude-preset-chip';
-        btn.style.cssText = 'border-color: rgba(118,75,162,0.4); color: #c084fc; background: rgba(118,75,162,0.08);';
+        btn.style.cssText = 'border-color: rgba(var(--purple-rgb),0.4); color: var(--purple-light); background: rgba(var(--purple-rgb),0.08);';
         const label = entry.catalog.name || entry.catalog.id || 'Unknown';
         const typeIcon = entry.catalog.type === 'movie' ? '🎬' : entry.catalog.type === 'series' ? '📺' : '📦';
         btn.textContent = `${typeIcon} ${label} (${entry.addonName})`;
@@ -3960,8 +4056,8 @@
 
     // Highlight active tab
     document.querySelectorAll('#addon-catalog-tabs button').forEach((b, i) => {
-      b.style.borderColor = i === tabIdx ? 'var(--accent-green)' : 'rgba(118,75,162,0.4)';
-      b.style.color = i === tabIdx ? 'var(--accent-green)' : '#c084fc';
+      b.style.borderColor = i === tabIdx ? 'var(--accent-green)' : 'rgba(var(--purple-rgb),0.4)';
+      b.style.color = i === tabIdx ? 'var(--accent-green)' : 'var(--purple-light)';
     });
 
     try {
@@ -3986,7 +4082,7 @@
 
       metas.forEach((meta, idx) => {
         const card    = document.createElement('div');
-        card.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(118,75,162,0.15);transition:all 0.2s;position:relative;';
+        card.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(var(--purple-rgb),0.15);transition:all 0.2s;position:relative;';
         const name    = meta.name || meta.title || 'Unknown';
         const imdbId  = meta.imdb_id || '';
         const metaId  = meta.id || '';
@@ -3997,7 +4093,7 @@
         const poster = meta.poster || '';
         const imgEl  = poster
           ? `<img src="${poster}" alt="" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;" loading="lazy">`
-          : `<div style="width:100%;aspect-ratio:2/3;background:rgba(118,75,162,0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`;
+          : `<div style="width:100%;aspect-ratio:2/3;background:rgba(var(--purple-rgb),0.15);display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>`;
 
         card.innerHTML = `
           ${imgEl}
@@ -4016,7 +4112,7 @@
         });
         card.onclick = () => { const item = _catalogRegistry.get(regKey); if (item) catalogPlay(item); };
         card.onmouseenter = () => card.style.borderColor = 'var(--accent-green)';
-        card.onmouseleave = () => card.style.borderColor = 'rgba(118,75,162,0.15)';
+        card.onmouseleave = () => card.style.borderColor = 'rgba(var(--purple-rgb),0.15)';
         resultsEl.appendChild(card);
       });
 
@@ -5304,7 +5400,7 @@
     const isRD = urlLow.includes('real-debrid.com') || urlLow.includes('rdrive.');
     const isTB = urlLow.includes('torbox.app') || urlLow.includes('cdn.torbox');
     const service = isRD ? '🟣 Real-Debrid' : isTB ? '🟢 Torbox' : '🌐 Direct';
-    const serviceColor = isRD ? '#c084fc' : isTB ? '#10b981' : '#60a5fa';
+    const serviceColor = isRD ? 'var(--purple-light)' : isTB ? 'var(--accent-green)' : '#60a5fa';
     const name = (filename || url.split('/').pop() || 'file').slice(0, 60);
     document.getElementById('save-confirm-popup')?.remove();
     const popup = document.createElement('div');
@@ -6115,9 +6211,9 @@
       const debridLow = (debridPart || '').toLowerCase();
       const isTBDebrid = debridLow === 'tb' || debridLow.includes('torbox');
       const isRDDebrid = debridLow === 'rd' || debridLow.includes('real-debrid') || debridLow.includes('realdebrid');
-      const debridColor = isTBDebrid ? '#10b981' : isRDDebrid ? '#c084fc' : 'rgba(255,255,255,0.6)';
-      const debridBg = isTBDebrid ? 'rgba(16,185,129,0.12)' : isRDDebrid ? 'rgba(118,75,162,0.12)' : '';
-      const debridBorder = isTBDebrid ? 'rgba(16,185,129,0.4)' : isRDDebrid ? 'rgba(118,75,162,0.4)' : 'rgba(255,255,255,0.2)';
+      const debridColor = isTBDebrid ? 'var(--accent-green)' : isRDDebrid ? 'var(--purple-light)' : 'rgba(255,255,255,0.6)';
+      const debridBg = isTBDebrid ? 'rgba(var(--green-rgb),0.12)' : isRDDebrid ? 'rgba(var(--purple-rgb),0.12)' : '';
+      const debridBorder = isTBDebrid ? 'rgba(var(--green-rgb),0.4)' : isRDDebrid ? 'rgba(var(--purple-rgb),0.4)' : 'rgba(255,255,255,0.2)';
       const badgeHtml = debridPart
         ? `<span style="color:#fff;">${baseName}</span> <span style="color:${debridColor};font-weight:800;">(${debridPart})</span>`
         : sourceLabel;
@@ -6291,7 +6387,7 @@
       display:flex;align-items:center;justify-content:center;padding:1.5rem;`;
     popup.innerHTML = `
       <div style="background:rgba(10,10,30,0.98);border:1.5px solid var(--accent-green);border-radius:16px;
-        padding:1.5rem;max-width:360px;width:100%;text-align:center;box-shadow:0 0 40px rgba(16,185,129,0.2);">
+        padding:1.5rem;max-width:360px;width:100%;text-align:center;box-shadow:0 0 40px rgba(var(--green-rgb),0.2);">
         <div style="font-size:1.8rem;margin-bottom:0.5rem;">🎬</div>
         <div style="font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--accent-green);letter-spacing:1px;margin-bottom:0.3rem;">
           Back from ${appName}
@@ -6853,7 +6949,8 @@
             currentDetailItem.title || currentDetailItem.name || '',
             currentDetailItem.poster_path || null,
             video.currentTime / video.duration,
-            video.duration
+            video.duration,
+            currentDetailItem.backdrop_path || null
           );
         }
       }, 10000);
@@ -8246,7 +8343,7 @@
         <img class="poster" src="${imgUrl}" loading="lazy" alt="">
         <div class="fav-week-info">
           <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;margin-bottom:0.15rem;">
-            <span class="cw-badge" style="background:${show._isToday ? 'rgba(16,185,129,0.92)' : 'rgba(118,75,162,0.88)'};">${dayName}</span>
+            <span class="cw-badge" style="background:${show._isToday ? 'rgba(var(--green-rgb),0.92)' : 'rgba(var(--purple-rgb),0.88)'};">${dayName}</span>
             <span style="font-size:0.6rem;color:var(--accent-green);font-weight:700;">${epLabel}</span>
           </div>
           <div style="font-size:0.55rem;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;">${ep.name || ''}</div>
@@ -8297,12 +8394,14 @@
   }
 
   function buildCalendarCard(ep) {
-    const imgUrl = ep.posterLandscape ? `${TMDB_IMG}${ep.posterLandscape}` : null;
+    const calPoster = !!appSettings.calendarPoster;
+    const calImg = calPoster ? (ep.posterPortrait || ep.posterLandscape) : ep.posterLandscape;
+    const imgUrl = calImg ? `${TMDB_IMG}${calImg}` : null;
     const epLabel = `S${String(ep.season_number).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')}`;
     const isPremiere = ep.episode_number === 1;
     const watched = isEpisodeWatched(ep.showId, ep.season_number, ep.episode_number);
     const el = document.createElement('div');
-    el.className = 'cal-card';
+    el.className = 'cal-card' + (calPoster ? ' poster' : '');
     el.dataset.navKey = navRegStore(ep.show);
     el.innerHTML = `
       <div class="cal-card-img-wrap">
@@ -8412,6 +8511,7 @@
             (dayMap[ep.air_date] ||= []).push({
               show, showId: show.id, showName: show.name || data.name,
               posterLandscape: ep.still_path || data.backdrop_path,
+              posterPortrait: data.poster_path || show.poster_path || null,
               season_number: ep.season_number, episode_number: ep.episode_number,
               episode_name: ep.name, air_date: ep.air_date,
             });
@@ -8558,6 +8658,7 @@
           _totalSeasons: seasons.length,
           name: data.name || data.original_name || show.name || `Show ${show.id}`,
           poster_path: data.poster_path || show.poster_path || null,
+          backdrop_path: data.backdrop_path || null,
         });
       } catch {
         // media_type:'tv' is set explicitly here too — without it, a watched-but-never-
@@ -8584,23 +8685,35 @@
     } else {
       section.style.display = 'block';
       grid.innerHTML = '';
+      const cwLandscape = !!appSettings.cwLandscape;
       for (const item of combined) {
-        const imgUrl = item.poster_path ? `${TMDB_IMG}${item.poster_path}` : null;
+        const cwImgPath = cwLandscape ? (item.backdrop_path || item.poster_path) : item.poster_path;
+        const imgUrl = cwImgPath ? `${TMDB_IMG}${cwImgPath}` : null;
         if (!imgUrl) continue;
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = cwLandscape ? 'cal-card' : 'card';
         if (item._type === 'movie') {
           const pct = (item.duration && item.progress) ? Math.round(item.progress * 100) : null;
           const pctLabel = pct != null ? `${pct}%` : 'In Progress';
           const progressBar = (pct != null)
             ? `<div style="width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:0.2rem;overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--accent-green),var(--accent-purple));border-radius:2px;"></div></div>`
             : '';
-          card.innerHTML = `
+          if (cwLandscape) {
+            card.innerHTML = `
+              <div class="cal-card-img-wrap">
+                <img class="cal-card-img" src="${imgUrl}" loading="lazy" alt="">
+                <div class="cal-card-badges"><span class="cal-badge-type">🎬 ${pctLabel}</span></div>
+              </div>
+              <div class="cal-card-info">
+                <div class="cal-card-title">${item.title || ''}</div>
+                ${progressBar || '<div class="cal-card-meta">Movie</div>'}
+              </div>`;
+          } else card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
             <div class="info">
               <div class="cw-title">${item.title || ''}</div>
               <div style="display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin-top:0.15rem;">
-                <span class="cw-badge" style="background:rgba(16,185,129,0.85);">🎬 ${pctLabel}</span>
+                <span class="cw-badge" style="background:rgba(var(--green-rgb),0.85);">🎬 ${pctLabel}</span>
               </div>
               ${progressBar}
             </div>`;
@@ -8609,7 +8722,16 @@
           const ne = item._nextEp;
           const epLabel = `S${String(ne.season).padStart(2,'0')}E${String(ne.episode).padStart(2,'0')}`;
           card.dataset.navKey = navRegStore(item);
-          card.innerHTML = `
+          if (cwLandscape) card.innerHTML = `
+            <div class="cal-card-img-wrap">
+              <img class="cal-card-img" src="${imgUrl}" loading="lazy" alt="">
+              <div class="cal-card-badges"><span class="cal-badge-type">Next up</span></div>
+            </div>
+            <div class="cal-card-info">
+              <div class="cal-card-title">${item.name || ''}</div>
+              <div class="cal-card-meta">${epLabel}${item._nextEpTitle ? ' · ' + item._nextEpTitle : ''}</div>
+            </div>`;
+          else card.innerHTML = `
             <img class="poster" src="${imgUrl}" loading="lazy" alt="">
             <div class="info">
               <div class="cw-title">${item.name || ''}</div>
@@ -8642,7 +8764,7 @@
             <div class="info">
               <div class="cw-title">${show.name || ''}</div>
               <div style="margin-top:0.2rem;">
-                <span class="cw-badge" style="background:rgba(16,185,129,0.85);">✅ Caught Up</span>
+                <span class="cw-badge" style="background:rgba(var(--green-rgb),0.85);">✅ Caught Up</span>
               </div>
               <div style="font-size:0.5rem;color:rgba(255,255,255,0.3);margin-top:0.15rem;">${show._watchedCount} watched</div>
             </div>`;
@@ -8783,9 +8905,9 @@
      Saves timestamp + duration when movie plays in the RD player.
      Key format: cw_movie_<movieId>  →  { id, title, poster_path, ts, progress, duration }
      ─────────────────────────────────────────────────────────────────── */
-  function saveCWMovie(movieId, title, posterPath, progress, duration) {
+  function saveCWMovie(movieId, title, posterPath, progress, duration, backdropPath) {
     if (!movieId) return;
-    const entry = { id: movieId, title, poster_path: posterPath, ts: Date.now(), progress, duration };
+    const entry = { id: movieId, title, poster_path: posterPath, backdrop_path: backdropPath || null, ts: Date.now(), progress, duration };
     localStorage.setItem(`cw_movie_${movieId}`, JSON.stringify(entry));
   }
 
@@ -8863,8 +8985,8 @@
       <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste a magnet link or torrent URL:</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <input id="rd-magnet-input" type="text" placeholder="magnet:?xt=urn:btih:…"
-          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(118,75,162,0.4);
-                 background:rgba(118,75,162,0.08);color:#fff;font-size:0.78rem;outline:none;">
+          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(var(--purple-rgb),0.4);
+                 background:rgba(var(--purple-rgb),0.08);color:#fff;font-size:0.78rem;outline:none;">
         <button class="settings-btn purple" onclick="rdAddMagnetFromInput()">Add</button>
       </div>
       <div id="rd-magnet-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>`;
@@ -8907,8 +9029,8 @@
       <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste any hoster link (Mega, 1fichier, etc):</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <input id="rd-unrestrict-input" type="text" placeholder="https://1fichier.com/…"
-          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(118,75,162,0.4);
-                 background:rgba(118,75,162,0.08);color:#fff;font-size:0.78rem;outline:none;">
+          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(var(--purple-rgb),0.4);
+                 background:rgba(var(--purple-rgb),0.08);color:#fff;font-size:0.78rem;outline:none;">
         <button class="settings-btn purple" onclick="rdUnrestrictFromInput()">Unrestrict</button>
       </div>
       <div id="rd-unrestrict-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>`;
@@ -8924,7 +9046,7 @@
       const result = await rdFetch('/unrestrict/link', { method: 'POST', body: `link=${encodeURIComponent(link)}` });
       if (!result?.download) throw new Error('No download link returned');
       if (status) status.innerHTML = `✅ Ready: <a href="${result.download}" target="_blank" rel="noopener"
-        style="color:#c084fc;word-break:break-all;">${result.filename || result.download}</a>`;
+        style="color:var(--purple-light);word-break:break-all;">${result.filename || result.download}</a>`;
       showToast('🟣 Link unrestricted!', 'success');
     } catch (e) {
       if (status) status.textContent = `❌ ${e.message}`;
@@ -8939,8 +9061,8 @@
       <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste a magnet link or torrent URL:</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <input id="tb-magnet-input" type="text" placeholder="magnet:?xt=urn:btih:…"
-          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(16,185,129,0.4);
-                 background:rgba(16,185,129,0.08);color:#fff;font-size:0.78rem;outline:none;">
+          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(var(--green-rgb),0.4);
+                 background:rgba(var(--green-rgb),0.08);color:#fff;font-size:0.78rem;outline:none;">
         <button class="settings-btn green" onclick="tbAddMagnetFromInput()">Add</button>
       </div>
       <div id="tb-magnet-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>`;
@@ -9003,8 +9125,8 @@
       <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">Paste any hoster link (Mega, etc):</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <input id="tb-unrestrict-input" type="text" placeholder="https://mega.nz/…"
-          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(16,185,129,0.4);
-                 background:rgba(16,185,129,0.08);color:#fff;font-size:0.78rem;outline:none;">
+          style="flex:1;min-width:0;padding:0.45rem 0.7rem;border-radius:8px;border:1px solid rgba(var(--green-rgb),0.4);
+                 background:rgba(var(--green-rgb),0.08);color:#fff;font-size:0.78rem;outline:none;">
         <button class="settings-btn green" onclick="tbUnrestrictFromInput()">Unrestrict</button>
       </div>
       <div id="tb-unrestrict-status" style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-top:0.4rem;"></div>`;
@@ -9039,7 +9161,7 @@
       popup.id = 'rd-account-popup';
       popup.innerHTML = `
         <div class="cache-popup-backdrop" onclick="this.parentElement.remove()"></div>
-        <div class="cache-popup-panel" style="border-color:rgba(16,185,129,0.4);">
+        <div class="cache-popup-panel" style="border-color:rgba(var(--green-rgb),0.4);">
           <div class="cache-popup-title" style="font-size:1.1rem;">Real-Debrid</div>
           <div style="display:flex;flex-direction:column;gap:0.4rem;font-size:0.8rem;padding:0.5rem 0;">
             <div><strong>Username:</strong> ${user.username || '?'}</div>
@@ -9876,6 +9998,8 @@
           if (!num && num !== 0) { epContainer.innerHTML = ''; if (epControls) epControls.innerHTML = ''; return; }
           epContainer.scrollLeft = 0;
           if (epControls) epControls.innerHTML = '';
+          const horizontal = appSettings.episodeLayoutHorizontal !== false;
+          epContainer.classList.toggle('ep-vertical', !horizontal);
           epContainer.innerHTML = '<p style="flex:0 0 100%;color:rgba(255,255,255,0.4);padding:1rem;text-align:center;">Loading…</p>';
           try {
             const sd = await apiFunc(`/tv/${tvId}/season/${num}`);
@@ -9909,13 +10033,13 @@
                 <div class="episode-details">
                   <div class="episode-number">${epCode} — Episode ${ep.episode_number}${runtimeStr ? ` <span style="color:var(--accent-purple);font-weight:600;">· ${runtimeStr}</span>` : ''}</div>
                   <div class="episode-title">${ep.name||'Untitled'}</div>
-                  <div class="episode-overview clamped">${ep.overview||'No description.'}</div>
+                  <div class="episode-overview${horizontal ? ' clamped' : ''}">${ep.overview||'No description.'}</div>
                   <button class="ep-more-btn" hidden onclick="toggleEpOverview(this)">More</button>
                   <div class="episode-air-date">Aired: ${airDate}</div>
                   <div class="episode-actions">
                     <button class="ep-action-btn play" onclick="openTorrentOverlay('${safe(epSearch)}','${safe(title)} ${epCode}','${safe(currentImdbId||'')}','tv',${num},${ep.episode_number},'streams')">⚡ Stream ${epCode}</button>
                     <button class="ep-action-btn watch ep-watch-btn ${watched?'is-watched':''}" onclick="handleToggleWatched(${tvId},${num},${ep.episode_number})">${watched?'✅ Watched':'👁 Watch'}</button>
-                    ${ep.episode_number !== sd.episodes[0].episode_number ? `<button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">⬅️ Mark prev</button>` : ''}
+                    ${ep.episode_number !== sd.episodes[0].episode_number ? `<button class="ep-action-btn mark" onclick="handleMarkPrevious(${tvId},${num},${ep.episode_number})">${horizontal ? '⬅️' : '⬆'} Mark prev</button>` : ''}
                     <button class="ep-action-btn mark" onclick="handleUnmarkFrom(${tvId},${num},${ep.episode_number})">⬇ Unmark from here</button>
                   </div>
                 </div>`;
@@ -9929,14 +10053,28 @@
             const firstUnwatched = sd.episodes.find(e => !isEpisodeWatched(tvId, num, e.episode_number));
             const targetEpNum = (firstUnwatched && firstUnwatched.episode_number !== sd.episodes[0].episode_number)
               ? firstUnwatched.episode_number : null;
-            requestAnimationFrame(() => {
-              epContainer.scrollLeft = 0;
-              if (targetEpNum) {
-                const targetEl = epContainer.querySelector(`.episode-item[data-episode="${targetEpNum}"]`);
-                if (targetEl) epContainer.scrollTo({ left: targetEl.offsetLeft, behavior: 'auto' });
+            if (horizontal) {
+              requestAnimationFrame(() => {
+                epContainer.scrollLeft = 0;
+                if (targetEpNum) {
+                  const targetEl = epContainer.querySelector(`.episode-item[data-episode="${targetEpNum}"]`);
+                  if (targetEl) epContainer.scrollTo({ left: targetEl.offsetLeft, behavior: 'auto' });
+                }
+                initEpisodeOverviews(epContainer);
+              });
+            } else if (targetEpNum) {
+              // Classic vertical list: scroll the detail view down to the episode.
+              // A short delay + direct scrollTop is more reliable on iOS than scrollIntoView
+              // inside a fixed, blurred overlay, and lets lazy images reserve their space.
+              const targetEl = epContainer.querySelector(`.episode-item[data-episode="${targetEpNum}"]`);
+              const detailView = document.getElementById('detail-view');
+              if (targetEl && detailView) {
+                setTimeout(() => {
+                  const top = targetEl.getBoundingClientRect().top - detailView.getBoundingClientRect().top + detailView.scrollTop - 16;
+                  detailView.scrollTo({ top, behavior: 'smooth' });
+                }, 150);
               }
-              initEpisodeOverviews(epContainer);
-            });
+            }
             updateWatchedCount();
           } catch { epContainer.innerHTML = '<p style="flex:0 0 100%;color:var(--accent-red);padding:1rem;">Failed to load episodes.</p>'; }
         });
@@ -10723,11 +10861,11 @@
           if (!shouldShow) char = ' ';
         }
         if (messageMode) {
-          const colors = ['#10b981','#764ba2','#ffffff'];
+          const colors = [THEME_COLORS.green, THEME_COLORS.purple, '#ffffff'];
           ctx.fillStyle = colors[Math.floor(Math.random()*colors.length)];
           ctx.fillText(char, i*fontSize+(Math.random()-0.5)*4, drops[i]*fontSize+(Math.random()-0.5)*4);
         } else {
-          ctx.fillStyle = i%2===0 ? '#10b981' : '#764ba2';
+          ctx.fillStyle = i%2===0 ? THEME_COLORS.green : THEME_COLORS.purple;
           ctx.fillText(char, i*fontSize, drops[i]*fontSize);
         }
         if (drops[i]*fontSize > canvas.height && Math.random() > 0.975) { drops[i] = Math.random()*-100; if (!messageMode) dropSpeeds[i] = 0.5+Math.random()*1.5; }
