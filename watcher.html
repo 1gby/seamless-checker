@@ -1345,6 +1345,21 @@
     }
     .addon-toggle.on { background: var(--accent-green); }
     .addon-toggle.on::after { transform: translateX(18px); }
+    /* Advanced Options rows: state text next to each switch (On = green, Off = purple) */
+    .adv-row { margin-top: 0.55rem; }
+    .adv-row label { font-weight: 700; color: #fff; }
+    .adv-switch { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .adv-state { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.03em; color: var(--accent-purple); }
+    .adv-state::before { content: 'Off'; }
+    .adv-switch:has(.addon-toggle.on) .adv-state { color: var(--accent-green); }
+    .adv-switch:has(.addon-toggle.on) .adv-state::before { content: 'On'; }
+    .adv-hint { font-size: 0.72rem; line-height: 1.5; color: rgba(255,255,255,0.45); margin: 0.2rem 0 0.8rem; }
+    /* Color words keep their real color even when the theme swap is on */
+    .word-green  { color: #10b981; font-weight: 700; }
+    .word-purple { color: #764ba2; font-weight: 700; }
+    .adv-hint b { color: rgba(255,255,255,0.7); }
+    .adv-hint b.adv-on  { color: var(--accent-green); }
+    .adv-hint b.adv-off { color: var(--accent-purple); }
     .addon-remove {
       width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(239,68,68,0.3);
       background: rgba(239,68,68,0.08); color: var(--accent-red); font-size: 0.8rem;
@@ -1989,47 +2004,48 @@
   <div class="settings-submenu-title">⚙️ Advanced Options</div>
 
   <div class="settings-section">
-    <div class="settings-section-title">🎛️ Layout &amp; Look</div>
-
-    <div class="settings-row">
-      <label>Horizontal episode list</label>
-      <button class="addon-toggle" id="adv-ep-layout-toggle" onclick="toggleAdvancedOption('episodeLayoutHorizontal','adv-ep-layout-toggle')"></button>
+    <div class="settings-section-title">LAYOUT &amp; LOOK</div>
+    <div class="settings-row adv-row">
+      <label>Episode Card Direction</label>
+      <span class="adv-switch"><span class="adv-state"></span><button class="addon-toggle" id="adv-ep-layout-toggle" onclick="toggleAdvancedOption('episodeLayoutHorizontal','adv-ep-layout-toggle')"></button></span>
     </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">On: swipe left/right through episode cards. Off: the classic up/down list. Applies the next time you open a show.</p>
+    <p class="adv-hint"><b class="adv-on">On:</b> Scroll left/right<br><b class="adv-off">Off:</b> Scroll up/down<br>Takes effect the next time you open a show.</p>
 
-    <div class="settings-row">
-      <label>Landscape Continue Watching</label>
-      <button class="addon-toggle" id="adv-cw-landscape-toggle" onclick="toggleAdvancedOption('cwLandscape','adv-cw-landscape-toggle')"></button>
+    <div class="settings-row adv-row">
+      <label>Continue Watching Cards</label>
+      <span class="adv-switch"><span class="adv-state"></span><button class="addon-toggle" id="adv-cw-landscape-toggle" onclick="toggleAdvancedOption('cwLandscape','adv-cw-landscape-toggle')"></button></span>
     </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">On: wide backdrop cards on Home. Off: posters.</p>
+    <p class="adv-hint"><b class="adv-on">On:</b> Landscape<br><b class="adv-off">Off:</b> Poster</p>
 
-    <div class="settings-row">
-      <label>Poster-style Calendar</label>
-      <button class="addon-toggle" id="adv-cal-poster-toggle" onclick="toggleAdvancedOption('calendarPoster','adv-cal-poster-toggle')"></button>
+    <div class="settings-row adv-row">
+      <label>Calendar Card Style</label>
+      <span class="adv-switch"><span class="adv-state"></span><button class="addon-toggle" id="adv-cal-landscape-toggle" onclick="toggleAdvancedOption('calendarLandscape','adv-cal-landscape-toggle')"></button></span>
     </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">On: tall poster cards in the Calendar. Off: wide episode-still cards.</p>
+    <p class="adv-hint"><b class="adv-on">On:</b> Landscape<br><b class="adv-off">Off:</b> Poster</p>
 
-    <div class="settings-row">
-      <label>Swap colors (green ↔ purple)</label>
-      <button class="addon-toggle" id="adv-theme-swap-toggle" onclick="toggleAdvancedOption('themeSwapped','adv-theme-swap-toggle')"></button>
+    <div class="settings-row adv-row">
+      <label>Swap Colors</label>
+      <span class="adv-switch"><span class="adv-state"></span><button class="addon-toggle" id="adv-theme-swap-toggle" onclick="toggleAdvancedOption('themeSwapped','adv-theme-swap-toggle')"></button></span>
     </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">Everywhere the site is purple it turns green, and everywhere it's green it turns purple.</p>
+    <p class="adv-hint">Inverts <span class="word-green">Green</span> and <span class="word-purple">Purple</span> across the entire site.</p>
   </div>
 
   <div class="settings-section">
-    <div class="settings-section-title">🧰 Tools &amp; Diagnostics</div>
-
-    <div class="settings-row">
-      <label>Show playback debug log</label>
-      <button class="addon-toggle" id="tvg-player-debug" onclick="toggleSettingBool('tvGuidePlayerDebug','tvg-player-debug')"></button>
+    <div class="settings-section-title">SCRAPING</div>
+    <div class="settings-row adv-row">
+      <label>Show Search 🧲 Button</label>
+      <span class="adv-switch"><span class="adv-state"></span><button class="addon-toggle" id="scraper-search-toggle" onclick="toggleAdvancedOption('scraperSearchEnabled','scraper-search-toggle')"></button></span>
     </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">The log panel under the TV Guide video player that shows load/error events. Turn off once you're not troubleshooting.</p>
+    <p class="adv-hint">When off it hides the Search 🧲 button &amp; only the ⚡ Stream button remains.</p>
+  </div>
 
-    <div class="settings-row">
-      <label>Show 🧲 Search button on titles</label>
-      <button class="addon-toggle" id="scraper-search-toggle" onclick="toggleSettingBool('scraperSearchEnabled','scraper-search-toggle')"></button>
+  <div class="settings-section">
+    <div class="settings-section-title">TOOLS &amp; DIAGNOSTICS</div>
+    <div class="settings-row adv-row">
+      <label>Show Playback Debug Log</label>
+      <span class="adv-switch"><span class="adv-state"></span><button class="addon-toggle" id="tvg-player-debug" onclick="toggleAdvancedOption('tvGuidePlayerDebug','tvg-player-debug')"></button></span>
     </div>
-    <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.1rem 0 0.7rem;">Off hides Search everywhere — only the ⚡ Stream button shows.</p>
+    <p class="adv-hint">This will show a log panel under the player with load and error events. Turn off when you’re done troubleshooting.</p>
   </div>
 
 </div>
@@ -2855,7 +2871,7 @@
     // Advanced Options
     episodeLayoutHorizontal: true,  // false = classic vertical episode list
     cwLandscape: false,             // Continue Watching: landscape cards instead of posters
-    calendarPoster: false,          // Calendar: poster cards instead of landscape
+    calendarLandscape: true,        // Calendar: on = landscape cards, off = poster cards
     themeSwapped: false,            // purple <-> green
     // Location — mode is 'unset' until the person chooses once, then it's
     // remembered and we never call the native geolocation prompt again
@@ -2888,6 +2904,7 @@
     try {
       const stored = JSON.parse(localStorage.getItem('watcher_settings') || '{}');
       appSettings = { ...DEFAULT_SETTINGS, ...stored };
+      if (stored.calendarLandscape === undefined && stored.calendarPoster === true) appSettings.calendarLandscape = false;
     } catch { appSettings = { ...DEFAULT_SETTINGS }; }
     // Push values into DOM checkboxes / inputs
     const set = (id, val) => {
@@ -2914,7 +2931,7 @@
     set('tvg-player-debug',      appSettings.tvGuidePlayerDebug !== false);
     set('adv-ep-layout-toggle',  appSettings.episodeLayoutHorizontal !== false);
     set('adv-cw-landscape-toggle', !!appSettings.cwLandscape);
-    set('adv-cal-poster-toggle', !!appSettings.calendarPoster);
+    set('adv-cal-landscape-toggle', appSettings.calendarLandscape !== false);
     set('adv-theme-swap-toggle', !!appSettings.themeSwapped);
     applyTheme();
     set('sf-hide-4k',    appSettings.hideQuality4k);
@@ -3001,7 +3018,7 @@
       tvGuidePlayerDebug: appSettings.tvGuidePlayerDebug !== false,
       episodeLayoutHorizontal: appSettings.episodeLayoutHorizontal !== false,
       cwLandscape:    !!appSettings.cwLandscape,
-      calendarPoster: !!appSettings.calendarPoster,
+      calendarLandscape: appSettings.calendarLandscape !== false,
       themeSwapped:   !!appSettings.themeSwapped,
       locationMode:  appSettings.locationMode  || 'unset',
       locationLat:   appSettings.locationLat   ?? null,
@@ -8394,7 +8411,7 @@
   }
 
   function buildCalendarCard(ep) {
-    const calPoster = !!appSettings.calendarPoster;
+    const calPoster = appSettings.calendarLandscape === false;
     const calImg = calPoster ? (ep.posterPortrait || ep.posterLandscape) : ep.posterLandscape;
     const imgUrl = calImg ? `${TMDB_IMG}${calImg}` : null;
     const epLabel = `S${String(ep.season_number).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')}`;
