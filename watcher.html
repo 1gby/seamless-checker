@@ -9709,7 +9709,10 @@
         .filter((item, i, self) => i === self.findIndex(t => t.id === item.id))
         .sort((a, b) => (b.popularity||0) - (a.popularity||0)).slice(0, 10);
 
-      const allHeroImages = [...posters.map(p => ({ path: p.file_path, type: 'poster' })), ...backdrops.map(b => ({ path: b.file_path, type: 'backdrop' }))];
+      // Hero banner is landscape-only: portrait posters get cropped badly by the wide banner.
+      const allHeroImages = backdrops.length
+        ? backdrops.map(b => ({ path: b.file_path, type: 'backdrop' }))
+        : (data.backdrop_path ? [{ path: data.backdrop_path, type: 'backdrop' }] : []);
       const heroImg    = allHeroImages.length > 0 ? allHeroImages[Math.floor(Math.random() * allHeroImages.length)] : null;
       const heroPoster = posters[0]?.file_path || data.poster_path;
 
@@ -9873,7 +9876,10 @@
         .filter((item, i, self) => i === self.findIndex(t => t.id === item.id))
         .sort((a, b) => (b.popularity||0) - (a.popularity||0)).slice(0, 10);
 
-      const allHeroImages = [...posters.map(p => ({ path: p.file_path, type: 'poster' })), ...backdrops.map(b => ({ path: b.file_path, type: 'backdrop' }))];
+      // Hero banner is landscape-only: portrait posters get cropped badly by the wide banner.
+      const allHeroImages = backdrops.length
+        ? backdrops.map(b => ({ path: b.file_path, type: 'backdrop' }))
+        : (data.backdrop_path ? [{ path: data.backdrop_path, type: 'backdrop' }] : []);
       const heroImg    = allHeroImages.length > 0 ? allHeroImages[Math.floor(Math.random() * allHeroImages.length)] : null;
       const heroPoster = posters[0]?.file_path || data.poster_path;
 
