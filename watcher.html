@@ -8570,17 +8570,19 @@
     rewireCards();
     augmentCalendarTimes(cardEntries);
 
-    // Scroll so Today (or the next day that has something airing) is in view —
-    // direct scrollTop calc, not scrollIntoView, since that's unreliable on iOS
-    // inside a fixed/blurred overlay, and the short delay lets lazy images settle.
-    setTimeout(() => {
-      const targetDate = dateKeys.find(d => d >= todayStr) || dateKeys[dateKeys.length - 1];
-      const targetEl = body.querySelector(`[data-cal-date="${targetDate}"]`);
-      if (targetEl) {
-        const top = targetEl.getBoundingClientRect().top - overlay.getBoundingClientRect().top + overlay.scrollTop - 12;
-        overlay.scrollTop = top;
-      }
-    }, 150);
+    // Scroll so Today (or the next day that has something airing) is centered
+// in the overlay viewport.
+setTimeout(() => {
+  const targetDate = dateKeys.find(d => d >= todayStr) || dateKeys[dateKeys.length - 1];
+  const targetEl = body.querySelector(`[data-cal-date="${targetDate}"]`);
+  if (targetEl) {
+    const overlayRect = overlay.getBoundingClientRect();
+    const targetRect  = targetEl.getBoundingClientRect();
+    const top = overlay.scrollTop + (targetRect.top - overlayRect.top)
+                - (overlayRect.height / 2) + (targetRect.height / 2);
+    overlay.scrollTop = Math.max(0, top);
+  }
+}, 150);
   }
 
   // The X button / tapping outside — a real close, nothing to return to
